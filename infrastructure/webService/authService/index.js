@@ -6,20 +6,25 @@ module.exports = class {
     }
     createUser() {
         console.log(
-            'Infrastructure > webService > authService > index.js - createUser : '
+            '요청 > Infrastructure > webService > authService > index.js - createUser : '
         );
         return this.cloudAuth.cognitoService();
     }
     authUser() {
         console.log(
-            'Infrastructure > webService > authService > index.js - authUser : '
+            '요청 > Infrastructure > webService > authService > index.js - authUser : '
         );
     }
-    confirmUser(email) {
+    async confirmUser(email) {
         console.log(
-            'Infrastructure > webService > authService > index.js - confirmUser : ',
+            '요청 > Infrastructure > webService > authService > index.js - confirmUser > email : ',
             email
         );
-        return this.cloudAuth.getUser();
+        let result = await this.cloudAuth.getEmail(email);
+        console.log(
+            '응답 > Infrastructure > webService > authService > index.js - confirmUser > result : ',
+            result
+        );
+        return result;
     }
 };

@@ -5,7 +5,7 @@ const { Auth, Repository, SendMail } = require('../outbound');
 module.exports = {
     async createUser(req, res) {
         console.log(
-            'Adapter > Controller > userController.js - req.body : ',
+            '요청 > Adapter > Controller > userController.js - req.body : ',
             req.body
         );
 
@@ -14,12 +14,12 @@ module.exports = {
         let result = await handler.excute(validData); // Cognito 사용자 풀 인증
 
         console.log(
-            'Adapter > Controller > userController.js - result : ',
+            '요청 > Adapter > Controller > userController.js - result : ',
             result
         );
         res.send({ createUser: result });
     },
-    async getUser(req, res) {
+    getUser(req, res) {
         // console.log('userController: getUser!!', req.body);
         // let inputData = new UserEntity(req.body);
         // let handler = new GetUser(Auth);
@@ -31,13 +31,5 @@ module.exports = {
     },
     deleteUser(req, res) {
         res.send('deleteUser!!');
-    },
-    confirmUser(req, res) {
-        console.log(
-            'Adapter > Controller > userController.js - req.query.email : ',
-            req.query.email
-        );
-        let result = Auth.confirmUser(req.query.email);
-        res.send({ confirmUser: result });
     },
 };

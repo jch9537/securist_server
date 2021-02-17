@@ -5,23 +5,28 @@ module.exports = class {
     }
     createUser(userEntity) {
         console.log(
-            'Adapter > outBound > auth > auth.js - createUser : ',
+            '요청 > Adapter > outBound > auth > auth.js - createUser : ',
             userEntity
         );
         return this.authService.createUser(userEntity);
     }
     getUser(email) {
         console.log(
-            'Adapter > outBound > auth > auth.js - getUser : ',
+            '요청 > Adapter > outBound > auth > auth.js - getUser : ',
             userEntity
         );
         // this.authService.authUser(email);
     }
-    confirmUser(email) {
+    async confirmUser(email) {
         console.log(
-            'Adapter > outBound > auth > auth.js - confirmUser : ',
+            '요청 > Adapter > outBound > auth > auth.js - confirmUser > email : ',
             email
         );
-        return this.authService.confirmUser(email);
+        let result = await this.authService.confirmUser(email);
+        console.log(
+            '응답 > Adapter > outBound > auth > auth.js - confirmUser > result : ',
+            result
+        );
+        return result;
     }
 };
