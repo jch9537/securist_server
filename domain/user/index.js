@@ -3,4 +3,6 @@ module.exports = {
     UserEntity: require('./userEntity'),
     CreateUser: require('./createUser'),
     GetUser: require('./getUser'),
+    DeleteUserByAdmin: require('./deleteUserByAdmin'),
+    SignUp: require('./signUp'),
 };

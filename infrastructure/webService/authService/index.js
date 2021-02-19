@@ -4,11 +4,29 @@ module.exports = class {
     constructor() {
         this.cloudAuth = new Cognito();
     }
-    createUser() {
+    async signUp(userData) {
         console.log(
-            '요청 > Infrastructure > webService > authService > index.js - createUser : '
+            '요청 > Infrastructure > webService > authService > index.js - signUp : ',
+            userData
         );
-        return this.cloudAuth.cognitoService();
+        let result = await this.cloudAuth.signUp(userData);
+        console.log(
+            '응답 > Infrastructure > webService > authService > index.js - signUp > result : ',
+            result
+        );
+        return result;
+    }
+    async createUser(userData) {
+        console.log(
+            '요청 > Infrastructure > webService > authService > index.js - createUser : ',
+            userData
+        );
+        let result = await this.cloudAuth.createUser(userData);
+        console.log(
+            '응답 > Infrastructure > webService > authService > index.js - createUser > result : ',
+            result
+        );
+        return result;
     }
     authUser() {
         console.log(
@@ -23,6 +41,18 @@ module.exports = class {
         let result = await this.cloudAuth.getEmail(email);
         console.log(
             '응답 > Infrastructure > webService > authService > index.js - confirmUser > result : ',
+            result
+        );
+        return result;
+    }
+    async deleteUserByAdmin(id) {
+        console.log(
+            '요청 > Infrastructure > webService > authService > index.js - deleteUserByAdmin > id : ',
+            id
+        );
+        let result = await this.cloudAuth.deleteUserByAdmin(id);
+        console.log(
+            '응답 > Infrastructure > webService > authService > index.js - deleteUserByAdmin > result : ',
             result
         );
         return result;

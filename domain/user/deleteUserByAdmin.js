@@ -3,13 +3,13 @@ module.exports = class {
     constructor(auth) {
         this.auth = auth;
     }
-    excute({ id, email }) {
+    excute({ id }) {
         console.log(
-            '요청 > Domain > UseCase > createUser.js : excute - req.query.email : ',
-            { id, email }
+            '요청 > Domain > UseCase > deleteUserByAdmin.js : excute - req.body : ',
+            id
         );
 
-        let result = this.auth.createUser({ id, email });
+        let result = this.auth.deleteUserByAdmin(id);
         return result;
     }
 };

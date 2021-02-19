@@ -14,10 +14,10 @@ module.exports = {
         let result = await handler.excute(validData); // Cognito 사용자 풀 인증
 
         console.log(
-            '요청 > Adapter > Controller > userController.js - result : ',
+            '응답 > Adapter > Controller > userController.js - result : ',
             result
         );
-        res.send({ createUser: result });
+        res.send({ result: result });
     },
     getUser(req, res) {
         // console.log('userController: getUser!!', req.body);

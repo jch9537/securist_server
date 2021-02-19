@@ -1,6 +1,9 @@
 module.exports = class {
     constructor() {}
-    sesSendEmail() {
-        console.log('infrastructure : SESSendEmail!!');
+    sesSendCode() {
+        console.log('infrastructure : SesSendCode!!');
+    }
+    sesSendLink() {
+        console.log('infrastructure : SesSendLink!!');
     }
 };

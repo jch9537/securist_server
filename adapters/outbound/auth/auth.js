@@ -3,6 +3,13 @@ module.exports = class {
     constructor(authService) {
         this.authService = authService;
     }
+    signUp(userEntity) {
+        console.log(
+            '요청 > Adapter > outBound > auth > auth.js - signUp : ',
+            userEntity
+        );
+        return this.authService.signUp(userEntity);
+    }
     createUser(userEntity) {
         console.log(
             '요청 > Adapter > outBound > auth > auth.js - createUser : ',
@@ -25,6 +32,18 @@ module.exports = class {
         let result = await this.authService.confirmUser(email);
         console.log(
             '응답 > Adapter > outBound > auth > auth.js - confirmUser > result : ',
+            result
+        );
+        return result;
+    }
+    async deleteUserByAdmin(id) {
+        console.log(
+            '요청 > Adapter > outBound > auth > auth.js - deleteUserByAdmin > id : ',
+            id
+        );
+        let result = await this.authService.deleteUserByAdmin(id);
+        console.log(
+            '응답 > Adapter > outBound > auth > auth.js - deleteUserByAdmin > result : ',
             result
         );
         return result;
