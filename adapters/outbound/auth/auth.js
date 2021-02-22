@@ -12,10 +12,15 @@ module.exports = class {
     }
     createUser(userEntity) {
         console.log(
-            '요청 > Adapter > outBound > auth > auth.js - createUser : ',
+            '요청 > Adapter > outBound > auth > auth.js > createUser - userEntity : ',
             userEntity
         );
-        return this.authService.createUser(userEntity);
+        let result = this.authService.createUser(userEntity);
+        console.log(
+            '응답 > Adapter > outBound > auth > auth.js > createUser - result: ',
+            result
+        );
+        return result;
     }
     getUser(email) {
         console.log(

@@ -4,7 +4,9 @@ const dotenv = require('dotenv').config({
     path: path.join(__dirname, '../../.env'),
 });
 // const dotenv = require('dotenv').config();
+// const socket.io = require('socket.io')
 const express = require('express');
+const http = require('http');
 
 const routes = require('./routes');
 
@@ -17,6 +19,8 @@ app.use(routes);
 app.get('/', (req, res) => {
     res.send('Hello Securist');
 });
+const server = http.createServer(app);
+//socket 서버 추가
 
 app.listen(port, () =>
     console.log(`Securist App listen http://localhost:${port}`)

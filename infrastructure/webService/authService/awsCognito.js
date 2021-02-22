@@ -1,5 +1,7 @@
+//TODO - userEntity를 넘겨주기 122번째 줄
 //개별 클라우드 인증서비스의 실행클래스 - cognito
 const AWS = require('../aws');
+const { UserEntity } = require('../../../domain/user/index');
 module.exports = class {
     constructor() {
         this.cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider();
@@ -61,7 +63,7 @@ module.exports = class {
         });
     }
     //관리자 회원 가입
-    createUser(userData) {
+    async createUser(userData) {
         console.log(
             '요청 > Infrastructure > webService > authService > awsCognito.js > createUser : '
         );
@@ -95,28 +97,34 @@ module.exports = class {
             // ],
             // 사용자지정 유효성검사 속성
         };
-        return new Promise((resolve, reject) => {
+        let cognitoUser = new Promise((resolve, reject) => {
             this.cognitoidentityserviceprovider.adminCreateUser(
                 params,
                 function (err, data) {
                     if (err) {
-                        // console.log(
-                        //     '에러 응답 > Infrastructure > webService > authService > awsCognito.js > createUser : ',
-                        //     err
-                        // );
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > createUser : ',
+                            err
+                        );
                         reject(err);
                     }
                     // an error occurred
                     else {
-                        // console.log(
-                        //     '응답 > Infrastructure > webService > authService > awsCognito.js > createUser : ',
-                        //     data
-                        // );
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > createUser : ',
+                            data
+                        );
                         resolve(data);
                     }
                 }
             );
         });
+        let responseUserData = await cognitoUser;
+        let userResData = {
+            id: responseUserData.User.Username,
+        };
+        let userEntity = new UserEntity(userResData);
+        return userEntity;
     }
     getUser() {
         console.log(
