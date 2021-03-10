@@ -1,6 +1,17 @@
 // TODO - setter, getter 따로 만들기, validation
 'use strict';
 
+const {
+    validateId,
+    validateEmail,
+    validatePassword,
+    validateName,
+    validatePhoneNum,
+    validateUserType,
+    validateUserState,
+    validateLogInFailure,
+} = require('./utils/validateUserInfo');
+
 module.exports = class {
     constructor({
         id,
@@ -8,70 +19,121 @@ module.exports = class {
         password,
         phone_num,
         name,
-        create_at,
         user_type,
         user_state,
         login_failure_cnt,
+        create_at,
     }) {
-        this._id = id;
-        this._email = email;
-        // this._password = this.verifyPassword(password);
-        // this._phone_num = this.verifyPhoneNum(phone_num);
-        // this._name = this.verifyName(name);
-        // this._create_at = this.verifyCreateAt(create_at);
-        // this._user_type = this.verifyUserType(user_type);
-        // this._user_state = this.verifyUserState(user_state);
-        // this._login_failure_cnt = this.verifyLoginFailureCount(
-        //     login_failure_cnt
-        // );
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.phone_num = phone_num;
+        this.user_type = user_type;
+        this.user_state = user_state;
+        this.login_failure_cnt = login_failure_cnt;
+        // this.create_at = created_at
     }
+
+    // id
     get id() {
         return this._id;
     }
-    // id 유효성 검사
     set id(id) {
-        this._id = id + 'aaa';
+        if (validateId(id)) {
+            this._id = id;
+        } else {
+            this._id = '에러';
+            // throw exceptions;
+        }
     }
-    // set id(id) {
-    //     let reg_id = /^[a-zA-z0-9]{4,12}$/;
-    //     return reg_id.test(id) ? id : null;
-    // }
+    // email
     get email() {
         return this._email;
     }
-    // email 유효성 검사
     set email(email) {
-        let reg_email = /([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
-        return email !== '' && email !== undefined && reg_email.test(email)
-            ? email
-            : undefined;
+        if (validateEmail(email)) {
+            this._email = email;
+        } else {
+            this._email = '에러';
+            // throw exceptions;
+        }
     }
-    // verifyId(userData) {
-    //     let reg_id = /^[a-zA-z0-9]{4,12}$/;
-    //     return reg_id.test(userData.id) ? userData.id : undefined;
-    // }
-    // verifyEmail(userData) {
-    //     let reg_email = /([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
-    //     return userData.email !== '' &&
-    //         userData.email !== undefined &&
-    //         reg_email.test(userData.email)
-    //         ? userData.email
-    //         : undefined;
-    // }
-    //     verifyPassword(userData) {
-    //         let reg_pwd = /^.*(?=.{6,20})(?=.*[0-9])(?=.*[a-zA-Z]).*$/;
-    //         return reg_pwd.test(userData.password);
-    //     }
-    //     verifyPhoneNum(userData) {
-    //         var reg_phone = /^(01[016789]{1}|02|0[3-9]{1}[0-9]{1})-?[0-9]{3,4}-?[0-9]{4}$/;
-    //         return reg_phone.test(userData.phone_num);
-    //     }
-    //     verifyName(userData) {
-    //         let reg_name = /^[가-힣]{2,15}$/;
-    //         return reg_name.test(userData.name);
-    //     }
-    //     verifyCreateAt(userData) {}
-    //     verifyUserType(userData) {}
-    //     verifyUserState(userData) {}
-    //     verifyLoginFailureCount(userData) {}
+    // password
+    get password() {
+        return this._password;
+    }
+    set password(password) {
+        if (validatePassword(password)) {
+            this._password = password;
+        } else {
+            this._password = '에러';
+            // throw exceptions
+        }
+    }
+
+    // name
+    get name() {
+        return this._name;
+    }
+    set name(name) {
+        if (validateName(name)) {
+            this._name = name;
+        } else {
+            this._name = '에러';
+            // throw exceptions
+        }
+    }
+
+    get phone_num() {
+        return this._phone_num;
+    }
+    // phone_num 유효성 검사
+    set phone_num(phone_num) {
+        if (validatePhoneNum(phone_num)) {
+            this._phone_num = phone_num;
+        } else {
+            this._phone_num = '에러';
+            // throw exceptions
+        }
+    }
+
+    // 사용자 타입
+    get user_type() {
+        return this._user_type;
+    }
+    set user_type(user_type) {
+        if (validateUserType(user_type)) {
+            this._user_type = user_type;
+        } else {
+            this._user_type = '에러';
+            // throw exceptions
+        }
+    }
+
+    get user_state() {
+        return this._user_state;
+    }
+    // 사용자 상태
+    set user_state(user_state) {
+        if (validateUserState(user_state)) {
+            this._user_state = user_state;
+        } else {
+            this._user_state = '에러';
+            // throw exceptions
+        }
+    }
+    // 로그인 실패 횟수
+    get login_failure_cnt() {
+        return this._login_failure_cnt;
+    }
+    set login_failure_cnt(login_failure_cnt) {
+        if (validateLogInFailure(login_failure_cnt)) {
+            this._login_failure_cnt = login_failure_cnt;
+        } else {
+            this._login_failure_cnt = '에러';
+            // throw exceptions
+        }
+    }
+    // verifyCreateAt(userData) {}
 };
