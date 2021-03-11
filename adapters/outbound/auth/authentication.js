@@ -15,18 +15,18 @@ module.exports = class {
         );
         return result;
     }
-    // signUp(userEntity) {
-    //     console.log(
-    //         '요청 > Adapter > outBound > auth > auth.js - signUp : ',
-    //         userEntity
-    //     );
-    //     let result = this.authService.signUp(userEntity);
-    //     console.log(
-    //         '응답 > Adapter > outBound > auth > auth.js - signUp > result : ',
-    //         result
-    //     );
-    //     return result;
-    // }
+    async signUp(userEntity) {
+        console.log(
+            '요청 > Adapter > outBound > auth > auth.js - signUp : ',
+            userEntity
+        );
+        let result = await this.authService.signUp(userEntity);
+        console.log(
+            '응답 > Adapter > outBound > auth > auth.js - signUp > result : ',
+            result
+        );
+        return result;
+    }
     // logIn(userEntity) {
     //     console.log(
     //         '요청 > Adapter > outBound > auth > auth.js - logIn : ',
@@ -71,16 +71,16 @@ module.exports = class {
     //     );
     //     return result;
     // }
-    // async deleteUserByAdmin(id) {
-    //     console.log(
-    //         '요청 > Adapter > outBound > auth > auth.js - deleteUserByAdmin > id : ',
-    //         id
-    //     );
-    //     let result = await this.authService.deleteUserByAdmin(id);
-    //     console.log(
-    //         '응답 > Adapter > outBound > auth > auth.js - deleteUserByAdmin > result : ',
-    //         result
-    //     );
-    //     return result;
-    // }
+    async deleteUserByAdmin(id) {
+        console.log(
+            '요청 > Adapter > outBound > auth > auth.js - deleteUserByAdmin > id : ',
+            id
+        );
+        let result = await this.authService.deleteUserByAdmin(id);
+        console.log(
+            '응답 > Adapter > outBound > auth > auth.js - deleteUserByAdmin > result : ',
+            result
+        );
+        return result;
+    }
 };

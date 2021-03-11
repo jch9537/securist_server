@@ -6,7 +6,10 @@ const {
     CheckDuplicateId,
     CheckDuplicateEmail,
 } = require('../../domain/user');
-const { signUp } = require('../outbound/auth');
+const { signUp, checkDuplicateEmail } = require('../outbound/auth');
+
+const awsCognito = require('../../infrastructure/webService/authService/awsCognito');
+const user = require('../../domain/user');
 
 module.exports = {
     //Email 중복체크
@@ -21,27 +24,34 @@ module.exports = {
                 '응답 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - email : ',
                 result
             );
-            if (result.Users.length) return '이미 가입된 email입니다.';
-            return '사용가능한 email입니다.';
+            return result;
         } catch (err) {
             return err;
         }
     },
     // 회원가입
-    // async signUp(userParam) {
-    //     try {
-    //         let result;
-    //         let handler = new SignUp(Auth);
-    //         let signUpResult = await handler.excute(userParam);
-    //         if (signUpResult.User.email) {
-    //             result = this.sendConfirmMail(signUpResult.User.email);
-    //         }
-    //         return result;
-    //     } catch (err) {
-    //         return err;
-    //     }
-    // },
-    // 회원가입 확인 메일 발송
+    async signUp(userParam) {
+        try {
+            let result;
+            // 기가입자 확인
+            duplicatedUser = await this.checkDuplicateEmail(userParam.email);
+            if (!duplicatedUser) {
+                let signUp = new SignUp(Auth);
+                // 회원가입 > 자동 메일발송
+                result = await signUp.excute(userParam); //client에서 작성된 정보만 받음
+                console.log(
+                    '응답 > adapters > inbound > authAdaptor.js > signUp - result : ',
+                    result
+                );
+                return result ? true : false;
+            } else {
+                return false;
+            }
+        } catch (err) {
+            return err;
+        }
+    },
+    // // 회원가입 확인 메일 발송 - 필요없음
     // async sendConfirmMail(email) {
     //     try {
     //         let sendMailresult = await SendMail.sendConfirmMail(email);
@@ -52,4 +62,17 @@ module.exports = {
     // },
     // // 로그인
     // async signUp(userParam) {},
+
+    // 회원삭제
+
+    async deleteUser(userParam) {
+        try {
+            var test = new awsCognito();
+            let result = await test.deleteUserByAdmin(userParam.id);
+
+            return result;
+        } catch (err) {
+            return err;
+        }
+    },
 };

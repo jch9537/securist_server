@@ -2,50 +2,31 @@
 'use strict';
 
 const {
-    validateId,
     validateEmail,
     validatePassword,
     validateName,
-    validatePhoneNum,
     validateUserType,
     validateUserState,
-    validateLogInFailure,
+    validateLogInFailCount,
 } = require('./utils/validateUserInfo');
 
 module.exports = class {
     constructor({
-        id,
         email,
         password,
-        phone_num,
         name,
-        user_type,
-        user_state,
-        login_failure_cnt,
-        create_at,
+        userType,
+        // userState,
+        // logInFailCount,
+        // create_at,
     }) {
-        this.id = id;
         this.email = email;
         this.password = password;
         this.name = name;
-        this.phone_num = phone_num;
-        this.user_type = user_type;
-        this.user_state = user_state;
-        this.login_failure_cnt = login_failure_cnt;
+        this.userType = userType;
+        // this.userState = userState;
+        // this.logInFailCount = logInFailCount;
         // this.create_at = created_at
-    }
-
-    // id
-    get id() {
-        return this._id;
-    }
-    set id(id) {
-        if (validateId(id)) {
-            this._id = id;
-        } else {
-            this._id = '에러';
-            // throw exceptions;
-        }
     }
     // email
     get email() {
@@ -71,7 +52,6 @@ module.exports = class {
             // throw exceptions
         }
     }
-
     // name
     get name() {
         return this._name;
@@ -84,56 +64,31 @@ module.exports = class {
             // throw exceptions
         }
     }
-
-    get phone_num() {
-        return this._phone_num;
+    // userType
+    get userType() {
+        return this._userType;
     }
-    // phone_num 유효성 검사
-    set phone_num(phone_num) {
-        if (validatePhoneNum(phone_num)) {
-            this._phone_num = phone_num;
-        } else {
-            this._phone_num = '에러';
-            // throw exceptions
-        }
+    set userType(userType) {
+        this._userType = userType;
     }
-
-    // 사용자 타입
-    get user_type() {
-        return this._user_type;
-    }
-    set user_type(user_type) {
-        if (validateUserType(user_type)) {
-            this._user_type = user_type;
-        } else {
-            this._user_type = '에러';
-            // throw exceptions
-        }
-    }
-
-    get user_state() {
-        return this._user_state;
-    }
-    // 사용자 상태
-    set user_state(user_state) {
-        if (validateUserState(user_state)) {
-            this._user_state = user_state;
-        } else {
-            this._user_state = '에러';
-            // throw exceptions
-        }
-    }
-    // 로그인 실패 횟수
-    get login_failure_cnt() {
-        return this._login_failure_cnt;
-    }
-    set login_failure_cnt(login_failure_cnt) {
-        if (validateLogInFailure(login_failure_cnt)) {
-            this._login_failure_cnt = login_failure_cnt;
-        } else {
-            this._login_failure_cnt = '에러';
-            // throw exceptions
-        }
-    }
-    // verifyCreateAt(userData) {}
+    // //userState
+    // get userState() {
+    //     return this._userState;
+    // }
+    // set userState(userState) {
+    //     this._userState = userState;
+    // }
+    // // 로그인 실패 횟수
+    // get logInFailCount() {
+    //     return this._logInFailCount;
+    // }
+    // set logInFailCount(logInFailCount) {
+    //     if (validateLogInFailCount(logInFailCount)) {
+    //         this._logInFailCount = logInFailCount;
+    //     } else {
+    //         this._logInFailCount = '에러';
+    //         // throw exceptions
+    //     }
+    // }
+    // // verifyCreateAt(userData) {}
 };

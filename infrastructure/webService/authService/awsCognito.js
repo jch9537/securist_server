@@ -13,13 +13,14 @@ module.exports = class {
             email
         );
         var params = {
-            UserPoolId: 'ap-northeast-2_fAPj3n0rM' /* required */,
-            // AttributesToGet: [
-            //     'email',
-            //     /* more items */
-            // ],
+            UserPoolId: 'ap-northeast-2_5MrwZlTbH' /* required */,
+            AttributesToGet: [
+                'email',
+                // 'name',
+                /* more items */
+            ],
             Filter: `email = "${email}"`,
-            Limit: 1,
+            // Limit: 1,
             // PaginationToken: 'STRING_VALUE',
         };
         let result = new Promise((resolve, reject) => {
@@ -32,70 +33,108 @@ module.exports = class {
                     }
                     // an error occurred
                     else {
-                        console.log('cognito Username : ', data);
-                        resolve(data);
-                    } // successful response   data.Users[0].Attributes[0]
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > checkDuplicateEmail : ',
+                            data
+                        );
+                        let duplicatedUser = data.Users.length ? true : false;
+                        resolve(duplicatedUser);
+                    } // successful response
                 }
             );
         });
         return result;
     }
-    // // 사용자 회원 가입
-    // signup(userData) {
-    //     console.log(
-    //         '요청 > Infrastructure > webService > authService > awsCognito.js > signup : '
-    //     );
-    //     let params = {
-    //         ClientId: process.env.AWS_APP_CLIENT_ID /* required */,
-    //         Password: userData.password /* required */,
-    //         Username: userData.id /* required */,
-    //         // AnalyticsMetadata: {
-    //         //     AnalyticsEndpointId: 'STRING_VALUE',
-    //         // },
-    //         // ClientMetadata: {
-    //         //     '<StringType>': 'STRING_VALUE',
-    //         //     /* '<StringType>': ... */
-    //         // },
-    //         // SecretHash: 'STRING_VALUE',
-    //         UserAttributes: [
-    //             {
-    //                 Name: 'email' /* required */,
-    //                 Value: userData.email,
-    //             },
-    //             /* more items */
-    //         ],
-    //         // UserContextData: {
-    //         //     EncodedData: 'STRING_VALUE',
-    //         // },
-    //         ValidationData: [
-    //             {
-    //                 Name: 'email' /* required */,
-    //                 Value: userData.email,
-    //             },
-    //             /* more items */
-    //         ],
-    //     };
-    //     let result = new Promise((resolve, reject) => {
-    //         this.cognitoidentityserviceprovider.signUp(
-    //             params,
-    //             function (err, data) {
-    //                 if (err) {
-    //                     console.log(
-    //                         '에러 응답 > Infrastructure > webService > authService > awsCognito.js > signup : ',
-    //                         err
-    //                     );
-    //                     reject(err);
-    //                 } else {
-    //                     console.log(
-    //                         '응답 > Infrastructure > webService > authService > awsCognito.js > signup : ',
-    //                         data
-    //                     );
-    //                     resolve(data);
-    //                 }
-    //             }
-    //         );
-    //     });
-    // }
+    // 사용자 회원 가입
+    signUp(userData) {
+        console.log(
+            '요청 > Infrastructure > webService > authService > awsCognito.js > signup : ',
+            userData
+        );
+        let params = {
+            ClientId: '3r8dg08q6smfehvs10ckl7c227' /* required */,
+            // ClientId: process.env.AWS_APP_CLIENT_ID /* required */,
+            Password: userData.password /* required */,
+            Username: userData.email /* required */,
+            // AnalyticsMetadata: {
+            //     AnalyticsEndpointId: 'STRING_VALUE',
+            // },
+            // ClientMetadata: {
+            //     '<StringType>': 'STRING_VALUE',
+            //     /* '<StringType>': ... */
+            // },
+            // SecretHash: 'STRING_VALUE',
+            UserAttributes: [
+                {
+                    Name: 'email' /* required */,
+                    Value: userData.email,
+                },
+                {
+                    Name: 'name' /* required */,
+                    Value: userData.name,
+                },
+                {
+                    Name: 'custom:logInFailCount' /* required */, // 로그인 실패횟수
+                    Value: '0',
+                },
+                {
+                    Name: 'custom:userType' /* required */,
+                    Value: userData.userType,
+                },
+                {
+                    Name: 'custom:passwordUpdatedAt' /* required */, // 비밀번호변경시간
+                    Value: `${new Date()}`,
+                },
+                // 아래 세개의 경우 계정이 존재하면 기본적으로 cognito 응답 Users배열 내
+                // Enabled / UserCreateDate / UserLastModifiedDate가 있어서 필요없음
+                // {
+                //     Name: 'custom:login_lock_state' /* required */, // 로그인 잠금상태
+                //     Value: false,
+                // },
+                // {
+                //     Name: 'updated at' /* required */, // 정보변경시간
+                //     Value: new Date(),
+                // },
+                // {
+                //     Name: 'custom:created_at' /* required */, // 회원가입날짜시간(변경불가)
+                //     Value: new Date(),
+                // },
+
+                /* more items */
+            ],
+            // UserContextData: {
+            //     EncodedData: 'STRING_VALUE',
+            // },
+            ValidationData: [
+                {
+                    Name: 'email' /* required */,
+                    Value: userData.email,
+                },
+                /* more items */
+            ],
+        };
+        let result = new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.signUp(
+                params,
+                function (err, data) {
+                    if (err) {
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > signup : ',
+                            err
+                        );
+                        reject(err);
+                    } else {
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > signup : ',
+                            data
+                        );
+                        resolve(data);
+                    }
+                }
+            );
+        });
+        return result;
+    }
     // //관리자 회원 가입
     // async createUser(userData) {
     //     console.log(
@@ -189,30 +228,30 @@ module.exports = class {
     //         );
     //     });
     // }
-    // deleteUserByAdmin(id) {
-    //     let params = {
-    //         UserPoolId: process.env.AWS_COGNITO_USERPOOL_ID /* required */,
-    //         Username: id /* required */,
-    //     };
-    //     return new Promise((resolve, reject) => {
-    //         this.cognitoidentityserviceprovider.adminDeleteUser(
-    //             params,
-    //             function (err, data) {
-    //                 if (err) {
-    //                     console.log(
-    //                         '에러 응답 > Infrastructure > webService > authService > awsCognito.js > delteUserByAdmin : ',
-    //                         err
-    //                     );
-    //                     reject(err);
-    //                 } else {
-    //                     console.log(
-    //                         '응답 > Infrastructure > webService > authService > awsCognito.js > delteUserByAdmin : ',
-    //                         data
-    //                     );
-    //                     resolve(data);
-    //                 }
-    //             }
-    //         );
-    //     });
-    // }
+    deleteUserByAdmin(id) {
+        let params = {
+            UserPoolId: 'ap-northeast-2_5MrwZlTbH' /* required */,
+            Username: id /* required */,
+        };
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.adminDeleteUser(
+                params,
+                function (err, data) {
+                    if (err) {
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > delteUserByAdmin : ',
+                            err
+                        );
+                        reject(err);
+                    } else {
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > delteUserByAdmin : ',
+                            data
+                        );
+                        resolve(data);
+                    }
+                }
+            );
+        });
+    }
 };
