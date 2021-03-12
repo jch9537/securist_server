@@ -27,18 +27,18 @@ module.exports = class {
         );
         return result;
     }
-    // logIn(userEntity) {
-    //     console.log(
-    //         '요청 > Adapter > outBound > auth > auth.js - logIn : ',
-    //         userEntity
-    //     );
-    //     let result = this.authService.logIn(userEntity);
-    //     console.log(
-    //         '응답 > Adapter > outBound > auth > auth.js - logIn : ',
-    //         result
-    //     );
-    //     return result;
-    // }
+    async logIn(userEntity) {
+        console.log(
+            '요청 > Adapter > outBound > auth > auth.js - logIn : ',
+            userEntity
+        );
+        let result = await this.authService.logIn(userEntity);
+        console.log(
+            '응답 > Adapter > outBound > auth > auth.js - logIn : ',
+            result
+        );
+        return result;
+    }
     // createUser(userEntity) {
     //     console.log(
     //         '요청 > Adapter > outBound > auth > auth.js > createUser - userEntity : ',

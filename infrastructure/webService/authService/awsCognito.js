@@ -13,11 +13,10 @@ module.exports = class {
             email
         );
         var params = {
-            UserPoolId: 'ap-northeast-2_5MrwZlTbH' /* required */,
+            UserPoolId: process.env.AWS_COGNITO_USERPOOL_ID /* required */,
             AttributesToGet: [
                 'email',
-                // 'name',
-                /* more items */
+                // 'name',      /* more items */
             ],
             Filter: `email = "${email}"`,
             // Limit: 1,
@@ -52,37 +51,34 @@ module.exports = class {
             userData
         );
         let params = {
-            ClientId: '3r8dg08q6smfehvs10ckl7c227' /* required */,
-            // ClientId: process.env.AWS_APP_CLIENT_ID /* required */,
+            ClientId: process.env.AWS_APP_CLIENT_ID /* required */,
             Password: userData.password /* required */,
             Username: userData.email /* required */,
-            // AnalyticsMetadata: {
-            //     AnalyticsEndpointId: 'STRING_VALUE',
-            // },
-            // ClientMetadata: {
-            //     '<StringType>': 'STRING_VALUE',
-            //     /* '<StringType>': ... */
-            // },
-            // SecretHash: 'STRING_VALUE',
+            ValidationData: [
+                {
+                    Name: 'email' /* required */,
+                    Value: userData.email,
+                },
+            ],
             UserAttributes: [
                 {
                     Name: 'email' /* required */,
                     Value: userData.email,
                 },
                 {
-                    Name: 'name' /* required */,
+                    Name: 'name',
                     Value: userData.name,
                 },
                 {
-                    Name: 'custom:logInFailCount' /* required */, // 로그인 실패횟수
+                    Name: 'custom:logInFailCount', // 로그인 실패횟수
                     Value: '0',
                 },
                 {
-                    Name: 'custom:userType' /* required */,
+                    Name: 'custom:userType',
                     Value: userData.userType,
                 },
                 {
-                    Name: 'custom:passwordUpdatedAt' /* required */, // 비밀번호변경시간
+                    Name: 'custom:passwordUpdatedAt', // 비밀번호변경시간
                     Value: `${new Date()}`,
                 },
                 // 아래 세개의 경우 계정이 존재하면 기본적으로 cognito 응답 Users배열 내
@@ -101,15 +97,17 @@ module.exports = class {
                 // },
 
                 /* more items */
-            ],
-            // UserContextData: {
-            //     EncodedData: 'STRING_VALUE',
-            // },
-            ValidationData: [
-                {
-                    Name: 'email' /* required */,
-                    Value: userData.email,
-                },
+                // AnalyticsMetadata: {
+                //     AnalyticsEndpointId: 'STRING_VALUE',
+                // },
+                // ClientMetadata: {
+                //     '<StringType>': 'STRING_VALUE',
+                //     /* '<StringType>': ... */
+                // },
+                // SecretHash: 'STRING_VALUE',
+                // UserContextData: {
+                //     EncodedData: 'STRING_VALUE',
+                // },
                 /* more items */
             ],
         };
@@ -135,6 +133,55 @@ module.exports = class {
         });
         return result;
     }
+    logIn(userData) {
+        let params = {
+            AuthFlow: 'USER_PASSWORD_AUTH',
+            // USER_SRP_AUTH |
+            // REFRESH_TOKEN_AUTH |
+            // REFRESH_TOKEN |
+            // CUSTOM_AUTH |
+            // ADMIN_NO_SRP_AUTH |
+            // ADMIN_USER_PASSWORD_AUTH /* required */,
+            ClientId: process.env.AWS_APP_CLIENT_ID /* required */,
+            // AuthParameters: {
+            //     '<StringType>': 'STRING_VALUE',
+            //     /* '<StringType>': ... */
+            // },
+            // AnalyticsMetadata: {
+            //     AnalyticsEndpointId: 'STRING_VALUE',
+            // },
+            // ClientMetadata: {
+            //     '<StringType>': 'STRING_VALUE',
+            //     /* '<StringType>': ... */
+            // },
+            // UserContextData: {
+            //     EncodedData: 'STRING_VALUE',
+            // },
+        };
+        return new Promise((resolve, reject) => {
+            cognitoidentityserviceprovider.initiateAuth(
+                params,
+                function (err, data) {
+                    if (err) {
+                        // an error occurred
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > signup : ',
+                            err
+                        );
+                        reject(err);
+                    } else {
+                        // successful response
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > signup : ',
+                            data
+                        );
+                        resolve(data);
+                    }
+                }
+            );
+        });
+    }
+
     // //관리자 회원 가입
     // async createUser(userData) {
     //     console.log(
@@ -228,6 +275,8 @@ module.exports = class {
     //         );
     //     });
     // }
+
+    // 관리자 회원 삭제
     deleteUserByAdmin(id) {
         let params = {
             UserPoolId: 'ap-northeast-2_5MrwZlTbH' /* required */,
