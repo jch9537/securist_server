@@ -134,6 +134,10 @@ module.exports = class {
         return result;
     }
     logIn(userData) {
+        console.log(
+            '요청 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
+            userData
+        );
         let params = {
             AuthFlow: 'USER_PASSWORD_AUTH',
             // USER_SRP_AUTH |
@@ -143,10 +147,11 @@ module.exports = class {
             // ADMIN_NO_SRP_AUTH |
             // ADMIN_USER_PASSWORD_AUTH /* required */,
             ClientId: process.env.AWS_APP_CLIENT_ID /* required */,
-            // AuthParameters: {
-            //     '<StringType>': 'STRING_VALUE',
-            //     /* '<StringType>': ... */
-            // },
+            AuthParameters: {
+                USERNAME: `${userData.email}`,
+                PASSWORD: `${userData.password}`,
+                /* '<StringType>': ... */
+            },
             // AnalyticsMetadata: {
             //     AnalyticsEndpointId: 'STRING_VALUE',
             // },
@@ -159,20 +164,51 @@ module.exports = class {
             // },
         };
         return new Promise((resolve, reject) => {
-            cognitoidentityserviceprovider.initiateAuth(
+            this.cognitoidentityserviceprovider.initiateAuth(
                 params,
                 function (err, data) {
                     if (err) {
                         // an error occurred
                         console.log(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > signup : ',
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
                             err
                         );
                         reject(err);
                     } else {
                         // successful response
                         console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > signup : ',
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
+                            data
+                        );
+                        resolve(data);
+                    }
+                }
+            );
+        });
+    }
+    logOut(token) {
+        console.log(
+            '요청 > Infrastructure > webService > authService > awsCognito.js > logOut : '
+            // token
+        );
+        var params = {
+            AccessToken: `${token}` /* required */,
+        };
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.globalSignOut(
+                params,
+                function (err, data) {
+                    if (err) {
+                        // an error occurred
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
+                            err
+                        );
+                        reject(err);
+                    } else {
+                        // successful response
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
                             data
                         );
                         resolve(data);

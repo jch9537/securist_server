@@ -1,5 +1,6 @@
-module.exports = {
-    CheckDuplicateEmail: require('./checkDuplicateEmail'),
-    SignUp: require('./signUp'),
-    LogIn: require('./logIn'),
-};
+// module.exports = {
+//     CheckDuplicateEmail: require('./checkDuplicateEmail'),
+//     SignUp: require('./signUp'),
+//     LogIn: require('./logIn'),
+//     Log
+// };

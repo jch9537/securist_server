@@ -39,6 +39,18 @@ module.exports = class {
         );
         return result;
     }
+    async logOut(token) {
+        console.log(
+            '요청 > Adapter > outBound > auth > auth.js - logOut : '
+            // token
+        );
+        let result = await this.authService.logOut(token);
+        console.log(
+            '응답 > Adapter > outBound > auth > auth.js - logOut : ',
+            result
+        );
+        return result;
+    }
     // createUser(userEntity) {
     //     console.log(
     //         '요청 > Adapter > outBound > auth > auth.js > createUser - userEntity : ',

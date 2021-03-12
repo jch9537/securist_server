@@ -6,7 +6,11 @@ module.exports = class {
     }
     async excute({ email, password }) {
         let userEntity = new UserEntity({ email, password });
-        let result = await this.Auth.logIn(userEntity);
+        let validData = {
+            email: userEntity.email,
+            password: userEntity.password,
+        };
+        let result = await this.Auth.logIn(validData);
         // id와 비밀번호일치를 확인 > 일치하면 응답, 불일치시 에러응답
         return result;
     }
