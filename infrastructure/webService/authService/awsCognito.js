@@ -1,15 +1,16 @@
 //TODO - userEntity를 넘겨주기 122번째 줄
 //개별 클라우드 인증서비스의 실행클래스 - cognito
 const AWS = require('../aws');
-const { UserEntity } = require('../../../domain/user/index');
-const SES = require('../emailService/awsSes');
+const { error } = require('../../exceptions');
+// const { UserEntity } = require('../../../domain/user/index');
+// const SES = require('../emailService/awsSes');
 module.exports = class {
     constructor() {
         this.cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider();
     }
-    checkDuplicateEmail(email) {
+    findUserByEmail(email) {
         console.log(
-            '요청 > Infrastructure > webService > authService > awsCognito.js > checkDuplicateEmail : ',
+            '요청 > Infrastructure > webService > authService > awsCognito.js > findUserByEmail : ',
             email
         );
         var params = {
@@ -33,11 +34,11 @@ module.exports = class {
                     // an error occurred
                     else {
                         console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > checkDuplicateEmail : ',
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > findUserByEmail : ',
                             data
                         );
-                        let duplicatedUser = data.Users.length ? true : false;
-                        resolve(duplicatedUser);
+                        let userExist = data.Users.length ? true : false;
+                        resolve(userExist);
                     } // successful response
                 }
             );
@@ -173,7 +174,20 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
                             err
                         );
-                        reject(err);
+                        if (err.code === 'NotAuthorizedException') {
+                            if (
+                                err.message ===
+                                'Incorrect username or password.'
+                            ) {
+                                //로그인 실패횟수 +1 후 실패 횟수 업데이트
+                                reject(error.incorrectPassword(err));
+                            } else if (err.message === 'User is disabled.') {
+                                reject(error.disabledUser(err));
+                            }
+                        } else if (err.code === 'UserNotConfirmedException') {
+                            reject(error.confirmAuthMail(err));
+                        }
+                        // reject(err);
                     } else {
                         // successful response
                         console.log(
@@ -331,6 +345,35 @@ module.exports = class {
                     } else {
                         console.log(
                             '응답 > Infrastructure > webService > authService > awsCognito.js > delteUserByAdmin : ',
+                            data
+                        );
+                        resolve(data);
+                    }
+                }
+            );
+        });
+    }
+    //관리자 회원 비활성화
+    disableUserByAdmin(id) {
+        var params = {
+            UserPoolId: 'ap-northeast-2_5MrwZlTbH' /* required */,
+            Username: id /* required */,
+        };
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.adminDisableUser(
+                params,
+                function (err, data) {
+                    if (err) {
+                        // an error occurred
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > disableUserByAdmin : ',
+                            err
+                        );
+                        reject(err);
+                    } else {
+                        // successful response
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > disableUserByAdmin : ',
                             data
                         );
                         resolve(data);

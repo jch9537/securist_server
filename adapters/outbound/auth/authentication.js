@@ -3,14 +3,14 @@ module.exports = class {
     constructor(authService) {
         this.authService = authService;
     }
-    async checkDuplicateEmail(email) {
+    async findUserByEmail(email) {
         console.log(
-            '요청 > Adapter > outBound > auth > authentication.js - checkDuplicateEmail > email : ',
+            '요청 > Adapter > outBound > auth > authentication.js - findUserByEmail > email : ',
             email
         );
-        let result = await this.authService.checkDuplicateEmail(email);
+        let result = await this.authService.findUserByEmail(email);
         console.log(
-            '응답 > Adapter > outBound > auth > authentication.js - checkDuplicateEmail > result : ',
+            '응답 > Adapter > outBound > auth > authentication.js - findUserByEmail > result : ',
             result
         );
         return result;
