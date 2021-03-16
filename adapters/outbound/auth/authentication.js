@@ -17,36 +17,61 @@ module.exports = class {
     }
     async signUp(userEntity) {
         console.log(
-            '요청 > Adapter > outBound > auth > auth.js - signUp : ',
+            '요청 > Adapter > outBound > auth > authentication.js - signUp : ',
             userEntity
         );
         let result = await this.authService.signUp(userEntity);
         console.log(
-            '응답 > Adapter > outBound > auth > auth.js - signUp > result : ',
+            '응답 > Adapter > outBound > auth > authentication.js - signUp > result : ',
             result
         );
         return result;
     }
     async logIn(userEntity) {
         console.log(
-            '요청 > Adapter > outBound > auth > auth.js - logIn : ',
+            '요청 > Adapter > outBound > auth > authentication.js - logIn : ',
             userEntity
         );
         let result = await this.authService.logIn(userEntity);
         console.log(
-            '응답 > Adapter > outBound > auth > auth.js - logIn : ',
+            '응답 > Adapter > outBound > auth > authentication.js - logIn : ',
             result
         );
         return result;
     }
     async logOut(token) {
         console.log(
-            '요청 > Adapter > outBound > auth > auth.js - logOut : '
+            '요청 > Adapter > outBound > auth > authentication.js - logOut : '
             // token
         );
         let result = await this.authService.logOut(token);
         console.log(
-            '응답 > Adapter > outBound > auth > auth.js - logOut : ',
+            '응답 > Adapter > outBound > auth > authentication.js - logOut : ',
+            result
+        );
+        return result;
+    }
+    async getUserInfo(token) {
+        console.log(
+            '요청 > Adapter > outBound > auth > authentication.js - getUserInfo : '
+            // token
+        );
+        let result = await this.authService.getUserInfo(token);
+        console.log(
+            '응답 > Adapter > outBound > auth > authentication.js - getUserInfo : ',
+            result
+        );
+        return result;
+    }
+
+    async resetLogInCount(token) {
+        console.log(
+            '요청 > Adapter > outBound > auth > authentication.js - resetLogInCount : ',
+            token
+        );
+        let result = await this.authService.resetLogInCount(token);
+        console.log(
+            '응답 > Adapter > outBound > auth > authentication.js - resetLogInCount : ',
             result
         );
         return result;

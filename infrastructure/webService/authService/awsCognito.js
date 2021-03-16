@@ -121,7 +121,15 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js > signup : ',
                             err
                         );
-                        reject(err);
+                        if (err.code === 'UsernameExistsException') {
+                            reject(error.userAlreadyExist(err));
+                        } else if (err.code === 'InvalidPasswordException') {
+                            reject(error.invalidPassword(err));
+                        } else if (err.code === 'InvalidParameterException') {
+                            reject(error.invalidParameter(err));
+                        } else {
+                            reject(err);
+                        }
                     } else {
                         console.log(
                             '응답 > Infrastructure > webService > authService > awsCognito.js > signup : ',
@@ -174,27 +182,34 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
                             err
                         );
-                        if (err.code === 'NotAuthorizedException') {
+                        /*추가할 예외처리
+                        UserNotFoundException
+                        ResourceNotFoundException
+                        */
+                        if (err.code === 'InvalidParameterException') {
+                            reject(err.invalidParameter(err));
+                        } else if (err.code === 'NotAuthorizedException') {
                             if (
                                 err.message ===
                                 'Incorrect username or password.'
                             ) {
-                                //로그인 실패횟수 +1 후 실패 횟수 업데이트
+                                /* 속성가져오기 & 속성 (로그인실패횟수) +1 처리 후 업데이트*/
                                 reject(error.incorrectPassword(err));
                             } else if (err.message === 'User is disabled.') {
                                 reject(error.disabledUser(err));
                             }
                         } else if (err.code === 'UserNotConfirmedException') {
                             reject(error.confirmAuthMail(err));
+                        } else {
+                            reject(err);
                         }
-                        // reject(err);
                     } else {
                         // successful response
                         console.log(
                             '응답 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
                             data
                         );
-                        resolve(data);
+                        resolve(data.AuthenticationResult);
                     }
                 }
             );
@@ -214,15 +229,100 @@ module.exports = class {
                 function (err, data) {
                     if (err) {
                         // an error occurred
+                        /*추가할 예외처리
+                        ResourceNotFoundException
+                        */
                         console.log(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > logOut : ',
+                            err
+                        );
+                        if (err.code === 'NotAuthorizedException') {
+                            if (
+                                err.message === 'Access Token has been revoked'
+                            ) {
+                                reject(error.accessTokenExpired(err));
+                            } else if (err.message === 'Invalid Access Token') {
+                                reject(error.invalidAccessToken(err));
+                            }
+                        }
+                        reject(err);
+                    } else {
+                        // successful response
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > logOut : ',
+                            data
+                        );
+                        resolve(data);
+                    }
+                }
+            );
+        });
+    }
+    getUserInfo(token) {
+        console.log(
+            '요청 > Infrastructure > webService > authService > awsCognito.js > getUserInfo : '
+            // token
+        );
+        var params = {
+            AccessToken: `${token}` /* required */,
+        };
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.getUser(
+                params,
+                function (err, data) {
+                    if (err) {
+                        // an error occurred
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > getUserInfo : ',
                             err
                         );
                         reject(err);
                     } else {
                         // successful response
                         console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > getUserInfo : ',
+                            data
+                        );
+                        resolve(data.UserAttributes);
+                    }
+                }
+            );
+        });
+    }
+    resetLogInCount(token) {
+        console.log(
+            '요청 > Infrastructure > webService > authService > awsCognito.js > resetLogInCount : ',
+            token
+        );
+        var params = {
+            AccessToken: `${token}` /* required */,
+            UserAttributes: [
+                /* required */
+                {
+                    Name: 'custom:logInFailCount' /* required */,
+                    Value: '0',
+                },
+            ],
+            // ClientMetadata: {
+            //   '<StringType>': 'STRING_VALUE',
+            //   /* '<StringType>': ... */
+            // }
+        };
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.updateUserAttributes(
+                params,
+                function (err, data) {
+                    // an error occurred
+                    if (err) {
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > resetLogInCount : ',
+                            err
+                        );
+                        reject(err);
+                    } else {
+                        // successful response
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > resetLogInCount : ',
                             data
                         );
                         resolve(data);
@@ -232,6 +332,92 @@ module.exports = class {
         });
     }
 
+    //테스트 관리자코드------------------------------------------------------------
+    // 관리자 회원 삭제
+    deleteUserByAdmin(id) {
+        let params = {
+            UserPoolId: 'ap-northeast-2_5MrwZlTbH' /* required */,
+            Username: id /* required */,
+        };
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.adminDeleteUser(
+                params,
+                function (err, data) {
+                    if (err) {
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > delteUserByAdmin : ',
+                            err
+                        );
+                        reject(err);
+                    } else {
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > delteUserByAdmin : ',
+                            data
+                        );
+                        resolve(data);
+                    }
+                }
+            );
+        });
+    }
+    //관리자 회원 비활성화
+    disableUserByAdmin(id) {
+        var params = {
+            UserPoolId: 'ap-northeast-2_5MrwZlTbH' /* required */,
+            Username: id /* required */,
+        };
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.adminDisableUser(
+                params,
+                function (err, data) {
+                    if (err) {
+                        // an error occurred
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > disableUserByAdmin : ',
+                            err
+                        );
+                        reject(err);
+                    } else {
+                        // successful response
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > disableUserByAdmin : ',
+                            data
+                        );
+                        resolve(data);
+                    }
+                }
+            );
+        });
+    }
+    //관리자 회원 활성화
+    enableUserByAdmin(id) {
+        var params = {
+            UserPoolId: 'ap-northeast-2_5MrwZlTbH' /* required */,
+            Username: id /* required */,
+        };
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.adminEnableUser(
+                params,
+                function (err, data) {
+                    if (err) {
+                        // an error occurred
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > enableUserByAdmin : ',
+                            err
+                        );
+                        reject(err);
+                    } else {
+                        // successful response
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > enableUserByAdmin : ',
+                            data
+                        );
+                        resolve(data);
+                    }
+                }
+            );
+        });
+    }
     // //관리자 회원 가입
     // async createUser(userData) {
     //     console.log(
@@ -325,61 +511,4 @@ module.exports = class {
     //         );
     //     });
     // }
-
-    // 관리자 회원 삭제
-    deleteUserByAdmin(id) {
-        let params = {
-            UserPoolId: 'ap-northeast-2_5MrwZlTbH' /* required */,
-            Username: id /* required */,
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.adminDeleteUser(
-                params,
-                function (err, data) {
-                    if (err) {
-                        console.log(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > delteUserByAdmin : ',
-                            err
-                        );
-                        reject(err);
-                    } else {
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > delteUserByAdmin : ',
-                            data
-                        );
-                        resolve(data);
-                    }
-                }
-            );
-        });
-    }
-    //관리자 회원 비활성화
-    disableUserByAdmin(id) {
-        var params = {
-            UserPoolId: 'ap-northeast-2_5MrwZlTbH' /* required */,
-            Username: id /* required */,
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.adminDisableUser(
-                params,
-                function (err, data) {
-                    if (err) {
-                        // an error occurred
-                        console.log(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > disableUserByAdmin : ',
-                            err
-                        );
-                        reject(err);
-                    } else {
-                        // successful response
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > disableUserByAdmin : ',
-                            data
-                        );
-                        resolve(data);
-                    }
-                }
-            );
-        });
-    }
 };
