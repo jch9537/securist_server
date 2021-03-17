@@ -5,15 +5,7 @@ const awsCognito = require('../../infrastructure/webService/authService/awsCogni
 // signup, login, logout 어댑터
 const { Auth, SendMail } = require('../outbound');
 const { success, error } = require('../exceptions');
-const {
-    UserEntity,
-    CheckDuplicateEmail,
-    SignUp,
-    LogIn,
-    LogOut,
-} = require('../../domain/user');
-// const { logIn, logOut } = require('../outbound/auth');
-// const { signUp, checkDuplicateEmail } = require('../outbound/auth');
+const { UserEntity, SignUp, LogIn, LogOut } = require('../../domain/user');
 
 module.exports = {
     //Email 중복체크, 사용자 중복확인
@@ -69,7 +61,7 @@ module.exports = {
     3. 존재하는 아이디와 비밀번호 일치 확인 ? next : '비밀번호를 확인해주세요'                - 처리완료
     4. 계정인증 상태 확인 (이메일 인증여부) ? next : '이메일 계정확인 후 로그인 가능합니다'    - 처리완료
     5. 로그인 잠금상태 확인 (활성/비활성) ? 토큰 반환(로그인) : 
-       5회이상 로그인 실패  ? 10분 뒤 재시도 또는 비밀번호찾기안내 : '계정이 잠금상태입니다. 관리자에게 문의해주세요' 
+       5회이상 로그인 실패  ?  비밀번호찾기안내 : '계정이 잠금상태입니다. 관리자에게 문의해주세요' 
     6. 비밀번호 유효기간 초과 ? 비밀번호 변경 모달 노출 :  로그인 화면 리다이렉션
     */
     async logIn(userParam) {
@@ -89,11 +81,17 @@ module.exports = {
                     '응답 > adapters > inbound > authAdaptor.js > logIn - result : ',
                     result
                 );
-                //로그인 처리됐으므로 횟수를 0으로 처리 : cognito의 관심사는 아니고 비즈니스 로직의 관심사도 아닌 프로세스에서의 처리이므로 adapter에서 처리
-                await this.resetLogInCount(result.AccessToken);
+                await Auth.resetRetryCount(result.AccessToken);
                 return success.logInSucess(result);
             }
         } catch (err) {
+            if (err.isLogIn === false) {
+                let failCount = await Auth.getRetryCount(userParam.email);
+                console.log('Adapter > failCount : ', failCount);
+                failCount += 1;
+                await Auth.setRetryCount(userParam.email, failCount);
+                err.retryCount = failCount;
+            }
             return err;
         }
     },
@@ -111,18 +109,6 @@ module.exports = {
                 result
             );
             return success.logOutSuccess();
-        } catch (err) {
-            return err;
-        }
-    },
-
-    async resetLogInCount(token) {
-        try {
-            console.log(
-                '요청 > adapters > inbound > authAdaptor.js > resetLogInFailCount - token : ',
-                token
-            );
-            await Auth.resetLogInCount(token);
         } catch (err) {
             return err;
         }

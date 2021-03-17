@@ -6,6 +6,7 @@ const InvalidPassword = require('./InvalidPassword');
 const InvalidParameter = require('./InvalidParameter');
 const AccessTokenExpired = require('./AccessTokenExpired');
 const InvalidAccessToken = require('./InvalidAccessToken');
+const ExceededLogInCount = require('./ExceededLogInCount');
 
 module.exports = {
     incorrectPassword(err) {
@@ -31,6 +32,9 @@ module.exports = {
     },
     invalidAccessToken(err) {
         return new InvalidAccessToken(err);
+    },
+    exceededLogInCount(err) {
+        return new ExceededLogInCount(err);
     },
 };
 

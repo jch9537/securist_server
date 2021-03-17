@@ -10,7 +10,7 @@ module.exports = (router) => {
         response
             .then((resData) => {
                 console.log('checkemail 응답 : ', resData);
-                res.send(resData)
+                resData
                     ? res.send(error.userAlreadyExist(resData))
                     : res.send(success.enabledUser(resData));
             })
@@ -41,7 +41,8 @@ module.exports = (router) => {
         response
             .then((resData) => {
                 console.log('login 응답 : ', resData);
-                res.send(resData);
+                // res.send(resData);
+                
             })
             .catch((err) => {
                 console.log(err);

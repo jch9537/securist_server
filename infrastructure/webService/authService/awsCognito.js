@@ -71,7 +71,7 @@ module.exports = class {
                     Value: userData.name,
                 },
                 {
-                    Name: 'custom:logInFailCount', // 로그인 실패횟수
+                    Name: 'custom:retryCount', // 로그인 실패횟수
                     Value: '0',
                 },
                 {
@@ -188,18 +188,23 @@ module.exports = class {
                         */
                         if (err.code === 'InvalidParameterException') {
                             reject(err.invalidParameter(err));
+                        } else if (err.code === 'UserNotConfirmedException') {
+                            reject(error.confirmAuthMail(err));
                         } else if (err.code === 'NotAuthorizedException') {
                             if (
                                 err.message ===
                                 'Incorrect username or password.'
                             ) {
-                                /* 속성가져오기 & 속성 (로그인실패횟수) +1 처리 후 업데이트*/
                                 reject(error.incorrectPassword(err));
+                            } else if (
+                                err.message === 'Password attempts exceeded'
+                                // cognito 기본 로그인 횟수제한 (5번, 이후 시도 시마다 1초~15분까지 두배로 시도 시간 증가)
+                                //이 에러 발생하면 비밀번호 찾기로 이동처리
+                            ) {
+                                reject(error.exceededLogInCount(err));
                             } else if (err.message === 'User is disabled.') {
                                 reject(error.disabledUser(err));
                             }
-                        } else if (err.code === 'UserNotConfirmedException') {
-                            reject(error.confirmAuthMail(err));
                         } else {
                             reject(err);
                         }
@@ -289,7 +294,7 @@ module.exports = class {
             );
         });
     }
-    resetLogInCount(token) {
+    resetRetryCount(token) {
         console.log(
             '요청 > Infrastructure > webService > authService > awsCognito.js > resetLogInCount : ',
             token
@@ -299,7 +304,7 @@ module.exports = class {
             UserAttributes: [
                 /* required */
                 {
-                    Name: 'custom:logInFailCount' /* required */,
+                    Name: 'custom:retryCount' /* required */,
                     Value: '0',
                 },
             ],
@@ -332,11 +337,89 @@ module.exports = class {
         });
     }
 
+    getRetryCount(email) {
+        var params = {
+            UserPoolId: process.env.AWS_COGNITO_USERPOOL_ID /* required */,
+            Username: `${email}` /* required */,
+        };
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.adminGetUser(
+                params,
+                function (err, data) {
+                    if (err) {
+                        // an error occurred
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  getUserInfoByAdmin : ',
+                            err
+                        );
+                        reject(err);
+                    } else {
+                        // successful response
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > getUserInfoByAdmin : ',
+                            data
+                        );
+                        let count;
+                        let attributes = data.UserAttributes;
+                        for (let i = 0; i < attributes.length; i++) {
+                            if (attributes[i].Name === 'custom:retryCount') {
+                                count = Number(attributes[i].Value);
+                                break;
+                            }
+                        }
+                        resolve(count);
+                    }
+                }
+            );
+        });
+    }
+
+    setRetryCount(email, count) {
+        var params = {
+            UserAttributes: [
+                /* required */
+                {
+                    Name: 'custom:retryCount' /* required */,
+                    Value: `${count}`,
+                },
+                /* more items */
+            ],
+            UserPoolId: process.env.AWS_COGNITO_USERPOOL_ID /* required */,
+            Username: `${email}` /* required */,
+            // ClientMetadata: {
+            //   '<StringType>': 'STRING_VALUE',
+            //   /* '<StringType>': ... */
+            // }
+        };
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.adminUpdateUserAttributes(
+                params,
+                function (err, data) {
+                    if (err) {
+                        // an error occurred
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  setRetryCount : ',
+                            err
+                        );
+                        reject(err);
+                    } else {
+                        // successful response
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > setRetryCount : ',
+                            data
+                        );
+                        resolve(data);
+                    }
+                }
+            );
+        });
+    }
+
     //테스트 관리자코드------------------------------------------------------------
     // 관리자 회원 삭제
     deleteUserByAdmin(id) {
         let params = {
-            UserPoolId: 'ap-northeast-2_5MrwZlTbH' /* required */,
+            UserPoolId: process.env.AWS_COGNITO_USERPOOL_ID /* required */,
             Username: id /* required */,
         };
         return new Promise((resolve, reject) => {
@@ -363,7 +446,7 @@ module.exports = class {
     //관리자 회원 비활성화
     disableUserByAdmin(id) {
         var params = {
-            UserPoolId: 'ap-northeast-2_5MrwZlTbH' /* required */,
+            UserPoolId: process.env.AWS_COGNITO_USERPOOL_ID /* required */,
             Username: id /* required */,
         };
         return new Promise((resolve, reject) => {
@@ -392,7 +475,7 @@ module.exports = class {
     //관리자 회원 활성화
     enableUserByAdmin(id) {
         var params = {
-            UserPoolId: 'ap-northeast-2_5MrwZlTbH' /* required */,
+            UserPoolId: process.env.AWS_COGNITO_USERPOOL_ID /* required */,
             Username: id /* required */,
         };
         return new Promise((resolve, reject) => {

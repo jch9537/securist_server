@@ -64,18 +64,45 @@ module.exports = class {
         return result;
     }
 
-    async resetLogInCount(token) {
+    async resetRetryCount(token) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication.js - resetLogInCount : ',
             token
         );
-        let result = await this.authService.resetLogInCount(token);
+        let result = await this.authService.resetRetryCount(token);
         console.log(
             '응답 > Adapter > outBound > auth > authentication.js - resetLogInCount : ',
             result
         );
         return result;
     }
+
+    async getRetryCount(email) {
+        console.log(
+            '요청 > Adapter > outBound > auth > authentication.js - getRetryCount : ',
+            email
+        );
+        let count = await this.authService.getRetryCount(email);
+        console.log(
+            '응답 > Adapter > outBound > auth > authentication.js - getRetryCount : ',
+            count
+        );
+        return count;
+    }
+    async setRetryCount(email, count) {
+        console.log(
+            '요청 > Adapter > outBound > auth > authentication.js - setRetryCount : ',
+            email,
+            count
+        );
+        let result = await this.authService.setRetryCount(email, count);
+        console.log(
+            '응답 > Adapter > outBound > auth > authentication.js - setRetryCount : ',
+            result
+        );
+        return result;
+    }
+
     // createUser(userEntity) {
     //     console.log(
     //         '요청 > Adapter > outBound > auth > auth.js > createUser - userEntity : ',
