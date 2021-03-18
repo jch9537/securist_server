@@ -73,7 +73,7 @@ module.exports = class {
                 {
                     Name: 'custom:retryCount', // 로그인 실패횟수
                     Value: '0',
-                },
+                }, 
                 {
                     Name: 'custom:userType',
                     Value: userData.userType,
@@ -242,7 +242,9 @@ module.exports = class {
                             err
                         );
                         if (err.code === 'NotAuthorizedException') {
-                            if (
+                            if (err.message === 'Access Token has expired') {
+                                reject(error.accessTokenExpired(err));
+                            } else if (
                                 err.message === 'Access Token has been revoked'
                             ) {
                                 reject(error.accessTokenExpired(err));

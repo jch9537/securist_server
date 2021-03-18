@@ -103,6 +103,20 @@ module.exports = class {
         return result;
     }
 
+    async issueNewToken(refreshToken) {
+        console.log(
+            '요청 > Adapter > outBound > auth > authentication.js - issueNewToken : ',
+            email,
+            count
+        );
+        let result = await this.authService.issueNewToken(refreshToken);
+        console.log(
+            '응답 > Adapter > outBound > auth > authentication.js - issueNewToken : ',
+            result
+        );
+        return result;
+    }
+
     // createUser(userEntity) {
     //     console.log(
     //         '요청 > Adapter > outBound > auth > auth.js > createUser - userEntity : ',

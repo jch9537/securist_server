@@ -82,6 +82,15 @@ module.exports = {
                     result
                 );
                 await Auth.resetRetryCount(result.AccessToken);
+
+                // DB 또는 cognito 저장 : access토큰 만료시 id토큰으로 refresh 토큰을 가져와 인증 후 새 access 토큰 생성
+                // let resData = {
+                //     idToken: result.IdToken,
+                //     accessToken: result.AccessToken,
+                //     expiresIn: result.ExpiresIn,
+                //     tokenType: result.TokenType,
+                // };
+
                 return success.logInSucess(result);
             }
         } catch (err) {
@@ -106,6 +115,23 @@ module.exports = {
             let result = await logOut.excute(token);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > logOut - result : ',
+                result
+            );
+            return success.logOutSuccess();
+        } catch (err) {
+            return err;
+        }
+    },
+    // async getRefreshToken()
+    async issueNewToken(refreshToken) {
+        console.log(
+            '요청 > adapters > inbound > authAdaptor.js > issueNewToken - refreshToken : ',
+            refreshToken
+        );
+        try {
+            let result = Auth.issueNewToken.excute(refreshToken);
+            console.log(
+                '응답 > adapters > inbound > authAdaptor.js > issueNewToken - result : ',
                 result
             );
             return success.logOutSuccess();

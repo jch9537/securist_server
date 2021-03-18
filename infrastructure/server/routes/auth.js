@@ -41,8 +41,26 @@ module.exports = (router) => {
         response
             .then((resData) => {
                 console.log('login 응답 : ', resData);
-                // res.send(resData);
-                
+                //서버에서 클라이언트로 token을 보낼때 cookie와 response의 각 방법(둘 다 상관없지만)의 장단점 알아보기
+                // res.cookie(
+                //     'accessToken',
+                //     `${resData.data.tokenType} ` + resData.data.accessToken,
+                //     {
+                //         httpOnly: true,
+                //         secure: true,
+                //         expires: new Date(Date.now() + 8 * 3600000),
+                //     }
+                // );
+                // res.cookie(
+                //     'idToken',
+                //     `${resData.data.tokenType} ` + resData.data.idToken,
+                //     {
+                //         httpOnly: true,
+                //         secure: true,
+                //         expires: new Date(Date.now() + 8 * 3600000),
+                //     }
+                // );
+                res.send(resData);
             })
             .catch((err) => {
                 console.log(err);
@@ -62,6 +80,7 @@ module.exports = (router) => {
                 })
                 .catch((err) => {
                     console.log('logOut 에러 응답 : ', resData);
+
                     res.send(err);
                 });
         } else {
@@ -69,8 +88,11 @@ module.exports = (router) => {
         }
     });
     // access token 갱신
-    router.post('/api/auth/renewal', (req, res) => {
-        let reqHeader = req.headers;
+    router.post('/api/auth/renewalToken', (req, res) => {});
+
+    router.get('/api/user', (req, res) => {
+        console.log('user 요청 : ', req.body, req.headers);
+        res.send('OK');
     });
 
     //관리자
