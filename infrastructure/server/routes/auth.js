@@ -1,4 +1,6 @@
 //TODO logout- refresh 토큰 처리, login 추가확인 처리
+const jwtDecode = require('jwt-decode');
+
 const { authAdapter } = require('../../../adapters/inbound');
 const { success, error } = require('../../../adapters/exceptions');
 
@@ -88,14 +90,36 @@ module.exports = (router) => {
         }
     });
     // access token 갱신
-    router.post('/api/auth/renewalToken', (req, res) => {});
+    router.get('/api/auth/newtoken', (req, res) => {
+        let reqHeader = req.headers.authorization;
+        let decoded = jwtDecode(reqHeader);
+        console.log('----------------------', decoded);
+        if (reqHeader !== undefined) {
+            let bearer = reqHeader.split(' ');
+            let token = bearer[1];
+            console.log('newtoken 요청 : ', token);
+            let response = authAdapter.issueNewToken(token);
+            response
+                .then((resData) => {
+                    console.log('newtoken 응답 : ', resData);
+                    res.send(resData);
+                })
+                .catch((err) => {
+                    console.log('newtoken 에러 응답 : ', resData);
+
+                    res.send(err);
+                });
+        } else {
+            res.send(error.unauthenticated());
+        }
+    });
 
     router.get('/api/user', (req, res) => {
         console.log('user 요청 : ', req.body, req.headers);
         res.send('OK');
     });
 
-    //관리자
+    //관리자-----------------------------------------------------
     //테스트용 API
     router.post('/api/auth/deleteUserByAdmin', (req, res) => {
         let reqData = req.body;

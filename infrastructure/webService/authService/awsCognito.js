@@ -73,7 +73,7 @@ module.exports = class {
                 {
                     Name: 'custom:retryCount', // 로그인 실패횟수
                     Value: '0',
-                }, 
+                },
                 {
                     Name: 'custom:userType',
                     Value: userData.userType,
@@ -408,6 +408,50 @@ module.exports = class {
                         // successful response
                         console.log(
                             '응답 > Infrastructure > webService > authService > awsCognito.js > setRetryCount : ',
+                            data
+                        );
+                        resolve(data);
+                    }
+                }
+            );
+        });
+    }
+
+    issueNewToken(refreshToken) {
+        var params = {
+            AuthFlow: 'REFRESH_TOKEN_AUTH',
+            // | REFRESH_TOKEN , /* required */
+            ClientId: process.env.AWS_APP_CLIENT_ID /* required */,
+            AuthParameters: {
+                REFRESH_TOKEN: `${refreshToken}`,
+                /* '<StringType>': ... */
+            },
+            // AnalyticsMetadata: {
+            //   AnalyticsEndpointId: 'STRING_VALUE'
+            // },
+            // ClientMetadata: {
+            //   '<StringType>': 'STRING_VALUE',
+            //   /* '<StringType>': ... */
+            // },
+            // UserContextData: {
+            //   EncodedData: 'STRING_VALUE'
+            // }
+        };
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.initiateAuth(
+                params,
+                function (err, data) {
+                    if (err) {
+                        // an error occurred
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  issueNewToken : ',
+                            err
+                        );
+                        reject(err);
+                    } else {
+                        // successful response
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > issueNewToken : ',
                             data
                         );
                         resolve(data);

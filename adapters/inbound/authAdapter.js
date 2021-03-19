@@ -129,12 +129,12 @@ module.exports = {
             refreshToken
         );
         try {
-            let result = Auth.issueNewToken.excute(refreshToken);
+            let result = await Auth.issueNewToken(refreshToken);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > issueNewToken - result : ',
                 result
             );
-            return success.logOutSuccess();
+            return result;
         } catch (err) {
             return err;
         }

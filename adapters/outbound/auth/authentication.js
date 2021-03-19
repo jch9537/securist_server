@@ -106,8 +106,7 @@ module.exports = class {
     async issueNewToken(refreshToken) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication.js - issueNewToken : ',
-            email,
-            count
+            refreshToken
         );
         let result = await this.authService.issueNewToken(refreshToken);
         console.log(
