@@ -1,5 +1,7 @@
 //TODO logout- refresh 토큰 처리, login 추가확인 처리
-const jwtDecode = require('jwt-decode');
+//TODO token decode 확인 /
+// const jwtDecode = require('jwt-decode');
+const { handler } = require('../../utils/token');
 
 const { authAdapter } = require('../../../adapters/inbound');
 const { success, error } = require('../../../adapters/exceptions');
@@ -44,24 +46,6 @@ module.exports = (router) => {
             .then((resData) => {
                 console.log('login 응답 : ', resData);
                 //서버에서 클라이언트로 token을 보낼때 cookie와 response의 각 방법(둘 다 상관없지만)의 장단점 알아보기
-                // res.cookie(
-                //     'accessToken',
-                //     `${resData.data.tokenType} ` + resData.data.accessToken,
-                //     {
-                //         httpOnly: true,
-                //         secure: true,
-                //         expires: new Date(Date.now() + 8 * 3600000),
-                //     }
-                // );
-                // res.cookie(
-                //     'idToken',
-                //     `${resData.data.tokenType} ` + resData.data.idToken,
-                //     {
-                //         httpOnly: true,
-                //         secure: true,
-                //         expires: new Date(Date.now() + 8 * 3600000),
-                //     }
-                // );
                 res.send(resData);
             })
             .catch((err) => {
@@ -89,16 +73,33 @@ module.exports = (router) => {
             res.send(error.unauthenticated());
         }
     });
-    // access token 갱신
-    router.get('/api/auth/newtoken', (req, res) => {
+    // access token 유효기간 확인
+    router.get('/api/auth/confirmtoken', (req, res) => {
         let reqHeader = req.headers.authorization;
-        let decoded = jwtDecode(reqHeader);
-        console.log('----------------------', decoded);
+        console.log('----------------------', reqHeader);
         if (reqHeader !== undefined) {
             let bearer = reqHeader.split(' ');
-            let token = bearer[1];
-            console.log('newtoken 요청 : ', token);
-            let response = authAdapter.issueNewToken(token);
+            let accessToken = bearer[1];
+            let decoded = handler(accessToken);
+            decoded
+                .then((data) => {
+                    console.log('confirmToken 응답 : ', data);
+                    res.send(data);
+                })
+                .catch((err) => {
+                    console.log('confirmToken 에러응답 : ', err);
+                    res.send(err);
+                });
+        }
+    });
+    //refresh 토큰으로 access token 갱신
+    router.get('/api/auth/newtoken', (req, res) => {
+        let reqHeader = req.headers.authorization;
+        console.log('----------------------', reqHeader);
+        if (reqHeader !== undefined) {
+            let bearer = reqHeader.split(' ');
+            let refreshToken = bearer[1];
+            let response = authAdapter.issueNewToken(refreshToken);
             response
                 .then((resData) => {
                     console.log('newtoken 응답 : ', resData);

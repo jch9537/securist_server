@@ -96,21 +96,20 @@ module.exports = class {
                 //     Name: 'custom:created_at' /* required */, // 회원가입날짜시간(변경불가)
                 //     Value: new Date(),
                 // },
-
-                /* more items */
-                // AnalyticsMetadata: {
-                //     AnalyticsEndpointId: 'STRING_VALUE',
-                // },
-                // ClientMetadata: {
-                //     '<StringType>': 'STRING_VALUE',
-                //     /* '<StringType>': ... */
-                // },
-                // SecretHash: 'STRING_VALUE',
-                // UserContextData: {
-                //     EncodedData: 'STRING_VALUE',
-                // },
-                /* more items */
             ],
+            /* more items */
+            // AnalyticsMetadata: {
+            //     AnalyticsEndpointId: 'STRING_VALUE',
+            // },
+            // ClientMetadata: {
+            //     '<StringType>': 'STRING_VALUE',
+            //     /* '<StringType>': ... */
+            // },
+            // SecretHash: process.env.SECRET_KEY,
+            // UserContextData: {
+            //     EncodedData: 'STRING_VALUE',
+            // },
+            /* more items */
         };
         let result = new Promise((resolve, reject) => {
             this.cognitoidentityserviceprovider.signUp(
@@ -419,7 +418,8 @@ module.exports = class {
 
     issueNewToken(refreshToken) {
         var params = {
-            AuthFlow: 'REFRESH_TOKEN_AUTH',
+            AuthFlow: 'REFRESH_TOKEN',
+            // 'REFRESH_TOKEN_AUTH',
             // | REFRESH_TOKEN , /* required */
             ClientId: process.env.AWS_APP_CLIENT_ID /* required */,
             AuthParameters: {
