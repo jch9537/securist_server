@@ -1,6 +1,6 @@
 //TODO - userEntity를 넘겨주기 122번째 줄
 //개별 클라우드 인증서비스의 실행클래스 - cognito
-const AWS = require('../aws');
+const AWS = require('../awsConfig');
 const { error } = require('../../exceptions');
 // const { UserEntity } = require('../../../domain/user/index');
 // const SES = require('../emailService/awsSes');
@@ -80,7 +80,7 @@ module.exports = class {
                 },
                 {
                     Name: 'custom:passwordUpdatedAt', // 비밀번호변경시간
-                    Value: `${new Date()}`,
+                    Value: `${Math.floor(new Date().valueOf() / 1000)}`,
                 },
                 // 아래 세개의 경우 계정이 존재하면 기본적으로 cognito 응답 Users배열 내
                 // Enabled / UserCreateDate / UserLastModifiedDate가 있어서 필요없음

@@ -5,7 +5,14 @@ const awsCognito = require('../../infrastructure/webService/authService/awsCogni
 // signup, login, logout 어댑터
 const { Auth, SendMail } = require('../outbound');
 const { success, error } = require('../exceptions');
-const { UserEntity, SignUp, LogIn, LogOut } = require('../../domain/user');
+const {
+    UserEntity,
+    SignUp,
+    LogIn,
+    LogOut,
+    FindUserByEmail,
+    IssueNewToken,
+} = require('../../domain/user');
 
 module.exports = {
     //Email 중복체크, 사용자 중복확인
@@ -15,12 +22,15 @@ module.exports = {
             email
         );
         try {
-            let result = await Auth.findUserByEmail(email);
+            let findUserByEmail = new FindUserByEmail(Auth);
+            let result = await findUserByEmail.excute(email);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > findUserByEmail - email : ',
                 result
             );
-            return result;
+            return result
+                ? error.userAlreadyExist(result)
+                : success.enabledUser(result);
         } catch (err) {
             return err;
         }
@@ -122,14 +132,14 @@ module.exports = {
             return err;
         }
     },
-    // async getRefreshToken()
     async issueNewToken(refreshToken) {
         console.log(
             '요청 > adapters > inbound > authAdaptor.js > issueNewToken - refreshToken : ',
             refreshToken
         );
         try {
-            let result = await Auth.issueNewToken(refreshToken);
+            let issueNewToken = new IssueNewToken(Auth);
+            let result = await issueNewToken.excute(refreshToken);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > issueNewToken - result : ',
                 result

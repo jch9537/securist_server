@@ -1,10 +1,13 @@
-//TODO logout- refresh 토큰 처리, login 추가확인 처리
-//TODO token decode 확인 /
-// const jwtDecode = require('jwt-decode');
-const { handler } = require('../../utils/token');
+//TODO logout- login usecase layer 예외처리(유효성) 추가확인
+//TODO token 미들웨어 코드 정리
+const {
+    confirmToken,
+    extractToken,
+    getUserInfoByToken,
+} = require('../../middleware');
 
 const { authAdapter } = require('../../../adapters/inbound');
-const { success, error } = require('../../../adapters/exceptions');
+const { success, error } = require('../../exceptions/index');
 
 module.exports = (router) => {
     router.post('/api/auth/checkemail', (req, res) => {
@@ -14,9 +17,7 @@ module.exports = (router) => {
         response
             .then((resData) => {
                 console.log('checkemail 응답 : ', resData);
-                resData
-                    ? res.send(error.userAlreadyExist(resData))
-                    : res.send(success.enabledUser(resData));
+                res.send(resData);
             })
             .catch((err) => {
                 console.log('checkemail 에러 : ', err);
@@ -49,75 +50,113 @@ module.exports = (router) => {
                 res.send(resData);
             })
             .catch((err) => {
-                console.log(err);
+                console.log('login 에러 응답 : ', err);
+                res.send(err);
             });
     });
-    router.post('/api/auth/logout', (req, res) => {
-        let reqHeader = req.headers.authorization;
-        if (reqHeader !== undefined) {
-            let bearer = reqHeader.split(' ');
-            let token = bearer[1];
-            console.log('logOut 요청 : ', token);
-            let response = authAdapter.logOut(token);
-            response
-                .then((resData) => {
-                    console.log('logOut 응답 : ', resData);
-                    res.send(resData);
-                })
-                .catch((err) => {
-                    console.log('logOut 에러 응답 : ', resData);
-
-                    res.send(err);
-                });
-        } else {
-            res.send(error.unauthenticated());
+    router.post('/api/auth/logout', async (req, res) => {
+        try {
+            let accessToken = extractToken(req);
+            let result = await confirmToken(accessToken);
+            if (result.isValid) {
+                let response = await authAdapter.logOut(accessToken);
+                console.log('logOut 응답 : ', response);
+                res.send(response);
+            }
+        } catch (err) {
+            console.log('logOut 에러 응답 : ', err);
+            res.send(err);
         }
+        // let reqHeader = req.headers.authorization;
+        // if (reqHeader !== undefined) {
+        //     let token = reqHeader.split(' ')[1];
+        //     console.log('logOut 요청 : ', token);
+        //     let response = authAdapter.logOut(token);
+        //     response
+        //         .then((resData) => {
+        //             console.log('logOut 응답 : ', resData);
+        //             res.send(resData);
+        //         })
+        //         .catch((err) => {
+        //             console.log('logOut 에러 응답 : ', resData);
+
+        //             res.send(err);
+        //         });
+        // } else {
+        //     res.send(error.unauthenticated());
+        // }
     });
     // access token 유효기간 확인
-    router.get('/api/auth/confirmtoken', (req, res) => {
-        let reqHeader = req.headers.authorization;
-        console.log('----------------------', reqHeader);
-        if (reqHeader !== undefined) {
-            let bearer = reqHeader.split(' ');
-            let accessToken = bearer[1];
-            let decoded = handler(accessToken);
-            decoded
-                .then((data) => {
-                    console.log('confirmToken 응답 : ', data);
-                    res.send(data);
-                })
-                .catch((err) => {
-                    console.log('confirmToken 에러응답 : ', err);
-                    res.send(err);
-                });
+    router.get('/api/auth/confirmtoken', async (req, res) => {
+        try {
+            let accessToken = extractToken(req);
+            let result = await confirmToken(accessToken);
+            console.log('result : ', result);
+            res.send(result);
+        } catch (err) {
+            console.log('err : ', err);
+            res.send(err);
         }
+
+        // let reqHeader = req.headers.authorization;
+        // console.log('----------------------', reqHeader);
+        // if (reqHeader !== undefined) {
+        //     let accessToken = reqHeader.split(' ')[1];
+        //     let checkToken = confirmToken(accessToken);
+        //     checkToken
+        //         .then((data) => {
+        //             console.log('confirmToken 응답 : ', data);
+        //             res.send(data);
+        //         })
+        //         .catch((err) => {
+        //             console.log('confirmToken 에러응답 : ', err);
+        //             res.send(err);
+        //         });
+        // } else {
+        //     res.send(error.unauthenticated());
+        // }
     });
     //refresh 토큰으로 access token 갱신
-    router.get('/api/auth/newtoken', (req, res) => {
-        let reqHeader = req.headers.authorization;
-        console.log('----------------------', reqHeader);
-        if (reqHeader !== undefined) {
-            let bearer = reqHeader.split(' ');
-            let refreshToken = bearer[1];
-            let response = authAdapter.issueNewToken(refreshToken);
-            response
-                .then((resData) => {
-                    console.log('newtoken 응답 : ', resData);
-                    res.send(resData);
-                })
-                .catch((err) => {
-                    console.log('newtoken 에러 응답 : ', resData);
-
-                    res.send(err);
-                });
-        } else {
-            res.send(error.unauthenticated());
+    router.get('/api/auth/newtoken', async (req, res) => {
+        try {
+            let refreshToken = extractToken(req);
+            let result = await authAdapter.issueNewToken(refreshToken);
+            console.log('newtoken 응답 : ', result);
+            res.send(result);
+        } catch (err) {
+            console.log('newtoken 에러 응답 : ', err);
+            res.send(err);
         }
+        // let reqHeader = req.headers.authorization;
+        // console.log('----------------------', reqHeader);
+        // if (!reqHeader) {
+        //     let refreshToken = reqHeader.split(' ')[1];
+
+        //     response
+        //         .then((resData) => {
+        //             console.log('newtoken 응답 : ', resData);
+        //             res.send(resData);
+        //         })
+        //         .catch((err) => {
+        //             console.log('newtoken 에러 응답 : ', resData);
+
+        //             res.send(err);
+        //         });
+        // } else {
+        //     res.send(error.unauthenticated());
+        // }
     });
 
-    router.get('/api/user', (req, res) => {
+    router.get('/api/user', async (req, res) => {
         console.log('user 요청 : ', req.body, req.headers);
-        res.send('OK');
+        try {
+            let idToken = extractToken(req);
+            let result = await getUserInfoByToken(idToken);
+            console.log('++++++++++++++++++++++++++++++++++', result);
+            res.send(result);
+        } catch (err) {
+            res.send(err);
+        }
     });
 
     //관리자-----------------------------------------------------

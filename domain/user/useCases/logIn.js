@@ -1,4 +1,4 @@
-const UserEntity = require('../entity/userEntity');
+const UserEntity = require('../entity/UserEntity');
 //로그인
 module.exports = class {
     constructor(Auth) {

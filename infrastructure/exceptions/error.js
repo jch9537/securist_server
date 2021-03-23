@@ -1,7 +1,7 @@
 const UserNotExist = require('./IncorrectPassword');
 const ConfirmAuthMail = require('./ConfirmAuthMail');
 const DisabledUser = require('./DisabledUser');
-const UserAlreadyExist = require('./UserAlreadyExist');
+
 const InvalidPassword = require('./InvalidPassword');
 const InvalidParameter = require('./InvalidParameter');
 const AccessTokenExpired = require('./AccessTokenExpired');
@@ -17,9 +17,6 @@ module.exports = {
     },
     disabledUser(err) {
         return new DisabledUser(err);
-    },
-    userAlreadyExist(err) {
-        return new UserAlreadyExist(err);
     },
     invalidPassword(err) {
         return new InvalidPassword(err);

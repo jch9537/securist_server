@@ -1,6 +1,7 @@
 const UserNotExist = require('./UserNotExist');
 const SignUpFailure = require('./SignUpFailure');
 const Unauthenticated = require('./Unauthenticated');
+const UserAlreadyExist = require('./UserAlreadyExist');
 
 module.exports = {
     userNotExist(err) {
@@ -11,6 +12,9 @@ module.exports = {
     },
     unauthenticated() {
         return new Unauthenticated();
+    },
+    userAlreadyExist(err) {
+        return new UserAlreadyExist(err);
     },
 };
 

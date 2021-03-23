@@ -1,8 +1,9 @@
 module.exports = {
-    UserEntity: require('./entity/userEntity'),
-    CheckDuplicateEmail: require('./useCases/checkDuplicateEmail'),
-    SignUp: require('./useCases/signUp'),
-    LogIn: require('./useCases/logIn'),
-    LogOut: require('./useCases/logOut'),
-    // CheckDuplicateId: require('./useCases/checkDuplicateId'),
+    UserEntity: require('./entity/UserEntity'),
+    CheckDuplicateEmail: require('./useCases/FindUserByEmail'),
+    SignUp: require('./useCases/SignUp'),
+    LogIn: require('./useCases/LogIn'),
+    LogOut: require('./useCases/LogOut'),
+    FindUserByEmail: require('./useCases/FindUserByEmail'),
+    IssueNewToken: require('./useCases/IssueNewToken'),
 };
