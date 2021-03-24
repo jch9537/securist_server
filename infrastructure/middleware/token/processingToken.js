@@ -13,10 +13,6 @@ const cognitoIssuer = `https://cognito-idp.${region}.amazonaws.com/${cognitoPool
 
 const verifyPromised = promisify(jwt.verify.bind(jwt));
 
-// 토큰 복호화
-// adapter가기 전 access token 복호화, 만료기간 확인
-// adapter가기 전 id 토큰 복호화 > userdata 전달
-
 const processingToken = {
     extractToken: (request) => {
         const reqHeader = request.headers.authorization;

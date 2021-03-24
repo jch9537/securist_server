@@ -1,5 +1,4 @@
 // TODO login usecase layer 예외처리(유효성) 추가확인
-// TODO 비밀번호 찾기
 const { token } = require('../../middleware');
 const { authAdapter } = require('../../../adapters/inbound');
 // const { success, error } = require('../../exceptions/index');

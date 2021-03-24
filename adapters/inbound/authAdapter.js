@@ -1,5 +1,3 @@
-// 테스트용 사용자 삭제
-//TODO token처리, 로그인 시도횟수제한 위치 확인 및 코드작성
 const awsCognito = require('../../infrastructure/webService/authService/awsCognito');
 
 // signup, login, logout 어댑터
@@ -94,7 +92,6 @@ module.exports = {
                     '응답 > adapters > inbound > authAdaptor.js > logIn - result : ',
                     result
                 );
-                //비밀번호 만료기한 체크 후 만료여부 property로 보내 front에서 처리하게 끔 하기
                 await Auth.resetRetryCount(result.AccessToken);
                 return success.logInSucess(result);
             }
