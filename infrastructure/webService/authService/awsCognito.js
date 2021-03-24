@@ -4,6 +4,8 @@ const AWS = require('../awsConfig');
 const { error } = require('../../exceptions');
 // const { UserEntity } = require('../../../domain/user/index');
 // const SES = require('../emailService/awsSes');
+const userPoolId = process.env.AWS_COGNITO_USERPOOL_ID;
+const clientId = process.env.AWS_APP_CLIENT_ID;
 module.exports = class {
     constructor() {
         this.cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider();
@@ -14,7 +16,7 @@ module.exports = class {
             email
         );
         var params = {
-            UserPoolId: process.env.AWS_COGNITO_USERPOOL_ID /* required */,
+            UserPoolId: userPoolId /* required */,
             AttributesToGet: [
                 'email',
                 // 'name',      /* more items */
@@ -52,7 +54,7 @@ module.exports = class {
             userData
         );
         let params = {
-            ClientId: process.env.AWS_APP_CLIENT_ID /* required */,
+            ClientId: clientId /* required */,
             Password: userData.password /* required */,
             Username: userData.email /* required */,
             ValidationData: [
@@ -154,7 +156,7 @@ module.exports = class {
             // CUSTOM_AUTH |
             // ADMIN_NO_SRP_AUTH |
             // ADMIN_USER_PASSWORD_AUTH /* required */,
-            ClientId: process.env.AWS_APP_CLIENT_ID /* required */,
+            ClientId: clientId /* required */,
             AuthParameters: {
                 USERNAME: `${userData.email}`,
                 PASSWORD: `${userData.password}`,
@@ -264,6 +266,50 @@ module.exports = class {
             );
         });
     }
+    issueNewToken(refreshToken) {
+        var params = {
+            AuthFlow: 'REFRESH_TOKEN',
+            // 'REFRESH_TOKEN_AUTH',
+            // | REFRESH_TOKEN , /* required */
+            ClientId: clientId /* required */,
+            AuthParameters: {
+                REFRESH_TOKEN: `${refreshToken}`,
+                /* '<StringType>': ... */
+            },
+            // AnalyticsMetadata: {
+            //   AnalyticsEndpointId: 'STRING_VALUE'
+            // },
+            // ClientMetadata: {
+            //   '<StringType>': 'STRING_VALUE',
+            //   /* '<StringType>': ... */
+            // },
+            // UserContextData: {
+            //   EncodedData: 'STRING_VALUE'
+            // }
+        };
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.initiateAuth(
+                params,
+                function (err, data) {
+                    if (err) {
+                        // an error occurred
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  issueNewToken : ',
+                            err
+                        );
+                        reject(err);
+                    } else {
+                        // successful response
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > issueNewToken : ',
+                            data
+                        );
+                        resolve(data);
+                    }
+                }
+            );
+        });
+    }
     getUserInfo(token) {
         console.log(
             '요청 > Infrastructure > webService > authService > awsCognito.js > getUserInfo : '
@@ -337,10 +383,9 @@ module.exports = class {
             );
         });
     }
-
     getRetryCount(email) {
         var params = {
-            UserPoolId: process.env.AWS_COGNITO_USERPOOL_ID /* required */,
+            UserPoolId: userPoolId /* required */,
             Username: `${email}` /* required */,
         };
         return new Promise((resolve, reject) => {
@@ -374,7 +419,6 @@ module.exports = class {
             );
         });
     }
-
     setRetryCount(email, count) {
         var params = {
             UserAttributes: [
@@ -385,7 +429,7 @@ module.exports = class {
                 },
                 /* more items */
             ],
-            UserPoolId: process.env.AWS_COGNITO_USERPOOL_ID /* required */,
+            UserPoolId: userPoolId /* required */,
             Username: `${email}` /* required */,
             // ClientMetadata: {
             //   '<StringType>': 'STRING_VALUE',
@@ -415,17 +459,122 @@ module.exports = class {
             );
         });
     }
-
-    issueNewToken(refreshToken) {
+    getPasswordExp(token) {
         var params = {
-            AuthFlow: 'REFRESH_TOKEN',
-            // 'REFRESH_TOKEN_AUTH',
-            // | REFRESH_TOKEN , /* required */
-            ClientId: process.env.AWS_APP_CLIENT_ID /* required */,
-            AuthParameters: {
-                REFRESH_TOKEN: `${refreshToken}`,
-                /* '<StringType>': ... */
-            },
+            UserPoolId: userPoolId /* required */,
+            Username: `${email}` /* required */,
+        };
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.adminGetUser(
+                params,
+                function (err, data) {
+                    if (err) {
+                        // an error occurred
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  getUserInfoByAdmin : ',
+                            err
+                        );
+                        reject(err);
+                    } else {
+                        // successful response
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > getUserInfoByAdmin : ',
+                            data
+                        );
+                        let count;
+                        let attributes = data.UserAttributes;
+                        for (let i = 0; i < attributes.length; i++) {
+                            if (attributes[i].Name === 'custom:retryCount') {
+                                count = Number(attributes[i].Value);
+                                break;
+                            }
+                        }
+                        resolve(count);
+                    }
+                }
+            );
+        });
+    }
+    changePassword({ token, prePassword, newPassword }) {
+        var params = {
+            AccessToken: token /* required */,
+            PreviousPassword: prePassword /* required */,
+            ProposedPassword: newPassword /* required */,
+        };
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.changePassword(
+                params,
+                function (err, data) {
+                    if (err) {
+                        // an error occurred
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  changePassword : ',
+                            err
+                        );
+                        reject(err);
+                    } else {
+                        // successful response
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > changePassword : ',
+                            data
+                        );
+                        resolve(data);
+                    }
+                }
+            );
+        });
+    }
+    forgotPassword(email) {
+        var params = {
+            ClientId: clientId /* required */,
+            Username: email /* required */,
+            // AnalyticsMetadata: {
+            //     AnalyticsEndpointId: 'STRING_VALUE',
+            // },
+            // ClientMetadata: {
+            //     '<StringType>': 'STRING_VALUE',
+            //     /* '<StringType>': ... */
+            // },
+            // SecretHash: 'STRING_VALUE',
+            // UserContextData: {
+            //     EncodedData: 'STRING_VALUE',
+            // },
+        };
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.forgotPassword(
+                params,
+                function (err, data) {
+                    if (err) {
+                        // an error occurred
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  forgotPassword : ',
+                            err
+                        );
+                        reject(err);
+                    } else {
+                        // successful response
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > forgotPassword : ',
+                            data
+                        );
+                        resolve(data);
+                    }
+                }
+            );
+        });
+    }
+    confirmForgotPassword({ email, code, password }) {
+        console.log(
+            '요청 > Infrastructure > webService > authService > awsCognito.js > confirmForgotPasword : ',
+            email,
+            code,
+            password
+        );
+        var params = {
+            ClientId: clientId /* required */,
+            ConfirmationCode: code /* required */,
+            Password: password /* required */,
+            Username: email /* required */,
             // AnalyticsMetadata: {
             //   AnalyticsEndpointId: 'STRING_VALUE'
             // },
@@ -433,25 +582,26 @@ module.exports = class {
             //   '<StringType>': 'STRING_VALUE',
             //   /* '<StringType>': ... */
             // },
+            // SecretHash: 'STRING_VALUE',
             // UserContextData: {
             //   EncodedData: 'STRING_VALUE'
             // }
         };
         return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.initiateAuth(
+            this.cognitoidentityserviceprovider.confirmForgotPassword(
                 params,
                 function (err, data) {
                     if (err) {
                         // an error occurred
                         console.log(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  issueNewToken : ',
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  confirmForgotPassword : ',
                             err
                         );
                         reject(err);
                     } else {
                         // successful response
                         console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > issueNewToken : ',
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > confirmForgotPassword : ',
                             data
                         );
                         resolve(data);
@@ -465,7 +615,7 @@ module.exports = class {
     // 관리자 회원 삭제
     deleteUserByAdmin(id) {
         let params = {
-            UserPoolId: process.env.AWS_COGNITO_USERPOOL_ID /* required */,
+            UserPoolId: userPoolId /* required */,
             Username: id /* required */,
         };
         return new Promise((resolve, reject) => {
@@ -492,7 +642,7 @@ module.exports = class {
     //관리자 회원 비활성화
     disableUserByAdmin(id) {
         var params = {
-            UserPoolId: process.env.AWS_COGNITO_USERPOOL_ID /* required */,
+            UserPoolId: userPoolId /* required */,
             Username: id /* required */,
         };
         return new Promise((resolve, reject) => {
@@ -521,7 +671,7 @@ module.exports = class {
     //관리자 회원 활성화
     enableUserByAdmin(id) {
         var params = {
-            UserPoolId: process.env.AWS_COGNITO_USERPOOL_ID /* required */,
+            UserPoolId: userPoolId /* required */,
             Username: id /* required */,
         };
         return new Promise((resolve, reject) => {
@@ -554,7 +704,7 @@ module.exports = class {
     //     );
     //     // return 'Cognito Success';
     //     let params = {
-    //         UserPoolId: process.env.AWS_COGNITO_USERPOOL_ID /* required */,
+    //         UserPoolId: userPoolId /* required */,
     //         Username: userData.id /* required */,
     //         // ClientMetadata: {
     //         //     '<StringType>': 'STRING_VALUE',
@@ -621,7 +771,7 @@ module.exports = class {
     // // email로 cognito에서 사용자 가져오기(중복확인)
     // getEmail(email) {
     //     let params = {
-    //         UserPoolId: process.env.AWS_COGNITO_USERPOOL_ID /* required */,
+    //         UserPoolId: userPoolId /* required */,
     //         AttributesToGet: [
     //             'email',
     //             /* ('STRING_VALUE') : 검색 결과 사용자의 반환될 속성 이름(문자열)의 배열, 배열이 null이면 모든 속성 반환 */

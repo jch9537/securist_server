@@ -51,14 +51,39 @@ module.exports = class {
         );
         return result;
     }
-    async getUserInfo(token) {
+    async changePassword(userEntity) {
         console.log(
-            '요청 > Adapter > outBound > auth > authentication.js - getUserInfo : '
-            // token
+            '요청 > Adapter > outBound > auth > authentication.js - changePassword : '
+            // email
         );
-        let result = await this.authService.getUserInfo(token);
+        let result = await this.authService.changePassword(userEntity);
         console.log(
-            '응답 > Adapter > outBound > auth > authentication.js - getUserInfo : ',
+            '응답 > Adapter > outBound > auth > authentication.js - changePassword : ',
+            result
+        );
+        return result;
+    }
+    async forgotPassword(email) {
+        console.log(
+            '요청 > Adapter > outBound > auth > authentication.js - forgotPassword : '
+            // email
+        );
+        let result = await this.authService.forgotPassword(email);
+        console.log(
+            '응답 > Adapter > outBound > auth > authentication.js - forgotPassword : ',
+            result
+        );
+        return result;
+    }
+
+    async confirmForgotPassword(userEntity) {
+        console.log(
+            '요청 > Adapter > outBound > auth > authentication.js - confirmForgotPassword : '
+            // {email, code, password}
+        );
+        let result = await this.authService.confirmForgotPassword(userEntity);
+        console.log(
+            '응답 > Adapter > outBound > auth > authentication.js - confirmForgotPassword : ',
             result
         );
         return result;
@@ -116,6 +141,18 @@ module.exports = class {
         return result;
     }
 
+    // async getUserInfo(token) {
+    //     console.log(
+    //         '요청 > Adapter > outBound > auth > authentication.js - getUserInfo : '
+    //         // token
+    //     );
+    //     let result = await this.authService.getUserInfo(token);
+    //     console.log(
+    //         '응답 > Adapter > outBound > auth > authentication.js - getUserInfo : ',
+    //         result
+    //     );
+    //     return result;
+    // }
     // createUser(userEntity) {
     //     console.log(
     //         '요청 > Adapter > outBound > auth > auth.js > createUser - userEntity : ',

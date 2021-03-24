@@ -6,11 +6,13 @@ const awsCognito = require('../../infrastructure/webService/authService/awsCogni
 const { Auth, SendMail } = require('../outbound');
 const { success, error } = require('../exceptions');
 const {
-    UserEntity,
     SignUp,
     LogIn,
     LogOut,
     FindUserByEmail,
+    ForgotPassword,
+    ConfirmForgotPassword,
+    ChangePassword,
     IssueNewToken,
 } = require('../../domain/user');
 
@@ -53,7 +55,6 @@ module.exports = {
         );
         try {
             let signUp = new SignUp(Auth);
-            // 회원가입 > 자동 메일발송
             let result = await signUp.excute(userParam); //client에서 작성된 정보만 받음
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > signUp - result : ',
@@ -74,6 +75,8 @@ module.exports = {
        5회이상 로그인 실패  ?  비밀번호찾기안내 : '계정이 잠금상태입니다. 관리자에게 문의해주세요' 
     6. 비밀번호 유효기간 초과 ? 비밀번호 변경 모달 노출 :  로그인 화면 리다이렉션
     */
+
+    //TODO : 비밀번호 수정일 체크
     async logIn(userParam) {
         console.log(
             '요청 > adapters > inbound > authAdaptor.js > logIn - userParam : ',
@@ -91,16 +94,8 @@ module.exports = {
                     '응답 > adapters > inbound > authAdaptor.js > logIn - result : ',
                     result
                 );
+                //비밀번호 만료기한 체크 후 만료여부 property로 보내 front에서 처리하게 끔 하기
                 await Auth.resetRetryCount(result.AccessToken);
-
-                // DB 또는 cognito 저장 : access토큰 만료시 id토큰으로 refresh 토큰을 가져와 인증 후 새 access 토큰 생성
-                // let resData = {
-                //     idToken: result.IdToken,
-                //     accessToken: result.AccessToken,
-                //     expiresIn: result.ExpiresIn,
-                //     tokenType: result.TokenType,
-                // };
-
                 return success.logInSucess(result);
             }
         } catch (err) {
@@ -132,6 +127,59 @@ module.exports = {
             return err;
         }
     },
+
+    async forgotPassword(email) {
+        console.log(
+            '요청 > adapters > inbound > authAdaptor.js > forgotPassword - email : ',
+            email
+        );
+        try {
+            let forgotPassword = new ForgotPassword(Auth);
+            let result = await forgotPassword.excute(email); //client에서 작성된 정보만 받음
+            console.log(
+                '응답 > adapters > inbound > authAdaptor.js > forgotPassword - result : ',
+                result
+            );
+            return result;
+        } catch (err) {
+            return err;
+        }
+    },
+    async changePassword(userParam) {
+        console.log(
+            '요청 > adapters > inbound > authAdaptor.js > changePassword - userParam : ',
+            userParam
+        );
+        try {
+            let changePassword = new ChangePassword(Auth);
+            let result = await changePassword.excute(userParam); //client에서 작성된 정보만 받음
+            console.log(
+                '응답 > adapters > inbound > authAdaptor.js > changePassword - result : ',
+                result
+            );
+            return result;
+        } catch (err) {
+            return err;
+        }
+    },
+    async confirmForgotPassword(userParam) {
+        console.log(
+            '요청 > adapters > inbound > authAdaptor.js > confirmForgotPassword - email : ',
+            userParam
+        );
+        try {
+            let confirmForgotPassword = new ConfirmForgotPassword(Auth);
+            let result = await confirmForgotPassword.excute(userParam); //client에서 작성된 정보만 받음
+            console.log(
+                '응답 > adapters > inbound > authAdaptor.js > confirmForgotPassword - result : ',
+                result
+            );
+            return result;
+        } catch (err) {
+            return err;
+        }
+    },
+
     async issueNewToken(refreshToken) {
         console.log(
             '요청 > adapters > inbound > authAdaptor.js > issueNewToken - refreshToken : ',
