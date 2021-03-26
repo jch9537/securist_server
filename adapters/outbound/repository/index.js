@@ -1,8 +1,6 @@
-// const Repository = require('./repository');
-// const Database = require('../../../infrastructure/database');
+const Repository = require('./repository');
+const Database = require('../../../infrastructure/database');
 
-// const db = new Database();
+const db = new Database();
 
-// module.exports = {
-//     Repository: new Repository(db), //parameter: db
-// };
+module.exports = new Repository(db); //parameter: db

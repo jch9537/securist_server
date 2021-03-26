@@ -39,11 +39,4 @@ module.exports = {
             regLogInFailCount.test(logInFailCount)
         );
     },
-    // clientEntityValidation
-    validateBusinessLicenseNum(businessLicenseNum) {},
-    validateClientName(clientName) {},
-    validatePresidentName(presidentName) {},
-    // validateClientApprovalState(clientApprovalState) {},
-    // validateSignature(signature) {},
-    // validateClientDocFile(clientDocFile) {},
 };

@@ -1,9 +1,17 @@
 // TODO login usecase layer 예외처리(유효성) 추가확인
-const { token } = require('../../middleware');
+// TODO token 처리 useCases 까지 올려 처리
 const { authAdapter } = require('../../../adapters/inbound');
-// const { success, error } = require('../../exceptions/index');
+
+// 미들웨어 : Bearer 제거, 순수 토큰 추출
+const extractToken = (req, res, next) => {
+    let authString = req.headers.authorization;
+    const token = authString.split(' ')[1];
+    req.token = token;
+    next();
+};
 
 module.exports = (router) => {
+    // 중복 이메일 체크
     router.post('/api/auth/checkemail', async (req, res) => {
         let email = req.body.email;
         console.log('checkemail 요청 : ', email);
@@ -16,6 +24,7 @@ module.exports = (router) => {
             res.send(err);
         }
     });
+    // 회원가입
     router.post('/api/auth/signup', async (req, res) => {
         let reqData = req.body;
         console.log('signup 요청 : ', reqData);
@@ -28,43 +37,36 @@ module.exports = (router) => {
             res.send(err);
         }
     });
-    // login을 post로 처리했지만 추후 https로 하여 get으로 처리할 예정
+    //로그인
+    // TODO : login을 post로 처리했지만 추후 https로 하여 get으로 처리할 예정
     router.post('/api/auth/login', async (req, res) => {
         let reqData = req.body;
         console.log('login 요청 : ', reqData);
         try {
             let response = await authAdapter.logIn(reqData);
             console.log('login 응답 : ', response.data);
-            //비번 만료기간확인
-            let userInfo = await token.decodeToken(response.data.IdToken);
-            const passwordExp =
-                Number(userInfo['custom:passwordUpdatedAt']) +
-                60 * 60 * 24 * 90;
-            const now = Math.floor(new Date().valueOf() / 1000);
-            if (passwordExp < now) response.data.isPasswordExpired = true;
-            else response.data.isPasswordExpired = false;
-
             res.send(response);
         } catch (err) {
             console.log('login 에러 응답 : ', err);
             res.send(err);
         }
     });
-    router.post('/api/auth/logout', async (req, res) => {
-        // console.log('logOut 요청 : ', req);
-        try {
-            let result = await token.checkAccessToken(req);
-            let accessToken = token.extractToken(req);
-            if (result.isValid) {
+    //로그아웃
+    router.post(
+        '/api/auth/logout',
+        (req, res, next) => extractToken(req, res, next),
+        async (req, res) => {
+            try {
+                let accessToken = req.token;
                 let response = await authAdapter.logOut(accessToken);
                 console.log('logOut 응답 : ', response);
                 res.send(response);
+            } catch (err) {
+                console.log('logOut 에러 응답 : ', err);
+                res.send(err);
             }
-        } catch (err) {
-            console.log('logOut 에러 응답 : ', err);
-            res.send(err);
         }
-    });
+    );
     // 사용자 비밀번호 변경
     router.post('/api/auth/changepassword', async (req, res) => {
         let reqData = req.body;
@@ -100,40 +102,55 @@ module.exports = (router) => {
         }
     });
     // access token 유효기간 확인
-    router.get('/api/auth/confirmtoken', async (req, res) => {
-        try {
-            let result = await token.checkAccessToken(req);
-            console.log('result : ', result);
-            res.send(result);
-        } catch (err) {
-            console.log('err : ', err);
-            res.send(err);
+    router.get(
+        '/api/auth/confirmtoken',
+        (req, res, next) => extractToken(req, res, next),
+        async (req, res) => {
+            try {
+                let accessToken = req.token;
+                console.log('confirmtoken 요청 : ', accessToken);
+                let result = await authAdapter.checkAccessToken(accessToken);
+                console.log('confirmtoken 응답 : ', result);
+                res.send(result);
+            } catch (err) {
+                console.log('confirmtoken 에러 응답 : ', result);
+                res.send(err);
+            }
         }
-    });
+    );
     //refresh 토큰으로 access token 갱신
-    router.get('/api/auth/newtoken', async (req, res) => {
-        try {
-            let result = await authAdapter.issueNewToken(req);
-            console.log('newtoken 응답 : ', result);
-            res.send(result);
-        } catch (err) {
-            console.log('newtoken 에러 응답 : ', err);
-            res.send(err);
+    router.get(
+        '/api/auth/newtoken',
+        (req, res, next) => extractToken(req, res, next),
+        async (req, res) => {
+            try {
+                let refreshToken = req.token;
+                let result = await authAdapter.issueNewToken(refreshToken);
+                console.log('newtoken 응답 : ', result);
+                res.send(result);
+            } catch (err) {
+                console.log('newtoken 에러 응답 : ', err);
+                res.send(err);
+            }
         }
-    });
+    );
 
-    router.get('/api/user', async (req, res) => {
-        try {
-            let result = await token.getUserByIdToken(req);
-            console.log('++++++++++++++++++++++++++++++++++', result);
-            res.send(result);
-        } catch (err) {
-            res.send(err);
+    router.get(
+        '/api/user',
+        (req, res, next) => extractToken(req, res, next),
+        async (req, res) => {
+            try {
+                // let result = await token.getUserByIdToken(req);
+                // console.log('++++++++++++++++++++++++++++++++++', result);
+                res.send(result);
+            } catch (err) {
+                res.send(err);
+            }
         }
-    });
+    );
 
-    //관리자-----------------------------------------------------
-    //테스트용 API
+    //테스트용 API -----------------------------------------------------
+    //관리자 권한 처리 API
     router.post('/api/auth/deleteUserByAdmin', (req, res) => {
         let reqData = req.body;
         console.log('deleteUserByAdmin 요청 : ', reqData);

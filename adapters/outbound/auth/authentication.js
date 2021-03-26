@@ -51,6 +51,18 @@ module.exports = class {
         );
         return result;
     }
+    async checkAccessToken(token) {
+        console.log(
+            '요청 > Adapter > outBound > auth > authentication.js - checkAccessToken : '
+            // token
+        );
+        let result = await this.authService.checkAccessToken(token);
+        console.log(
+            '응답 > Adapter > outBound > auth > authentication.js - checkAccessToken : ',
+            result
+        );
+        return result;
+    }
     async changePassword(userEntity) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication.js - changePassword : '

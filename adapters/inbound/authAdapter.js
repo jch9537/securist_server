@@ -1,7 +1,8 @@
-const awsCognito = require('../../infrastructure/webService/authService/awsCognito');
+const awsCognito = require('../../infrastructure/webService/authService/awsCognito'); // 테스트용 모듈 import
 
-// signup, login, logout 어댑터
-const { Auth, SendMail } = require('../outbound');
+// 사용자 처리 어댑터
+const companyAdapter = require('./companyAdapter');
+const { Auth, Repository, SendMail } = require('../outbound');
 const { success, error } = require('../exceptions');
 const {
     SignUp,
@@ -12,7 +13,9 @@ const {
     ConfirmForgotPassword,
     ChangePassword,
     IssueNewToken,
-} = require('../../domain/user');
+    CheckAccessToken,
+} = require('../../domain/user/useCases');
+const { CreateClientCo } = require('../../domain/company/useCases');
 
 module.exports = {
     //Email 중복체크, 사용자 중복확인
@@ -58,7 +61,13 @@ module.exports = {
                 '응답 > adapters > inbound > authAdaptor.js > signUp - result : ',
                 result
             );
-            // 회원가입이 완료되면 기업정보 생성 (코드 추가!!)
+            /* 
+            회원가입이 완료되면 
+            1. 타입(클/컨)별 사용자 정보 생성 (DB) 
+            2. 기업정보가 있는지 확인 ? 연결 : 생성 (DB)
+            */
+            // let createClientCo = companyAdapter.createCompany(userParam);
+
             return success.signUpSucess(result);
         } catch (err) {
             return err;
@@ -92,6 +101,7 @@ module.exports = {
                     '응답 > adapters > inbound > authAdaptor.js > logIn - result : ',
                     result
                 );
+                //사용자 타입 응답에 추가
                 await Auth.resetRetryCount(result.AccessToken);
                 return success.logInSucess(result);
             }
@@ -106,7 +116,6 @@ module.exports = {
             return err;
         }
     },
-
     async logOut(token) {
         console.log(
             '요청 > adapters > inbound > authAdaptor.js > logOut - token : ',
@@ -124,7 +133,23 @@ module.exports = {
             return err;
         }
     },
-
+    async checkAccessToken(token) {
+        console.log(
+            '요청 > adapters > inbound > authAdaptor.js > checkAccessToken - token : ',
+            token
+        );
+        try {
+            let checkAccessToken = new CheckAccessToken(Auth);
+            let result = await checkAccessToken.excute(token);
+            console.log(
+                '응답 > adapters > inbound > authAdaptor.js > checkAccessToken - result : ',
+                result
+            );
+            return result;
+        } catch (err) {
+            return err;
+        }
+    },
     async forgotPassword(email) {
         console.log(
             '요청 > adapters > inbound > authAdaptor.js > forgotPassword - email : ',
@@ -195,22 +220,7 @@ module.exports = {
         }
     },
 
-    // async increaseLogInFailCount(){
-    //     let result = await Auth.getUserInfo(token);
-    //     console.log(
-    //         '응답 > adapters > inbound > authAdaptor.js > resetLogInFailCount - result : ',
-    //         result
-    //     );
-    //     let count;
-    //     for(let i = 0; i >= result.length; i++){
-    //         if(result[i].Name === 'custom:logInFailCount'){
-    //             count = Number(result[i].Value)
-    //             break;
-    //         }
-    //     }
-    //     count += 1
-    // }
-
+    // 테스트용 함수(cognito 바로 연결 : 관리자 권한 처리) -------------------------------------------------------------
     // 회원삭제
     async deleteUser(userParam) {
         try {

@@ -12,6 +12,7 @@ module.exports = class {
             name,
             userType,
         });
+        console.log('-----------------------------------', this.Auth);
         let result = await this.Auth.signUp(userEntity);
         return result;
     }
