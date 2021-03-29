@@ -3,14 +3,14 @@ module.exports = class {
     constructor(authService) {
         this.authService = authService;
     }
-    async findUserByEmail(email) {
+    async checkDuplicateEmail(email) {
         console.log(
-            '요청 > Adapter > outBound > auth > authentication.js - findUserByEmail > email : ',
+            '요청 > Adapter > outBound > auth > authentication.js - checkDuplicateEmail > email : ',
             email
         );
-        let result = await this.authService.findUserByEmail(email);
+        let result = await this.authService.checkExistEmail(email);
         console.log(
-            '응답 > Adapter > outBound > auth > authentication.js - findUserByEmail > result : ',
+            '응답 > Adapter > outBound > auth > authentication.js - checkDuplicateEmail > result : ',
             result
         );
         return result;
@@ -101,18 +101,18 @@ module.exports = class {
         return result;
     }
 
-    async resetRetryCount(token) {
-        console.log(
-            '요청 > Adapter > outBound > auth > authentication.js - resetLogInCount : ',
-            token
-        );
-        let result = await this.authService.resetRetryCount(token);
-        console.log(
-            '응답 > Adapter > outBound > auth > authentication.js - resetLogInCount : ',
-            result
-        );
-        return result;
-    }
+    // async resetRetryCount(token) {
+    //     console.log(
+    //         '요청 > Adapter > outBound > auth > authentication.js - resetLogInCount : ',
+    //         token
+    //     );
+    //     let result = await this.authService.resetRetryCount(token);
+    //     console.log(
+    //         '응답 > Adapter > outBound > auth > authentication.js - resetLogInCount : ',
+    //         result
+    //     );
+    //     return result;
+    // }
 
     async getRetryCount(email) {
         console.log(
@@ -148,6 +148,18 @@ module.exports = class {
         let result = await this.authService.issueNewToken(refreshToken);
         console.log(
             '응답 > Adapter > outBound > auth > authentication.js - issueNewToken : ',
+            result
+        );
+        return result;
+    }
+    async getUserByIdToken(idToken) {
+        console.log(
+            '요청 > Adapter > outBound > auth > authentication.js - idToken : ',
+            idToken
+        );
+        let result = await this.authService.getUserByIdToken(idToken);
+        console.log(
+            '응답 > Adapter > outBound > auth > authentication.js - result : ',
             result
         );
         return result;

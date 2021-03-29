@@ -1,8 +1,8 @@
 //TODO - userEntity를 넘겨주기 122번째 줄
-//TODO : 예외처리 custom으로 만들어서 넘기기
+//TODO : 예외처리 custom으로 만들어서 넘기기 : 처리 > usecase로 넘어가는 것 확인
 //개별 클라우드 인증서비스의 실행클래스 - cognito
 const AWS = require('../awsConfig');
-const { error } = require('../../exceptions');
+const { error, success } = require('../../exceptions');
 const { processingToken, checkExpiredPassword } = require('./awsMiddleware');
 
 const userPoolId = process.env.AWS_COGNITO_USERPOOL_ID;
@@ -12,9 +12,9 @@ module.exports = class {
         this.cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider();
     }
     // 이메일 존재여부 확인
-    findUserByEmail(email) {
+    async checkExistEmail(email) {
         console.log(
-            '요청 > Infrastructure > webService > authService > awsCognito.js > findUserByEmail : ',
+            '요청 > Infrastructure > webService > authService > awsCognito.js > checkExistEmail : ',
             email
         );
         var params = {
@@ -32,18 +32,18 @@ module.exports = class {
                 params,
                 function (err, data) {
                     if (err) {
+                        // an error occurred
                         console.log(err, err.stack);
                         reject(err);
-                    }
-                    // an error occurred
-                    else {
+                    } else {
+                        // successful response
                         console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > findUserByEmail : ',
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > checkExistEmail : ',
                             data
                         );
                         let userExist = data.Users.length ? true : false;
                         resolve(userExist);
-                    } // successful response
+                    }
                 }
             );
         });
@@ -138,7 +138,7 @@ module.exports = class {
                             '응답 > Infrastructure > webService > authService > awsCognito.js > signup : ',
                             data
                         );
-                        resolve(data);
+                        resolve(success.signUpSuccess(data));
                     }
                 }
             );
@@ -147,6 +147,7 @@ module.exports = class {
     }
     // 로그인
     logIn(userData) {
+        let self = this;
         console.log(
             '요청 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
             userData
@@ -179,7 +180,7 @@ module.exports = class {
         return new Promise((resolve, reject) => {
             this.cognitoidentityserviceprovider.initiateAuth(
                 params,
-                function (err, data) {
+                async function (err, data) {
                     if (err) {
                         // an error occurred
                         console.log(
@@ -199,6 +200,15 @@ module.exports = class {
                                 err.message ===
                                 'Incorrect username or password.'
                             ) {
+                                let failCount = await self.getRetryCount(
+                                    userData.email
+                                );
+                                failCount += 1;
+                                await self.setRetryCount(
+                                    userData.email,
+                                    failCount
+                                );
+                                err.retryCount = failCount;
                                 reject(error.incorrectPassword(err));
                             } else if (
                                 err.message === 'Password attempts exceeded'
@@ -219,16 +229,22 @@ module.exports = class {
                             data.AuthenticationResult
                         );
                         let response = data.AuthenticationResult;
+                        self.resetRetryCount(response.AccessToken); // 로그인 시도 리셋
+
                         let userInfo = processingToken.decodeToken(
                             response.IdToken
                         );
                         userInfo.then((res) => {
+                            let userType = res['custom:userType'];
+                            response.userType = userType; // 사용자 타입
+
                             let passwordUpdatedAt =
                                 res['custom:passwordUpdatedAt'];
                             response.isPasswordExpired = checkExpiredPassword(
-                                passwordUpdatedAt
+                                passwordUpdatedAt // 비밀번호 만료여부
                             );
-                            resolve(response);
+
+                            resolve(success.logInSuccess(response));
                         });
                     }
                 }
@@ -259,26 +275,17 @@ module.exports = class {
                             err
                         );
                         if (err.code === 'NotAuthorizedException') {
-                            // 토큰 만료 : 리프레시 토큰 필요
                             if (err.message === 'Access Token has expired') {
-                                // reject(error.accessTokenExpired(err));
-                                err.status = 403;
-                                err.isExpired = true;
-                                reject(err);
+                                // 토큰 만료 : 리프레시 토큰 필요
+                                reject(error.accessTokenExpired(err));
                             } else if (
                                 // 토큰 취소 : 로그인 필요
                                 err.message === 'Access Token has been revoked'
                             ) {
-                                // reject(error.accessTokenExpired(err));
-                                err.status = 403;
-                                err.logInRequired = true;
-                                reject(err);
-                                // 유효하지 않은 토큰 : 로그인 필요
+                                reject(error.tokenRevoked(err));
                             } else if (err.message === 'Invalid Access Token') {
-                                // reject(error.invalidAccessToken(err));
-                                err.status = 401;
-                                err.logInRequired = true;
-                                reject(err);
+                                // 유효하지 않은 토큰 : 로그인 필요
+                                reject(error.invalidAccessToken(err));
                             }
                         }
                         reject(err);
@@ -288,7 +295,7 @@ module.exports = class {
                             '응답 > Infrastructure > webService > authService > awsCognito.js > logOut : ',
                             data
                         );
-                        resolve(data);
+                        resolve(success.logOutSuccess());
                     }
                 }
             );
@@ -344,14 +351,24 @@ module.exports = class {
             );
         });
     }
-    // cognito 사용자 정보 가져오기
-    getUserInfo(token) {
+    // 사용자 가입정보 가져오기 : idToken
+    async getUserByIdToken(idToken) {
+        console.log(
+            '요청 > Infrastructure > webService > authService > awsCognito.js > getUserByIdToken : '
+            // token
+        );
+        let result = await processingToken.getUserByIdToken(idToken);
+        console.log('응답 : ', result);
+        return result;
+    }
+    // 사용자 접근정보 확인 : accessToken
+    getUserInfo(accessToken) {
         console.log(
             '요청 > Infrastructure > webService > authService > awsCognito.js > getUserInfo : '
             // token
         );
         var params = {
-            AccessToken: `${token}` /* required */,
+            AccessToken: `${accessToken}` /* required */,
         };
         return new Promise((resolve, reject) => {
             this.cognitoidentityserviceprovider.getUser(
@@ -497,46 +514,10 @@ module.exports = class {
             );
         });
     }
-    // 비밀번호 만료기간 가져오기
-    getPasswordExp(token) {
-        var params = {
-            UserPoolId: userPoolId /* required */,
-            Username: `${email}` /* required */,
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.adminGetUser(
-                params,
-                function (err, data) {
-                    if (err) {
-                        // an error occurred
-                        console.log(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  getUserInfoByAdmin : ',
-                            err
-                        );
-                        reject(err);
-                    } else {
-                        // successful response
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > getUserInfoByAdmin : ',
-                            data
-                        );
-                        let count;
-                        let attributes = data.UserAttributes;
-                        for (let i = 0; i < attributes.length; i++) {
-                            if (attributes[i].Name === 'custom:retryCount') {
-                                count = Number(attributes[i].Value);
-                                break;
-                            }
-                        }
-                        resolve(count);
-                    }
-                }
-            );
-        });
-    }
     // 사용자 비밀번호 변경
     changePassword({ token, prePassword, newPassword }) {
-        var params = {
+        let self = this;
+        let params = {
             AccessToken: token /* required */,
             PreviousPassword: prePassword /* required */,
             ProposedPassword: newPassword /* required */,
@@ -544,7 +525,7 @@ module.exports = class {
         return new Promise((resolve, reject) => {
             this.cognitoidentityserviceprovider.changePassword(
                 params,
-                function (err, data) {
+                async function (err, data) {
                     if (err) {
                         // an error occurred
                         console.log(
@@ -556,6 +537,54 @@ module.exports = class {
                         // successful response
                         console.log(
                             '응답 > Infrastructure > webService > authService > awsCognito.js > changePassword : ',
+                            data
+                        );
+                        await self.changePassordUpdatedAt(token);
+                        resolve(data);
+                    }
+                }
+            );
+        });
+    }
+    // 비밀번호 수정 날짜 변경
+    changePassordUpdatedAt(token) {
+        var params = {
+            AccessToken: token /* required */,
+            UserAttributes: [
+                /* required */
+                {
+                    Name:
+                        'custom:passwordUpdatedAt' /* required */,
+                    Value: `${Math.floor(
+                        new Date().valueOf() / 1000
+                    )}`,
+                },
+                /* more items */
+            ],
+            // ClientMetadata: {
+            //     '<StringType>': 'STRING_VALUE',
+            //     /* '<StringType>': ... */
+            // },
+        };
+        await self.changeAttribute(params);
+    }
+    // 사용자 속성값 변경
+    changeAttribute(params) {
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.updateUserAttributes(
+                params,
+                function (err, data) {
+                    if (err) {
+                        // an error occurred
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  changeAttribute : ',
+                            err
+                        );
+                        reject(err);
+                    } else {
+                        // successful response
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > changeAttribute : ',
                             data
                         );
                         resolve(data);
@@ -646,12 +675,50 @@ module.exports = class {
                             '응답 > Infrastructure > webService > authService > awsCognito.js > confirmForgotPassword : ',
                             data
                         );
+                        await self.changePassordUpdatedAt(token);
                         resolve(data);
                     }
                 }
             );
         });
     }
+    // // 비밀번호 만료기간 가져오기
+    // getPasswordExp(email) {
+    //     var params = {
+    //         UserPoolId: userPoolId /* required */,
+    //         Username: `${email}` /* required */,
+    //     };
+    //     return new Promise((resolve, reject) => {
+    //         this.cognitoidentityserviceprovider.adminGetUser(
+    //             params,
+    //             function (err, data) {
+    //                 if (err) {
+    //                     // an error occurred
+    //                     console.log(
+    //                         '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  getUserInfoByAdmin : ',
+    //                         err
+    //                     );
+    //                     reject(err);
+    //                 } else {
+    //                     // successful response
+    //                     console.log(
+    //                         '응답 > Infrastructure > webService > authService > awsCognito.js > getUserInfoByAdmin : ',
+    //                         data
+    //                     );
+    //                     let count;
+    //                     let attributes = data.UserAttributes;
+    //                     for (let i = 0; i < attributes.length; i++) {
+    //                         if (attributes[i].Name === 'custom:retryCount') {
+    //                             count = Number(attributes[i].Value);
+    //                             break;
+    //                         }
+    //                     }
+    //                     resolve(count);
+    //                 }
+    //             }
+    //         );
+    //     });
+    // }
 
     //테스트 관리자코드------------------------------------------------------------
     // 관리자 회원 삭제

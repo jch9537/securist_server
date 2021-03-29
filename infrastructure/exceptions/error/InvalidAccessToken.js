@@ -3,6 +3,7 @@ module.exports = class {
         // console.log('--------------', resData);
         this.status = 401;
         this.message = '유효하지 않은 토큰입니다. (Unauthenticated)';
-        this.data = err;
+        this.logInRequired = true;
+        this.err = err;
     }
 };

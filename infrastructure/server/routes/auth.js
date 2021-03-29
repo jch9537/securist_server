@@ -16,7 +16,7 @@ module.exports = (router) => {
         let email = req.body.email;
         console.log('checkemail 요청 : ', email);
         try {
-            let response = await authAdapter.findUserByEmail(email);
+            let response = await authAdapter.checkDuplicateEmail(email);
             console.log('checkemail 응답 : ', response);
             res.send(response);
         } catch (err) {
@@ -140,8 +140,26 @@ module.exports = (router) => {
         (req, res, next) => extractToken(req, res, next),
         async (req, res) => {
             try {
-                // let result = await token.getUserByIdToken(req);
-                // console.log('++++++++++++++++++++++++++++++++++', result);
+                let idToken = req.token;
+                console.log('~~~~~~~~~~~~~~~~~~~~~~~', idToken);
+                let result = await authAdapter.getUserByIdToken(idToken);
+                console.log('++++++++++++++++++++++++++++++++++', result);
+                res.send(result);
+            } catch (err) {
+                res.send(err);
+            }
+        }
+    );
+
+    router.get(
+        '/api/userInfo',
+        (req, res, next) => extractToken(req, res, next),
+        async (req, res) => {
+            try {
+                let accessToken = req.token;
+                console.log('~~~~~~~~~~~~~~~~~~~~~~~', accessToken);
+                let result = await authAdapter.getUserInfo(accessToken);
+                console.log('++++++++++++++++++++++++++++++++++', result);
                 res.send(result);
             } catch (err) {
                 res.send(err);

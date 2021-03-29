@@ -1,7 +1,7 @@
 module.exports = class {
-    constructor(err) {
+    constructor(userExist) {
         this.status = 409;
         this.message = '이미 가입된 email입니다.(Conflict)';
-        this.data = err;
+        this.userExist = userExist;
     }
 };

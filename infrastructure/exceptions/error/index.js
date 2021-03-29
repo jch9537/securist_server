@@ -1,14 +1,18 @@
 const UserNotExist = require('./IncorrectPassword');
+const UserNotFound = require('./UserNotFound');
 const ConfirmAuthMail = require('./ConfirmAuthMail');
 const DisabledUser = require('./DisabledUser');
-
 const InvalidPassword = require('./InvalidPassword');
 const InvalidParameter = require('./InvalidParameter');
 const AccessTokenExpired = require('./AccessTokenExpired');
 const InvalidAccessToken = require('./InvalidAccessToken');
 const ExceededLogInCount = require('./ExceededLogInCount');
+const TokenRevoked = require('./TokenRevoked');
 
 module.exports = {
+    userNotFound(err) {
+        return new UserNotFound(err);
+    },
     incorrectPassword(err) {
         return new UserNotExist(err);
     },
@@ -32,6 +36,9 @@ module.exports = {
     },
     exceededLogInCount(err) {
         return new ExceededLogInCount(err);
+    },
+    tokenRevoked(err) {
+        return new TokenRevoked(err);
     },
 };
 

@@ -3,7 +3,7 @@ module.exports = class {
         this.Auth = Auth;
     }
     async excute(email) {
-        let result = await this.Auth.findUserByEmail(email);
+        let result = await this.Auth.checkDuplicateEmail(email);
         return result;
     }
 };

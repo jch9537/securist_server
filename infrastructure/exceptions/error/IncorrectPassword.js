@@ -3,7 +3,6 @@ module.exports = class {
         // console.log('--------------', resData);
         this.status = 401;
         this.message = '비밀번호를 확인해주세요 (Unauthenticated)';
-        this.isLogIn = false;
         this.data = err;
     }
 };

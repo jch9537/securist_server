@@ -1,5 +1,5 @@
-const error = require('./error');
+// const error = require('./error');
 module.exports = {
-    // success: require('./successResponse'),
-    error: error,
+    success: require('./success'),
+    error: require('./error'),
 };

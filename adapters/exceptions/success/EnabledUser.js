@@ -1,7 +1,7 @@
 module.exports = class {
-    constructor(state) {
+    constructor(userExist) {
         this.status = 204;
         this.message = '사용 가능한 email입니다.';
-        this.enabled = state;
+        this.userExist = userExist;
     }
 };

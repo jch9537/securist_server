@@ -5,6 +5,7 @@ const companyAdapter = require('./companyAdapter');
 const { Auth, Repository, SendMail } = require('../outbound');
 const { success, error } = require('../exceptions');
 const {
+    CheckDuplicateEmail,
     SignUp,
     LogIn,
     LogOut,
@@ -14,21 +15,21 @@ const {
     ChangePassword,
     IssueNewToken,
     CheckAccessToken,
+    GetUserByIdToken,
 } = require('../../domain/user/useCases');
-const { CreateClientCo } = require('../../domain/company/useCases');
 
 module.exports = {
     //Email 중복체크, 사용자 중복확인
-    async findUserByEmail(email) {
+    async checkDuplicateEmail(email) {
         console.log(
-            '요청 > adapters > inbound > authAdaptor.js > findUserByEmail - email : ',
+            '요청 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - email : ',
             email
         );
         try {
-            let findUserByEmail = new FindUserByEmail(Auth);
-            let result = await findUserByEmail.excute(email);
+            let checkDuplicateEmail = new CheckDuplicateEmail(Auth);
+            let result = await checkDuplicateEmail.excute(email);
             console.log(
-                '응답 > adapters > inbound > authAdaptor.js > findUserByEmail - email : ',
+                '응답 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - email : ',
                 result
             );
             return result
@@ -68,7 +69,7 @@ module.exports = {
             */
             // let createClientCo = companyAdapter.createCompany(userParam);
 
-            return success.signUpSucess(result);
+            return result;
         } catch (err) {
             return err;
         }
@@ -83,17 +84,17 @@ module.exports = {
     6. 비밀번호 유효기간 초과 ? 비밀번호 변경 모달 노출 :  로그인 화면 리다이렉션
     */
 
-    //TODO : 비밀번호 수정일 체크
     async logIn(userParam) {
         console.log(
             '요청 > adapters > inbound > authAdaptor.js > logIn - userParam : ',
             userParam
         );
         try {
-            let userExist = await this.findUserByEmail(userParam.email);
-            console.log('userExist :', userExist);
-            if (!userExist) {
-                return error.userNotExist(userExist);
+            let userCheck = await this.checkDuplicateEmail(userParam.email);
+            let isExist = userCheck.userExist;
+
+            if (!isExist) {
+                return error.userNotExist(isExist);
             } else {
                 let logIn = new LogIn(Auth);
                 let result = await logIn.excute(userParam);
@@ -101,18 +102,13 @@ module.exports = {
                     '응답 > adapters > inbound > authAdaptor.js > logIn - result : ',
                     result
                 );
-                //사용자 타입 응답에 추가
-                await Auth.resetRetryCount(result.AccessToken);
-                return success.logInSucess(result);
+                return result;
             }
         } catch (err) {
-            if (err.isLogIn === false) {
-                let failCount = await Auth.getRetryCount(userParam.email);
-                console.log('Adapter > failCount : ', failCount);
-                failCount += 1;
-                await Auth.setRetryCount(userParam.email, failCount);
-                err.retryCount = failCount;
-            }
+            console.log(
+                '에러 응답 > adapters > inbound > authAdaptor.js > logIn - err : ',
+                err
+            );
             return err;
         }
     },
@@ -128,7 +124,7 @@ module.exports = {
                 '응답 > adapters > inbound > authAdaptor.js > logOut - result : ',
                 result
             );
-            return success.logOutSuccess();
+            return result;
         } catch (err) {
             return err;
         }
@@ -143,6 +139,24 @@ module.exports = {
             let result = await checkAccessToken.excute(token);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > checkAccessToken - result : ',
+                result
+            );
+            return result;
+        } catch (err) {
+            return err;
+        }
+    },
+    //TODO : 비밀번호 수정일 체크
+    async changePassword(userParam) {
+        console.log(
+            '요청 > adapters > inbound > authAdaptor.js > changePassword - userParam : ',
+            userParam
+        );
+        try {
+            let changePassword = new ChangePassword(Auth);
+            let result = await changePassword.excute(userParam); //client에서 작성된 정보만 받음
+            console.log(
+                '응답 > adapters > inbound > authAdaptor.js > changePassword - result : ',
                 result
             );
             return result;
@@ -167,23 +181,6 @@ module.exports = {
             return err;
         }
     },
-    async changePassword(userParam) {
-        console.log(
-            '요청 > adapters > inbound > authAdaptor.js > changePassword - userParam : ',
-            userParam
-        );
-        try {
-            let changePassword = new ChangePassword(Auth);
-            let result = await changePassword.excute(userParam); //client에서 작성된 정보만 받음
-            console.log(
-                '응답 > adapters > inbound > authAdaptor.js > changePassword - result : ',
-                result
-            );
-            return result;
-        } catch (err) {
-            return err;
-        }
-    },
     async confirmForgotPassword(userParam) {
         console.log(
             '요청 > adapters > inbound > authAdaptor.js > confirmForgotPassword - email : ',
@@ -201,7 +198,6 @@ module.exports = {
             return err;
         }
     },
-
     async issueNewToken(refreshToken) {
         console.log(
             '요청 > adapters > inbound > authAdaptor.js > issueNewToken - refreshToken : ',
@@ -219,8 +215,36 @@ module.exports = {
             return err;
         }
     },
+    async getUserByIdToken(idToken) {
+        console.log(
+            '요청 > adapters > inbound > authAdaptor.js > getUserByIdToken - idToken : ',
+            idToken
+        );
+        try {
+            let getUserByIdToken = new GetUserByIdToken(Auth);
+            let result = await getUserByIdToken.excute(idToken);
+            console.log(
+                '응답 > adapters > inbound > authAdaptor.js > getUserByIdToken - result : ',
+                result
+            );
+            return result;
+        } catch (err) {
+            return err;
+        }
+    },
 
     // 테스트용 함수(cognito 바로 연결 : 관리자 권한 처리) -------------------------------------------------------------
+    //accessToken확인
+    async getUserInfo(userParam) {
+        try {
+            var test = new awsCognito();
+            let result = await test.getUserInfo(userParam);
+
+            return result;
+        } catch (err) {
+            return err;
+        }
+    },
     // 회원삭제
     async deleteUser(userParam) {
         try {
