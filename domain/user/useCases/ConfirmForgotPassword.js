@@ -1,13 +1,17 @@
+const { ConfirmForgotPasswordEntity } = require('../entity');
 module.exports = class {
     constructor(Auth) {
         this.Auth = Auth;
     }
-    async excute({ email, code, password }) {
-        let result = await this.Auth.confirmForgotPassword({
+    async excute({ email, password, code }) {
+        let confimForgotPasswordEntity = new ConfirmForgotPasswordEntity({
             email,
-            code,
             password,
+            code,
         });
+        let result = await this.Auth.confirmForgotPassword(
+            confimForgotPasswordEntity
+        );
         return result;
     }
 };

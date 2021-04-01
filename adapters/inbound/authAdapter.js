@@ -1,15 +1,14 @@
 const awsCognito = require('../../infrastructure/webService/authService/awsCognito'); // 테스트용 모듈 import
 
 // 사용자 처리 어댑터
-const companyAdapter = require('./companyAdapter');
+// const companyAdapter = require('./companyAdapter');
 const { Auth, Repository, SendMail } = require('../outbound');
-const { success, error } = require('../exceptions');
+
 const {
     CheckDuplicateEmail,
     SignUp,
     LogIn,
     LogOut,
-    FindUserByEmail,
     ForgotPassword,
     ConfirmForgotPassword,
     ChangePassword,
@@ -29,14 +28,19 @@ module.exports = {
             let checkDuplicateEmail = new CheckDuplicateEmail(Auth);
             let result = await checkDuplicateEmail.excute(email);
             console.log(
-                '응답 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - email : ',
+                '응답 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - result : ',
                 result
             );
-            return result
-                ? error.userAlreadyExist(result)
-                : success.enabledUser(result);
+            let data = {
+                userExist: result,
+            };
+            return data;
         } catch (err) {
-            return err;
+            console.log(
+                '에러 응답 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - err : ',
+                err
+            );
+            throw err;
         }
     },
     // 회원가입
@@ -68,10 +72,13 @@ module.exports = {
             2. 기업정보가 있는지 확인 ? 연결 : 생성 (DB)
             */
             // let createClientCo = companyAdapter.createCompany(userParam);
-
             return result;
         } catch (err) {
-            return err;
+            console.log(
+                '에러 응답 > adapters > inbound > authAdaptor.js > signUp - err : ',
+                err
+            );
+            throw err;
         }
     },
     /* 로그인 확인 흐름
@@ -90,26 +97,19 @@ module.exports = {
             userParam
         );
         try {
-            let userCheck = await this.checkDuplicateEmail(userParam.email);
-            let isExist = userCheck.userExist;
-
-            if (!isExist) {
-                return error.userNotExist(isExist);
-            } else {
-                let logIn = new LogIn(Auth);
-                let result = await logIn.excute(userParam);
-                console.log(
-                    '응답 > adapters > inbound > authAdaptor.js > logIn - result : ',
-                    result
-                );
-                return result;
-            }
+            let logIn = new LogIn(Auth);
+            let result = await logIn.excute(userParam);
+            console.log(
+                '응답 > adapters > inbound > authAdaptor.js > logIn - result : ',
+                result
+            );
+            return result;
         } catch (err) {
             console.log(
                 '에러 응답 > adapters > inbound > authAdaptor.js > logIn - err : ',
                 err
             );
-            return err;
+            throw err;
         }
     },
     async logOut(token) {
@@ -126,24 +126,7 @@ module.exports = {
             );
             return result;
         } catch (err) {
-            return err;
-        }
-    },
-    async checkAccessToken(token) {
-        console.log(
-            '요청 > adapters > inbound > authAdaptor.js > checkAccessToken - token : ',
-            token
-        );
-        try {
-            let checkAccessToken = new CheckAccessToken(Auth);
-            let result = await checkAccessToken.excute(token);
-            console.log(
-                '응답 > adapters > inbound > authAdaptor.js > checkAccessToken - result : ',
-                result
-            );
-            return result;
-        } catch (err) {
-            return err;
+            throw err;
         }
     },
     //TODO : 비밀번호 수정일 체크
@@ -161,7 +144,11 @@ module.exports = {
             );
             return result;
         } catch (err) {
-            return err;
+            console.log(
+                '에러 응답 > adapters > inbound > authAdaptor.js > changePassword - result : ',
+                err
+            );
+            throw err;
         }
     },
     async forgotPassword(email) {
@@ -178,7 +165,11 @@ module.exports = {
             );
             return result;
         } catch (err) {
-            return err;
+            console.log(
+                '에러 응답 > adapters > inbound > authAdaptor.js > forgotPassword - result : ',
+                err
+            );
+            throw err;
         }
     },
     async confirmForgotPassword(userParam) {
@@ -195,7 +186,28 @@ module.exports = {
             );
             return result;
         } catch (err) {
-            return err;
+            console.log(
+                '에러 응답 > adapters > inbound > authAdaptor.js > confirmForgotPassword - result : ',
+                err
+            );
+            throw err;
+        }
+    },
+    async checkAccessToken(token) {
+        console.log(
+            '요청 > adapters > inbound > authAdaptor.js > checkAccessToken - token : ',
+            token
+        );
+        try {
+            let checkAccessToken = new CheckAccessToken(Auth);
+            let result = await checkAccessToken.excute(token);
+            console.log(
+                '응답 > adapters > inbound > authAdaptor.js > checkAccessToken - result : ',
+                result
+            );
+            return result;
+        } catch (err) {
+            throw err;
         }
     },
     async issueNewToken(refreshToken) {
@@ -212,7 +224,11 @@ module.exports = {
             );
             return result;
         } catch (err) {
-            return err;
+            console.log(
+                '에러 응답 > adapters > inbound > authAdaptor.js > issueNewToken - result : ',
+                err
+            );
+            throw err;
         }
     },
     async getUserByIdToken(idToken) {
@@ -229,7 +245,11 @@ module.exports = {
             );
             return result;
         } catch (err) {
-            return err;
+            console.log(
+                '에러 응답 > adapters > inbound > authAdaptor.js > getUserByIdToken - result : ',
+                err
+            );
+            throw err;
         }
     },
 

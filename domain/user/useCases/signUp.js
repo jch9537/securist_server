@@ -1,19 +1,17 @@
-const UserEntity = require('../entity/UserEntity');
+const { SignUpEntity } = require('../entity');
 
 module.exports = class {
     constructor(Auth) {
         this.Auth = Auth;
     }
     async excute({ email, password, name, userType }) {
-        // let hashedPassword = this.hashPassword(password);
-        let userEntity = new UserEntity({
+        let signUpEntity = new SignUpEntity({
             email,
             password,
             name,
             userType,
         });
-        console.log('-----------------------------------', this.Auth);
-        let result = await this.Auth.signUp(userEntity);
+        let result = await this.Auth.signUp(signUpEntity);
         return result;
     }
 };

@@ -1,6 +1,5 @@
-// TODO login usecase layer 예외처리(유효성) 추가확인
-// TODO token 처리 useCases 까지 올려 처리
 const { authAdapter } = require('../../../adapters/inbound');
+const Response = require('../modules/Response');
 
 // 미들웨어 : Bearer 제거, 순수 토큰 추출
 const extractToken = (req, res, next) => {
@@ -14,26 +13,45 @@ module.exports = (router) => {
     // 중복 이메일 체크
     router.post('/api/auth/checkemail', async (req, res) => {
         let email = req.body.email;
-        console.log('checkemail 요청 : ', email);
+        console.log('/api/auth/checkemail 요청 : ', email);
         try {
-            let response = await authAdapter.checkDuplicateEmail(email);
-            console.log('checkemail 응답 : ', response);
+            let result = await authAdapter.checkDuplicateEmail(email);
+            console.log('/api/auth/checkemail 응답 : ', result);
+            let response;
+            if (!result.userExist) {
+                response = new Response(
+                    200,
+                    '사용가능한 email 입니다.',
+                    result
+                );
+            } else {
+                response = new Response(
+                    409,
+                    '이미 가입된 email입니다.',
+                    result // 예외처리 확인
+                );
+            }
             res.send(response);
         } catch (err) {
-            console.log('checkemail 에러 : ', err);
+            console.log('/api/auth/checkemail 에러 응답 : ', err);
             res.send(err);
         }
     });
     // 회원가입
     router.post('/api/auth/signup', async (req, res) => {
         let reqData = req.body;
-        console.log('signup 요청 : ', reqData);
+        console.log('/api/auth/signup 요청 : ', reqData);
         try {
-            let response = await authAdapter.signUp(reqData);
-            console.log('signup 응답 : ', response);
+            let result = await authAdapter.signUp(reqData);
+            console.log('/api/auth/signup 응답 : ', result);
+            let response = new Response(
+                201,
+                '회원가입 완료 (Accepted)',
+                result
+            );
             res.send(response);
         } catch (err) {
-            console.log('signup 에러 응답 : ', err);
+            console.log('/api/auth/signup 에러 응답 : ', err);
             res.send(err);
         }
     });
@@ -41,13 +59,14 @@ module.exports = (router) => {
     // TODO : login을 post로 처리했지만 추후 https로 하여 get으로 처리할 예정
     router.post('/api/auth/login', async (req, res) => {
         let reqData = req.body;
-        console.log('login 요청 : ', reqData);
+        console.log('/api/auth/login 요청 : ', reqData);
         try {
-            let response = await authAdapter.logIn(reqData);
-            console.log('login 응답 : ', response.data);
+            let result = await authAdapter.logIn(reqData);
+            console.log('/api/auth/login 응답 : ', result);
+            let response = new Response(200, '로그인 성공 (OK)', result);
             res.send(response);
         } catch (err) {
-            console.log('login 에러 응답 : ', err);
+            console.log('/api/auth/login 에러 응답 : ', err);
             res.send(err);
         }
     });
@@ -56,13 +75,19 @@ module.exports = (router) => {
         '/api/auth/logout',
         (req, res, next) => extractToken(req, res, next),
         async (req, res) => {
+            let accessToken = req.token;
+            console.log('/api/auth/logOut 요청 : ', accessToken);
             try {
-                let accessToken = req.token;
-                let response = await authAdapter.logOut(accessToken);
-                console.log('logOut 응답 : ', response);
+                let result = await authAdapter.logOut(accessToken);
+                console.log('/api/auth/logOut 응답 : ', result);
+                let response = new Response(
+                    204,
+                    '로그아웃 완료 (No Content)',
+                    result
+                );
                 res.send(response);
             } catch (err) {
-                console.log('logOut 에러 응답 : ', err);
+                console.log('/api/auth/logOut 에러 응답 : ', err);
                 res.send(err);
             }
         }
@@ -74,30 +99,36 @@ module.exports = (router) => {
 
         try {
             let result = await authAdapter.changePassword(reqData);
+            console.log('changepassword 응답 : ', result);
             res.send(result);
         } catch (err) {
+            console.log('changepassword 에러 응답 : ', err);
             res.send(err);
         }
     });
     // 비밀번호 찾기 확인코드전송
     router.post('/api/auth/forgotpassword', async (req, res) => {
         let email = req.body.email;
-        console.log('forgotpassword 요청 : ', email);
+        console.log('/api/auth/forgotpassword 요청 : ', email);
         try {
             let result = await authAdapter.forgotPassword(email);
+            console.log('/api/auth/forgotpassword 요청 : ', result);
             res.send(result);
         } catch (err) {
+            console.log('/api/auth/forgotpassword 요청 : ', err);
             res.send(err);
         }
     });
     // 비밀번호 찾기 비밀번호 변경
     router.post('/api/auth/confirmforgotpassword', async (req, res) => {
         let reqData = req.body;
+        console.log('/api/auth/confirmforgotpassword 요청 : ', reqData);
         try {
             let result = await authAdapter.confirmForgotPassword(reqData);
-            console.log('confirmforgotpassword 요청 : ', result);
+            console.log('/api/auth/confirmforgotpassword 응답 : ', result);
             res.send(result);
         } catch (err) {
+            console.log('/api/auth/confirmforgotpassword 에러 응답 : ', err);
             res.send(err);
         }
     });
@@ -108,12 +139,12 @@ module.exports = (router) => {
         async (req, res) => {
             try {
                 let accessToken = req.token;
-                console.log('confirmtoken 요청 : ', accessToken);
+                console.log('/api/auth/confirmtoken 요청 : ', accessToken);
                 let result = await authAdapter.checkAccessToken(accessToken);
-                console.log('confirmtoken 응답 : ', result);
+                console.log('/api/auth/confirmtoken 응답 : ', result);
                 res.send(result);
             } catch (err) {
-                console.log('confirmtoken 에러 응답 : ', result);
+                console.log('/api/auth/confirmtoken 에러 응답 : ', err);
                 res.send(err);
             }
         }
@@ -126,10 +157,10 @@ module.exports = (router) => {
             try {
                 let refreshToken = req.token;
                 let result = await authAdapter.issueNewToken(refreshToken);
-                console.log('newtoken 응답 : ', result);
+                console.log('/api/auth/newtoken 응답 : ', result);
                 res.send(result);
             } catch (err) {
-                console.log('newtoken 에러 응답 : ', err);
+                console.log('/api/auth/newtoken 에러 응답 : ', err);
                 res.send(err);
             }
         }
@@ -141,11 +172,12 @@ module.exports = (router) => {
         async (req, res) => {
             try {
                 let idToken = req.token;
-                console.log('~~~~~~~~~~~~~~~~~~~~~~~', idToken);
+                console.log('/api/user 요청 : ', idToken);
                 let result = await authAdapter.getUserByIdToken(idToken);
-                console.log('++++++++++++++++++++++++++++++++++', result);
+                console.log('/api/user 응답 : ', result);
                 res.send(result);
             } catch (err) {
+                console.log('/api/user 에러 응답 : ', result);
                 res.send(err);
             }
         }
@@ -155,13 +187,14 @@ module.exports = (router) => {
         '/api/userInfo',
         (req, res, next) => extractToken(req, res, next),
         async (req, res) => {
+            let accessToken = req.token;
             try {
-                let accessToken = req.token;
-                console.log('~~~~~~~~~~~~~~~~~~~~~~~', accessToken);
+                console.log('/api/userInfo 요청 : ', accessToken);
                 let result = await authAdapter.getUserInfo(accessToken);
-                console.log('++++++++++++++++++++++++++++++++++', result);
+                console.log('/api/userInfo 응답 : ', result);
                 res.send(result);
             } catch (err) {
+                console.log('/api/userInfo 에러 응답 : ', err);
                 res.send(err);
             }
         }

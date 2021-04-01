@@ -1,9 +1,7 @@
-//TODO - userEntity를 넘겨주기 122번째 줄
-//TODO : 예외처리 custom으로 만들어서 넘기기 : 처리 > usecase로 넘어가는 것 확인
 //개별 클라우드 인증서비스의 실행클래스 - cognito
 const AWS = require('../awsConfig');
-const { error, success } = require('../../exceptions');
 const { processingToken, checkExpiredPassword } = require('./awsMiddleware');
+const Exception = require('../../../domain/user/exceptions/Exception');
 
 const userPoolId = process.env.AWS_COGNITO_USERPOOL_ID;
 const clientId = process.env.AWS_APP_CLIENT_ID;
@@ -18,27 +16,25 @@ module.exports = class {
             email
         );
         var params = {
-            UserPoolId: userPoolId /* required */,
-            AttributesToGet: [
-                'email',
-                // 'name',      /* more items */
-            ],
-            Filter: `email = "${email}"`,
-            // Limit: 1,
-            // PaginationToken: 'STRING_VALUE',
+            UserPoolId: userPoolId,
+            AttributesToGet: ['email'],
+            Filter: `email = \"${email}\"`,
         };
         let result = new Promise((resolve, reject) => {
             this.cognitoidentityserviceprovider.listUsers(
                 params,
                 function (err, data) {
                     if (err) {
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > checkExistEmail : ',
+                            err
+                        );
                         // an error occurred
-                        console.log(err, err.stack);
-                        reject(err);
+                        reject(new Exception(err.statusCode, err.message, err));
                     } else {
                         // successful response
                         console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > checkExistEmail : ',
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > checkExistEmail : data ',
                             data
                         );
                         let userExist = data.Users.length ? true : false;
@@ -86,34 +82,8 @@ module.exports = class {
                     Name: 'custom:passwordUpdatedAt', // 비밀번호변경시간
                     Value: `${Math.floor(new Date().valueOf() / 1000)}`,
                 },
-                // 아래 세개의 경우 계정이 존재하면 기본적으로 cognito 응답 Users배열 내
-                // Enabled / UserCreateDate / UserLastModifiedDate가 있어서 필요없음
-                // {
-                //     Name: 'custom:login_lock_state' /* required */, // 로그인 잠금상태
-                //     Value: false,
-                // },
-                // {
-                //     Name: 'updated at' /* required */, // 정보변경시간
-                //     Value: new Date(),
-                // },
-                // {
-                //     Name: 'custom:created_at' /* required */, // 회원가입날짜시간(변경불가)
-                //     Value: new Date(),
-                // },
+                // 아래 로그인 잠금상태/정보변경시간/회원가입날짜시간(변경불가) 의 경우 계정이 존재하면 기본적으로 cognito 응답 Users배열 내 Enabled / UserCreateDate / UserLastModifiedDate가 있어서 필요없음
             ],
-            /* more items */
-            // AnalyticsMetadata: {
-            //     AnalyticsEndpointId: 'STRING_VALUE',
-            // },
-            // ClientMetadata: {
-            //     '<StringType>': 'STRING_VALUE',
-            //     /* '<StringType>': ... */
-            // },
-            // SecretHash: process.env.SECRET_KEY,
-            // UserContextData: {
-            //     EncodedData: 'STRING_VALUE',
-            // },
-            /* more items */
         };
         let result = new Promise((resolve, reject) => {
             this.cognitoidentityserviceprovider.signUp(
@@ -125,11 +95,11 @@ module.exports = class {
                             err
                         );
                         if (err.code === 'UsernameExistsException') {
-                            reject(error.userAlreadyExist(err));
+                            reject(new Exception(409, err.message, err));
                         } else if (err.code === 'InvalidPasswordException') {
-                            reject(error.invalidPassword(err));
+                            reject(new Exception(400, err.message, err));
                         } else if (err.code === 'InvalidParameterException') {
-                            reject(error.invalidParameter(err));
+                            reject(new Exception(400, err.message, err));
                         } else {
                             reject(err);
                         }
@@ -138,7 +108,7 @@ module.exports = class {
                             '응답 > Infrastructure > webService > authService > awsCognito.js > signup : ',
                             data
                         );
-                        resolve(success.signUpSuccess(data));
+                        resolve(data);
                     }
                 }
             );
@@ -154,28 +124,11 @@ module.exports = class {
         );
         let params = {
             AuthFlow: 'USER_PASSWORD_AUTH',
-            // USER_SRP_AUTH |
-            // REFRESH_TOKEN_AUTH |
-            // REFRESH_TOKEN |
-            // CUSTOM_AUTH |
-            // ADMIN_NO_SRP_AUTH |
-            // ADMIN_USER_PASSWORD_AUTH /* required */,
             ClientId: clientId /* required */,
             AuthParameters: {
                 USERNAME: `${userData.email}`,
                 PASSWORD: `${userData.password}`,
-                /* '<StringType>': ... */
             },
-            // AnalyticsMetadata: {
-            //     AnalyticsEndpointId: 'STRING_VALUE',
-            // },
-            // ClientMetadata: {
-            //     '<StringType>': 'STRING_VALUE',
-            //     /* '<StringType>': ... */
-            // },
-            // UserContextData: {
-            //     EncodedData: 'STRING_VALUE',
-            // },
         };
         return new Promise((resolve, reject) => {
             this.cognitoidentityserviceprovider.initiateAuth(
@@ -188,36 +141,43 @@ module.exports = class {
                             err
                         );
                         /*추가할 예외처리
-                        UserNotFoundException
                         ResourceNotFoundException
                         */
                         if (err.code === 'InvalidParameterException') {
-                            reject(err.invalidParameter(err));
+                            reject(new Exception(400, err.message, err));
                         } else if (err.code === 'UserNotConfirmedException') {
-                            reject(error.confirmAuthMail(err));
+                            reject(new Exception(401, err.message, err));
                         } else if (err.code === 'NotAuthorizedException') {
                             if (
                                 err.message ===
                                 'Incorrect username or password.'
                             ) {
-                                let failCount = await self.getRetryCount(
-                                    userData.email
-                                );
-                                failCount += 1;
-                                await self.setRetryCount(
-                                    userData.email,
-                                    failCount
-                                );
-                                err.retryCount = failCount;
-                                reject(error.incorrectPassword(err));
+                                try {
+                                    let failCount = await self.getRetryCount(
+                                        userData.email
+                                    );
+                                    failCount += 1;
+                                    await self.setRetryCount(
+                                        userData.email,
+                                        failCount
+                                    );
+                                    err.retryCount = failCount;
+                                    reject(
+                                        new Exception(401, err.message, err)
+                                    );
+                                } catch (error) {
+                                    reject(
+                                        new Exception(404, err.message, err)
+                                    );
+                                }
                             } else if (
                                 err.message === 'Password attempts exceeded'
                                 // cognito 기본 로그인 횟수제한 (5번, 이후 시도 시마다 1초~15분까지 두배로 시도 시간 증가)
                                 //이 에러 발생하면 비밀번호 찾기로 이동처리
                             ) {
-                                reject(error.exceededLogInCount(err));
+                                reject(new Exception(401, err.message, err));
                             } else if (err.message === 'User is disabled.') {
-                                reject(error.disabledUser(err));
+                                reject(new Exception(403, err.message, err));
                             }
                         } else {
                             reject(err);
@@ -228,23 +188,22 @@ module.exports = class {
                             '응답 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
                             data.AuthenticationResult
                         );
-                        let response = data.AuthenticationResult;
-                        self.resetRetryCount(response.AccessToken); // 로그인 시도 리셋
+                        let result = data.AuthenticationResult;
+                        self.resetRetryCount(result.AccessToken); // 로그인 시도 리셋
 
                         let userInfo = processingToken.decodeToken(
-                            response.IdToken
+                            result.IdToken
                         );
                         userInfo.then((res) => {
                             let userType = res['custom:userType'];
-                            response.userType = userType; // 사용자 타입
+                            result.userType = userType; // 사용자 타입
 
                             let passwordUpdatedAt =
                                 res['custom:passwordUpdatedAt'];
-                            response.isPasswordExpired = checkExpiredPassword(
+                            result.isPasswordExpired = checkExpiredPassword(
                                 passwordUpdatedAt // 비밀번호 만료여부
                             );
-
-                            resolve(success.logInSuccess(response));
+                            resolve(result);
                         });
                     }
                 }
@@ -252,7 +211,6 @@ module.exports = class {
         });
     }
     //로그아웃
-    //TODO : 예외처리 custom으로 만들어서 넘기기
     logOut(token) {
         console.log(
             '요청 > Infrastructure > webService > authService > awsCognito.js > logOut : '
@@ -277,25 +235,25 @@ module.exports = class {
                         if (err.code === 'NotAuthorizedException') {
                             if (err.message === 'Access Token has expired') {
                                 // 토큰 만료 : 리프레시 토큰 필요
-                                reject(error.accessTokenExpired(err));
+                                reject(new Exception(403, err.message, err));
                             } else if (
                                 // 토큰 취소 : 로그인 필요
                                 err.message === 'Access Token has been revoked'
                             ) {
-                                reject(error.tokenRevoked(err));
+                                reject(new Exception(401, err.message, err));
                             } else if (err.message === 'Invalid Access Token') {
                                 // 유효하지 않은 토큰 : 로그인 필요
-                                reject(error.invalidAccessToken(err));
+                                reject(new Exception(401, err.message, err));
                             }
                         }
-                        reject(err);
+                        reject(new Exception(err.statusCode, err.message, err));
                     } else {
                         // successful response
                         console.log(
                             '응답 > Infrastructure > webService > authService > awsCognito.js > logOut : ',
                             data
                         );
-                        resolve(success.logOutSuccess());
+                        resolve(data);
                     }
                 }
             );
@@ -310,23 +268,10 @@ module.exports = class {
     issueNewToken(refreshToken) {
         var params = {
             AuthFlow: 'REFRESH_TOKEN',
-            // 'REFRESH_TOKEN_AUTH',
-            // | REFRESH_TOKEN , /* required */
             ClientId: clientId /* required */,
             AuthParameters: {
                 REFRESH_TOKEN: `${refreshToken}`,
-                /* '<StringType>': ... */
             },
-            // AnalyticsMetadata: {
-            //   AnalyticsEndpointId: 'STRING_VALUE'
-            // },
-            // ClientMetadata: {
-            //   '<StringType>': 'STRING_VALUE',
-            //   /* '<StringType>': ... */
-            // },
-            // UserContextData: {
-            //   EncodedData: 'STRING_VALUE'
-            // }
         };
         return new Promise((resolve, reject) => {
             this.cognitoidentityserviceprovider.initiateAuth(
@@ -338,7 +283,7 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  issueNewToken : ',
                             err
                         );
-                        reject(err);
+                        reject(new Exception(err.statusCode, err.message, err));
                     } else {
                         // successful response
                         console.log(
@@ -380,14 +325,15 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js > getUserInfo : ',
                             err
                         );
-                        reject(err);
+                        reject(new Exception(err.statusCode, err.message, err));
                     } else {
                         // successful response
                         console.log(
                             '응답 > Infrastructure > webService > authService > awsCognito.js > getUserInfo : ',
                             data
                         );
-                        resolve(data.UserAttributes);
+                        let result = data.UserAttributes;
+                        resolve(result);
                     }
                 }
             );
@@ -402,16 +348,11 @@ module.exports = class {
         var params = {
             AccessToken: `${token}` /* required */,
             UserAttributes: [
-                /* required */
                 {
                     Name: 'custom:retryCount' /* required */,
                     Value: '0',
                 },
             ],
-            // ClientMetadata: {
-            //   '<StringType>': 'STRING_VALUE',
-            //   /* '<StringType>': ... */
-            // }
         };
         return new Promise((resolve, reject) => {
             this.cognitoidentityserviceprovider.updateUserAttributes(
@@ -423,7 +364,7 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js > resetLogInCount : ',
                             err
                         );
-                        reject(err);
+                        reject(new Exception(err.statusCode, err.message, err));
                     } else {
                         // successful response
                         console.log(
@@ -452,7 +393,7 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  getUserInfoByAdmin : ',
                             err
                         );
-                        reject(err);
+                        reject(new Exception(err.statusCode, err.message, err));
                     } else {
                         // successful response
                         console.log(
@@ -477,19 +418,13 @@ module.exports = class {
     setRetryCount(email, count) {
         var params = {
             UserAttributes: [
-                /* required */
                 {
-                    Name: 'custom:retryCount' /* required */,
+                    Name: 'custom:retryCount',
                     Value: `${count}`,
                 },
-                /* more items */
             ],
-            UserPoolId: userPoolId /* required */,
-            Username: `${email}` /* required */,
-            // ClientMetadata: {
-            //   '<StringType>': 'STRING_VALUE',
-            //   /* '<StringType>': ... */
-            // }
+            UserPoolId: userPoolId,
+            Username: `${email}`,
         };
         return new Promise((resolve, reject) => {
             this.cognitoidentityserviceprovider.adminUpdateUserAttributes(
@@ -501,7 +436,7 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  setRetryCount : ',
                             err
                         );
-                        reject(err);
+                        reject(new Exception(err.statusCode, err.message, err));
                     } else {
                         // successful response
                         console.log(
@@ -518,9 +453,9 @@ module.exports = class {
     changePassword({ token, prePassword, newPassword }) {
         let self = this;
         let params = {
-            AccessToken: token /* required */,
-            PreviousPassword: prePassword /* required */,
-            ProposedPassword: newPassword /* required */,
+            AccessToken: token,
+            PreviousPassword: prePassword,
+            ProposedPassword: newPassword,
         };
         return new Promise((resolve, reject) => {
             this.cognitoidentityserviceprovider.changePassword(
@@ -532,7 +467,7 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  changePassword : ',
                             err
                         );
-                        reject(err);
+                        reject(new Exception(err.statusCode, err.message, err));
                     } else {
                         // successful response
                         console.log(
@@ -547,26 +482,18 @@ module.exports = class {
         });
     }
     // 비밀번호 수정 날짜 변경
-    changePassordUpdatedAt(token) {
+    async changePassordUpdatedAt(token) {
+        let self = this;
         var params = {
-            AccessToken: token /* required */,
+            AccessToken: token,
             UserAttributes: [
-                /* required */
                 {
-                    Name:
-                        'custom:passwordUpdatedAt' /* required */,
-                    Value: `${Math.floor(
-                        new Date().valueOf() / 1000
-                    )}`,
+                    Name: 'custom:passwordUpdatedAt',
+                    Value: `${Math.floor(new Date().valueOf() / 1000)}`,
                 },
-                /* more items */
             ],
-            // ClientMetadata: {
-            //     '<StringType>': 'STRING_VALUE',
-            //     /* '<StringType>': ... */
-            // },
         };
-        await self.changeAttribute(params);
+        return await self.changeAttribute(params);
     }
     // 사용자 속성값 변경
     changeAttribute(params) {
@@ -580,7 +507,7 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  changeAttribute : ',
                             err
                         );
-                        reject(err);
+                        reject(new Exception(err.statusCode, err.message, err));
                     } else {
                         // successful response
                         console.log(
@@ -596,19 +523,8 @@ module.exports = class {
     // 비밀번호 찾기 : 확인코드 보내기
     forgotPassword(email) {
         var params = {
-            ClientId: clientId /* required */,
-            Username: email /* required */,
-            // AnalyticsMetadata: {
-            //     AnalyticsEndpointId: 'STRING_VALUE',
-            // },
-            // ClientMetadata: {
-            //     '<StringType>': 'STRING_VALUE',
-            //     /* '<StringType>': ... */
-            // },
-            // SecretHash: 'STRING_VALUE',
-            // UserContextData: {
-            //     EncodedData: 'STRING_VALUE',
-            // },
+            ClientId: clientId,
+            Username: email,
         };
         return new Promise((resolve, reject) => {
             this.cognitoidentityserviceprovider.forgotPassword(
@@ -620,7 +536,7 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  forgotPassword : ',
                             err
                         );
-                        reject(err);
+                        reject(new Exception(err.statusCode, err.message, err));
                     } else {
                         // successful response
                         console.log(
@@ -642,21 +558,10 @@ module.exports = class {
             password
         );
         var params = {
-            ClientId: clientId /* required */,
-            ConfirmationCode: code /* required */,
-            Password: password /* required */,
-            Username: email /* required */,
-            // AnalyticsMetadata: {
-            //   AnalyticsEndpointId: 'STRING_VALUE'
-            // },
-            // ClientMetadata: {
-            //   '<StringType>': 'STRING_VALUE',
-            //   /* '<StringType>': ... */
-            // },
-            // SecretHash: 'STRING_VALUE',
-            // UserContextData: {
-            //   EncodedData: 'STRING_VALUE'
-            // }
+            ClientId: clientId,
+            ConfirmationCode: code,
+            Password: password,
+            Username: email,
         };
         return new Promise((resolve, reject) => {
             this.cognitoidentityserviceprovider.confirmForgotPassword(
@@ -668,14 +573,13 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  confirmForgotPassword : ',
                             err
                         );
-                        reject(err);
+                        reject(new Exception(err.statusCode, err.message, err));
                     } else {
                         // successful response
                         console.log(
                             '응답 > Infrastructure > webService > authService > awsCognito.js > confirmForgotPassword : ',
                             data
                         );
-                        await self.changePassordUpdatedAt(token);
                         resolve(data);
                     }
                 }

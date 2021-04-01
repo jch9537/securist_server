@@ -51,18 +51,6 @@ module.exports = class {
         );
         return result;
     }
-    async checkAccessToken(token) {
-        console.log(
-            '요청 > Adapter > outBound > auth > authentication.js - checkAccessToken : '
-            // token
-        );
-        let result = await this.authService.checkAccessToken(token);
-        console.log(
-            '응답 > Adapter > outBound > auth > authentication.js - checkAccessToken : ',
-            result
-        );
-        return result;
-    }
     async changePassword(userEntity) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication.js - changePassword : '
@@ -114,32 +102,44 @@ module.exports = class {
     //     return result;
     // }
 
-    async getRetryCount(email) {
+    // async getRetryCount(email) {
+    //     console.log(
+    //         '요청 > Adapter > outBound > auth > authentication.js - getRetryCount : ',
+    //         email
+    //     );
+    //     let count = await this.authService.getRetryCount(email);
+    //     console.log(
+    //         '응답 > Adapter > outBound > auth > authentication.js - getRetryCount : ',
+    //         count
+    //     );
+    //     return count;
+    // }
+
+    // async setRetryCount(email, count) {
+    //     console.log(
+    //         '요청 > Adapter > outBound > auth > authentication.js - setRetryCount : ',
+    //         email,
+    //         count
+    //     );
+    //     let result = await this.authService.setRetryCount(email, count);
+    //     console.log(
+    //         '응답 > Adapter > outBound > auth > authentication.js - setRetryCount : ',
+    //         result
+    //     );
+    //     return result;
+    // }
+    async checkAccessToken(token) {
         console.log(
-            '요청 > Adapter > outBound > auth > authentication.js - getRetryCount : ',
-            email
+            '요청 > Adapter > outBound > auth > authentication.js - checkAccessToken : '
+            // token
         );
-        let count = await this.authService.getRetryCount(email);
+        let result = await this.authService.checkAccessToken(token);
         console.log(
-            '응답 > Adapter > outBound > auth > authentication.js - getRetryCount : ',
-            count
-        );
-        return count;
-    }
-    async setRetryCount(email, count) {
-        console.log(
-            '요청 > Adapter > outBound > auth > authentication.js - setRetryCount : ',
-            email,
-            count
-        );
-        let result = await this.authService.setRetryCount(email, count);
-        console.log(
-            '응답 > Adapter > outBound > auth > authentication.js - setRetryCount : ',
+            '응답 > Adapter > outBound > auth > authentication.js - checkAccessToken : ',
             result
         );
         return result;
     }
-
     async issueNewToken(refreshToken) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication.js - issueNewToken : ',
