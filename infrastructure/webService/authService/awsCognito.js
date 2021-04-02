@@ -1,7 +1,7 @@
 //개별 클라우드 인증서비스의 실행클래스 - cognito
 const AWS = require('../awsConfig');
 const { processingToken, checkExpiredPassword } = require('./awsMiddleware');
-const Exception = require('../../../domain/user/exceptions/Exception');
+const Exception = require('../../../adapters/exceptions');
 
 const userPoolId = process.env.AWS_COGNITO_USERPOOL_ID;
 const clientId = process.env.AWS_APP_CLIENT_ID;

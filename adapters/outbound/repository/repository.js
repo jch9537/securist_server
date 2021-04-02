@@ -5,13 +5,15 @@ module.exports = class {
     createClientUser(clientUserEntity) {
         console.log('Repository: createClientUser!!', clientUserEntity);
     }
-    createClientCo(clientCoEntity) {
-        console.log('Repository: createClientInc!!', clientCoEntity);
+    createClientCompany(companyEntity) {
+        console.log('Repository: createClientCompany!!', companyEntity);
     }
     createConsultantUser(consultantUserEntity) {
         console.log('Repository: createConsultantUser!!', consultantUserEntity);
     }
-    createConsultingCo(consultingCoEntity) {
-        console.log('Repository: createConsultingInc!!', consultingCoEntity);
+    createConsultingCompany(companyEntity) {
+        console.log('Repository: createConsultingCompany!!', companyEntity);
     }
+    createShareUserAndClientCompany() {}
+    createShareUserAndConsultingComapany() {}
 };

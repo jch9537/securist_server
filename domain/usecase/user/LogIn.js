@@ -1,4 +1,4 @@
-const { LogInEntity } = require('../entity');
+const { LogInEntity } = require('../../entities/user');
 //로그인
 module.exports = class {
     constructor(Auth) {

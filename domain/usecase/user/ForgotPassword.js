@@ -1,4 +1,4 @@
-const { UserEntity } = require('../entity');
+const { UserEntity } = require('../../entities/user');
 
 module.exports = class {
     constructor(Auth) {

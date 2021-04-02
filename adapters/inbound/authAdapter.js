@@ -1,7 +1,7 @@
+// TODO 확인할 것 : 확인코드의 validation의 필요성에 대해 - 알면안되는 확인코드에 대한 힌트를 줄 수 있지 않나?
 const awsCognito = require('../../infrastructure/webService/authService/awsCognito'); // 테스트용 모듈 import
 
 // 사용자 처리 어댑터
-// const companyAdapter = require('./companyAdapter');
 const { Auth, Repository, SendMail } = require('../outbound');
 
 const {
@@ -15,7 +15,7 @@ const {
     IssueNewToken,
     CheckAccessToken,
     GetUserByIdToken,
-} = require('../../domain/user/useCases');
+} = require('../../domain/usecase/user');
 
 module.exports = {
     //Email 중복체크, 사용자 중복확인
@@ -44,23 +44,13 @@ module.exports = {
         }
     },
     // 회원가입
-    /* 회원가입 확인 흐름 (사용자만 )
-    1. 기가입 아이디 존재 확인 ? '이미 가입된 email입니다.' : next                                   - infra 에서 확인
-    2. 각 input 정보 중 유효성 확인여부 ? next : '유효하지 않는 OOO입니다. OOO을 확인해주세요          - entity layer에서 exception 처리 
-    3. 회원정보 생성(가입완료)
-
-    -- 추가 회원가입시 기업정보 확인
-    4. 사업자 번호 유효성 확인여부 ? next : '사업자 등록번호를 확인해주세요'
-    5. DB 내 사업자 번호 이미 등록되어있나 ? next : 기업정보 생성 처리  
-    6. 회원 가입 응답 전송
-    */
     async signUp(userParam) {
         console.log(
             '요청 > adapters > inbound > authAdaptor.js > signUp - userParam : ',
             userParam
         );
         try {
-            let signUp = new SignUp(Auth);
+            let signUp = new SignUp(Auth, Repository);
             let result = await signUp.excute(userParam); //client에서 작성된 정보만 받음
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > signUp - result : ',
@@ -71,7 +61,6 @@ module.exports = {
             1. 타입(클/컨)별 사용자 정보 생성 (DB) 
             2. 기업정보가 있는지 확인 ? 연결 : 생성 (DB)
             */
-            // let createClientCo = companyAdapter.createCompany(userParam);
             return result;
         } catch (err) {
             console.log(
@@ -90,7 +79,6 @@ module.exports = {
        5회이상 로그인 실패  ?  비밀번호찾기안내 : '계정이 잠금상태입니다. 관리자에게 문의해주세요' 
     6. 비밀번호 유효기간 초과 ? 비밀번호 변경 모달 노출 :  로그인 화면 리다이렉션
     */
-
     async logIn(userParam) {
         console.log(
             '요청 > adapters > inbound > authAdaptor.js > logIn - userParam : ',

@@ -100,20 +100,22 @@ module.exports = (router) => {
         try {
             let result = await authAdapter.changePassword(reqData);
             console.log('changepassword 응답 : ', result);
-            res.send(result);
+            let response = new Response(200, '비밀번호 변경완료', result);
+            res.send(response);
         } catch (err) {
             console.log('changepassword 에러 응답 : ', err);
             res.send(err);
         }
     });
-    // 비밀번호 찾기 확인코드전송
+    // 비밀번호 찾기 확인코드전송 - email 유효성 확인!!!!!!!
     router.post('/api/auth/forgotpassword', async (req, res) => {
         let email = req.body.email;
         console.log('/api/auth/forgotpassword 요청 : ', email);
         try {
             let result = await authAdapter.forgotPassword(email);
             console.log('/api/auth/forgotpassword 요청 : ', result);
-            res.send(result);
+            let response = new Response(200, '인증번호 전송완료', result);
+            res.send(response);
         } catch (err) {
             console.log('/api/auth/forgotpassword 요청 : ', err);
             res.send(err);
@@ -126,7 +128,8 @@ module.exports = (router) => {
         try {
             let result = await authAdapter.confirmForgotPassword(reqData);
             console.log('/api/auth/confirmforgotpassword 응답 : ', result);
-            res.send(result);
+            let response = new Response(200, '비밀번호 변경완료', result);
+            res.send(response);
         } catch (err) {
             console.log('/api/auth/confirmforgotpassword 에러 응답 : ', err);
             res.send(err);
@@ -142,7 +145,8 @@ module.exports = (router) => {
                 console.log('/api/auth/confirmtoken 요청 : ', accessToken);
                 let result = await authAdapter.checkAccessToken(accessToken);
                 console.log('/api/auth/confirmtoken 응답 : ', result);
-                res.send(result);
+                let response = new Response(200, '유효한 토큰입니다.', result);
+                res.send(response);
             } catch (err) {
                 console.log('/api/auth/confirmtoken 에러 응답 : ', err);
                 res.send(err);
@@ -158,7 +162,8 @@ module.exports = (router) => {
                 let refreshToken = req.token;
                 let result = await authAdapter.issueNewToken(refreshToken);
                 console.log('/api/auth/newtoken 응답 : ', result);
-                res.send(result);
+                let response = new Response(200, '토큰 갱신 완료', result);
+                res.send(response);
             } catch (err) {
                 console.log('/api/auth/newtoken 에러 응답 : ', err);
                 res.send(err);
@@ -175,7 +180,12 @@ module.exports = (router) => {
                 console.log('/api/user 요청 : ', idToken);
                 let result = await authAdapter.getUserByIdToken(idToken);
                 console.log('/api/user 응답 : ', result);
-                res.send(result);
+                let response = new Response(
+                    200,
+                    '사용자 정보가져오기 완료 - idToken',
+                    result
+                );
+                res.send(response);
             } catch (err) {
                 console.log('/api/user 에러 응답 : ', result);
                 res.send(err);
@@ -192,7 +202,12 @@ module.exports = (router) => {
                 console.log('/api/userInfo 요청 : ', accessToken);
                 let result = await authAdapter.getUserInfo(accessToken);
                 console.log('/api/userInfo 응답 : ', result);
-                res.send(result);
+                let response = new Response(
+                    200,
+                    '사용자 정보가져오기 완료 - accessToken',
+                    result
+                );
+                res.send(response);
             } catch (err) {
                 console.log('/api/userInfo 에러 응답 : ', err);
                 res.send(err);

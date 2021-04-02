@@ -1,4 +1,4 @@
-const { ConfirmForgotPasswordEntity } = require('../entity');
+const { ConfirmForgotPasswordEntity } = require('../../entities/user');
 module.exports = class {
     constructor(Auth) {
         this.Auth = Auth;

@@ -1,8 +1,7 @@
-//TODO code 유효성 처리 필요한지 확인?
 'use strict';
 
 const UserEntity = require('./UserEntity');
-const ParameterExetption = require('./entityException/ParameterExeption');
+const { ParameterException } = require('../../exceptions');
 
 module.exports = class extends UserEntity {
     constructor({ email, password, code }) {
@@ -19,7 +18,7 @@ module.exports = class extends UserEntity {
         //특수문자 / 문자 / 숫자 포함 형태의 8~20자리 이내의 암호 정규식
 
         if (!regPwd.test(password)) {
-            throw new ParameterExetption('password');
+            throw new ParameterException('password');
         } else {
             this._password = password;
         }
@@ -29,10 +28,10 @@ module.exports = class extends UserEntity {
     }
     set code(code) {
         let regCode = /^(?=[0-9]{6}$)/;
-        //특수문자 / 문자 / 숫자 포함 형태의 8~20자리 이내의 암호 정규식
+        //특수문자 / 문자 / 숫자 포함 형태의 8~20자리 이내의 암호 정규식  : 유효성 코드 필요한지 확인?!
 
         if (!regCode.test(code)) {
-            throw new ParameterExetption('code');
+            throw new ParameterException('code');
         } else {
             this._code = code;
         }
