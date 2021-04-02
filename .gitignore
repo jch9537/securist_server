@@ -1,0 +1,9 @@
+# Environment variables file
+.env
+
+# Dependency directories
+node_modules/
+
+# Eslint & Prettier 
+.eslintrc
+.prettierrc
