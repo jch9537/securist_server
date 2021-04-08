@@ -4,6 +4,6 @@ module.exports = {
     LogInEntity: require('./LogInEntity'),
     ChangePasswordEntity: require('./ChangePasswordEntity'),
     ConfirmForgotPasswordEntity: require('./ConfimForgotPasswordEntity'),
-    // ClientEntity: require('./ClientEntity'),
-    // ConsultantEntity: require('./ConsultantEntity'),
+    ClientUserEntity: require('./ClientUserEntity'),
+    ConsultantUserEntity: require('./ConsultantUserEntity'),
 };

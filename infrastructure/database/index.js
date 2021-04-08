@@ -1,3 +1,1 @@
-module.exports = class {
-    constructor() {}
-};
+module.exports = require('./mysql/Query');

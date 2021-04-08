@@ -1,7 +1,6 @@
 'use strict';
 
 const { ParameterException } = require('../../exceptions');
-
 module.exports = class {
     constructor({ businessLicenseNum, companyName, presidentName }) {
         this.businessLicenseNum = businessLicenseNum;

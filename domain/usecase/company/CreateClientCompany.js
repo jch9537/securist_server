@@ -1,10 +1,16 @@
+// 클라이언트 기업 생성
 module.exports = class {
     constructor(Repository) {
-        this.Repository = Repository; //DB로 변경
+        this.Repository = Repository;
     }
     excute(companyEntity) {
-        console.log('CreateClientCompany Usecase!!', companyEntity);
-        let result = this.Repository.createClientCompany(companyEntity);
+        let result;
+        try {
+            console.log('CreateClientCompany Usecase!!', companyEntity);
+            result = this.Repository.createClientCompany(companyEntity);
+        } catch (error) {
+            throw error;
+        }
         return result;
     }
 };

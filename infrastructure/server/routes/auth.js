@@ -107,7 +107,7 @@ module.exports = (router) => {
             res.send(err);
         }
     });
-    // 비밀번호 찾기 확인코드전송 - email 유효성 확인!!!!!!!
+    // 비밀번호 찾기 확인코드전송
     router.post('/api/auth/forgotpassword', async (req, res) => {
         let email = req.body.email;
         console.log('/api/auth/forgotpassword 요청 : ', email);

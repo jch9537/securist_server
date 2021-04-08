@@ -9,4 +9,6 @@ module.exports = {
     CheckAccessToken: require('./CheckAccessToken'),
     IssueNewToken: require('./IssueNewToken'),
     GetUserByIdToken: require('./GetUserByIdToken'),
+    CreateConsultantUser: require('./CreateConsultantUser'),
+    CreateClientUser: require('./CreateClientUser'),
 };

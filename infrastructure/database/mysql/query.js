@@ -1,16 +1,59 @@
+const pool = require('./index');
+
 module.exports = class {
     constructor() {}
-    createClientUser(clientEntity) {
-        let sql = 'SELECT * FROM client_user;';
-
+    createClientUser({ email, name, userType, phoneNum, createdAt }) {
+        console.log('Repository: createclienttantUser!!');
+        let sql =
+            'INSERT INTO client_users (client_user_id, name, user_type, phone_num, create_date) VALUES (?, ?, ?, ?, ?)';
+        let arg = [email, name, userType, phoneNum, createdAt];
+        pool.query(sql, arg, function (error, results, fields) {
+            if (error) throw error;
+            console.log('--------------tbl_client_users  is: ', results);
+        });
     }
-    createConsultantUser(consultantEntity) {
-        console.log('Repository: createConsultantUser!!', userEntity);
+    createConsultantUser({
+        email,
+        name,
+        userType,
+        phoneNum,
+        createdAt,
+        profileState,
+    }) {
+        console.log('Repository: createConsultantUser!!');
+        let sql =
+            'INSERT INTO consultant_users (consultant_user_id, name, user_type, phone_num, create_date, profile_state) VALUES (?, ?, ?, ?, ? ,?)';
+        let arg = [email, name, userType, phoneNum, createdAt, profileState];
+        pool.query(sql, arg, function (error, results, fields) {
+            if (error) throw error;
+            console.log('--------------tbl_consultant_users is: ', results);
+        });
     }
-    createClientInc(clientInfo) {
-        console.log('Repository: createClientInc!!', userEntity);
+    createClientCompany({ businessLicenseNum, companyName, presidentName }) {
+        console.log('Repository: createClientCompany!!');
+        let sql =
+            'INSERT INTO client_companies (business_license_num, company_name, president_name) VALUES (?, ?, ?)';
+        let arg = [businessLicenseNum, companyName, presidentName];
+        pool.query(sql, arg, function (error, results, fields) {
+            if (error) throw error;
+            console.log('--------------tbl_client_companies  is: ', results);
+        });
     }
-    createConsultingInc(consultingInfo) {
-        console.log('Repository: createConsultingInc!!', userEntity);
+    createConsultingCompany({
+        businessLicenseNum,
+        companyName,
+        presidentName,
+    }) {
+        console.log('Repository: createConsultingCompany!!');
+        let sql =
+            'INSERT INTO consulting_companies (business_license_num, company_name, president_name) VALUES (?, ?, ?)';
+        let arg = [businessLicenseNum, companyName, presidentName];
+        pool.query(sql, arg, function (error, results, fields) {
+            if (error) throw error;
+            console.log(
+                '--------------tbl_consulting_companies  is: ',
+                results
+            );
+        });
     }
 };
