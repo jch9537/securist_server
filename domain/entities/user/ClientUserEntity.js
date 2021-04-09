@@ -3,12 +3,11 @@ const UserEntity = require('./UserEntity');
 const { ParameterException } = require('../../exceptions');
 
 module.exports = class extends UserEntity {
-    constructor({ email, name, userType, phoneNum, createdAt }) {
+    constructor({ email, name, userType, phoneNum }) {
         super(email);
         this.name = name;
         this.userType = userType;
         this.phoneNum = phoneNum;
-        this.createdAt = createdAt;
     }
     // name
     get name() {
@@ -49,12 +48,5 @@ module.exports = class extends UserEntity {
         } else {
             this._phoneNum = phoneNum;
         }
-    }
-    // createdAt
-    get createdAt() {
-        return this._createdAt;
-    }
-    set createdAt(createdAt) {
-        this._createdAt = createdAt;
     }
 };

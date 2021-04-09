@@ -7,12 +7,14 @@ const dotenv = require('dotenv').config({
 const express = require('express');
 
 const routes = require('./routes');
+const sanitizer = require('../server/modules/sanitizer');
 
 const app = express();
 
 const port = process.env.SERVER_PORT || 3000;
 
 app.use(express.json());
+app.use(sanitizer); // 태그제거 : XSS 방어
 app.use(routes);
 
 app.get('/', (req, res) => {

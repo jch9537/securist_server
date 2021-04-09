@@ -34,8 +34,6 @@ module.exports = class {
                     name: userEntity.name,
                     userType: userEntity.userType,
                     phoneNum: userParam.phoneNum,
-                    profileState: '0',
-                    createdAt: date.getDateTime(),
                 };
                 // 컨설턴트 유저 유효성 확인
                 let consultantUserEntity = new ConsultantUserEntity(
@@ -53,8 +51,6 @@ module.exports = class {
                     businessLicenseNum: userParam.businessLicenseNum,
                     companyName: userParam.companyName,
                     presidentName: userParam.presidentName,
-                    companyApprovalState: '0',
-                    createdAt: date.getDateTime(),
                 };
                 // 기업(클라이언트, 컨설턴트) 정보 유효성 확인
                 let companyEntity = new CompanyEntity(companyData);
@@ -65,8 +61,6 @@ module.exports = class {
                         name: userEntity.name,
                         userType: userEntity.userType,
                         phoneNum: userParam.phoneNum,
-                        profileState: '0',
-                        createdAt: date.getDateTime(),
                     };
                     // 컨설턴트 유저 유효성 확인
                     let consultantUserEntity = new ConsultantUserEntity(
@@ -89,7 +83,6 @@ module.exports = class {
                         name: userEntity.name,
                         userType: userEntity.userType,
                         phoneNum: userParam.phoneNum,
-                        createdAt: date.getDateTime(),
                     };
                     // 클라이언트 유저 유효성 확인
                     let clientUserEntity = new ClientUserEntity(clientUserData);

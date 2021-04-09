@@ -2,28 +2,21 @@ const pool = require('./index');
 
 module.exports = class {
     constructor() {}
-    createClientUser({ email, name, userType, phoneNum, createdAt }) {
+    createClientUser({ email, name, userType, phoneNum }) {
         console.log('Repository: createclienttantUser!!');
         let sql =
-            'INSERT INTO client_users (client_user_id, name, user_type, phone_num, create_date) VALUES (?, ?, ?, ?, ?)';
-        let arg = [email, name, userType, phoneNum, createdAt];
+            'INSERT INTO client_users (client_user_id, name, user_type, phone_num) VALUES (?, ?, ?, ?)';
+        let arg = [email, name, userType, phoneNum];
         pool.query(sql, arg, function (error, results, fields) {
             if (error) throw error;
             console.log('--------------tbl_client_users  is: ', results);
         });
     }
-    createConsultantUser({
-        email,
-        name,
-        userType,
-        phoneNum,
-        createdAt,
-        profileState,
-    }) {
+    createConsultantUser({ email, name, userType, phoneNum }) {
         console.log('Repository: createConsultantUser!!');
         let sql =
-            'INSERT INTO consultant_users (consultant_user_id, name, user_type, phone_num, create_date, profile_state) VALUES (?, ?, ?, ?, ? ,?)';
-        let arg = [email, name, userType, phoneNum, createdAt, profileState];
+            'INSERT INTO consultant_users (consultant_user_id, name, user_type, phone_num) VALUES (?, ?, ?, ?)';
+        let arg = [email, name, userType, phoneNum];
         pool.query(sql, arg, function (error, results, fields) {
             if (error) throw error;
             console.log('--------------tbl_consultant_users is: ', results);

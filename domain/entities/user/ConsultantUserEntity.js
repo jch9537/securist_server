@@ -3,13 +3,11 @@ const UserEntity = require('./UserEntity');
 const { ParameterException } = require('../../exceptions');
 
 module.exports = class extends UserEntity {
-    constructor({ email, name, userType, phoneNum, createdAt, profileState }) {
+    constructor({ email, name, userType, phoneNum }) {
         super(email);
         this.name = name;
         this.userType = userType;
         this.phoneNum = phoneNum;
-        this.createdAt = createdAt;
-        this.profileState = profileState;
     }
     // name
     get name() {
@@ -49,27 +47,6 @@ module.exports = class extends UserEntity {
             throw new ParameterException('연락처');
         } else {
             this._phoneNum = phoneNum;
-        }
-    }
-    // createdAt
-    get createdAt() {
-        return this._createdAt;
-    }
-    set createdAt(createdAt) {
-        this._createdAt = createdAt;
-    }
-    // profileState
-    get profileState() {
-        return this._profileState;
-    }
-    set profileState(profileState) {
-        console.log(profileState);
-        let regProfileState = /^[0123]$/;
-        // 프로필 상태 - 0: 미작성, 1: 인증 중, 2: 인증완료 계좌등록 전, 3: 인증/계좌등록 완료
-        if (!regProfileState.test(profileState)) {
-            throw new ParameterException('profileState');
-        } else {
-            this._profileState = profileState;
         }
     }
 };
