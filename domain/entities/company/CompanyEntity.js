@@ -2,10 +2,24 @@
 
 const { ParameterException } = require('../../exceptions');
 module.exports = class {
-    constructor({ businessLicenseNum, companyName, presidentName }) {
+    constructor({ userType, businessLicenseNum, companyName, presidentName }) {
+        this.userType = userType;
         this.businessLicenseNum = businessLicenseNum;
         this.companyName = companyName;
         this.presidentName = presidentName;
+    }
+    // userType
+    get userType() {
+        return this._userType;
+    }
+    set userType(userType) {
+        let regUserType = /^[23]$/; // 사용자 타입 유효성 체크 : 기업 타입 2, 3 만 사용
+
+        if (!regUserType.test(userType)) {
+            throw new ParameterException('사용자 타입');
+        } else {
+            this._userType = userType;
+        }
     }
     // businessLicenseNum
     get businessLicenseNum() {
@@ -24,7 +38,7 @@ module.exports = class {
         return this._companyName;
     }
     set companyName(companyName) {
-        let regCompanyName = /^[a-zA-Z가-힣]{2,50}$/; // 이름 유효성 체크 : 한글, 영문 50자 이내
+        let regCompanyName = /^[a-zA-Z가-힣0-9]{2,50}$/; // 이름 유효성 체크 : 한글, 영문 50자 이내
 
         if (!regCompanyName.test(companyName)) {
             throw new ParameterException('기업명');

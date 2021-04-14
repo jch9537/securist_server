@@ -1,23 +1,52 @@
 'use strict';
-
+const { AuthEntity } = require('../auth');
 const { ParameterException } = require('../../exceptions');
 
-module.exports = class {
-    constructor(email) {
-        this.email = email;
+module.exports = class extends AuthEntity {
+    constructor({ email, name, userType, phoneNum }) {
+        super(email);
+        this.name = name;
+        this.userType = userType;
+        this.phoneNum = phoneNum;
     }
-    // email
-    get email() {
-        return this._email;
+    // name
+    get name() {
+        return this._name;
     }
-    set email(email) {
-        let regEmail = /([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/; // 유효성 체크 확인 : 영문, 숫자, 사용 가능한 특수문자(@.-_)외 입력, 30자 이하 체크!!
+    set name(name) {
+        let regName = /^[a-zA-Z가-힣]{2,50}$/; // 이름 유효성 체크 : 한글, 영문 50자 이내
 
-        if (!(email !== '' && email !== undefined && regEmail.test(email))) {
-            console.log('----------------------------', email);
-            throw new ParameterException('이메일');
+        if (!regName.test(name)) {
+            throw new ParameterException('이름');
         } else {
-            this._email = email;
+            this._name = name;
+        }
+    }
+    // userType
+    get userType() {
+        return this._userType;
+    }
+    set userType(userType) {
+        let regUserType = /^[123]$/; // 사용자 타입 유효성 체크 : 1, 2, 3 만 사용
+
+        if (!regUserType.test(userType)) {
+            throw new ParameterException('사용자 타입');
+        } else {
+            this._userType = userType;
+        }
+    }
+    // phoneNum
+    get phoneNum() {
+        return this._phoneNum;
+    }
+    set phoneNum(phoneNum) {
+        let regPhoneNum = /^(01[016789]{1}|02|0[3-9]{1}[0-9]{1})-?[0-9]{3,4}-?[0-9]{4}$/;
+        //특수문자 / 문자 / 숫자 포함 형태의 8~20자리 이내의 암호 정규식
+
+        if (!regPhoneNum.test(phoneNum)) {
+            throw new ParameterException('연락처');
+        } else {
+            this._phoneNum = phoneNum;
         }
     }
 };

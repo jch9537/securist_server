@@ -1,12 +1,13 @@
 'use strict';
 
-const UserEntity = require('./UserEntity');
+const AuthEntity = require('./AuthEntity');
 const { ParameterException } = require('../../exceptions');
 
-module.exports = class extends UserEntity {
-    constructor({ email, password }) {
+module.exports = class extends AuthEntity {
+    constructor({ email, password, code }) {
         super(email);
         this.password = password;
+        this.code = code;
     }
     // password
     get password() {
@@ -20,6 +21,19 @@ module.exports = class extends UserEntity {
             throw new ParameterException('password');
         } else {
             this._password = password;
+        }
+    }
+    get code() {
+        return this._code;
+    }
+    set code(code) {
+        let regCode = /^(?=[0-9]{6}$)/;
+        //특수문자 / 문자 / 숫자 포함 형태의 8~20자리 이내의 암호 정규식  : 유효성 코드 필요한지 확인?!
+
+        if (!regCode.test(code)) {
+            throw new ParameterException('code');
+        } else {
+            this._code = code;
         }
     }
 };

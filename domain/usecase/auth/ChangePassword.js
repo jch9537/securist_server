@@ -1,4 +1,4 @@
-const { ChangePasswordEntity } = require('../../entities/user');
+const { ChangePasswordEntity } = require('../../entities/auth');
 
 module.exports = class {
     constructor(Auth) {

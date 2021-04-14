@@ -2,51 +2,168 @@ const pool = require('./index');
 
 module.exports = class {
     constructor() {}
-    createClientUser({ email, name, userType, phoneNum }) {
-        console.log('Repository: createclienttantUser!!');
-        let sql =
-            'INSERT INTO client_users (client_user_id, name, user_type, phone_num) VALUES (?, ?, ?, ?)';
+    // 사용자 정보 생성 - 공통
+    createUser({ email, name, userType, phoneNum }) {
+        console.log('DB > Query : createclienttantUser!!');
+
+        let tableName, idColumn;
+        if (userType === '3') {
+            tableName = 'client_users';
+            idColumn = 'client_user_id';
+        } else {
+            tableName = 'consultant_users';
+            idColumn = 'consultant_user_id';
+        }
+        let sql = `INSERT INTO ${tableName} (${idColumn}, name, user_type, phone_num) VALUES (?, ?, ?, ?)`;
         let arg = [email, name, userType, phoneNum];
         pool.query(sql, arg, function (error, results, fields) {
             if (error) throw error;
-            console.log('--------------tbl_client_users  is: ', results);
+            console.log(`--------------tbl_${tableName}  is: `, results);
         });
     }
-    createConsultantUser({ email, name, userType, phoneNum }) {
-        console.log('Repository: createConsultantUser!!');
-        let sql =
-            'INSERT INTO consultant_users (consultant_user_id, name, user_type, phone_num) VALUES (?, ?, ?, ?)';
-        let arg = [email, name, userType, phoneNum];
-        pool.query(sql, arg, function (error, results, fields) {
-            if (error) throw error;
-            console.log('--------------tbl_consultant_users is: ', results);
-        });
-    }
-    createClientCompany({ businessLicenseNum, companyName, presidentName }) {
-        console.log('Repository: createClientCompany!!');
-        let sql =
-            'INSERT INTO client_companies (business_license_num, company_name, president_name) VALUES (?, ?, ?)';
-        let arg = [businessLicenseNum, companyName, presidentName];
-        pool.query(sql, arg, function (error, results, fields) {
-            if (error) throw error;
-            console.log('--------------tbl_client_companies  is: ', results);
-        });
-    }
-    createConsultingCompany({
+    // 기업 정보 생성 - 기업 공통
+    createCompany({
+        userType,
         businessLicenseNum,
         companyName,
         presidentName,
     }) {
-        console.log('Repository: createConsultingCompany!!');
-        let sql =
-            'INSERT INTO consulting_companies (business_license_num, company_name, president_name) VALUES (?, ?, ?)';
+        console.log('DB > Query : createClientCompany!!');
+
+        let tableName;
+        if (userType === '3') {
+            tableName = 'client_companies';
+        } else {
+            tableName = 'consulting_companies';
+        }
+        let sql = `INSERT INTO ${tableName} (business_license_num, company_name, president_name) VALUES (?, ?, ?)`;
         let arg = [businessLicenseNum, companyName, presidentName];
         pool.query(sql, arg, function (error, results, fields) {
             if (error) throw error;
-            console.log(
-                '--------------tbl_consulting_companies  is: ',
-                results
-            );
+            console.log(`--------------tbl_${tableName}  is: `, results);
+        });
+    }
+    //get User
+    getClientUserInfo(email) {
+        console.log('DB > Query : getClientUserInfo!!');
+        let sql = 'SELECT * FROM client_users WHERE client_user_id=?';
+        let arg = [email];
+        return new Promise((resolve, reject) => {
+            pool.query(sql, arg, function (error, results, fields) {
+                if (error) {
+                    console.log(
+                        '에러 응답 > DB > Query >  getClientUserInfo  : error',
+                        error
+                    );
+                    reject(error);
+                }
+                console.log(
+                    '응답 > DB > Query >  getClientUserInfo  : results',
+                    results[0]
+                );
+                resolve(results[0]);
+            });
+        });
+    }
+    getConsultantUserInfo(email) {
+        console.log('DB > Query : getConsultantUserInfo!!');
+        let sql = 'SELECT * FROM consultant_users WHERE consultant_user_id=?';
+        let arg = [email];
+        return new Promise((resolve, reject) => {
+            pool.query(sql, arg, function (error, results, fields) {
+                if (error) {
+                    console.log(
+                        '에러 응답 > DB > Query >  getConsultantUserInfo  : error',
+                        error
+                    );
+                    reject(error);
+                }
+                console.log(
+                    '응답 > DB > Query > :  getConsultantUserInfo  : result',
+                    results[0]
+                );
+                resolve(results[0]);
+            });
+        });
+    }
+    // 사용자 정보 변경 - 공통 : 연락처
+    updatePhoneNum({ email, userType, phoneNum }) {
+        let tableName, idColumn;
+
+        if (userType === '3') {
+            tableName = 'client_users';
+            idColumn = 'client_user_id';
+        } else if (userType === '2') {
+            tableName = 'consultant_users';
+            idColumn = 'consultant_user_id';
+        } else {
+            throw err; // 사용자 타입오류
+        }
+        console.log(
+            'DB > Query : updateClientUserInfo!! : tablename, idColumn'
+        );
+
+        let sql = `UPDATE ${tableName} SET phone_num = ? WHERE ${idColumn} = ?`;
+        let arg = [phoneNum, email];
+
+        return new Promise((resolve, reject) => {
+            pool.query(sql, arg, function (error, results, fields) {
+                if (error) {
+                    console.log(
+                        '에러 응답 > DB > Query >  updateClientUserInfo  : error',
+                        error
+                    );
+                    reject(error);
+                }
+                console.log(
+                    '응답 > DB > Query >  updateClientUserInfo  : results',
+                    results
+                );
+                resolve(results);
+            });
+        });
+    }
+    // 사용자 정보 변경 - 개인컨설턴트, 컨설팅 기업 구분해서 처리하기 : 처리 id와 이메일이 달라 문제점 발생됨
+    updateBankInfo({
+        id,
+        userType,
+        bankName,
+        bankAccountNum,
+        bankAccountOwner,
+    }) {
+        let tableName, idColumn;
+
+        if (userType === '1') {
+            tableName = 'consultant_users';
+            idColumn = 'consultant_user_id';
+        } else if (userType === '2') {
+            tableName = 'consulting_companies';
+            idColumn = 'consulting_company_id';
+        } else {
+            throw err; // 사용자 타입오류
+        }
+
+        console.log('DB > Query : updateBankInfo!! : tablename, idColumn');
+
+        let sql = `UPDATE ${tableName} SET bank_name = ?, bank_account_num =?, bank_account_owner = ? WHERE ${idColumn} = ?`;
+        let arg = [bankName, bankAccountNum, bankAccountOwner, email];
+        // consulting_company의 경우 id 가 이메일이 아닌 문제점 발생
+
+        return new Promise((resolve, reject) => {
+            pool.query(sql, arg, function (error, results, fields) {
+                if (error) {
+                    console.log(
+                        '에러 응답 > DB > Query >  updateBankInfo  : error',
+                        error
+                    );
+                    reject(error);
+                }
+                console.log(
+                    '응답 > DB > Query >  updateBankInfo  : results',
+                    results
+                );
+                resolve(results);
+            });
         });
     }
 };

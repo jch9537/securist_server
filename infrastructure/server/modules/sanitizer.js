@@ -6,7 +6,7 @@ const sanitizeHtml = require('sanitize-html');
 module.exports = (req, res, next) => {
     // console.log('리퀘스트 :', req);
     let filteredData = {};
-    if (req.method === 'POST') {
+    if (req.method === 'POST' || req.method === 'PUT') {
         console.log('body : ', req.body);
         for (let key in req.body) {
             console.log('key: ', key, 'value :', req.body[key]);
@@ -15,13 +15,23 @@ module.exports = (req, res, next) => {
         console.log('body소독 : ', filteredData);
         req.filteredData = filteredData;
     } else if (req.method === 'GET') {
-        // console.log('-------------------------------------', req);
-        console.log('req.params : ', req.params, 'req.query : ', req.query);
-        for (let key in req.query) {
-            console.log('key: ', key, 'value :', req.query[key]);
-            filteredData[key] = sanitizeHtml(req.query[key]);
+        // route에서 :id를 받기 전 request를 받으므로 req.params는 없음
+        // if (Object.keys(req.params).length !== 0) {
+        //     console.log('req.params : ', req.params);
+        //     for (let key in req.params) {
+        //         console.log('key: ', key, 'value :', req.params[key]);
+        //         filteredData[key] = sanitizeHtml(req.params[key]);
+        //     }
+        //     console.log('params 소독 : ', filteredData);
+        // }
+        if (Object.keys(req.query).length !== 0) {
+            console.log('req.query : ', req.query);
+            for (let key in req.query) {
+                console.log('key: ', key, 'value :', req.query[key]);
+                filteredData[key] = sanitizeHtml(req.query[key]);
+            }
+            console.log('query 소독 : ', filteredData);
         }
-        console.log('query 소독 : ', filteredData);
         req.filteredData = filteredData;
     }
     if (req.headers.authorization) {

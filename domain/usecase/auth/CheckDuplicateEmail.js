@@ -1,12 +1,12 @@
-const { UserEntity } = require('../../entities/user');
+const { AuthEntity } = require('../../entities/auth');
 module.exports = class {
     constructor(Auth) {
         this.Auth = Auth;
     }
     async excute(email) {
-        let userEntity;
+        let authEntity;
         try {
-            userEntity = new UserEntity(email);
+            authEntity = new AuthEntity(email);
         } catch (err) {
             throw err;
         }

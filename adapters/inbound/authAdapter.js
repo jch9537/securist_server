@@ -16,7 +16,7 @@ const {
     IssueNewToken,
     CheckAccessToken,
     GetUserByIdToken,
-} = require('../../domain/usecase/user');
+} = require('../../domain/usecase/auth');
 
 module.exports = {
     //Email 중복체크, 사용자 중복확인

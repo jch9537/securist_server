@@ -1,13 +1,13 @@
-// 컨설턴트 유저 생성
+//  기업 생성
 module.exports = class {
     constructor(Repository) {
         this.Repository = Repository;
     }
-    excute(consultantUserEntity) {
-        console.log('consultantUserEntity Usecase : ', consultantUserEntity);
+    excute(companyEntity) {
         let result;
         try {
-            result = this.Repository.createConsultantUser(consultantUserEntity);
+            console.log('CreateCompany Usecase!!', companyEntity);
+            result = this.Repository.createCompany(companyEntity);
         } catch (error) {
             throw error;
         }

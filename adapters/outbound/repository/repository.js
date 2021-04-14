@@ -2,42 +2,29 @@ module.exports = class {
     constructor(db) {
         this.db = db;
     }
-    async createClientUser(clientUserEntity) {
+    async createUser(userEntity) {
         console.log(
-            '요청 > Adapter > outBound > repository > repository.js - createClientUser > clientUserEntity : ',
-            clientUserEntity
+            '요청 > Adapter > outBound > repository > repository.js - createUser > userEntity : ',
+            userEntity
         );
         let result;
         try {
-            result = await this.db.createClientUser(clientUserEntity);
+            result = await this.db.createUser(userEntity);
         } catch (error) {
             throw error;
         }
         return result;
     }
-    async createConsultantUser(consultantUserEntity) {
+    async createCompany(companyEntity) {
         console.log(
-            '요청 > Adapter > outBound > repository > repository.js - createConsultantUser > consultantUserEntity : ',
-            consultantUserEntity
-        );
-        let result;
-        try {
-            result = await this.db.createConsultantUser(consultantUserEntity);
-        } catch (error) {
-            throw error;
-        }
-        return result;
-    }
-    async createClientCompany(companyEntity) {
-        console.log(
-            '요청 > Adapter > outBound > repository > repository.js - createClientCompany > companyEntity : ',
+            '요청 > Adapter > outBound > repository > repository.js - createCompany > companyEntity : ',
             companyEntity
         );
         let result;
         try {
-            result = await this.db.createClientCompany(companyEntity);
+            result = await this.db.createCompany(companyEntity);
             // console.log(
-            //     '응답 > Adapter > outBound > repository > repository.js - createClientCompany > result : ',
+            //     '응답 > Adapter > outBound > repository > repository.js - createCompany > result : ',
             //     result
             // );
         } catch (error) {
@@ -45,23 +32,129 @@ module.exports = class {
         }
         return result;
     }
-    async createConsultingCompany(companyEntity) {
-        console.log(
-            '요청 > Adapter > outBound > repository > repository.js - createConsultingCompany > companyEntity : ',
-            companyEntity
-        );
-        let result;
-        try {
-            result = await this.db.createConsultingCompany(companyEntity);
-            // console.log(
-            //     '응답 > Adapter > outBound > repository > repository.js - createConsultingCompany > result : ',
-            //     result
-            // );
-        } catch (error) {
-            throw error;
-        }
-        return result;
-    }
+    // async createClientCompany(companyEntity) {
+    //     console.log(
+    //         '요청 > Adapter > outBound > repository > repository.js - createClientCompany > companyEntity : ',
+    //         companyEntity
+    //     );
+    //     let result;
+    //     try {
+    //         result = await this.db.createClientCompany(companyEntity);
+    //         // console.log(
+    //         //     '응답 > Adapter > outBound > repository > repository.js - createClientCompany > result : ',
+    //         //     result
+    //         // );
+    //     } catch (error) {
+    //         throw error;
+    //     }
+    //     return result;
+    // }
+    // async createConsultingCompany(companyEntity) {
+    //     console.log(
+    //         '요청 > Adapter > outBound > repository > repository.js - createConsultingCompany > companyEntity : ',
+    //         companyEntity
+    //     );
+    //     let result;
+    //     try {
+    //         result = await this.db.createConsultingCompany(companyEntity);
+    //         // console.log(
+    //         //     '응답 > Adapter > outBound > repository > repository.js - createConsultingCompany > result : ',
+    //         //     result
+    //         // );
+    //     } catch (error) {
+    //         throw error;
+    //     }
+    //     return result;
+    // }
     async createClientUserAndCompany() {}
     async createConsultingUserAndComapany() {}
+    //get User
+    async getClientUserInfo(email) {
+        console.log(
+            '요청 > Adapter > outBound > repository > repository.js - getClientUser > email : ',
+            email
+        );
+        let result;
+        try {
+            result = await this.db.getClientUserInfo(email);
+            console.log(
+                '응답 > Adapter > outBound > repository > repository.js - getClientUserInfo > result : ',
+                result
+            );
+        } catch (error) {
+            throw error;
+        }
+        return result;
+    }
+    async getConsultantUserInfo(email) {
+        console.log(
+            '요청 > Adapter > outBound > repository > repository.js - getClientUser > email : ',
+            email
+        );
+        let result;
+        try {
+            result = await this.db.getConsultantUserInfo(email);
+            console.log(
+                '응답 > Adapter > outBound > repository > repository.js - getConsultantUserInfo > result : ',
+                result
+            );
+        } catch (error) {
+            throw error;
+        }
+        return result;
+    }
+    // 사용자 정보 변경 - 공통 : 연락처
+    async updatePhoneNum(updatePhoneNumEntity) {
+        console.log(
+            '요청 > Adapter > outBound > repository > repository.js - updatePhoneNum > updatePhoneNumEntity : ',
+            updatePhoneNumEntity
+        );
+        let result;
+        try {
+            result = await this.db.updatePhoneNum(updatePhoneNumEntity);
+            console.log(
+                '응답 > Adapter > outBound > repository > repository.js - updatePhoneNum > result : ',
+                result
+            );
+        } catch (error) {
+            throw error;
+        }
+        return result;
+    }
+    async updateBankInfo(updateBankInfoEntity) {
+        console.log(
+            '요청 > Adapter > outBound > repository > repository.js - updateBankInfo > updateBankInfoEntity : ',
+            updateBankInfoEntity
+        );
+        let result;
+        try {
+            result = await this.db.updateBankInfo(updateBankInfoEntity);
+            console.log(
+                '응답 > Adapter > outBound > repository > repository.js - updateBankInfo > result : ',
+                result
+            );
+        } catch (error) {
+            throw error;
+        }
+        return result;
+    }
+    // async updateConsultantPhoneNum(updatePhoneNumEntity) {
+    //     console.log(
+    //         '요청 > Adapter > outBound > repository > repository.js - updateClientUser > updatePhoneNumEntity : ',
+    //         updatePhoneNumEntity
+    //     );
+    //     let result;
+    //     try {
+    //         result = await this.db.updateConsultantUserInfo(
+    //             updatePhoneNumEntity
+    //         );
+    //         console.log(
+    //             '응답 > Adapter > outBound > repository > repository.js - updateConsultantUserInfo > result : ',
+    //             result
+    //         );
+    //     } catch (error) {
+    //         throw error;
+    //     }
+    //     return result;
+    // }
 };
