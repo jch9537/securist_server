@@ -4,9 +4,9 @@ module.exports = class {
         this.Repository = Repository;
     }
     excute(companyEntity) {
+        console.log('CreateCompany!!', companyEntity);
         let result;
         try {
-            console.log('CreateCompany Usecase!!', companyEntity);
             result = this.Repository.createCompany(companyEntity);
         } catch (error) {
             throw error;

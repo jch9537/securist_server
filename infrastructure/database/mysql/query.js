@@ -29,21 +29,98 @@ module.exports = class {
         presidentName,
     }) {
         console.log('DB > Query : createClientCompany!!');
-
-        let tableName;
+        let result = {};
+        let sql, arg;
+        let tableName, idColumn;
         if (userType === '3') {
             tableName = 'client_companies';
+            idColumn = 'client_company_id';
         } else {
             tableName = 'consulting_companies';
+            idColumn = 'consulting_company_id';
         }
-        let sql = `INSERT INTO ${tableName} (business_license_num, company_name, president_name) VALUES (?, ?, ?)`;
-        let arg = [businessLicenseNum, companyName, presidentName];
-        pool.query(sql, arg, function (error, results, fields) {
-            if (error) throw error;
-            console.log(`--------------tbl_${tableName}  is: `, results);
+        sql = `INSERT INTO ${tableName} (business_license_num, company_name, president_name) VALUES (?, ?, ?)`;
+        arg = [businessLicenseNum, companyName, presidentName];
+        return new Promise((resolve, reject) => {
+            pool.query(sql, arg, function (error, results, fields) {
+                if (error) {
+                    if (error.errno === 1062) {
+                        // 이미 등록된 사업자인 경우
+                        sql = `SELECT ${idColumn} FROM ${tableName} WHERE business_license_num =?`;
+                        arg = [businessLicenseNum];
+                        pool.query(sql, arg, function (error, results, fields) {
+                            if (error) {
+                                console.log(
+                                    '에러 응답 > DB > Query >  createCompany : error',
+                                    error
+                                );
+                                reject(error);
+                            }
+                            console.log(
+                                '응답 > DB > Query >  createCompany  : results',
+                                results[0]
+                            );
+                            result.companyId = results[0][idColumn];
+                            result.isManager = '0'; // 처음가입이 아니므로 관리자 아님
+                            resolve(result);
+                        });
+                    } else {
+                        reject(error);
+                    }
+                }
+                sql = `SELECT ${idColumn} FROM ${tableName} WHERE business_license_num =?`;
+                arg = [businessLicenseNum];
+                pool.query(sql, arg, function (error, results, fields) {
+                    if (error) {
+                        console.log(
+                            '에러 응답 > DB > Query >  createCompany : error',
+                            error
+                        );
+                        reject(error);
+                    }
+                    console.log(
+                        '응답 > DB > Query >  createCompany  : results',
+                        results[0]
+                    );
+                    result.companyId = results[0][idColumn];
+                    result.isManager = '1'; // 처음가입이므로 관리자 처리
+                    resolve(result);
+                });
+            });
         });
     }
-    //get User
+    // 기업-사업자 연결 생성
+    createCompanyAndUserRelation({ userType, companyId, userId, isManager }) {
+        let tableName, companyIdColumn, userIdColumn;
+        if (userType === '3') {
+            tableName = 'client_user_and_company';
+            companyIdColumn = 'clientCompany_id';
+            userIdColumn = 'client_user_id';
+        } else {
+            tableName = 'consultant_user_and_company';
+            companyIdColumn = 'consulting_company_id';
+            userIdColumn = 'consultant_user_id';
+        }
+        let sql = `INSERT INTO ${tableName} (${companyIdColumn}, ${userIdColumn}, is_manager) VALUES (?, ?, ?)`;
+        let arg = [companyId, userId, isManager];
+        return new Promise((resolve, reject) => {
+            pool.query(sql, arg, function (error, results, fields) {
+                if (error) {
+                    console.log(
+                        '에러 응답 > DB > Query >  createCompanyAndUserRelation  : error',
+                        error
+                    );
+                    reject(error);
+                }
+                console.log(
+                    '응답 > DB > Query >  createCompanyAndUserRelation  : results',
+                    results[0]
+                );
+                resolve(results[0]);
+            });
+        });
+    }
+    // 사용자 가져오기 : 클라이언트 / 컨설턴트 개별적으로 가져오기
     getClientUserInfo(email) {
         console.log('DB > Query : getClientUserInfo!!');
         let sql = 'SELECT * FROM client_users WHERE client_user_id=?';

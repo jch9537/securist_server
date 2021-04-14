@@ -3,6 +3,7 @@ const { UserEntity } = require('../../entities/user');
 const { CompanyEntity } = require('../../entities/company');
 const { CreateUser } = require('../user');
 const { CreateCompany } = require('../../usecase/company');
+const { CreateCompanyAndUserRelation } = require('../relation');
 
 module.exports = class {
     constructor(Auth, Repository) {
@@ -38,21 +39,30 @@ module.exports = class {
             } else {
                 //기업 처리
                 let companyData = {
-                    userType: signUpEntity.userType,
                     businessLicenseNum: userParam.businessLicenseNum,
                     companyName: userParam.companyName,
                     presidentName: userParam.presidentName,
                 };
-
                 // 기업(클라이언트, 컨설턴트) 정보 유효성 확인
                 let companyEntity = new CompanyEntity(companyData);
-
                 let createUser = new CreateUser(this.Repository);
                 let createCompany = new CreateCompany(this.Repository);
 
                 result = await this.Auth.signUp(signUpEntity); // cognito 회원가입
                 createUser.excute(userEntity); // 사용자 생성
-                createCompany.excute(companyEntity); // 클라이언트/컨설턴트 기업생성
+                let companyInfo = await createCompany.excute(companyEntity); //기업 아이디 가져오기
+
+                let companyAndUserRelationData = {
+                    companyId: companyInfo.companyId,
+                    userId: signUpEntity.email,
+                    userType: signUpEntity.userType,
+                    isManager: companyInfo.isManager,
+                };
+                let companyAndUserRelation = new CreateCompanyAndUserRelation(
+                    this.Repository
+                );
+                // 기업-사용자 연결
+                companyAndUserRelation.excute(companyAndUserRelationData);
             }
         } catch (error) {
             throw error;

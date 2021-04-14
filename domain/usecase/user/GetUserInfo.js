@@ -1,5 +1,3 @@
-const { GetUserByIdToken } = require('../auth');
-
 module.exports = class {
     constructor(Repository) {
         this.Repository = Repository;

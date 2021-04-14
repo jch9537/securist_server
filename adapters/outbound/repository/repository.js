@@ -32,42 +32,26 @@ module.exports = class {
         }
         return result;
     }
-    // async createClientCompany(companyEntity) {
-    //     console.log(
-    //         '요청 > Adapter > outBound > repository > repository.js - createClientCompany > companyEntity : ',
-    //         companyEntity
-    //     );
-    //     let result;
-    //     try {
-    //         result = await this.db.createClientCompany(companyEntity);
-    //         // console.log(
-    //         //     '응답 > Adapter > outBound > repository > repository.js - createClientCompany > result : ',
-    //         //     result
-    //         // );
-    //     } catch (error) {
-    //         throw error;
-    //     }
-    //     return result;
-    // }
-    // async createConsultingCompany(companyEntity) {
-    //     console.log(
-    //         '요청 > Adapter > outBound > repository > repository.js - createConsultingCompany > companyEntity : ',
-    //         companyEntity
-    //     );
-    //     let result;
-    //     try {
-    //         result = await this.db.createConsultingCompany(companyEntity);
-    //         // console.log(
-    //         //     '응답 > Adapter > outBound > repository > repository.js - createConsultingCompany > result : ',
-    //         //     result
-    //         // );
-    //     } catch (error) {
-    //         throw error;
-    //     }
-    //     return result;
-    // }
-    async createClientUserAndCompany() {}
-    async createConsultingUserAndComapany() {}
+    async createCompanyAndUserRelation(companyAndUserRelationData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > repository.js - createCompany > companyAndUserRelationData : ',
+            companyAndUserRelationData
+        );
+        let result;
+        try {
+            result = await this.db.createCompanyAndUserRelation(
+                companyAndUserRelationData
+            );
+            // console.log(
+            //     '응답 > Adapter > outBound > repository > repository.js - createCompany > result : ',
+            //     result
+            // );
+        } catch (error) {
+            throw error;
+        }
+        return result;
+    }
+
     //get User
     async getClientUserInfo(email) {
         console.log(

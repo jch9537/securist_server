@@ -2,25 +2,12 @@
 
 const { ParameterException } = require('../../exceptions');
 module.exports = class {
-    constructor({ userType, businessLicenseNum, companyName, presidentName }) {
-        this.userType = userType;
+    constructor({ businessLicenseNum, companyName, presidentName }) {
         this.businessLicenseNum = businessLicenseNum;
         this.companyName = companyName;
         this.presidentName = presidentName;
     }
-    // userType
-    get userType() {
-        return this._userType;
-    }
-    set userType(userType) {
-        let regUserType = /^[23]$/; // 사용자 타입 유효성 체크 : 기업 타입 2, 3 만 사용
 
-        if (!regUserType.test(userType)) {
-            throw new ParameterException('사용자 타입');
-        } else {
-            this._userType = userType;
-        }
-    }
     // businessLicenseNum
     get businessLicenseNum() {
         return this._businessLicenseNum;

@@ -160,27 +160,27 @@ module.exports = (router) => {
         }
     });
 
-    router.get(
-        '/api/auth/userinfobyidtoken',
-        extractToken,
-        async (req, res) => {
-            try {
-                let idToken = req.token;
-                console.log('/api/user 요청 : ', idToken);
-                let result = await authAdapter.getUserByIdToken(idToken);
-                console.log('/api/user 응답 : ', result);
-                let response = new Response(
-                    200,
-                    '사용자 정보가져오기 완료 - idToken',
-                    result
-                );
-                res.send(response);
-            } catch (err) {
-                console.log('/api/user 에러 응답 : ', result);
-                res.send(err);
-            }
-        }
-    );
+    // router.get(
+    //     '/api/auth/userinfobyidtoken',
+    //     extractToken,
+    //     async (req, res) => {
+    //         try {
+    //             let idToken = req.token;
+    //             console.log('/api/user 요청 : ', idToken);
+    //             let result = await authAdapter.getUserByIdToken(idToken);
+    //             console.log('/api/user 응답 : ', result);
+    //             let response = new Response(
+    //                 200,
+    //                 '사용자 정보가져오기 완료 - idToken',
+    //                 result
+    //             );
+    //             res.send(response);
+    //         } catch (err) {
+    //             console.log('/api/user 에러 응답 : ', result);
+    //             res.send(err);
+    //         }
+    //     }
+    // );
 
     router.get(
         '/api/auth/userinfobyaccesstoken',

@@ -9,5 +9,4 @@ module.exports = {
     CheckAccessToken: require('./CheckAccessToken'),
     IssueNewToken: require('./IssueNewToken'),
     GetUserByIdToken: require('./GetUserByIdToken'),
-    GetUserByIdToken: require('./GetUserByIdToken'),
 };

@@ -2,7 +2,6 @@ const { Auth, Repository, SendMail } = require('../outbound');
 
 module.exports = {
     // createCompany - signUp에서 처리함
-
     getCompanyInfo(req, res) {
         res.send('getCompany!!');
     },
