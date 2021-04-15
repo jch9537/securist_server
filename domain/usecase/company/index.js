@@ -1,3 +1,1 @@
-module.exports = {
-    CreateCompany: require('./CreateCompany'),
-};
+module.exports = {};

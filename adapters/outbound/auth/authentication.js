@@ -15,18 +15,19 @@ module.exports = class {
         );
         return result;
     }
-    async signUp(userEntity) {
-        console.log(
-            '요청 > Adapter > outBound > auth > authentication.js - signUp : ',
-            userEntity
-        );
-        let result = await this.authService.signUp(userEntity);
-        console.log(
-            '응답 > Adapter > outBound > auth > authentication.js - signUp > result : ',
-            result
-        );
-        return result;
-    }
+
+    // async signUp(userEntity) {                         // Repository > signUp에서 처리함
+    //     console.log(
+    //         '요청 > Adapter > outBound > auth > authentication.js - signUp : ',
+    //         userEntity
+    //     );
+    //     let result = await this.authService.signUp(userEntity);
+    //     console.log(
+    //         '응답 > Adapter > outBound > auth > authentication.js - signUp > result : ',
+    //         result
+    //     );
+    //     return result;
+    // }
     async logIn(userEntity) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication.js - logIn : ',

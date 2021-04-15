@@ -1,3 +1,1 @@
-module.exports = {
-    CreateCompanyAndUserRelation: require('./CreateCompanyAndUserRelation'),
-};
+module.exports = {};

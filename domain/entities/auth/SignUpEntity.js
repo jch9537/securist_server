@@ -4,11 +4,12 @@ const AuthEntity = require('./AuthEntity');
 const { ParameterException } = require('../../exceptions');
 
 module.exports = class extends AuthEntity {
-    constructor({ email, password, name, userType }) {
+    constructor({ email, password, name, userType, phoneNum }) {
         super(email);
         this.password = password;
         this.name = name;
         this.userType = userType;
+        this.phoneNum = phoneNum;
     }
     // password
     get password() {
@@ -48,6 +49,20 @@ module.exports = class extends AuthEntity {
             throw new ParameterException('사용자 타입');
         } else {
             this._userType = userType;
+        }
+    }
+    // phoneNum
+    get phoneNum() {
+        return this._phoneNum;
+    }
+    set phoneNum(phoneNum) {
+        let regPhoneNum = /^(01[016789]{1}|02|0[3-9]{1}[0-9]{1})-?[0-9]{3,4}-?[0-9]{4}$/;
+        //특수문자 / 문자 / 숫자 포함 형태의 8~20자리 이내의 암호 정규식
+
+        if (!regPhoneNum.test(phoneNum)) {
+            throw new ParameterException('연락처');
+        } else {
+            this._phoneNum = phoneNum;
         }
     }
 };

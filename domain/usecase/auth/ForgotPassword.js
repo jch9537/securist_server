@@ -1,5 +1,4 @@
 const { AuthEntity } = require('../../entities/auth');
-
 module.exports = class {
     constructor(Auth) {
         this.Auth = Auth;

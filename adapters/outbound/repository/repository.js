@@ -2,55 +2,77 @@ module.exports = class {
     constructor(db) {
         this.db = db;
     }
-    async createUser(userEntity) {
+    async signUp(signUpEntity) {
         console.log(
-            '요청 > Adapter > outBound > repository > repository.js - createUser > userEntity : ',
-            userEntity
+            '요청 > Adapter > outBound > repository > repository.js - signUp > signUpEntity : ',
+            signUpEntity
         );
         let result;
         try {
-            result = await this.db.createUser(userEntity);
-        } catch (error) {
-            throw error;
-        }
-        return result;
-    }
-    async createCompany(companyEntity) {
-        console.log(
-            '요청 > Adapter > outBound > repository > repository.js - createCompany > companyEntity : ',
-            companyEntity
-        );
-        let result;
-        try {
-            result = await this.db.createCompany(companyEntity);
-            // console.log(
-            //     '응답 > Adapter > outBound > repository > repository.js - createCompany > result : ',
-            //     result
-            // );
-        } catch (error) {
-            throw error;
-        }
-        return result;
-    }
-    async createCompanyAndUserRelation(companyAndUserRelationData) {
-        console.log(
-            '요청 > Adapter > outBound > repository > repository.js - createCompany > companyAndUserRelationData : ',
-            companyAndUserRelationData
-        );
-        let result;
-        try {
-            result = await this.db.createCompanyAndUserRelation(
-                companyAndUserRelationData
+            result = await this.db.signUp(signUpEntity);
+            console.log(
+                '응답 > Adapter > outBound > repository > repository.js - signUp > result : ',
+                result
             );
-            // console.log(
-            //     '응답 > Adapter > outBound > repository > repository.js - createCompany > result : ',
-            //     result
-            // );
         } catch (error) {
+            console.log(
+                '에러 응답 > Adapter > outBound > repository > repository.js - signUp > result : ',
+                error
+            );
             throw error;
         }
         return result;
     }
+    // signUp에서 모두 처리함
+    // async createUser(userEntity) {
+    //     console.log(
+    //         '요청 > Adapter > outBound > repository > repository.js - createUser > userEntity : ',
+    //         userEntity
+    //     );
+    //     let result;
+    //     try {
+    //         result = await this.db.createUser(userEntity);
+    //     } catch (error) {
+    //         throw error;
+    //     }
+    //     return result;
+    // }
+    // async createCompany(companyEntity) {
+    //     console.log(
+    //         '요청 > Adapter > outBound > repository > repository.js - createCompany > companyEntity : ',
+    //         companyEntity
+    //     );
+    //     let result;
+    //     try {
+    //         result = await this.db.createCompany(companyEntity);
+    //         // console.log(
+    //         //     '응답 > Adapter > outBound > repository > repository.js - createCompany > result : ',
+    //         //     result
+    //         // );
+    //     } catch (error) {
+    //         throw error;
+    //     }
+    //     return result;
+    // }
+    // async createCompanyAndUserRelation(companyAndUserRelationData) {
+    //     console.log(
+    //         '요청 > Adapter > outBound > repository > repository.js - createCompany > companyAndUserRelationData : ',
+    //         companyAndUserRelationData
+    //     );
+    //     let result;
+    //     try {
+    //         result = await this.db.createCompanyAndUserRelation(
+    //             companyAndUserRelationData
+    //         );
+    //         // console.log(
+    //         //     '응답 > Adapter > outBound > repository > repository.js - createCompany > result : ',
+    //         //     result
+    //         // );
+    //     } catch (error) {
+    //         throw error;
+    //     }
+    //     return result;
+    // }
 
     //get User
     async getClientUserInfo(email) {
