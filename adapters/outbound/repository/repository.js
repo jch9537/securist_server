@@ -127,22 +127,43 @@ module.exports = class {
         }
         return result;
     }
-    async updateBankInfo(updateBankInfoEntity) {
+    async updateUserBankInfo(updateBankInfoEntity) {
         console.log(
-            '요청 > Adapter > outBound > repository > repository.js - updateBankInfo > updateBankInfoEntity : ',
+            '요청 > Adapter > outBound > repository > repository.js - updateUserBankInfo > updateBankInfoEntity : ',
             updateBankInfoEntity
         );
         let result;
         try {
-            result = await this.db.updateBankInfo(updateBankInfoEntity);
+            result = await this.db.updateUserBankInfo(updateBankInfoEntity);
             console.log(
-                '응답 > Adapter > outBound > repository > repository.js - updateBankInfo > result : ',
+                '응답 > Adapter > outBound > repository > repository.js - updateUserBankInfo > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+        // finally {
+        //     return result;
+        // }
+    }
+    async updateCompanyBankInfo(updateBankInfoEntity) {
+        console.log(
+            '요청 > Adapter > outBound > repository > repository.js - updateCompanyBankInfo > updateBankInfoEntity : ',
+            updateBankInfoEntity
+        );
+        let result;
+        try {
+            result = await this.db.updateCompanyBankInfo(updateBankInfoEntity);
+            console.log(
+                '응답 > Adapter > outBound > repository > repository.js - updateCompanyBankInfo > result : ',
                 result
             );
         } catch (error) {
             throw error;
+        } finally {
+            return result;
         }
-        return result;
     }
     // async updateConsultantPhoneNum(updatePhoneNumEntity) {
     //     console.log(
