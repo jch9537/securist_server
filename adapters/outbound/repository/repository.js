@@ -165,6 +165,23 @@ module.exports = class {
             return result;
         }
     }
+    async deleteUser(deleteUserEntity) {
+        console.log(
+            '요청 > Adapter > outBound > repository > repository.js - deleteUser > deleteUserEntity : ',
+            deleteUserEntity
+        );
+        let result;
+        try {
+            result = await this.db.deleteUser(deleteUserEntity);
+            console.log(
+                '응답 > Adapter > outBound > repository > repository.js - deleteUser > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
     // async updateConsultantPhoneNum(updatePhoneNumEntity) {
     //     console.log(
     //         '요청 > Adapter > outBound > repository > repository.js - updateClientUser > updatePhoneNumEntity : ',

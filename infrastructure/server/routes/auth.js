@@ -7,9 +7,43 @@ const Response = require('../modules/Response');
 const extractToken = require('../modules/extractToken');
 
 module.exports = (router) => {
-    router.get('api/user/:id', (req, res) => {
-        console.log('GET - /api/user/:id 요청 : ', req.params.id);
-        res.snd(req.params);
+    // id token으로 복호화된 사용자 cognito 가입정보 가져오기
+    router.get('/api/auth/user/id', extractToken, async (req, res) => {
+        try {
+            let idToken = req.token;
+            console.log('GET - /api/userinfo 요청 : ', idToken);
+            let result = await authAdapter.getUserByIdToken(idToken);
+            console.log('GET - /api/userinfo 응답 : ', result);
+            let response = new Response(
+                200,
+                '사용자 정보가져오기 완료 - idToken',
+                result
+            );
+            res.send(response);
+        } catch (err) {
+            console.log('/api/user 에러 응답 : ', err);
+            res.send(err);
+        }
+    });
+    // access token으로 사용자 cognito 가입정보 가져오기
+    router.get('/api/auth/userinfo/access', extractToken, async (req, res) => {
+        let accessToken = req.token;
+        try {
+            console.log('/api/userInfo 요청 : ', accessToken);
+            let result = await authAdapter.getUserInfoByAccessToken(
+                accessToken
+            );
+            console.log('/api/userInfo 응답 : ', result);
+            let response = new Response(
+                200,
+                '사용자 정보가져오기 완료 - accessToken',
+                result
+            );
+            res.send(response);
+        } catch (err) {
+            console.log('/api/userInfo 에러 응답 : ', err);
+            res.send(err);
+        }
     });
     // 중복 이메일 체크
     router.post('/api/auth/checkemail', async (req, res) => {
@@ -71,8 +105,8 @@ module.exports = (router) => {
             res.send(err);
         }
     });
-    //로그아웃
-    router.post('/api/auth/logout', extractToken, async (req, res) => {
+    // 로그아웃
+    router.get('/api/auth/logout', extractToken, async (req, res) => {
         let accessToken = req.token;
         console.log('/api/auth/logOut 요청 : ', accessToken);
         try {
@@ -86,21 +120,6 @@ module.exports = (router) => {
             res.send(response);
         } catch (err) {
             console.log('/api/auth/logOut 에러 응답 : ', err);
-            res.send(err);
-        }
-    });
-    // 사용자 비밀번호 변경
-    router.post('/api/auth/changepassword', async (req, res) => {
-        let reqData = req.filteredData;
-        console.log('changepassword 요청 : ', reqData);
-
-        try {
-            let result = await authAdapter.changePassword(reqData);
-            console.log('changepassword 응답 : ', result);
-            let response = new Response(200, '비밀번호 변경완료', result);
-            res.send(response);
-        } catch (err) {
-            console.log('changepassword 에러 응답 : ', err);
             res.send(err);
         }
     });
@@ -160,56 +179,12 @@ module.exports = (router) => {
         }
     });
 
-    // router.get(
-    //     '/api/auth/userinfobyidtoken',
-    //     extractToken,
-    //     async (req, res) => {
-    //         try {
-    //             let idToken = req.token;
-    //             console.log('/api/user 요청 : ', idToken);
-    //             let result = await authAdapter.getUserByIdToken(idToken);
-    //             console.log('/api/user 응답 : ', result);
-    //             let response = new Response(
-    //                 200,
-    //                 '사용자 정보가져오기 완료 - idToken',
-    //                 result
-    //             );
-    //             res.send(response);
-    //         } catch (err) {
-    //             console.log('/api/user 에러 응답 : ', result);
-    //             res.send(err);
-    //         }
-    //     }
-    // );
-
-    router.get(
-        '/api/auth/userinfobyaccesstoken',
-        extractToken,
-        async (req, res) => {
-            let accessToken = req.token;
-            try {
-                console.log('/api/userInfo 요청 : ', accessToken);
-                let result = await authAdapter.getUserInfo(accessToken);
-                console.log('/api/userInfo 응답 : ', result);
-                let response = new Response(
-                    200,
-                    '사용자 정보가져오기 완료 - accessToken',
-                    result
-                );
-                res.send(response);
-            } catch (err) {
-                console.log('/api/userInfo 에러 응답 : ', err);
-                res.send(err);
-            }
-        }
-    );
-
     //테스트용 API -----------------------------------------------------
     //관리자 권한 처리 API
     router.post('/api/auth/deleteUserByAdmin', (req, res) => {
         let reqData = req.filteredData;
         console.log('deleteUserByAdmin 요청 : ', reqData);
-        let response = authAdapter.deleteUser(reqData);
+        let response = authAdapter.deleteUserByAdmin(reqData);
         response.then((resData) => {
             console.log('deleteUserByAdmin 응답 : ', resData);
             if (resData.code === 'UserNotFoundException') {
@@ -225,13 +200,57 @@ module.exports = (router) => {
     router.post('/api/auth/disableUserByAdmin', (req, res) => {
         let reqData = req.filteredData;
         console.log('disableUserByAdmin 요청 : ', reqData);
-        let response = authAdapter.disableUser(reqData);
+        let response = authAdapter.disableUserByAdmin(reqData);
         response.then((resData) => res.send(resData));
     });
     router.post('/api/auth/enableUserByAdmin', (req, res) => {
         let reqData = req.filteredData;
         console.log('disableUserByAdmin 요청 : ', reqData);
-        let response = authAdapter.enableUser(reqData);
+        let response = authAdapter.enableUserByAdmin(reqData);
         response.then((resData) => res.send(resData));
     });
 };
+
+// router.get(
+//     '/api/auth/userinfobyidtoken',
+//     extractToken,
+//     async (req, res) => {
+//         try {
+//             let idToken = req.token;
+//             console.log('/api/user 요청 : ', idToken);
+//             let result = await authAdapter.getUserByIdToken(idToken);
+//             console.log('/api/user 응답 : ', result);
+//             let response = new Response(
+//                 200,
+//                 '사용자 정보가져오기 완료 - idToken',
+//                 result
+//             );
+//             res.send(response);
+//         } catch (err) {
+//             console.log('/api/user 에러 응답 : ', result);
+//             res.send(err);
+//         }
+//     }
+// );
+
+// router.get(
+//     '/api/auth/userinfobyaccesstoken',
+//     extractToken,
+//     async (req, res) => {
+//         let accessToken = req.token;
+//         try {
+//             console.log('/api/userInfo 요청 : ', accessToken);
+//             let result = await authAdapter.getUserInfo(accessToken);
+//             console.log('/api/userInfo 응답 : ', result);
+//             let response = new Response(
+//                 200,
+//                 '사용자 정보가져오기 완료 - accessToken',
+//                 result
+//             );
+//             res.send(response);
+//         } catch (err) {
+//             console.log('/api/userInfo 에러 응답 : ', err);
+//             res.send(err);
+//         }
+//     }
+// );

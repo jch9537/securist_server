@@ -399,6 +399,10 @@ module.exports = class {
             });
         });
     }
+    //회원 탈퇴
+    deleteUser({ token, password, userType, withdrawalType, withdrawalText }) {
+        console.log('delete User!!');
+    }
 };
 
 // SignUp에서 모두 처리함  - 트랜잭션

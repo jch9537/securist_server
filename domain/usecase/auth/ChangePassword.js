@@ -4,7 +4,7 @@ module.exports = class {
     constructor(Auth) {
         this.Auth = Auth;
     }
-    async excute({ token, prePassword, newPassword }) {
+    async excute(token, { prePassword, newPassword }) {
         let prePasswordEntity = new ChangePasswordEntity(prePassword);
         let newPasswordEntity = new ChangePasswordEntity(newPassword);
         let changePasswordEntity = {

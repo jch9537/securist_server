@@ -1,9 +1,9 @@
 'use strict';
 
-// const AuthEntity = require('./AuthEntity');
+const { AuthEntity } = require('../auth');
 const { ParameterException } = require('../../exceptions');
 
-module.exports = class {
+module.exports = class extends AuthEntity {
     constructor(password) {
         this.password = password;
     }
