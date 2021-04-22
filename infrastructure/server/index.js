@@ -27,6 +27,6 @@ app.get('/', (req, res) => {
     res.send('Hello World!!');
 });
 
-app.listen(port, () =>
-    console.log(`Securist App listen http://localhost:${port}`)
-);
+app.listen(port, () => {
+    console.log(`Securist App listen http://localhost:${port}`);
+});

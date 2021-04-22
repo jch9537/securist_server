@@ -3,14 +3,14 @@ module.exports = class {
     constructor(Auth) {
         this.Auth = Auth;
     }
-    async excute(email) {
-        let authEntity;
+    async excute({ email }) {
+        let validEmail;
         try {
-            authEntity = new AuthEntity(email);
+            validEmail = new AuthEntity(email);
         } catch (err) {
             throw err;
         }
-        let result = await this.Auth.checkDuplicateEmail(userEntity.email);
+        let result = await this.Auth.checkDuplicateEmail(validEmail);
         return result;
     }
 };

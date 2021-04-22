@@ -2,6 +2,7 @@
 const AWS = require('../awsConfig');
 const { processingToken, checkExpiredPassword } = require('./awsMiddleware');
 const Exception = require('../../../adapters/exceptions');
+const colors = require('colors');
 
 const userPoolId = process.env.AWS_COGNITO_USERPOOL_ID;
 const clientId = process.env.AWS_APP_CLIENT_ID;
@@ -10,7 +11,7 @@ module.exports = class {
         this.cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider();
     }
     // 이메일 존재여부 확인
-    async checkExistEmail(email) {
+    async checkExistEmail({ email }) {
         console.log(
             '요청 > Infrastructure > webService > authService > awsCognito.js > checkExistEmail : ',
             email
@@ -180,7 +181,9 @@ module.exports = class {
                                 reject(new Exception(403, err.message, err));
                             }
                         } else {
-                            reject(err);
+                            reject(
+                                new Exception(err.statusCode, err.message, err)
+                            );
                         }
                     } else {
                         // successful response
@@ -325,7 +328,7 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js > getUserInfoByAccessToken : ',
                             err
                         );
-                        reject(err.statusCode, err.message, err);
+                        reject(new Exception(err.statusCode, err.message, err));
                     } else {
                         // successful response
                         console.log(
@@ -456,6 +459,46 @@ module.exports = class {
                             data
                         );
                         resolve(data);
+                    }
+                }
+            );
+        });
+    }
+    // 사용자 인증 : 비밀번호
+    verifyUserByPassword({ email, password }) {
+        let result;
+        console.log('코그니토 : ', { email, password });
+        console.log(
+            '요청 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
+            { email, password }
+        );
+        let params = {
+            AuthFlow: 'USER_PASSWORD_AUTH',
+            ClientId: clientId /* required */,
+            AuthParameters: {
+                USERNAME: `${email}`,
+                PASSWORD: `${password}`,
+            },
+        };
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.initiateAuth(
+                params,
+                function (err, data) {
+                    if (err) {
+                        // an error occurred
+                        console.log(
+                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  verifyUserByPassword : ',
+                            err
+                        );
+                        reject(new Exception(err.statusCode, err.message, err));
+                    } else {
+                        // successful response
+                        console.log(
+                            '응답 > Infrastructure > webService > authService > awsCognito.js > verifyUserByPassword : ',
+                            data.AuthenticationResult
+                        );
+                        result = data.AuthenticationResult;
+                        resolve(result);
                     }
                 }
             );
@@ -606,7 +649,8 @@ module.exports = class {
             cognitoidentityserviceprovider.deleteUser(
                 params,
                 function (err, data) {
-                    if (err) reject(err);
+                    if (err)
+                        reject(new Exception(err.statusCode, err.message, err));
                     else resolve(data);
                 }
             );
@@ -666,7 +710,7 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js > delteUserByAdmin : ',
                             err
                         );
-                        reject(err);
+                        reject(new Exception(err.statusCode, err.message, err));
                     } else {
                         console.log(
                             '응답 > Infrastructure > webService > authService > awsCognito.js > delteUserByAdmin : ',
@@ -694,7 +738,7 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js > disableUserByAdmin : ',
                             err
                         );
-                        reject(err);
+                        reject(new Exception(err.statusCode, err.message, err));
                     } else {
                         // successful response
                         console.log(
@@ -723,7 +767,7 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js > enableUserByAdmin : ',
                             err
                         );
-                        reject(err);
+                        reject(new Exception(err.statusCode, err.message, err));
                     } else {
                         // successful response
                         console.log(

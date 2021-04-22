@@ -52,6 +52,20 @@ module.exports = class {
         );
         return result;
     }
+    async verifyUserByPassword(verifyUserByPasswordEntity) {
+        console.log(
+            '요청 > Adapter > outBound > auth > authentication >  - verifyUserByPassword : '
+            // email
+        );
+        let result = await this.authService.verifyUserByPassword(
+            verifyUserByPasswordEntity
+        );
+        console.log(
+            '응답 > Adapter > outBound > auth > authentication >  - verifyUserByPassword : ',
+            result
+        );
+        return result;
+    }
     async changePassword(userEntity) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication >  - changePassword : '

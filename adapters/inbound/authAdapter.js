@@ -17,22 +17,24 @@ const {
     CheckAccessToken,
     GetUserByIdToken,
     GetUserInfoByAccessToken,
+    VerifyUserByPassword,
 } = require('../../domain/usecase/auth');
 
 module.exports = {
     //Email 중복체크, 사용자 중복확인
-    async checkDuplicateEmail(email) {
+    async checkDuplicateEmail(checkData) {
         console.log(
-            '요청 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - email : ',
-            email
+            '요청 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - checkData : ',
+            checkData
         );
         try {
             let checkDuplicateEmail = new CheckDuplicateEmail(Auth);
-            let result = await checkDuplicateEmail.excute(email);
+            let result = await checkDuplicateEmail.excute(checkData);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - result : ',
                 result
             );
+
             let data = {
                 userExist: result,
             };
@@ -121,6 +123,35 @@ module.exports = {
             throw err;
         }
     },
+    // 사용자 인증 : 비밀번호
+    async verifyUserByPassword(accessToken, { password }) {
+        console.log(
+            '요청 > adapters > inbound > authAdaptor.js > verifyUserByPassword - userParam : ',
+            password
+        );
+        try {
+            let getUserInfoByAccessToken = new GetUserInfoByAccessToken(Auth);
+            let userData = await getUserInfoByAccessToken.excute(accessToken);
+            console.log(
+                '사용자 인증 액세스토큰 ---------------------',
+                userData
+            );
+            let verifyUserByPassword = new VerifyUserByPassword(Auth);
+            let result = await verifyUserByPassword.excute(userData, password);
+            console.log(
+                '응답 > adapters > inbound > authAdaptor.js > verifyUserByPassword - result : ',
+                result
+            );
+            return result;
+        } catch (err) {
+            console.log(
+                '에러 응답 > adapters > inbound > authAdaptor.js > verifyUserByPassword - result : ',
+                err
+            );
+            throw err;
+        }
+    },
+
     // 사용자 비밀번호 수정
     async changePassword(token, updatePasswordData) {
         console.log(

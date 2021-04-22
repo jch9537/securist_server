@@ -11,6 +11,7 @@ const {
 } = require('../../domain/usecase/user');
 
 const { Repository } = require('../outbound');
+const auth = require('../outbound/auth');
 const authAdapter = require('./authAdapter');
 
 module.exports = {
@@ -97,7 +98,6 @@ module.exports = {
     },
 
     // 사용자 비밀번호 수정
-    // TODO : 비밀번호 수정일 현재 시점으로 수정
     async changePassword(token, updatePasswordData) {
         console.log(
             '요청 > adapters > inbound > userAdaptor > changePassword - userParam : ',
@@ -119,28 +119,39 @@ module.exports = {
             throw err;
         }
     },
-    async deleteUser(token, deleteParams) {
-        // access token으로 email과 usertype가져오기
+    async deleteUser(accessToken, deleteData) {
+        // 기업삭제를 할꺼면 email과 userType을 가져와야하고 / 사용자만 삭제할 꺼면 현재대로 처리해도 됨
         console.log(
             '요청 > adapters > inbound > userAdaptor > deleteUser - token : ',
-            token,
+            accessToken,
             'deleteData : ',
-            deleteParams
+            deleteData
         );
         try {
-            let userData = await authAdapter.getUserInfoByAccessToken(token);
+            let verifyUserData = await authAdapter.verifyUserByPassword(
+                accessToken,
+                deleteData
+            );
+            console.log(
+                '응답 > adapters > inbound > userAdaptor.js > getUserInfoByAccessToken - userData : ',
+                verifyUserData
+            );
+            let newToken = verifyUserData.AccessToken;
+
+            let userData = await authAdapter.getUserInfoByAccessToken(
+                accessToken
+            );
             console.log(
                 '응답 > adapters > inbound > userAdaptor.js > getUserInfoByAccessToken - userData : ',
                 userData
             );
-            let deleteData = {
-                userType: userData.useType,
-                password: deleteParams.password,
-                withdrawalType: deleteParams.withdrawalType,
-                withdrawalText: deleteParams.withdrawalText,
+            let withdrawalData = {
+                email: userData.email,
+                userType: userData.userType,
+                withdrawalType: deleteData.withdrawalType,
             };
             let deleteUser = new DeleteUser(Repository);
-            let result = deleteUser.excute(token, deleteData);
+            let result = await deleteUser.excute(newToken, withdrawalData);
             console.log(
                 '응답 > adapters > inbound > userAdaptor > deleteUser - result : ',
                 result
@@ -151,7 +162,7 @@ module.exports = {
                 '에러 응답 > adapters > inbound > userAdaptor > deleteUser - result : ',
                 err
             );
-            // deleteUser;
+            throw err;
         }
     },
 };

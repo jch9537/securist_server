@@ -139,13 +139,10 @@ module.exports = class {
                 '응답 > Adapter > outBound > repository > repository.js - updateUserBankInfo > result : ',
                 result
             );
-            return result;
         } catch (error) {
             throw error;
         }
-        // finally {
-        //     return result;
-        // }
+        return result;
     }
     async updateCompanyBankInfo(updateBankInfoEntity) {
         console.log(
@@ -165,14 +162,14 @@ module.exports = class {
             return result;
         }
     }
-    async deleteUser(deleteUserEntity) {
+    async deleteUser(accessToken, deleteUserEntity) {
         console.log(
             '요청 > Adapter > outBound > repository > repository.js - deleteUser > deleteUserEntity : ',
             deleteUserEntity
         );
         let result;
         try {
-            result = await this.db.deleteUser(deleteUserEntity);
+            result = await this.db.deleteUser(accessToken, deleteUserEntity);
             console.log(
                 '응답 > Adapter > outBound > repository > repository.js - deleteUser > result : ',
                 result

@@ -7,50 +7,12 @@ const Response = require('../modules/Response');
 const extractToken = require('../modules/extractToken');
 
 module.exports = (router) => {
-    // id token으로 복호화된 사용자 cognito 가입정보 가져오기
-    router.get('/api/auth/user/id', extractToken, async (req, res) => {
-        try {
-            let idToken = req.token;
-            console.log('GET - /api/userinfo 요청 : ', idToken);
-            let result = await authAdapter.getUserByIdToken(idToken);
-            console.log('GET - /api/userinfo 응답 : ', result);
-            let response = new Response(
-                200,
-                '사용자 정보가져오기 완료 - idToken',
-                result
-            );
-            res.send(response);
-        } catch (err) {
-            console.log('/api/user 에러 응답 : ', err);
-            res.send(err);
-        }
-    });
-    // access token으로 사용자 cognito 가입정보 가져오기
-    router.get('/api/auth/userinfo/access', extractToken, async (req, res) => {
-        let accessToken = req.token;
-        try {
-            console.log('/api/userInfo 요청 : ', accessToken);
-            let result = await authAdapter.getUserInfoByAccessToken(
-                accessToken
-            );
-            console.log('/api/userInfo 응답 : ', result);
-            let response = new Response(
-                200,
-                '사용자 정보가져오기 완료 - accessToken',
-                result
-            );
-            res.send(response);
-        } catch (err) {
-            console.log('/api/userInfo 에러 응답 : ', err);
-            res.send(err);
-        }
-    });
     // 중복 이메일 체크
     router.post('/api/auth/checkemail', async (req, res) => {
-        let email = req.filteredData.email;
-        console.log('/api/auth/checkemail 요청 : ', email);
+        let checkData = req.filteredData;
+        console.log('/api/auth/checkemail 요청 : ', checkData);
         try {
-            let result = await authAdapter.checkDuplicateEmail(email);
+            let result = await authAdapter.checkDuplicateEmail(checkData);
             console.log('/api/auth/checkemail 응답 : ', result);
             let response;
             if (!result.userExist) {
@@ -123,6 +85,63 @@ module.exports = (router) => {
             res.send(err);
         }
     });
+    // id token으로 복호화된 사용자 cognito 가입정보 가져오기
+    router.get('/api/auth/userinfo/id', extractToken, async (req, res) => {
+        try {
+            let idToken = req.token;
+            console.log('GET - /api/userinfo 요청 : ', idToken);
+            let result = await authAdapter.getUserByIdToken(idToken);
+            console.log('GET - /api/userinfo 응답 : ', result);
+            let response = new Response(
+                200,
+                '사용자 정보가져오기 완료 - idToken',
+                result
+            );
+            res.send(response);
+        } catch (err) {
+            console.log('/api/user 에러 응답 : ', err);
+            res.send(err);
+        }
+    });
+    // access token으로 사용자 cognito 가입정보 가져오기
+    router.get('/api/auth/userinfo/access', extractToken, async (req, res) => {
+        let accessToken = req.token;
+        try {
+            console.log('/api/userInfo 요청 : ', accessToken);
+            let result = await authAdapter.getUserInfoByAccessToken(
+                accessToken
+            );
+            console.log('/api/userInfo 응답 : ', result);
+            let response = new Response(
+                200,
+                '사용자 정보가져오기 완료 - accessToken',
+                result
+            );
+            res.send(response);
+        } catch (err) {
+            console.log('/api/userInfo 에러 응답 : ', err);
+            res.send(err);
+        }
+    });
+    // 사용자 인증 : 비밀번호 - 사용자 정보 수정 접근, 회원탈퇴 시 사용 API
+    router.post('/api/auth/verifyuser', extractToken, async (req, res) => {
+        let accessToken = req.token;
+        let reqData = req.filteredData;
+        console.log('/api/auth/verifyuser 요청 : ', reqData);
+        try {
+            let result = await authAdapter.verifyUserByPassword(
+                accessToken,
+                reqData
+            );
+            console.log('/api/auth/verifyuser 응답 : ', result);
+            let response = new Response(200, '사용자 인증 완료', result);
+            res.send(response);
+        } catch (err) {
+            console.log('/api/auth/verifyuser 에러 응답 : ', err);
+            res.send(err);
+        }
+    });
+
     // 비밀번호 찾기 확인코드전송
     router.post('/api/auth/forgotpassword', async (req, res) => {
         let email = req.filteredData.email;

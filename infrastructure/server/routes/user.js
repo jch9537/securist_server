@@ -1,4 +1,5 @@
-// 추가할 사용자 처리 : 컨설턴트 등록요청/처리, 취소/반려처리
+// 추가할 사용자 처리 : 컨설턴트 등록요청, 기업 승인/반려처리
+// 기업정보 가져오기
 const { authAdapter, userAdapter } = require('../../../adapters/inbound');
 
 const Response = require('../modules/Response');
@@ -42,6 +43,7 @@ module.exports = (router) => {
     });
     // 사용자 정보 변경 - 공통 : 연락처
     router.put('/api/user/info/phonenum', async (req, res) => {
+        let result;
         try {
             let idToken = req.token;
             let filteredData = req.filteredData;
@@ -50,10 +52,7 @@ module.exports = (router) => {
                 idToken,
                 filteredData
             );
-            let result = await userAdapter.updatePhoneNum(
-                idToken,
-                filteredData
-            );
+            result = await userAdapter.updatePhoneNum(idToken, filteredData);
             console.log('PUT - /api/user/info/phonenum 응답 : ', result);
             let response = new Response(
                 200,
@@ -62,7 +61,7 @@ module.exports = (router) => {
             );
             res.send(response);
         } catch (err) {
-            console.log('PUT - /api/user/info/phonenum 에러 응답 : ', result);
+            console.log('PUT - /api/user/info/phonenum 에러 응답 : ', err);
             res.send(err);
         }
     });
@@ -96,10 +95,10 @@ module.exports = (router) => {
     // 회원 탈퇴 : 윤이사님 확인 후 처리
     router.delete('/api/user', async (req, res) => {
         let accessToken = req.token;
-        let deleteData = req.filteredData;
-        console.log('DELETE - /api/user 요청 : ', accessToken, deleteData);
+        let reqData = req.filteredData;
+        console.log('DELETE - /api/user 요청 : ', accessToken, reqData);
         try {
-            let result = await userAdapter.deleteUser(accessToken, deleteData);
+            let result = await userAdapter.deleteUser(accessToken, reqData);
             console.log('DELETE - /api/user 응답 : ', result);
             let response = new Response(
                 200,
@@ -108,7 +107,7 @@ module.exports = (router) => {
             );
             res.send(response);
         } catch (err) {
-            console.log('DELETE - /api/user 에러 응답 : ', result);
+            console.log('DELETE - /api/user 에러 응답 : ', err);
             res.send(err);
         }
     });

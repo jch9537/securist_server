@@ -6,7 +6,11 @@ const sanitizeHtml = require('sanitize-html');
 module.exports = (req, res, next) => {
     // console.log('리퀘스트 :', req);
     let filteredData = {};
-    if (req.method === 'POST' || req.method === 'PUT') {
+    if (
+        req.method === 'POST' ||
+        req.method === 'PUT' ||
+        req.method === 'DELETE'
+    ) {
         console.log('body : ', req.body);
         for (let key in req.body) {
             console.log('key: ', key, 'value :', req.body[key]);

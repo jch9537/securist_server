@@ -1,4 +1,5 @@
 const pool = require('./index');
+const { logger } = require('../../../adapters/middleware');
 const { authService } = require('../../../adapters/outbound/auth'); // 같은 layer - 의존성에 문제 없는지 확인
 
 module.exports = class {
@@ -298,13 +299,24 @@ module.exports = class {
                         '에러 응답 > DB > Query >  updateClientUserInfo  : error',
                         error
                     );
+                    logger.log(
+                        'error',
+                        `[DB 오류] > ${email} > /`,
+                        `**SQL : ${error.sql} / **MESSAGE :  ${error.sqlMessage}`
+                    );
                     reject(error);
+                } else {
+                    console.log(
+                        '응답 > DB > Query >  updateClientUserInfo  : results',
+                        results
+                    );
+                    resolve(results);
+                    logger.log(
+                        'info',
+                        `[DB 성공] > ${email} / `,
+                        '연락처 변경 완료'
+                    );
                 }
-                console.log(
-                    '응답 > DB > Query >  updateClientUserInfo  : results',
-                    results
-                );
-                resolve(results);
             });
         });
     }
@@ -399,12 +411,104 @@ module.exports = class {
             });
         });
     }
-    //회원 탈퇴
-    deleteUser({ token, password, userType, withdrawalType, withdrawalText }) {
-        console.log('delete User!!');
+    //회원 탈퇴 - 나중에 처리하기
+    /*
+        **회원탈퇴 처리 순서 : 트랜잭션 처리**
+        1. 탈퇴사유 insert
+        2. 사용자 정보로 사용자-기업 정보 가져오기 : 기업id, 관리자 여부
+        3. 사용자-기업 테이블에서 기업의 사용자 수 가져오기 : 마지막 사용자이면 기업정보 삭제
+        4. 사용자-기업 레코드 삭제
+        5. 기업테이블에서 기업의 마지막 사용자 이거나 사용자가 관리자이면 해당 기업 레코드 삭제
+        6. 사용자 테이블에서 사용자 레코드 삭제
+        7. cognito 사용자 가입정보 삭제
+        */
+
+    /*
+        **회원탈퇴 차후 처리 사유
+        1. 사용자가 탈퇴 처리(탈퇴시 사용자와 연관된 정보 모두 삭제) 또는 사용자가 탈퇴 요청(관리자에게 탈퇴 요청 후 관리자가 탈퇴처리) 여부 
+        2. 사용자가 탈퇴처리 시 연관된 기업정보가 삭제되면 예측하지 못한 큰 문제 발생가능(바우처, 잘못된 기업, 사용자가 남아있는 기업 삭제)
+        3. 프로젝트와 다른 여러 처리 후 나중에 처리
+        */
+    async deleteUser(token, { email, userType, withdrawalType }) {
+        console.log('회원탈퇴!!');
+        let result, sql, arg;
+        let tableName,
+            idColumn,
+            companyIdColumn,
+            userIdColumn,
+            companyId,
+            isManager;
+
+        pool.getConnection(async (error, connection) => {
+            try {
+                if (error) {
+                    throw error;
+                }
+                connection.beginTransaction(function (err) {
+                    if (err) throw err;
+                });
+                sql = `INSERT INTO withdrawal_info (user_type, withdrawal_type) VALUES (?, ?)`;
+                arg = [userType, withdrawalType];
+                await connection.query(
+                    sql,
+                    arg,
+                    function (error, results, fields) {
+                        if (error) throw error;
+                        console.log('deleteUser > 탈퇴정보 저장', results);
+                    }
+                );
+
+                if (userType === '2' || userType === '3') {
+                    if (userType === '3') {
+                        tableName = 'client_user_and_company';
+                        userIdColumn = 'client_user_id';
+                        companyIdColumn = 'client_company_id';
+                    } else {
+                        tableName = 'consultant_user_and_company';
+                        userIdColumn = 'consultant_user_id';
+                        companyIdColumn = 'consulting_company_id';
+                    }
+                    sql = `
+                    SELECT ${companyIdColumn}, is_manager FROM ${tableName} WHERE ${userIdColumn} = ?`;
+                    arg = [email];
+                    let userAndCompanyInfo;
+                    await connection.query(
+                        sql,
+                        arg,
+                        function (error, results, fields) {
+                            if (error) throw error;
+                            // console.log(
+                            //     '사용자 기업 연결정보 가져오기 --------------------',
+                            //     results
+                            // );
+                            userAndCompanyInfo = results[0];
+                            console.log(
+                                ' 사용자 기업 연결정보 가져오기 ~~~~~~~~~~~',
+                                userAndCompanyInfo
+                            );
+                            sql = `SELECT ${companyIdColumn}, is_manager FROM ${tableName} WHERE ${userIdColumn} = ?`;
+                            arg = [email];
+                        }
+                    );
+                }
+
+                await connection.commit(function (err) {
+                    if (err) throw err;
+                });
+                console.log('success! 회원탈퇴처리완료!!');
+            } catch (error) {
+                console.log('fail!');
+                return connection.rollback(function () {
+                    throw error;
+                });
+            } finally {
+                connection.release();
+                return result;
+            }
+        });
     }
 };
-
+//------------------------------------------------------코드 리뷰 이후 삭제처리 ---------------------------
 // SignUp에서 모두 처리함  - 트랜잭션
 // // 사용자 정보 생성 - 공통
 // createUser({ email, name, userType, phoneNum }) {

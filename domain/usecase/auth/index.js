@@ -10,4 +10,5 @@ module.exports = {
     IssueNewToken: require('./IssueNewToken'),
     GetUserByIdToken: require('./GetUserByIdToken'),
     GetUserInfoByAccessToken: require('./GetUserInfoByAccessToken'),
+    VerifyUserByPassword: require('./VerifyUserByPassword'),
 };

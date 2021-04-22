@@ -1,24 +1,21 @@
 'use strict';
 
-const { AuthEntity } = require('../auth');
 const { ParameterException } = require('../../exceptions');
 
-module.exports = class extends AuthEntity {
-    constructor(password) {
-        this.password = password;
+module.exports = class {
+    constructor(withdrawalType) {
+        this.withdrawalType = withdrawalType;
     }
-    // password
-    get password() {
-        return this._password;
+    // withdrawalType
+    get withdrawalType() {
+        return this._withdrawalType;
     }
-    set password(password) {
-        let regPwd = /^.*(?=^.{8,20}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/;
-        //특수문자 / 문자 / 숫자 포함 형태의 8~20자리 이내의 암호 정규식
-
-        if (!regPwd.test(password)) {
-            throw new ParameterException('password');
+    set withdrawalType(withdrawalType) {
+        let regWithdrawalType = /^[0123]$/; // 탈퇴사유 타입 유효성 체크 : 0, 1, 2, 3 만 사용
+        if (!regWithdrawalType.test(withdrawalType)) {
+            throw new ParameterException('사용자 타입');
         } else {
-            this._password = password;
+            this._withdrawalType = withdrawalType;
         }
     }
 };

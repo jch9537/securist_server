@@ -4,18 +4,19 @@ module.exports = class {
     constructor(Repository) {
         this.Repository = Repository;
     }
-    async excute(token, deleteData) {
+    async excute(accessToken, withdrawalData) {
         let result;
         try {
-            let verifyData = new DeleteUserEntity(deleteData.password);
-            let deleteUserEntity = {
-                token: token,
-                password: verifyData.password,
-                userType: deleteData.useType,
-                withdrawalType: deleteData.withdrawalType,
-                withdrawalText: deleteData.withdrawalText,
+            let deleteUserEntity = new DeleteUserEntity(
+                withdrawalData.withdrawalType
+            );
+            let withdrawalEntity = {
+                email: withdrawalData.email,
+                userType: withdrawalData.userType,
+                withdrawalType: deleteUserEntity.withdrawalType,
             };
-            result = this.Repository.deleteUser(deleteUserEntity);
+            console.log('-------------------------', withdrawalEntity);
+            result = this.Repository.deleteUser(accessToken, withdrawalEntity);
         } catch (error) {
             console.log('에러 ----------------', error);
             throw error;
