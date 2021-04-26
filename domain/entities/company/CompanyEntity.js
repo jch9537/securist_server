@@ -7,6 +7,7 @@ module.exports = class {
         this.companyName = companyName;
         this.presidentName = presidentName;
     }
+
     // businessLicenseNum
     get businessLicenseNum() {
         return this._businessLicenseNum;
@@ -24,7 +25,7 @@ module.exports = class {
         return this._companyName;
     }
     set companyName(companyName) {
-        let regCompanyName = /^[a-zA-Z가-힣]{2,50}$/; // 이름 유효성 체크 : 한글, 영문 50자 이내
+        let regCompanyName = /^[a-zA-Z가-힣0-9]{2,50}$/; // 이름 유효성 체크 : 한글, 영문 50자 이내
 
         if (!regCompanyName.test(companyName)) {
             throw new ParameterException('기업명');

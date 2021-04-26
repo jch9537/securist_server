@@ -1,9 +1,7 @@
 module.exports = {
-    UserEntity: require('./UserEntity'),
-    SignUpEntity: require('./SignUpEntity'),
-    LogInEntity: require('./LogInEntity'),
-    ChangePasswordEntity: require('./ChangePasswordEntity'),
-    ConfirmForgotPasswordEntity: require('./ConfimForgotPasswordEntity'),
-    ClientUserEntity: require('./ClientUserEntity'),
-    ConsultantUserEntity: require('./ConsultantUserEntity'),
+    // UserEntity: require('./UserEntity'),
+    UpdatePhoneNumEntity: require('./UpdatePhoneNumEntity'),
+    UpdateBankInfoEntity: require('./UpdateBankInfoEntity'),
+    UpdateJoinStatusEntity: require('./UpdateJoinStatusEntity'),
+    DeleteUserEntity: require('./DeleteUserEntity'),
 };

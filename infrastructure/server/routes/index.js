@@ -3,7 +3,8 @@ const express = require('express');
 const router = express.Router();
 
 require('./auth')(router);
-// require('./user')(router);
+require('./user')(router);
+require('./company')(router);
 // require('./project')(router);
 // require('./test');
 

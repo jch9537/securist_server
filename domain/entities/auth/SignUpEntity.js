@@ -1,15 +1,29 @@
 'use strict';
-const UserEntity = require('./UserEntity');
+
+const AuthEntity = require('./AuthEntity');
 const { ParameterException } = require('../../exceptions');
 
-module.exports = class extends UserEntity {
-    constructor({ email, name, userType, phoneNum, createdAt, profileState }) {
+module.exports = class extends AuthEntity {
+    constructor({ email, password, name = nu, userType, phoneNum }) {
         super(email);
+        this.password = password;
         this.name = name;
         this.userType = userType;
         this.phoneNum = phoneNum;
-        this.createdAt = createdAt;
-        this.profileState = profileState;
+    }
+    // password
+    get password() {
+        return this._password;
+    }
+    set password(password) {
+        let regPwd = /^.*(?=^.{8,20}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/;
+        //특수문자 / 문자 / 숫자 포함 형태의 8~20자리 이내의 암호 정규식
+
+        if (!regPwd.test(password)) {
+            throw new ParameterException('비밀번호');
+        } else {
+            this._password = password;
+        }
     }
     // name
     get name() {
@@ -49,27 +63,6 @@ module.exports = class extends UserEntity {
             throw new ParameterException('연락처');
         } else {
             this._phoneNum = phoneNum;
-        }
-    }
-    // createdAt
-    get createdAt() {
-        return this._createdAt;
-    }
-    set createdAt(createdAt) {
-        this._createdAt = createdAt;
-    }
-    // profileState
-    get profileState() {
-        return this._profileState;
-    }
-    set profileState(profileState) {
-        console.log(profileState);
-        let regProfileState = /^[0123]$/;
-        // 프로필 상태 - 0: 미작성, 1: 인증 중, 2: 인증완료 계좌등록 전, 3: 인증/계좌등록 완료
-        if (!regProfileState.test(profileState)) {
-            throw new ParameterException('profileState');
-        } else {
-            this._profileState = profileState;
         }
     }
 };

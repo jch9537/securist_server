@@ -1,4 +1,4 @@
 module.exports = {
-    CreateClientCompany: require('./CreateClientCompany'),
-    CreateConsultingCompany: require('./CreateConsultingCompany'),
+    GetCompanyList: require('./GetCompanyList'),
+    GetCompanyUserCount: require('./GetCompanyUserCount'),
 };

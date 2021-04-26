@@ -1,14 +1,14 @@
-// 클라이언트 유저 생성
 module.exports = class {
     constructor(Repository) {
         this.Repository = Repository;
     }
-    excute(clientUserEntity) {
+    async excute(userData) {
         let result;
         try {
-            console.log('createClientUser Usecase : ', clientUserEntity);
-            result = this.Repository.createClientUser(clientUserEntity);
+            result = await this.Repository.getCompanyList(userData);
+            console.log(' 기업 리스트 결과----------------', result);
         } catch (error) {
+            console.log('에러 ----------------', error);
             throw error;
         }
         return result;

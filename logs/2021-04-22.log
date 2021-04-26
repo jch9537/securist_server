@@ -1,0 +1,13 @@
+2021-04-22 11:27:47 [31merror[39m 연락처 변경 오류 /  **SQL : UPDATE consultant_users SET phone_num = '01011111111' WHERE consultant_user_id11 = 'ch.jung@aegisecu.com' / **MESSAGE :  Unknown column 'consultant_user_id11' in 'where clause'
+2021-04-22 11:31:11 [32minfo[39m DB > updatePhoneNum 연락처 변경 완료
+2021-04-22 11:33:16 [32minfo[39m [성공] 연락처 변경 완료
+2021-04-22 11:33:55 [32minfo[39m [성공] UPDATE consultant_users SET phone_num = ? WHERE consultant_user_id = ?
+2021-04-22 11:37:45 [32minfo[39m [성공] > ch.jung@aegisecu.com 연락처 변경 완료
+2021-04-22 11:38:30 [32minfo[39m [성공] > ch.jung@aegisecu.com /  연락처 변경 완료
+2021-04-22 11:38:59 [32minfo[39m [성공] > ch.jung@aegisecu.com /  연락처 변경 완료
+2021-04-22 11:41:02 [31merror[39m [오류] > ch.jung@aegisecu.com / **SQL : UPDATE consultant_users SET phone_num = '01011111111' WHERE consultant_user_id11 = 'ch.jung@aegisecu.com' / **MESSAGE :  Unknown column 'consultant_user_id11' in 'where clause'
+2021-04-22 17:17:22 [31merror[39m [DB 오류] > ch.jung@aegisecu.com > / **SQL : undefined / **MESSAGE :  Unknown database 'securist'
+2021-04-22 17:18:01 [31merror[39m [DB 오류] > ch.jung@aegisecu.com > / **SQL : undefined / **MESSAGE :  Unknown database 'securist'
+2021-04-22 17:18:54 [31merror[39m [DB 오류] > ch.jung@aegisecu.com > / **SQL : undefined / **MESSAGE :  Unknown database 'securist'
+2021-04-22 17:20:01 [31merror[39m [DB 오류] > ch.jung@aegisecu.com > / **SQL : UPDATE consultant_users SET phone_num = '01077777777' WHERE consultant_user_id11 = 'ch.jung@aegisecu.com' / **MESSAGE :  Unknown column 'consultant_user_id11' in 'where clause'
+2021-04-22 18:51:44 [32minfo[39m [DB 성공] > ch.jung@aegisecu.com /  연락처 변경 완료
