@@ -91,8 +91,32 @@ module.exports = (router) => {
             res.send(err);
         }
     });
+    // 사용자 기업소속 상태변경 : 사용자 소속 요청 처리 type - 0: 소속요청, 1: 요청취소/해제하기
+    // 진행중인 프로젝트가 있는 경우 해제불가 : 해당 코드 프로젝트 진행 뒤 추가
+    router.put('/api/user/join/status', async (req, res) => {
+        try {
+            let idToken = req.token;
+            let joinData = req.filteredData;
+            console.log(
+                'PUT - /api/user/join/status 요청 : ',
+                idToken,
+                joinData
+            );
+            let result = await userAdapter.updateJoinStatus(idToken, joinData);
+            console.log('PUT - /api/user/join/status 응답 : ', result);
+            let response = new Response(
+                200,
+                '사용자 소속 상태 수정 완료 - idToken',
+                result
+            );
+            res.send(response);
+        } catch (err) {
+            console.log('PUT - /api/user/join/status 에러 응답 : ', err);
+            res.send(err);
+        }
+    });
 
-    // 회원 탈퇴 : 윤이사님 확인 후 처리
+    // 회원 탈퇴 : 윤이사님 확인 후 처리 : 정책논의와 다른 기능완성 후 작업진행!!
     router.delete('/api/user', async (req, res) => {
         let accessToken = req.token;
         let reqData = req.filteredData;

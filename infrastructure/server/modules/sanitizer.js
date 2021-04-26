@@ -6,6 +6,7 @@ const sanitizeHtml = require('sanitize-html');
 module.exports = (req, res, next) => {
     // console.log('리퀘스트 :', req);
     let filteredData = {};
+    let filteredQuery = {};
     if (
         req.method === 'POST' ||
         req.method === 'PUT' ||
@@ -32,11 +33,11 @@ module.exports = (req, res, next) => {
             console.log('req.query : ', req.query);
             for (let key in req.query) {
                 console.log('key: ', key, 'value :', req.query[key]);
-                filteredData[key] = sanitizeHtml(req.query[key]);
+                filteredQuery[key] = sanitizeHtml(req.query[key]);
             }
-            console.log('query 소독 : ', filteredData);
+            console.log('query 소독 : ', filteredQuery);
         }
-        req.filteredData = filteredData;
+        req.filteredQuery = filteredQuery;
     }
     if (req.headers.authorization) {
         let token = req.headers.authorization;

@@ -1,7 +1,3 @@
-/*
-TODO : signUp 진행 시 기업-사용자 테이블 정보 생성처리
-*/
-
 const { authAdapter } = require('../../../adapters/inbound');
 const Response = require('../modules/Response');
 const extractToken = require('../modules/extractToken');
@@ -235,7 +231,7 @@ module.exports = (router) => {
 //     extractToken,
 //     async (req, res) => {
 //         try {
-//             let idToken = req.token;
+//             let idToken = req.token
 //             console.log('/api/user 요청 : ', idToken);
 //             let result = await authAdapter.getUserByIdToken(idToken);
 //             console.log('/api/user 응답 : ', result);
@@ -256,7 +252,7 @@ module.exports = (router) => {
 //     '/api/auth/userinfobyaccesstoken',
 //     extractToken,
 //     async (req, res) => {
-//         let accessToken = req.token;
+//         let accessToken = req.token
 //         try {
 //             console.log('/api/userInfo 요청 : ', accessToken);
 //             let result = await authAdapter.getUserInfo(accessToken);

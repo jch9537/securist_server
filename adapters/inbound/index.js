@@ -2,5 +2,5 @@
 module.exports = {
     authAdapter: require('./authAdapter'),
     userAdapter: require('./userAdapter'),
-    // companyAdapter: require('./companyAdapter'),
+    companyAdapter: require('./companyAdapter'),
 };

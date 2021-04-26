@@ -1,3 +1,4 @@
+//TODO : 예외처리 - new Exception(err.statusCode, err.message, err) 추가
 const pool = require('./index');
 const { logger } = require('../../../adapters/middleware');
 const { authService } = require('../../../adapters/outbound/auth'); // 같은 layer - 의존성에 문제 없는지 확인
@@ -429,8 +430,8 @@ module.exports = class {
         2. 사용자가 탈퇴처리 시 연관된 기업정보가 삭제되면 예측하지 못한 큰 문제 발생가능(바우처, 잘못된 기업, 사용자가 남아있는 기업 삭제)
         3. 프로젝트와 다른 여러 처리 후 나중에 처리
         */
+
     async deleteUser(token, { email, userType, withdrawalType }) {
-        console.log('회원탈퇴!!');
         let result, sql, arg;
         let tableName,
             idColumn,
@@ -505,6 +506,154 @@ module.exports = class {
                 connection.release();
                 return result;
             }
+        });
+    }
+    getClientCompanyList() {
+        let result;
+        let sql, arg;
+
+        pool.getConnection(async (error, connection) => {
+            if (error) {
+                throw error;
+            }
+            sql = `SELECT client_company_id, company_name, president_name from consulting_companies`;
+            connection.query(sql, (error, results, filelds) => {
+                if (error) {
+                    throw error;
+                }
+                console.log(
+                    '클라이언트 기업 정보리스트 가져오기 ------------------- : ',
+                    results
+                );
+            });
+        });
+    }
+    // 기업 리스트 가져오기 : 기업(클/컨) 공통
+    getCompanyList(userData) {
+        let sql;
+        let tableName, idColumn;
+
+        if (userData.userType === '2') {
+            tableName = 'consulting_companies';
+            idColumn = 'consulting_company_id';
+        } else if (userData.userType === '3') {
+            tableName = 'client_companies';
+            idColumn = 'client_company_id';
+        } else {
+            throw error;
+        }
+
+        return new Promise((resolve, reject) => {
+            pool.getConnection(async (error, connection) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    sql = `SELECT ${idColumn}, company_name, president_name from ${tableName}`;
+                    await connection.query(sql, (error, results, filelds) => {
+                        if (error) {
+                            reject(error);
+                        } else {
+                            console.log(
+                                '컨설팅 기업 정보리스트 가져오기 ------------------- : ',
+                                results
+                            );
+                            resolve(results);
+                        }
+                    });
+                }
+            });
+        });
+    }
+    // 기업 소속 사용자 수 가져오기 : 기업 (클라이언트/컨설턴트) 공통
+    getCompanyUserCount(userData, companyId) {
+        console.log('--------------------', userData, companyId);
+        let result = {};
+        let sql, arg;
+        let tableName, idColumn;
+
+        if (userData.userType === '2') {
+            tableName = 'consultant_user_and_company';
+            idColumn = 'consulting_company_id';
+        } else if (userData.userType === '3') {
+            tableName = 'client_user_and_company';
+            idColumn = 'client_company_id';
+        } else {
+            throw error;
+        }
+
+        return new Promise((resolve, reject) => {
+            pool.getConnection(async (error, connection) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    sql = `SELECT COUNT(*) FROM ${tableName} WHERE ${idColumn} = ?`;
+                    arg = [companyId];
+                    await connection.query(
+                        sql,
+                        arg,
+                        (error, results, fields) => {
+                            if (error) {
+                                reject(error);
+                            } else {
+                                console.log(
+                                    '기업 소속사용자 가져오기 ------------------- : ',
+                                    results[0]['COUNT(*)']
+                                );
+                                result.count = results[0]['COUNT(*)'];
+                                resolve(result);
+                            }
+                        }
+                    );
+                }
+            });
+        });
+    }
+    updateJoinStatus({ email, userType, companyId, joinType }) {
+        console.log(
+            '~~~~~~~~~~~~~~~~~~~~~ : ',
+            email,
+            userType,
+            companyId,
+            joinType
+        );
+        let sql, arg;
+        let tableName, userIdColumn, companyIdColumn;
+
+        if (userType === '2') {
+            tableName = 'consultant_user_and_company';
+            userIdColumn = 'consultant_user_id';
+            companyIdColumn = 'consulting_company_id';
+        } else if (userType === '3') {
+            tableName = 'client_user_and_company';
+            userIdColumn = 'client_user_id';
+            companyIdColumn = 'client_company_id';
+        } else {
+            throw error;
+        }
+        return new Promise((reject, resolve) => {
+            pool.getConnection(async (error, connection) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    sql = `UPDATE ${tableName} SET active_type = ? WHERE ${companyIdColumn} = '${companyId}' AND ${userIdColumn}= '${email}';`;
+                    arg = [joinType];
+                    connection.query(sql, arg, (error, results, filelds) => {
+                        if (error) {
+                            console.log(
+                                '에러 응답 > DB > Query >  updateJoinStatus  : error',
+                                error
+                            );
+                            reject(error);
+                        } else {
+                            console.log(
+                                ' 응답 > DB > Query >  updateJoinStatus  : error',
+                                results
+                            );
+                            resolve(results);
+                        }
+                    });
+                }
+            });
         });
     }
 };

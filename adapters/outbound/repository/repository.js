@@ -179,23 +179,56 @@ module.exports = class {
             throw error;
         }
     }
-    // async updateConsultantPhoneNum(updatePhoneNumEntity) {
-    //     console.log(
-    //         '요청 > Adapter > outBound > repository > repository.js - updateClientUser > updatePhoneNumEntity : ',
-    //         updatePhoneNumEntity
-    //     );
-    //     let result;
-    //     try {
-    //         result = await this.db.updateConsultantUserInfo(
-    //             updatePhoneNumEntity
-    //         );
-    //         console.log(
-    //             '응답 > Adapter > outBound > repository > repository.js - updateConsultantUserInfo > result : ',
-    //             result
-    //         );
-    //     } catch (error) {
-    //         throw error;
-    //     }
-    //     return result;
-    // }
+
+    async getCompanyList(userData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > getCompanyList > 요청없음 : '
+        );
+        let result;
+        try {
+            result = await this.db.getCompanyList(userData);
+            console.log(
+                '응답 > Adapter > outBound > repository > getCompanyList > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getCompanyUserCount(userData, companyId) {
+        console.log(
+            '요청 > Adapter > outBound > repository > getCompanyUserCount > userData, companyId : ',
+            companyId,
+            userData
+        );
+        let result;
+        try {
+            result = await this.db.getCompanyUserCount(userData, companyId);
+            console.log(
+                '응답 > Adapter > outBound > repository > getCompanyUserCount > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async updateJoinStatus(updateJoinStatusEntity) {
+        console.log(
+            '요청 > Adapter > outBound > repository > updateJoinStatus > updateJoinStatusEntity : ',
+            updateJoinStatusEntity
+        );
+        let result;
+        try {
+            result = await this.db.updateJoinStatus(updateJoinStatusEntity);
+            console.log(
+                '응답 > Adapter > outBound > repository > updateJoinStatus > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
 };
