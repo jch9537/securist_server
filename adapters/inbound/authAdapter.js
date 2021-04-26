@@ -259,7 +259,7 @@ module.exports = {
             throw err;
         }
     },
-    // id token으로 사용자 cognito 가입정보 가져오기
+    // id token으로 사용자 cognito 가입정보 가져오기 : 미들웨어 처리
     async getUserByIdToken(idToken) {
         console.log(
             '요청 > adapters > inbound > authAdaptor.js > getUserByIdToken - idToken : ',

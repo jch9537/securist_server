@@ -4,7 +4,7 @@ const AuthEntity = require('./AuthEntity');
 const { ParameterException } = require('../../exceptions');
 
 module.exports = class extends AuthEntity {
-    constructor({ email, password, name, userType, phoneNum }) {
+    constructor({ email, password, name = nu, userType, phoneNum }) {
         super(email);
         this.password = password;
         this.name = name;

@@ -321,6 +321,13 @@ module.exports = class {
             });
         });
     }
+    // updateBankInfo({ email, userType, bankName, bankAccountNum, bankAccountOwner }){
+    //  //userType별
+    //  this.updateUserBankInfo
+    //  this.updateCompanyBankInfo 로 나누기
+
+    // }
+
     // 사용자 정보 변경 - 개인컨설턴트 입금정보
     updateUserBankInfo({ email, bankName, bankAccountNum, bankAccountOwner }) {
         let sql, arg;

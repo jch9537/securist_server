@@ -20,7 +20,7 @@ module.exports = class {
                 let updateBankInfoEntity = new UpdateBankInfoEntity(
                     updateUserData
                 );
-
+                // userType 을 포함시키고 infra에서 나누는 걸로 수정
                 if (userData.userType === '1') {
                     console.log('업데이트 데이터1 : ', updateUserData);
                     result = await this.Repository.updateUserBankInfo(

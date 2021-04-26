@@ -2,7 +2,12 @@
 
 const { AuthEntity } = require('../auth');
 const { ParameterException } = require('../../exceptions');
-
+// const UpdateBankInfoEntityConfig = {
+//     userType: {
+//         PERSONAL_CONSTANT : '1'
+//     }
+// type의 경우 위와 같이 형식을 나눠주는 것이 코드 가독성이 좋음
+// }
 module.exports = class extends AuthEntity {
     constructor({
         email,
