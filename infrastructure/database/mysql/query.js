@@ -586,6 +586,94 @@ module.exports = class {
             });
         });
     }
+    // 사용자-기업 연결정보 가져오기
+    getUserBelongingInfo({ email, userType }) {
+        let sql, arg;
+        let tableName, userIdColumn;
+
+        if (userType === '3') {
+            tableName = 'client_user_and_company';
+            userIdColumn = 'client_user_id';
+        } else if (userType === '2') {
+            tableName = 'consultant_user_and_company';
+            userIdColumn = 'consultant_user_id';
+        }
+
+        return new Promise((resolve, reject) => {
+            pool.getConnection(async (error, connection) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    sql = `SELECT * FROM ${tableName} WHERE ${userIdColumn} = ?`;
+                    arg = [email];
+                    await connection.query(
+                        sql,
+                        arg,
+                        (error, results, filelds) => {
+                            if (error) {
+                                reject(error);
+                            } else {
+                                resolve(results[0]);
+                            }
+                        }
+                    );
+                }
+            });
+        });
+    }
+    // 기업 정보 가져오기
+    async getCompanyInfo({ userType }, companyId) {
+        let sql, arg;
+        let tableName, idColumn;
+
+        if (userType === '3') {
+            tableName = 'client_companies';
+            idColumn = 'client_companies';
+        } else if (userType === '2') {
+            tableName = 'consulting_companies';
+            idColumn = 'consulting_company_id';
+        }
+
+        return new Promise((resolve, reject) => {
+            pool.getConnection((error, connection) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    sql = `SELECT * FROM ${tableName} WHERE ${idColumn} = ?`;
+                    arg = [companyId];
+                    connection.query(sql, arg, (error, results, filelds) => {
+                        if (error) {
+                            reject(error);
+                        } else {
+                            console.log(
+                                ' 기업 정보 가져오기 ------------------- : ',
+                                results
+                            );
+                            resolve(results[0]);
+                        }
+                    });
+                }
+            });
+        });
+    }
+    // 사용자 소속 기업정보 가져오기
+    async getUserBelongingCompanyInfo({ email, userType }) {
+        let result;
+        let idColumn;
+
+        if (userType === '3') {
+            idColumn = 'client_company_id';
+        } else if (userType === '2') {
+            idColumn = 'consulting_company_id';
+        }
+
+        let companyInfo = await this.getUserBelongingInfo({ email, userType });
+        let companyId = companyInfo[`${idColumn}`];
+
+        result = await this.getCompanyInfo({ userType }, companyId);
+        console.log('사용자 소속기업정보 가져오기 ', result);
+        return result;
+    }
     // 기업 소속 사용자 수 가져오기 : 기업 (클라이언트/컨설턴트) 공통
     getCompanyUserCount(userData, companyId) {
         console.log('--------------------', userData, companyId);
@@ -599,8 +687,6 @@ module.exports = class {
         } else if (userData.userType === '3') {
             tableName = 'client_user_and_company';
             idColumn = 'client_company_id';
-        } else {
-            throw error;
         }
 
         return new Promise((resolve, reject) => {

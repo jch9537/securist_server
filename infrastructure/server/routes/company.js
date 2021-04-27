@@ -17,16 +17,38 @@ const decryptIdToken = require('../modules/decryptIdToken');
 module.exports = (router) => {
     router.use(extractToken);
     router.use(decryptIdToken);
+
     // 기업정보 가져오기
-    // router.get('/api/company', (req, res) => {
-    //     console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-    // });
-    //등록된 기업정보 가져오기 : 업체 검색
-    router.get('/api/company/list', async (req, res) => {
-        let userData = req.userDataByIdToken;
+    router.get('/api/company/:companyId', async (req, res) => {
         try {
+            let userData = req.userDataByIdToken;
+            let companyId = req.params.companyId;
+            console.log(
+                '요청 > /api/company/:companyId : ',
+                userData,
+                companyId
+            );
+            let result = await companyAdapter.getCompanyInfo(
+                userData,
+                companyId
+            );
+            console.log('응답 > /api/company/:companyId : ', result);
+
+            let response = new Response(200, '기업정보 가져오기 완료', result);
+            res.send(response);
+        } catch (err) {
+            console.log('에러 > /api/company/:companyId : ', err);
+            res.send(err);
+        }
+    });
+    // 등록된 기업정보 가져오기 : 업체 검색
+    router.get('/api/company/list', async (req, res) => {
+        try {
+            let userData = req.userDataByIdToken;
+
             let result = await companyAdapter.getCompanyList(userData);
             console.log('GET - /api/company/list 응답 : ', result);
+
             let response = new Response(
                 200,
                 '기업리스트 가져오기 완료',
@@ -40,15 +62,17 @@ module.exports = (router) => {
     });
     //선택 기업 컨설턴트 수 가져오기
     router.get('/api/company/usercount', async (req, res) => {
-        let userData = req.userDataByIdToken;
-        let companyId = req.filteredQuery.id;
-        console.log('요청 데이터 : ', userData, companyId);
         try {
+            let userData = req.userDataByIdToken;
+            let companyId = req.filteredQuery.id;
+            console.log('요청 데이터 : ', userData, companyId);
+
             let result = await companyAdapter.getCompanyUserCount(
                 userData,
                 companyId
             );
             console.log('GET - /api/company 응답 : ', result);
+
             let response = new Response(
                 200,
                 '소속 컨설턴트수 가져오기',
@@ -62,7 +86,8 @@ module.exports = (router) => {
     });
 
     // 사용자 소속요청에 대한 응답 (승인/거부)
-    router.put('/api/company/reply', (req, res) => {
-        console.log('ㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠ', req.body);
+    router.put('/api/company/reply', decryptIdToken, (req, res) => {
+        let reqData = req.filteredData;
+        let userData = req.userDataByIdToken;
     });
 };

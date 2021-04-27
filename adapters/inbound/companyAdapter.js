@@ -1,5 +1,6 @@
 const { Auth, Repository, SendMail } = require('../outbound');
 const {
+    GetCompanyInfo,
     GetCompanyList,
     GetCompanyUserCount,
 } = require('../../domain/usecase/company');
@@ -18,6 +19,23 @@ module.exports = {
         } catch (err) {
             console.log(
                 '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyList - err : ',
+                err
+            );
+            throw err;
+        }
+    },
+    async getCompanyInfo(userData, companyId) {
+        try {
+            let getCompanyInfo = new GetCompanyInfo(Repository);
+            let result = await getCompanyInfo.excute(userData, companyId);
+            console.log(
+                '응답 > adapters > inbound > companyAdaptor.js > getCompanyInfo - result : ',
+                result
+            );
+            return result;
+        } catch (err) {
+            console.log(
+                '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyInfo - err : ',
                 err
             );
             throw err;

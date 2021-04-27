@@ -5,6 +5,8 @@ TODO : 기존 코드에서 사용자와 기업의 처리(router에서 - infra까
 // 메서드 정의 인터페이스 - 컨트롤러
 const {
     GetUserInfo,
+    GetUserBelongingInfo,
+    GetUserBelongingCompanyInfo,
     UpdatePhoneNum,
     UpdateBankInfo,
     UpdateJoinStatus,
@@ -12,26 +14,21 @@ const {
 } = require('../../domain/usecase/user');
 
 const { Repository } = require('../outbound');
+const authAdapter = require('./authAdapter');
 // const auth = require('../outbound/auth');
-// const authAdapter = require('./authAdapter');
 // const { GetUserByIdToken } = require('../../domain/usecase/auth');
 // const {
 //     checkExpiredPassword,
 // } = require('../../infrastructure/webService/authService/awsMiddleware');
 
 module.exports = {
-    // id 토큰을 이용한 사용자 정보 - 가져오기
+    // 사용자 DB 정보 가져오기
     async getUserInfo(userData) {
         console.log(
             '요청 > adapters > inbound > userAdaptor.js > getUserInfo - userId : ',
             userData
         );
         try {
-            // let userData = await authAdapter.getUserByIdToken(token);
-            // console.log(
-            //     '응답 > adapters > inbound > userAdaptor.js > getUserByIdToken - userData : ',
-            //     userData
-            // );
             let getUserInfo = new GetUserInfo(Repository);
             let result = await getUserInfo.excute(userData);
             console.log(
@@ -47,6 +44,51 @@ module.exports = {
             throw err;
         }
     },
+    // 사용자-기업 연결정보 가져오기
+    async getUserBelongingInfo(userData) {
+        console.log(
+            '요청 > adapters > inbound > userAdaptor > getUserBelongingInfo - userData : ',
+            userData
+        );
+        try {
+            let getUserBelongingInfo = new GetUserBelongingInfo(Repository);
+            let result = await getUserBelongingInfo.excute(userData);
+            console.log(
+                '응답 > adapters > inbound > userAdaptor > getUserBelongingInfo - result : ',
+                result
+            );
+            return result;
+        } catch (err) {
+            console.log(
+                '에러 응답 > adapters > inbound > userAdaptor > getUserBelongingInfo - err : ',
+                err
+            );
+            throw err;
+        }
+    },
+    async getUserBelongingCompanyInfo(userData) {
+        console.log(
+            '요청 > adapters > inbound > userAdaptor > getUserBelongingInfo - userData : ',
+            userData
+        );
+        try {
+            let getUserBelongingCompanyInfo = new GetUserBelongingCompanyInfo(
+                Repository
+            );
+            let result = await getUserBelongingCompanyInfo.excute(userData);
+            console.log(
+                '응답 > adapters > inbound > userAdaptor > getUserBelongingInfo - result : ',
+                result
+            );
+            return result;
+        } catch (err) {
+            console.log(
+                '에러 응답 > adapters > inbound > userAdaptor > getUserBelongingInfo - err : ',
+                err
+            );
+            throw err;
+        }
+    },
     // 사용자 비밀번호 수정
     async changePassword(token, updatePasswordData) {
         console.log(
@@ -55,7 +97,10 @@ module.exports = {
             updatePasswordData
         );
         try {
-            let result = authAdapter.changePassword(token, updatePasswordData);
+            let result = await authAdapter.changePassword(
+                token,
+                updatePasswordData
+            );
             console.log(
                 '응답 > adapters > inbound > userAdaptor > changePassword - result : ',
                 result
