@@ -12,7 +12,6 @@ const {
 
 const Response = require('../modules/Response');
 const extractToken = require('../modules/extractToken');
-const company = require('../../../domain/entities/company');
 
 module.exports = (router) => {
     router.use(extractToken);

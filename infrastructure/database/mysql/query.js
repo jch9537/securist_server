@@ -321,13 +321,29 @@ module.exports = class {
             });
         });
     }
-    // updateBankInfo({ email, userType, bankName, bankAccountNum, bankAccountOwner }){
-    //  //userType별
-    //  this.updateUserBankInfo
-    //  this.updateCompanyBankInfo 로 나누기
-
-    // }
-
+    // 사용자 정보 변경 - 컨설턴트 입금정보 : 사용자 타입별 분할
+    async updateBankInfo({
+        email,
+        userType,
+        bankName,
+        bankAccountNum,
+        bankAccountOwner,
+    }) {
+        let result;
+        if (userType === '1') {
+            result = await this.updateUserBankInfo;
+        } else if (userType === '2') {
+            result = await this.updateCompanyBankInfo({
+                email,
+                bankName,
+                bankAccountNum,
+                bankAccountOwner,
+            });
+        } else {
+            throw error;
+        }
+        return result;
+    }
     // 사용자 정보 변경 - 개인컨설턴트 입금정보
     updateUserBankInfo({ email, bankName, bankAccountNum, bankAccountOwner }) {
         let sql, arg;
@@ -370,7 +386,6 @@ module.exports = class {
         });
     }
     // 사용자 정보 변경 - 컨설팅 업체 입금정보 : // email로 연결테이블에서 기업 id 가져오기
-
     updateCompanyBankInfo({
         email,
         bankName,
@@ -515,26 +530,26 @@ module.exports = class {
             }
         });
     }
-    getClientCompanyList() {
-        let result;
-        let sql, arg;
+    // getClientCompanyList() {
+    //     let result;
+    //     let sql, arg;
 
-        pool.getConnection(async (error, connection) => {
-            if (error) {
-                throw error;
-            }
-            sql = `SELECT client_company_id, company_name, president_name from consulting_companies`;
-            connection.query(sql, (error, results, filelds) => {
-                if (error) {
-                    throw error;
-                }
-                console.log(
-                    '클라이언트 기업 정보리스트 가져오기 ------------------- : ',
-                    results
-                );
-            });
-        });
-    }
+    //     pool.getConnection(async (error, connection) => {
+    //         if (error) {
+    //             throw error;
+    //         }
+    //         sql = `SELECT client_company_id, company_name, president_name from consulting_companies`;
+    //         connection.query(sql, (error, results, filelds) => {
+    //             if (error) {
+    //                 throw error;
+    //             }
+    //             console.log(
+    //                 '클라이언트 기업 정보리스트 가져오기 ------------------- : ',
+    //                 results
+    //             );
+    //         });
+    //     });
+    // }
     // 기업 리스트 가져오기 : 기업(클/컨) 공통
     getCompanyList(userData) {
         let sql;

@@ -60,11 +60,6 @@ module.exports = {
                 '응답 > adapters > inbound > authAdaptor.js > signUp - result : ',
                 result
             );
-            /* 
-            회원가입이 완료되면 
-            1. 타입(클/컨)별 사용자 정보 생성 (DB) 
-            2. 기업정보가 있는지 확인 ? 연결 : 생성 (DB)
-            */
             return result;
         } catch (err) {
             console.log(
@@ -259,7 +254,7 @@ module.exports = {
             throw err;
         }
     },
-    // id token으로 사용자 cognito 가입정보 가져오기 : 미들웨어 처리
+    // id token으로 사용자 cognito 가입정보 가져오기 : 미들웨어 처리!!!!!!!!!
     async getUserByIdToken(idToken) {
         console.log(
             '요청 > adapters > inbound > authAdaptor.js > getUserByIdToken - idToken : ',
@@ -282,7 +277,7 @@ module.exports = {
         }
     },
 
-    // access token으로 사용자 cognito 가입정보 가져오기
+    // access token으로 사용자 cognito 가입정보 가져오기 : 미들웨어 처리!!!!!!!!!
     async getUserInfoByAccessToken(accessToken) {
         try {
             let getUserInfoByAccessToken = new GetUserInfoByAccessToken(Auth);
