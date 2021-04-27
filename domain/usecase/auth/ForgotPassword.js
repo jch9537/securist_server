@@ -3,9 +3,9 @@ module.exports = class {
     constructor(Auth) {
         this.Auth = Auth;
     }
-    async excute(email) {
+    async excute({ email }) {
         let authEntity = new AuthEntity(email);
-        let result = await this.Auth.forgotPassword(authEntity.email);
+        let result = await this.Auth.forgotPassword(authEntity);
         return result;
     }
 };

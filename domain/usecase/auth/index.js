@@ -8,7 +8,7 @@ module.exports = {
     ConfirmForgotPassword: require('./ConfirmForgotPassword'),
     CheckAccessToken: require('./CheckAccessToken'),
     IssueNewToken: require('./IssueNewToken'),
-    GetUserByIdToken: require('./GetUserByIdToken'),
-    GetUserInfoByAccessToken: require('./GetUserInfoByAccessToken'),
+    // GetUserByIdToken: require('./(delete)GetUserByIdToken'),
+    // GetUserInfoByAccessToken: require('./(delete)GetUserInfoByAccessToken'),
     VerifyUserByPassword: require('./VerifyUserByPassword'),
 };

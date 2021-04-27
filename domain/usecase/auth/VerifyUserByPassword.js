@@ -5,7 +5,7 @@ module.exports = class {
     constructor(Auth) {
         this.Auth = Auth;
     }
-    async excute(userData, password) {
+    async excute({ email, password }) {
         let result;
         try {
             let verifyUserByPasswordEntity = new VerifyUserByPasswordEntity(
@@ -15,7 +15,7 @@ module.exports = class {
                 '사용자 비번인증---------- : ',
                 verifyUserByPasswordEntity
             );
-            verifyUserByPasswordEntity.email = userData.email;
+            verifyUserByPasswordEntity.email = email;
             result = await this.Auth.verifyUserByPassword(
                 verifyUserByPasswordEntity
             );

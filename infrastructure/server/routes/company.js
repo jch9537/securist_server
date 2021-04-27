@@ -12,18 +12,20 @@ const {
 
 const Response = require('../modules/Response');
 const extractToken = require('../modules/extractToken');
+const decryptIdToken = require('../modules/decryptIdToken');
 
 module.exports = (router) => {
     router.use(extractToken);
+    router.use(decryptIdToken);
     // 기업정보 가져오기
     // router.get('/api/company', (req, res) => {
     //     console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaa');
     // });
     //등록된 기업정보 가져오기 : 업체 검색
     router.get('/api/company/list', async (req, res) => {
-        let idToken = req.token;
+        let userData = req.userDataByIdToken;
         try {
-            let result = await companyAdapter.getCompanyList(idToken);
+            let result = await companyAdapter.getCompanyList(userData);
             console.log('GET - /api/company/list 응답 : ', result);
             let response = new Response(
                 200,
@@ -38,12 +40,12 @@ module.exports = (router) => {
     });
     //선택 기업 컨설턴트 수 가져오기
     router.get('/api/company/usercount', async (req, res) => {
-        let idToken = req.token;
+        let userData = req.userDataByIdToken;
         let companyId = req.filteredQuery.id;
-        console.log('요청 데이터 : ', idToken, companyId);
+        console.log('요청 데이터 : ', userData, companyId);
         try {
             let result = await companyAdapter.getCompanyUserCount(
-                idToken,
+                userData,
                 companyId
             );
             console.log('GET - /api/company 응답 : ', result);

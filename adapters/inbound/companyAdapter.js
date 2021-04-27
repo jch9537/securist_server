@@ -3,17 +3,11 @@ const {
     GetCompanyList,
     GetCompanyUserCount,
 } = require('../../domain/usecase/company');
-const authAdapter = require('./authAdapter');
 
 module.exports = {
     // 기업 리스트 가져오기 : 기업(클/컨) 공통
-    async getCompanyList(token) {
+    async getCompanyList(userData) {
         try {
-            let userData = await authAdapter.getUserByIdToken(token);
-            console.log(
-                '응답 > adapters > inbound > companyAdaptor.js > getUserByIdToken - userData : ',
-                userData
-            );
             let getCompanyList = new GetCompanyList(Repository);
             let result = await getCompanyList.excute(userData);
             console.log(
@@ -30,13 +24,8 @@ module.exports = {
         }
     },
     // 기업 내 소속 사용자 수 가져오기 : 기업(클/컨) 공통
-    async getCompanyUserCount(token, companyId) {
+    async getCompanyUserCount(userData, companyId) {
         try {
-            let userData = await authAdapter.getUserByIdToken(token);
-            console.log(
-                '응답 > adapters > inbound > companyAdaptor.js > getUserByIdToken - userData : ',
-                userData
-            );
             let getCompanyUserCount = new GetCompanyUserCount(Repository);
             let result = await getCompanyUserCount.excute(userData, companyId);
             console.log(
