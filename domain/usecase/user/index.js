@@ -1,6 +1,5 @@
 module.exports = {
     GetUserInfo: require('./GetUserInfo'),
-    GetUserBelongingInfo: require('./GetUserBelongingInfo'),
     GetUserBelongingCompanyInfo: require('./GetUserBelongingCompanyInfo'),
     UpdatePhoneNum: require('./UpdatePhoneNum'),
     UpdateBankInfo: require('./UpdateBankInfo'),

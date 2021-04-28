@@ -30,26 +30,6 @@ module.exports = (router) => {
             res.send(err);
         }
     });
-    // 사용자-기업 연결정보 가져오기
-    router.get('/api/user/belonging/info', decryptIdToken, async (req, res) => {
-        try {
-            let userData = req.userDataByIdToken;
-            console.log('요청 > /api/user/belonging/info : ', userData);
-
-            let result = await userAdapter.getUserBelongingInfo(userData);
-            console.log('응답 > /api/user/belonging/info : ', result);
-
-            let response = new Response(
-                200,
-                '사용자-기업 연결정보 가져오기 완료',
-                result
-            );
-            res.send(response);
-        } catch (err) {
-            console.log('에러 > /api/user/belonging/info : ', err);
-            res.send(err);
-        }
-    });
     // 사용자 소속기업 정보 가져오기
     router.get(
         '/api/user/belonging/company/info',

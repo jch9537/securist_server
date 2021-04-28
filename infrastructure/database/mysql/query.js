@@ -764,7 +764,7 @@ module.exports = class {
     }
     // GET
     // 사용자-기업 연결정보 가져오기
-    getUserBelongingInfo({ email, userType }) {
+    getRelationInfo({ email, userType }) {
         let sql, arg;
         let tableName, userIdColumn;
 
