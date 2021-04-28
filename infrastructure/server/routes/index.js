@@ -5,6 +5,7 @@ const router = express.Router();
 require('./auth')(router);
 require('./user')(router);
 require('./company')(router);
+require('./relation')(router);
 // require('./project')(router);
 // require('./test');
 

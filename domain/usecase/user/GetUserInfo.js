@@ -5,16 +5,7 @@ module.exports = class {
     async excute(userData) {
         let result;
         try {
-            if (userData.userType === '3') {
-                // 이것도 infra에서 분류하는 걸로 수정
-                result = await this.Repository.getClientUserInfo(
-                    userData.email
-                );
-            } else {
-                result = await this.Repository.getConsultantUserInfo(
-                    userData.email
-                );
-            }
+            result = await this.Repository.getUserInfo(userData);
         } catch (error) {
             throw error;
         }

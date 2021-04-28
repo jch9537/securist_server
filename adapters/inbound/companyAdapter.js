@@ -3,6 +3,7 @@ const {
     GetCompanyInfo,
     GetCompanyList,
     GetCompanyUserCount,
+    UpdateRegistrationStatus,
 } = require('../../domain/usecase/company');
 
 module.exports = {
@@ -54,6 +55,28 @@ module.exports = {
         } catch (err) {
             console.log(
                 '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyUserCount - err : ',
+                err
+            );
+            throw err;
+        }
+    },
+    async updateRegistrationStatus(userData, regiData) {
+        try {
+            let updateRegistrationStatus = new UpdateRegistrationStatus(
+                Repository
+            );
+            let result = await updateRegistrationStatus.excute(
+                userData,
+                regiData
+            );
+            console.log(
+                '응답 > adapters > inbound > companyAdaptor.js > updateRegistrationStatus - result : ',
+                result
+            );
+            return result;
+        } catch (err) {
+            console.log(
+                '에러 응답 > adapters > inbound > companyAdaptor.js > updateRegistrationStatus - err : ',
                 err
             );
             throw err;

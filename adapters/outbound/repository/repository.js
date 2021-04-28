@@ -2,6 +2,7 @@ module.exports = class {
     constructor(db) {
         this.db = db;
     }
+    // 인증--------------------------------------------------------------------
     async signUp(signUpEntity) {
         console.log(
             '요청 > Adapter > outBound > repository > signUp > signUpEntity : ',
@@ -74,17 +75,18 @@ module.exports = class {
     //     return result;
     // }
 
-    //get User
-    async getClientUserInfo(email) {
+    // 사용자--------------------------------------------------------------------
+    // GET
+    async getUserInfo(userData) {
         console.log(
-            '요청 > Adapter > outBound > repository > getClientUser > email : ',
-            email
+            '요청 > Adapter > outBound > repository > getUserInfo > userData : ',
+            userData
         );
         let result;
         try {
-            result = await this.db.getClientUserInfo(email);
+            result = await this.db.getUserInfo(userData);
             console.log(
-                '응답 > Adapter > outBound > repository > getClientUserInfo > result : ',
+                '응답 > Adapter > outBound > repository > getUserInfo > result : ',
                 result
             );
         } catch (error) {
@@ -92,23 +94,23 @@ module.exports = class {
         }
         return result;
     }
-    async getConsultantUserInfo(email) {
-        console.log(
-            '요청 > Adapter > outBound > repository > getClientUser > email : ',
-            email
-        );
-        let result;
-        try {
-            result = await this.db.getConsultantUserInfo(email);
-            console.log(
-                '응답 > Adapter > outBound > repository > getConsultantUserInfo > result : ',
-                result
-            );
-        } catch (error) {
-            throw error;
-        }
-        return result;
-    }
+    // async getClientUserInfo(email) {
+    //     console.log(
+    //         '요청 > Adapter > outBound > repository > getClientUser > email : ',
+    //         email
+    //     );
+    //     let result;
+    //     try {
+    //         result = await this.db.getClientUserInfo(email);
+    //         console.log(
+    //             '응답 > Adapter > outBound > repository > getClientUserInfo > result : ',
+    //             result
+    //         );
+    //     } catch (error) {
+    //         throw error;
+    //     }
+    //     return result;
+    // }
     async getUserBelongingInfo(userData) {
         console.log(
             '요청 > Adapter > outBound > repository > getUserBelongingInfo > userData : ',
@@ -143,25 +145,7 @@ module.exports = class {
         }
         return result;
     }
-    // 기업정보 가져오기
-    async getCompanyInfo(userData, companyId) {
-        console.log(
-            '요청 > Adapter > outBound > repository > getCompanyInfo > userData : ',
-            companyId
-        );
-        let result;
-        try {
-            result = await this.db.getCompanyInfo(userData, companyId);
-            console.log(
-                '응답 > Adapter > outBound > repository > getCompanyInfo > result : ',
-                result
-            );
-        } catch (error) {
-            throw error;
-        }
-        return result;
-    }
-    // 사용자 정보 변경 > 공통 : 연락처
+    // UPDATE
     async updatePhoneNum(updatePhoneNumEntity) {
         console.log(
             '요청 > Adapter > outBound > repository > updatePhoneNum > updatePhoneNumEntity : ',
@@ -179,41 +163,59 @@ module.exports = class {
         }
         return result;
     }
-    async updateUserBankInfo(updateBankInfoEntity) {
+    async updateBankInfo(updateBankInfoEntity) {
         console.log(
-            '요청 > Adapter > outBound > repository > updateUserBankInfo > updateBankInfoEntity : ',
+            '요청 > Adapter > outBound > repository > updateBankInfo > updateBankInfoEntity : ',
             updateBankInfoEntity
         );
         let result;
         try {
-            result = await this.db.updateUserBankInfo(updateBankInfoEntity);
+            result = await this.db.updateBankInfo(updateBankInfoEntity);
             console.log(
-                '응답 > Adapter > outBound > repository > updateUserBankInfo > result : ',
+                '응답 > Adapter > outBound > repository > updateBankInfo > result : ',
                 result
             );
-        } catch (error) {
-            throw error;
-        }
-        return result;
-    }
-    async updateCompanyBankInfo(updateBankInfoEntity) {
-        console.log(
-            '요청 > Adapter > outBound > repository > updateCompanyBankInfo > updateBankInfoEntity : ',
-            updateBankInfoEntity
-        );
-        let result;
-        try {
-            result = await this.db.updateCompanyBankInfo(updateBankInfoEntity);
-            console.log(
-                '응답 > Adapter > outBound > repository > updateCompanyBankInfo > result : ',
-                result
-            );
-        } catch (error) {
-            throw error;
-        } finally {
             return result;
+        } catch (error) {
+            throw error;
         }
     }
+    async updateJoinStatus(updateJoinStatusEntity) {
+        console.log(
+            '요청 > Adapter > outBound > repository > updateJoinStatus > updateJoinStatusEntity : ',
+            updateJoinStatusEntity
+        );
+        let result;
+        try {
+            result = await this.db.updateJoinStatus(updateJoinStatusEntity);
+            console.log(
+                '응답 > Adapter > outBound > repository > updateJoinStatus > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async updateRegistrationStatus(userData, regiData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > updateRegistrationStatus > userData, regiData : ',
+            userData,
+            regiData
+        );
+        let result;
+        try {
+            result = await this.db.updateRegistrationStatus(userData, regiData);
+            console.log(
+                '응답 > Adapter > outBound > repository > updateRegistrationStatus > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    // DELETE
     async deleteUser(accessToken, deleteUserEntity) {
         console.log(
             '요청 > Adapter > outBound > repository > deleteUser > deleteUserEntity : ',
@@ -232,6 +234,25 @@ module.exports = class {
         }
     }
 
+    // 기업--------------------------------------------------------------------
+    // GET
+    async getCompanyInfo(userData, companyId) {
+        console.log(
+            '요청 > Adapter > outBound > repository > getCompanyInfo > userData : ',
+            companyId
+        );
+        let result;
+        try {
+            result = await this.db.getCompanyInfo(userData, companyId);
+            console.log(
+                '응답 > Adapter > outBound > repository > getCompanyInfo > result : ',
+                result
+            );
+        } catch (error) {
+            throw error;
+        }
+        return result;
+    }
     async getCompanyList(userData) {
         console.log(
             '요청 > Adapter > outBound > repository > getCompanyList > 요청없음 : '
@@ -266,16 +287,35 @@ module.exports = class {
             throw error;
         }
     }
-    async updateJoinStatus(updateJoinStatusEntity) {
+    // 사용자-기업 관계--------------------------------------------------------------------
+    // CREATE
+    async createUserAndCompanyRelation(joinData) {
         console.log(
-            '요청 > Adapter > outBound > repository > updateJoinStatus > updateJoinStatusEntity : ',
-            updateJoinStatusEntity
+            '요청 > Adapter > outBound > repository > createUserAndCompanyRelation > joinData: ',
+            joinData
         );
         let result;
         try {
-            result = await this.db.updateJoinStatus(updateJoinStatusEntity);
+            result = await this.db.createUserAndCompanyRelation(joinData);
             console.log(
-                '응답 > Adapter > outBound > repository > updateJoinStatus > result : ',
+                '응답 > Adapter > outBound > repository > createUserAndCompanyRelation > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async deleteUserAndCompanyRelation(releaseData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > deleteUserAndCompanyRelation > releaseData: ',
+            releaseData
+        );
+        let result;
+        try {
+            result = await this.db.deleteUserAndCompanyRelation(releaseData);
+            console.log(
+                '응답 > Adapter > outBound > repository > deleteUserAndCompanyRelation > result : ',
                 result
             );
             return result;

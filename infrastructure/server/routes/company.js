@@ -28,6 +28,7 @@ module.exports = (router) => {
                 userData,
                 companyId
             );
+
             let result = await companyAdapter.getCompanyInfo(
                 userData,
                 companyId
@@ -86,8 +87,38 @@ module.exports = (router) => {
     });
 
     // 사용자 소속요청에 대한 응답 (승인/거부)
-    router.put('/api/company/reply', decryptIdToken, (req, res) => {
-        let reqData = req.filteredData;
-        let userData = req.userDataByIdToken;
-    });
+    router.put(
+        '/api/company/permit/member',
+        decryptIdToken,
+        async (req, res) => {
+            try {
+                let userData = req.userDataByIdToken;
+                let reqData = req.filteredData;
+                console.log(
+                    'PUT > 요청 >  /api/company/permit/member  : ',
+                    userData,
+                    reqData
+                );
+
+                let result = await companyAdapter.updateRegistrationStatus(
+                    userData,
+                    reqData
+                );
+                console.log(
+                    'PUT > 응답 > /api/company/permit/member  : ',
+                    result
+                );
+
+                let response = new Response(
+                    200,
+                    '컨설턴트 소속요청 처리 완료',
+                    result
+                );
+                res.send(response);
+            } catch (err) {
+                console.log('PUT > 에러 > /api/company/permit/member  : ', err);
+                res.send(err);
+            }
+        }
+    );
 };

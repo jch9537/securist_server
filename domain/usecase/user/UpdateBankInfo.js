@@ -21,7 +21,7 @@ module.exports = class {
                     updateUserData
                 );
                 // console.log('업데이트 데이터 : ', updateUserData);
-                result = await this.Repository.updateCompanyBankInfo(
+                result = await this.Repository.updateBankInfo(
                     updateBankInfoEntity
                 );
                 // console.log('결과----------------', result);

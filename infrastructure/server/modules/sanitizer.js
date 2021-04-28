@@ -29,15 +29,17 @@ module.exports = (req, res, next) => {
         //     }
         //     console.log('params 소독 : ', filteredData);
         // }
-        if (Object.keys(req.query).length !== 0) {
-            console.log('req.query : ', req.query);
-            for (let key in req.query) {
-                console.log('key: ', key, 'value :', req.query[key]);
-                filteredQuery[key] = sanitizeHtml(req.query[key]);
+        if (req.query) {
+            if (Object.keys(req.query).length !== 0) {
+                console.log('req.query : ', req.query);
+                for (let key in req.query) {
+                    console.log('key: ', key, 'value :', req.query[key]);
+                    filteredQuery[key] = sanitizeHtml(req.query[key]);
+                }
+                console.log('query 소독 : ', filteredQuery);
             }
-            console.log('query 소독 : ', filteredQuery);
+            req.filteredQuery = filteredQuery;
         }
-        req.filteredQuery = filteredQuery;
     }
     if (req.headers.authorization) {
         let token = req.headers.authorization;
