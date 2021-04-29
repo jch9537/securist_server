@@ -8,9 +8,9 @@ module.exports = class {
             result = await this.Repository.getUserBelongingCompanyInfo(
                 userData
             );
-            console.log('결과----------------', result);
+            // console.log('결과----------------', result);
         } catch (error) {
-            console.log('에러 ----------------', error);
+            // console.log('에러 ----------------', error);
             throw error;
         }
         return result;

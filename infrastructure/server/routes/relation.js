@@ -68,7 +68,38 @@ module.exports = (router) => {
     });
 
     // 업체 - 소속 승인 : 사용자-기업 is_active 상태 승인처리
-    // router.put('/api/relation/company/permit/:userId')
+    router.put(
+        '/api/relation/company/permit/:selectUserId',
+        async (req, res) => {
+            try {
+                let userData = req.userDataByIdToken;
+                let selectUserId = req.params.selectUserId;
+                console.log(
+                    '요청 > /api/relation/company/permit/:selectUserId : ',
+                    userData,
+                    selectUserId
+                );
+
+                let result = await relationAdapter.updatePermitBelongingStatus(
+                    userData,
+                    selectUserId
+                );
+                console.log(
+                    '응답 > /api/relation/company/permit/:selectUserId : ',
+                    result
+                );
+
+                let response = new Response(200, '소속요청 승인 완료', result);
+                res.send(response);
+            } catch (err) {
+                console.log(
+                    '에러 > /api/relation/company/permit/:selectUserId : ',
+                    err
+                );
+                res.send(err);
+            }
+        }
+    );
 
     // 사용자 - 사용자-기업 연결 삭제 : 사용자가 소속요청 취소/해제하기 처리 시
     router.delete('/api/relation/user/release/:companyId', async (req, res) => {

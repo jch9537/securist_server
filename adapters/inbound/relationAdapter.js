@@ -6,6 +6,7 @@ TODO : 기존 코드에서 사용자와 기업의 처리(router에서 - infra까
 const {
     CreateUserAndCompanyRelation,
     GetRelationInfo,
+    UpdatePermitBelongingStatus,
     DeleteUserAndCompanyRelation,
 } = require('../../domain/usecase/relation');
 const userAdapter = require('./userAdapter');
@@ -56,6 +57,47 @@ module.exports = {
         } catch (err) {
             console.log(
                 '에러 응답 > adapters > inbound > userAdaptor > getRelationInfo - err : ',
+                err
+            );
+            throw err;
+        }
+    },
+    // 기업 - 사용자 소속요청 승인처리
+    async updatePermitBelongingStatus(userData, selectUserId) {
+        console.log(
+            '요청 > adapters > inbound > userAdaptor > updatePermitBelongingStatus - userId : ',
+            userData,
+            selectUserId
+        );
+        try {
+            if (userData.userType === '3') {
+                companyIdColumn = 'client_company_id';
+            } else if (userData.userType === '2') {
+                companyIdColumn = 'consulting_company_id';
+            }
+
+            let companyInfo = await userAdapter.getUserBelongingCompanyInfo(
+                userData
+            );
+            let companyId = companyInfo[companyIdColumn];
+            let updateData = {
+                userType: userData.userType,
+                email: selectUserId,
+                companyId: companyId,
+            };
+
+            let updatePermitBelongingStatus = new UpdatePermitBelongingStatus(
+                Repository
+            );
+            let result = await updatePermitBelongingStatus.excute(updateData);
+            console.log(
+                '응답 > adapters > inbound > userAdaptor > updatePermitBelongingStatus- result : ',
+                result
+            );
+            return result;
+        } catch (err) {
+            console.log(
+                '에러 > adapters > inbound > userAdaptor > updatePermitBelongingStatus- error : ',
                 err
             );
             throw err;

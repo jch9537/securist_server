@@ -6,9 +6,9 @@ module.exports = class {
         let result;
         try {
             result = await this.Repository.getRelationInfo(userData);
-            console.log('결과----------------', result);
+            // console.log('결과----------------', result);
         } catch (error) {
-            console.log('에러 ----------------', error);
+            // console.log('에러 ----------------', error);
             throw error;
         }
         return result;

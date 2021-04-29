@@ -95,41 +95,41 @@ module.exports = class {
             throw error;
         }
     }
-    async updateJoinStatus(updateJoinStatusEntity) {
-        console.log(
-            '요청 > Adapter > outBound > repository > updateJoinStatus > updateJoinStatusEntity : ',
-            updateJoinStatusEntity
-        );
-        let result;
-        try {
-            result = await this.db.updateJoinStatus(updateJoinStatusEntity);
-            console.log(
-                '응답 > Adapter > outBound > repository > updateJoinStatus > result : ',
-                result
-            );
-            return result;
-        } catch (error) {
-            throw error;
-        }
-    }
-    async updateRegistrationStatus(userData, regiData) {
-        console.log(
-            '요청 > Adapter > outBound > repository > updateRegistrationStatus > userData, regiData : ',
-            userData,
-            regiData
-        );
-        let result;
-        try {
-            result = await this.db.updateRegistrationStatus(userData, regiData);
-            console.log(
-                '응답 > Adapter > outBound > repository > updateRegistrationStatus > result : ',
-                result
-            );
-            return result;
-        } catch (error) {
-            throw error;
-        }
-    }
+    // async updateJoinStatus(updateJoinStatusEntity) {
+    //     console.log(
+    //         '요청 > Adapter > outBound > repository > updateJoinStatus > updateJoinStatusEntity : ',
+    //         updateJoinStatusEntity
+    //     );
+    //     let result;
+    //     try {
+    //         result = await this.db.updateJoinStatus(updateJoinStatusEntity);
+    //         console.log(
+    //             '응답 > Adapter > outBound > repository > updateJoinStatus > result : ',
+    //             result
+    //         );
+    //         return result;
+    //     } catch (error) {
+    //         throw error;
+    //     }
+    // }
+    // async updateRegistrationStatus(userData, regiData) {
+    //     console.log(
+    //         '요청 > Adapter > outBound > repository > updateRegistrationStatus > userData, regiData : ',
+    //         userData,
+    //         regiData
+    //     );
+    //     let result;
+    //     try {
+    //         result = await this.db.updateRegistrationStatus(userData, regiData);
+    //         console.log(
+    //             '응답 > Adapter > outBound > repository > updateRegistrationStatus > result : ',
+    //             result
+    //         );
+    //         return result;
+    //     } catch (error) {
+    //         throw error;
+    //     }
+    // }
     // DELETE
     async deleteUser(accessToken, deleteUserEntity) {
         console.log(
@@ -145,6 +145,10 @@ module.exports = class {
             );
             return result;
         } catch (error) {
+            console.log(
+                '에러 > Adapter > outBound > repository > deleteUser > error : ',
+                error
+            );
             throw error;
         }
     }
@@ -245,6 +249,28 @@ module.exports = class {
     }
 
     // UPDATE
+    async updatePermitBelongingStatus(updateRelationEntity) {
+        console.log(
+            '요청 > Adapter > outBound > repository > updatePermitBelongingStatus > updateRelationEntity: ',
+            updateRelationEntity
+        );
+        try {
+            let result = await this.db.updatePermitBelongingStatus(
+                updateRelationEntity
+            );
+            console.log(
+                '응답 > Adapter > outBound > repository > updatePermitBelongingStatus > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 > Adapter > outBound > repository > updatePermitBelongingStatus > error : ',
+                error
+            );
+            throw error;
+        }
+    }
 
     // DELETE
     async deleteUserAndCompanyRelation(deleteData) {

@@ -8,7 +8,6 @@ const {
     GetUserBelongingCompanyInfo,
     UpdatePhoneNum,
     UpdateBankInfo,
-    UpdateJoinStatus,
     DeleteUser,
 } = require('../../domain/usecase/user');
 
@@ -97,11 +96,6 @@ module.exports = {
             userData
         );
         try {
-            // let userData = await authAdapter.getUserByIdToken(userData);
-            // console.log(
-            //     '응답 > adapters > inbound > userAdaptor.js > getUserByIdToken - userData : ',
-            //     userData
-            // );
             let updatePhoneNum = new UpdatePhoneNum(Repository);
             let result = await updatePhoneNum.excute(userData, updateData);
             console.log(
@@ -140,31 +134,7 @@ module.exports = {
             throw err;
         }
     },
-    // 사용자 기업 소속요청/취소 처리
-    async updateJoinStatus(userData, joinData) {
-        console.log(
-            '요청 > adapters > inbound > userAdaptor > updateJoinStatus - userId : ',
-            userData,
-            joinData
-        );
-        try {
-            // let userData = await authAdapter.getUserByIdToken(idToken);
-            // console.log(
-            //     '응답 > adapters > inbound > userAdaptor > getUserByIdToken - userData : ',
-            //     userData
-            // );
-            let updateJoinStatus = new UpdateJoinStatus(Repository);
-            let result = await updateJoinStatus.excute(userData, joinData);
-            console.log(
-                '응답 > adapters > inbound > userAdaptor > updateJoinStatus- result : ',
-                result
-            );
-            return result;
-        } catch (err) {
-            throw err;
-        }
-    },
-
+    // 회원탈퇴
     async deleteUser(accessToken, deleteData) {
         // 기업삭제를 할꺼면 email과 userType을 가져와야하고 / 사용자만 삭제할 꺼면 현재대로 처리해도 됨
         console.log(
@@ -185,7 +155,6 @@ module.exports = {
             let newToken = verifyUserData.AccessToken;
 
             let userData = await authAdapter.getUserInfoByAccessToken(
-                // 이부분 미들웨어 처리 : 회워탈퇴 처리 시 확인!!!!!!!!!!!!!!!
                 accessToken
             );
             console.log(

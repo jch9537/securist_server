@@ -2,6 +2,7 @@
 const pool = require('./index');
 const { logger } = require('../../../adapters/middleware');
 const { authService } = require('../../../adapters/outbound/auth'); // 같은 layer - 의존성에 문제 없는지 확인
+const { ConnectContactLens } = require('aws-sdk');
 
 module.exports = class {
     constructor() {}
@@ -240,17 +241,18 @@ module.exports = class {
         let sql, arg;
         let tableName, idColumn;
 
-        if (userType === '3') {
-            tableName = 'client_users';
-            idColumn = 'client_user_id';
-        } else {
-            tableName = 'consultant_users';
-            idColumn = 'consultant_user_id';
-        }
         sql = `SELECT * FROM ${tableName} WHERE ${idColumn}=?`;
         arg = [email];
         return new Promise((resolve, reject) => {
             pool.getConnection((error, connection) => {
+                if (userType === '3') {
+                    tableName = 'client_users';
+                    idColumn = 'client_user_id';
+                } else {
+                    tableName = 'consultant_users';
+                    idColumn = 'consultant_user_id';
+                }
+
                 if (error) {
                     reject(error);
                 } else {
@@ -280,19 +282,22 @@ module.exports = class {
     async getUserBelongingCompanyInfo({ email, userType }) {
         let result;
         let idColumn;
-
+        // try {
         if (userType === '3') {
             idColumn = 'client_company_id';
         } else if (userType === '2') {
             idColumn = 'consulting_company_id';
         }
-
         let companyInfo = await this.getRelationInfo({ email, userType });
         let companyId = companyInfo[`${idColumn}`];
 
         result = await this.getCompanyInfo({ userType }, companyId);
-        console.log('사용자 소속기업정보 가져오기 ', result);
+        console.log('사용자 소속기업정보 가져오기 result', result);
         return result;
+        // } catch (error) {
+        //     console.log('사용자 소속 기업정보 가져오기 err: ', error);
+        //     throw error;
+        // }
     }
 
     // UPDATE
@@ -457,56 +462,7 @@ module.exports = class {
             });
         });
     }
-    // 사용자 기업 소속요청 하기 : 확인해봐야하는 것 !!!---------------------------------------
-    updateJoinStatus({ email, userType, companyId, joinType }) {
-        console.log(
-            '~~~~~~~~~~~~~~~~~~~~~ : ',
-            email,
-            userType,
-            companyId,
-            joinType
-        );
-        let sql, arg;
-        let tableName, userIdColumn, companyIdColumn;
-
-        if (userType === '2') {
-            tableName = 'consultant_user_and_company';
-            userIdColumn = 'consultant_user_id';
-            companyIdColumn = 'consulting_company_id';
-        } else if (userType === '3') {
-            tableName = 'client_user_and_company';
-            userIdColumn = 'client_user_id';
-            companyIdColumn = 'client_company_id';
-        } else {
-            throw error;
-        }
-        return new Promise((reject, resolve) => {
-            pool.getConnection(async (error, connection) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    if (joinType === '0')
-                        sql = `UPDATE ${tableName} SET active_type = ? WHERE ${companyIdColumn} = '${companyId}' AND ${userIdColumn}= '${email}';`;
-                    arg = [joinType];
-                    connection.query(sql, arg, (error, results, filelds) => {
-                        if (error) {
-                            console.log(
-                                '에러 응답 > DB > Query >  updateJoinStatus  : error',
-                                error
-                            );
-                            reject(error);
-                        } else {
-                            console.log(
-                                ' 응답 > DB > Query >  updateJoinStatus  : error',
-                                results
-                            );
-                            resolve(results);
-                        }
-                    });
-                }
-            });
-        });
-    }
+    // 기업 - 사용자 소속요청 승인 처리
 
     //DELETE
     //회원 탈퇴 - 나중에 처리하기
@@ -646,7 +602,7 @@ module.exports = class {
         });
     }
     // 기업 정보 가져오기
-    async getCompanyInfo({ userType }, companyId) {
+    getCompanyInfo({ userType }, companyId) {
         let sql, arg;
         let tableName, idColumn;
 
@@ -787,6 +743,7 @@ module.exports = class {
     getRelationInfo({ email, userType }) {
         let sql, arg;
         let tableName, userIdColumn;
+        console.log('요청 > DB > Query >  getRelationInfo : ', email, userType);
 
         if (userType === '3') {
             tableName = 'client_user_and_company';
@@ -808,8 +765,16 @@ module.exports = class {
                         arg,
                         (error, results, filelds) => {
                             if (error) {
+                                console.log(
+                                    '에러 > DB > Query >  getRelationInfo : ',
+                                    error
+                                );
                                 reject(error);
                             } else {
+                                console.log(
+                                    '응답 > DB > Query >  getRelationInfo : ',
+                                    results
+                                );
                                 resolve(results[0]);
                             }
                         }
@@ -827,48 +792,94 @@ module.exports = class {
     3. 업체 소속요청 후 거절 시 레코드 삭제
     4. 업체 소속요청 후 승인 시 상태변경
     */
-    async updateRegistrationStatus(
-        { email, userType },
-        { selectUserId, belongingStatus }
-    ) {
+    // async updateRegistrationStatus(  //다른 함수로 삭제 / 수정 처리함
+    //     { email, userType },
+    //     { selectUserId, belongingStatus }
+    // ) {
+    //     let sql, arg;
+    //     let tableName, companyIdColumn, userIdColumn;
+
+    //     if (userType === '3') {
+    //         tableName = 'client_user_and_company';
+    //         companyIdColumn = 'client_company_id';
+    //         userIdColumn = 'client_user_id';
+    //     } else if (userType === '2') {
+    //         tableName = 'consultant_user_and_company';
+    //         companyIdColumn = 'consulting_company_id';
+    //         userIdColumn = 'consultant_user_id';
+    //     }
+
+    //     let companyInfo = await this.getUserBelongingCompanyInfo({
+    //         email,
+    //         userType,
+    //     });
+    //     let companyId = companyInfo[companyIdColumn];
+
+    //     return new Promise((resolve, reject) => {
+    //         pool.getConnection((error, connection) => {
+    //             if (error) {
+    //                 reject(error);
+    //             } else {
+    //                 if (belongingStatus === '0') {
+    //                     // 기업에서 거절처리했을 때
+    //                     sql = `DELETE FROM ${tableName} WHERE ${companyIdColumn} = ${companyId} AND ${userIdColumn} = ?`;
+    //                     arg = [selectUserId];
+    //                 } else if (belongingStatus === '1')
+    //                     // 기업에서 승인처리했을 때
+    //                     sql = `UPDATE ${tableName} SET is_active = ? WHERE ${companyIdColumn} = ${companyId} AND ${userIdColumn} = ?`;
+    //                 arg = [belongingStatus, selectUserId];
+    //                 connection.query(sql, arg, (error, results, filelds) => {
+    //                     if (error) {
+    //                         reject(error);
+    //                     } else {
+    //                         resolve(results);
+    //                         // 여기서 소속 컨설턴트 정보 리스트 가져오기 함수처리
+    //                     }
+    //                 });
+    //             }
+    //         });
+    //     });
+    // }
+    // 기업 - 사용자 소속요청에 대한 승인 처리
+    updatePermitBelongingStatus({ email, userType, companyId }) {
         let sql, arg;
-        let tableName, companyIdColumn, userIdColumn;
-
-        if (userType === '3') {
-            tableName = 'client_user_and_company';
-            companyIdColumn = 'client_company_id';
-            userIdColumn = 'client_user_id';
-        } else if (userType === '2') {
-            tableName = 'consultant_user_and_company';
-            companyIdColumn = 'consulting_company_id';
-            userIdColumn = 'consultant_user_id';
-        }
-
-        let companyInfo = await this.getUserBelongingCompanyInfo({
+        let tableName, userIdColumn, companyIdColumn;
+        console.log(
+            '요청 > DB > Query >  updatePermitBelongingStatus : ',
             email,
             userType,
-        });
-        let companyId = companyInfo[companyIdColumn];
+            companyId
+        );
 
+        if (userType === '2') {
+            tableName = 'consultant_user_and_company';
+            userIdColumn = 'consultant_user_id';
+            companyIdColumn = 'consulting_company_id';
+        } else if (userType === '3') {
+            tableName = 'client_user_and_company';
+            userIdColumn = 'client_user_id';
+            companyIdColumn = 'client_company_id';
+        }
         return new Promise((resolve, reject) => {
             pool.getConnection((error, connection) => {
                 if (error) {
                     reject(error);
                 } else {
-                    if (belongingStatus === '0') {
-                        // 기업에서 거절처리했을 때
-                        sql = `DELETE FROM ${tableName} WHERE ${companyIdColumn} = ${companyId} AND ${userIdColumn} = ?`;
-                        arg = [selectUserId];
-                    } else if (belongingStatus === '1')
-                        // 기업에서 승인처리했을 때
-                        sql = `UPDATE ${tableName} SET is_active = ? WHERE ${companyIdColumn} = ${companyId} AND ${userIdColumn} = ?`;
-                    arg = [belongingStatus, selectUserId];
+                    sql = `UPDATE ${tableName} SET active_type = ? WHERE ${companyIdColumn} = '${companyId}' AND ${userIdColumn}= '${email}';`;
+                    arg = ['1']; // 클라이언트에서 요청받는 것보다 안전해 보여 여기서 직접 승인상태 작성
                     connection.query(sql, arg, (error, results, filelds) => {
                         if (error) {
+                            console.log(
+                                '에러 > DB > Query >  updatePermitBelongingStatus  : error',
+                                error
+                            );
                             reject(error);
                         } else {
+                            console.log(
+                                ' 응답 > DB > Query >  updatePermitBelongingStatus  : results',
+                                results
+                            );
                             resolve(results);
-                            // 여기서 소속 컨설턴트 정보 리스트 가져오기 함수처리
                         }
                     });
                 }
@@ -877,6 +888,7 @@ module.exports = class {
     }
     // DELETE
     //사용자-기업 관계 데이터 삭제
+    // ** 추후 확인 사항 : 사용자 프로젝트 진행 시 삭제 불가!! 프로젝트 서비스 작성 시 고려해 코드추가!!!!!!!!
     deleteUserAndCompanyRelation({ userType, email, companyId }) {
         let sql, arg;
         let tableName, userIdColumn, companyIdColumn;
