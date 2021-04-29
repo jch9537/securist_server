@@ -184,17 +184,20 @@ module.exports = class {
             throw error;
         }
     }
-    async getCompanyUserCount(userData, companyId) {
+    async getCompanyBelongedUsersInfo(userData, companyId) {
         console.log(
-            '요청 > Adapter > outBound > repository > getCompanyUserCount > userData, companyId : ',
+            '요청 > Adapter > outBound > repository > getCompanyBelongedUsersInfo > userData, companyId : ',
             companyId,
             userData
         );
         let result;
         try {
-            result = await this.db.getCompanyUserCount(userData, companyId);
+            result = await this.db.getCompanyBelongedUsersInfo(
+                userData,
+                companyId
+            );
             console.log(
-                '응답 > Adapter > outBound > repository > getCompanyUserCount > result : ',
+                '응답 > Adapter > outBound > repository > getCompanyBelongedUsersInfo > result : ',
                 result
             );
             return result;

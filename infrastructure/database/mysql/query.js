@@ -2,7 +2,6 @@
 const pool = require('./index');
 const { logger } = require('../../../adapters/middleware');
 const { authService } = require('../../../adapters/outbound/auth'); // 같은 layer - 의존성에 문제 없는지 확인
-const { Polly } = require('aws-sdk');
 
 module.exports = class {
     constructor() {}
@@ -234,6 +233,10 @@ module.exports = class {
     // GET
     // 사용자 가져오기 : 클라이언트 / 컨설턴트 공통
     getUserInfo({ email, userType }) {
+        console.log('---------------------------------사용자정보 : ', {
+            email,
+            userType,
+        });
         let sql, arg;
         let tableName, idColumn;
 
@@ -247,11 +250,11 @@ module.exports = class {
         sql = `SELECT * FROM ${tableName} WHERE ${idColumn}=?`;
         arg = [email];
         return new Promise((resolve, reject) => {
-            pool.getConnection(async (error, connection) => {
+            pool.getConnection((error, connection) => {
                 if (error) {
                     reject(error);
                 } else {
-                    await pool.query(
+                    connection.query(
                         sql,
                         arg,
                         function (error, results, fields) {
@@ -264,7 +267,7 @@ module.exports = class {
                             }
                             console.log(
                                 '응답 > DB > Query > :  getConsultantUserInfo  : result',
-                                results[0]
+                                results
                             );
                             resolve(results[0]);
                         }
@@ -454,7 +457,7 @@ module.exports = class {
             });
         });
     }
-    // 사용자 기업 소속요청 하기 : 확인해봐야하는 것 !!!
+    // 사용자 기업 소속요청 하기 : 확인해봐야하는 것 !!!---------------------------------------
     updateJoinStatus({ email, userType, companyId, joinType }) {
         console.log(
             '~~~~~~~~~~~~~~~~~~~~~ : ',
@@ -604,6 +607,7 @@ module.exports = class {
     }
     // 기업--------------------------------------------------------------------
     // CREATE
+
     // GET
     // 기업 리스트 가져오기 : 기업(클/컨) 공통
     getCompanyList(userData) {
@@ -676,40 +680,56 @@ module.exports = class {
             });
         });
     }
-    // 기업 소속 사용자 수 가져오기 : 기업 (클라이언트/컨설턴트) 공통
-    getCompanyUserCount(userData, companyId) {
-        console.log('--------------------', userData, companyId);
-        let result = {};
+    // 기업 소속 사용자들 정보 가져오기 : 기업 (클라이언트/컨설턴트) 공통
+    getCompanyBelongedUsersInfo({ userType }, companyId) {
+        // console.log('--------------------', userType, companyId);
+        let result = [];
         let sql, arg;
-        let tableName, idColumn;
+        let tableName, userIdColumn, companyIdColumn, userTypeForGetInfo;
 
-        if (userData.userType === '2') {
+        if (userType === '2') {
             tableName = 'consultant_user_and_company';
-            idColumn = 'consulting_company_id';
-        } else if (userData.userType === '3') {
+            companyIdColumn = 'consulting_company_id';
+            userIdColumn = 'consultant_user_id';
+            userTypeForGetInfo = '1';
+        } else if (userType === '3') {
             tableName = 'client_user_and_company';
-            idColumn = 'client_company_id';
+            companyIdColumn = 'client_company_id';
+            userIdColumn = 'client_user_id';
+            userTypeForGetInfo = '3';
         }
 
         return new Promise((resolve, reject) => {
-            pool.getConnection(async (error, connection) => {
+            pool.getConnection((error, connection) => {
                 if (error) {
                     reject(error);
                 } else {
-                    sql = `SELECT COUNT(*) FROM ${tableName} WHERE ${idColumn} = ?`;
+                    sql = `SELECT ${userIdColumn} FROM ${tableName} WHERE ${companyIdColumn} = ?`;
                     arg = [companyId];
-                    await connection.query(
+                    connection.query(
                         sql,
                         arg,
-                        (error, results, fields) => {
+                        async (error, results, fields) => {
                             if (error) {
                                 reject(error);
                             } else {
-                                console.log(
-                                    '기업 소속사용자 가져오기 ------------------- : ',
-                                    results[0]['COUNT(*)']
+                                let belongedUsers = results.map(
+                                    (user) => user[userIdColumn]
                                 );
-                                result.count = results[0]['COUNT(*)'];
+                                for (let i = 0; i < belongedUsers.length; i++) {
+                                    let userData = {
+                                        email: belongedUsers[i],
+                                        userType: userTypeForGetInfo,
+                                    };
+                                    let userInfo = await this.getUserInfo(
+                                        userData
+                                    );
+                                    result.push(userInfo);
+                                }
+                                console.log(
+                                    '소속 사용자들 정보 ------------------- : ',
+                                    result
+                                );
                                 resolve(result);
                             }
                         }

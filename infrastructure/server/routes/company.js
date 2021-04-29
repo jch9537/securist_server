@@ -61,27 +61,33 @@ module.exports = (router) => {
             res.send(err);
         }
     });
-    //선택 기업 컨설턴트 수 가져오기
-    router.get('/api/company/usercount', async (req, res) => {
+    //선택 기업 컨설턴트들 정보 가져오기
+    router.get('/api/company/belonging/users/info', async (req, res) => {
         try {
             let userData = req.userDataByIdToken;
             let companyId = req.filteredQuery.id;
             console.log('요청 데이터 : ', userData, companyId);
 
-            let result = await companyAdapter.getCompanyUserCount(
+            let result = await companyAdapter.getCompanyBelongedUsersInfo(
                 userData,
                 companyId
             );
-            console.log('GET - /api/company 응답 : ', result);
+            console.log(
+                '응답 > GET > /api/company/belonging/users/info : ',
+                result
+            );
 
             let response = new Response(
                 200,
-                '소속 컨설턴트수 가져오기',
+                '소속 컨설턴트들 정보가져오기 완료',
                 result
             );
             res.send(response);
         } catch (err) {
-            console.log('/api/company 에러응답 : ', err);
+            console.log(
+                '에러 > GET > /api/company/belonging/users/info : ',
+                err
+            );
             res.send(err);
         }
     });

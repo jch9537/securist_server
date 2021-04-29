@@ -5,7 +5,7 @@ module.exports = class {
     async excute(userData, companyId) {
         let result;
         try {
-            result = await this.Repository.getCompanyUserCount(
+            result = await this.Repository.getCompanyBelongedUsersInfo(
                 userData,
                 companyId
             );

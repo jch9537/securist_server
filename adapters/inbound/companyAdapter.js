@@ -2,7 +2,7 @@ const { Auth, Repository, SendMail } = require('../outbound');
 const {
     GetCompanyInfo,
     GetCompanyList,
-    GetCompanyUserCount,
+    GetCompanyBelongedUsersInfo,
     UpdateRegistrationStatus,
 } = require('../../domain/usecase/company');
 
@@ -42,19 +42,24 @@ module.exports = {
             throw err;
         }
     },
-    // 기업 내 소속 사용자 수 가져오기 : 기업(클/컨) 공통
-    async getCompanyUserCount(userData, companyId) {
+    // 기업 내 소속 사용자 정보 가져오기 : 기업(클/컨) 공통
+    async getCompanyBelongedUsersInfo(userData, companyId) {
         try {
-            let getCompanyUserCount = new GetCompanyUserCount(Repository);
-            let result = await getCompanyUserCount.excute(userData, companyId);
+            let getCompanyBelongedUsersInfo = new GetCompanyBelongedUsersInfo(
+                Repository
+            );
+            let result = await getCompanyBelongedUsersInfo.excute(
+                userData,
+                companyId
+            );
             console.log(
-                '응답 > adapters > inbound > companyAdaptor.js > getCompanyUserCount - result : ',
+                '응답 > adapters > inbound > companyAdaptor.js > getCompanyBelongedUsersInfo - result : ',
                 result
             );
             return result;
         } catch (err) {
             console.log(
-                '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyUserCount - err : ',
+                '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyBelongedUsersInfo - err : ',
                 err
             );
             throw err;
