@@ -5,6 +5,7 @@ module.exports = (req, res, next) => {
         let authString = req.filteredToken;
         const token = authString.split(' ')[1];
         req.token = token;
+        console.log('-------------------headers', req.token);
     }
     next();
 };

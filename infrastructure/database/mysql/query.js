@@ -703,16 +703,18 @@ module.exports = class {
     createUserAndCompanyRelation({ userType, email, companyId }) {
         let result;
         let sql, arg;
-        let tableName, userIdColumn, companyIdColumn;
+        let tableName, userIdColumn, companyIdColumn, status;
 
         if (userType === '3') {
             tableName = 'client_user_and_company';
             userIdColumn = 'client_user_id';
             companyIdColumn = 'client_company_id';
-        } else if (userType === '2') {
+            status = '2'; // 클라이언트 사용자는 바로 소속처리 : 상황변경에 따라 기본값 변경
+        } else if (userType === '2' || userType === '1') {
             tableName = 'consultant_user_and_company';
             userIdColumn = 'consultant_user_id';
             companyIdColumn = 'consulting_company_id';
+            status = '1'; // 컨설턴트 사용자는 소속요청 중 처리
         }
 
         return new Promise((resolve, reject) => {
@@ -724,25 +726,19 @@ module.exports = class {
                         email,
                         userType,
                     });
-                    console.log(
-                        '~~~~~~~~~~~~~~~~~~~~~~checkBelongingCompany : ',
-                        checkBelongingCompany
-                    );
-                    if (checkBelongingCompany[userIdColumn] === companyId) {
-                        // 기업에 소속된 적 있었거나 소속되어있는 사용자의 경우
-                        updateData = {
-                            userType: userType,
-                            companyId: companyId,
-                            email: email,
-                            status: '1',
-                        };
-                        result = await this.updateBelongingStatus(updateData);
-                        resolve(result);
-                    } else if (checkBelongingCompany === undefined) {
+                    // console.log(
+                    //     'createUserAndCompanyRelation checkBelongingCompany : ',
+                    //     checkBelongingCompany
+                    // );
+                    // console.log(
+                    //     'createUserAndCompanyRelation 연결데이터 확인 : ',
+                    //     checkBelongingCompany[companyIdColumn],
+                    //     companyId
+                    // );
+                    if (checkBelongingCompany === undefined) {
                         // 기업에 처음 소속요청을 하는 경우
-                        sql = `INSERT INTO ${tableName} (${userIdColumn}, ${companyIdColumn})
-                        VALUES (?, ?);`;
-                        arg = [email, companyId];
+                        sql = `INSERT INTO ${tableName} (${userIdColumn}, ${companyIdColumn}, active_type) VALUES (?, ?, ?);`;
+                        arg = [email, companyId, status];
 
                         await connection.query(
                             sql,
@@ -757,9 +753,23 @@ module.exports = class {
                             }
                         );
                     } else if (
-                        checkBelongingCompany[userIdColumn] !== companyId // 이미 타기업에 소속된 사용자의 경우
+                        checkBelongingCompany[companyIdColumn] !==
+                        Number(companyId) // 이미 타기업에 소속된 사용자의 경우
                     ) {
-                        throw error; // 타기업에 소속된 사용자는 중복 소속요청을 할 수 없습니다. - 예외처리
+                        reject(error); // 타기업에 소속된 사용자는 중복 소속요청을 할 수 없습니다. - 예외처리!!!!!!!!!!!
+                    } else if (
+                        checkBelongingCompany[companyIdColumn] ===
+                        Number(companyId)
+                    ) {
+                        // 현재 기업에 소속된 적 있었던 사용자의 경우
+                        let updateData = {
+                            userType: userType,
+                            companyId: companyId,
+                            email: email,
+                            status: status,
+                        };
+                        result = await this.updateBelongingStatus(updateData);
+                        resolve(result);
                     }
                 }
             });

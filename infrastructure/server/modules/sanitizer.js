@@ -19,6 +19,7 @@ module.exports = (req, res, next) => {
         }
         console.log('body소독 : ', filteredData);
         req.filteredData = filteredData;
+        console.log('바디데이터 : ', req.filteredData);
     } else if (req.method === 'GET') {
         // route에서 :id를 받기 전 request를 받으므로 req.params는 없음
         // if (Object.keys(req.params).length !== 0) {

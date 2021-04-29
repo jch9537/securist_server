@@ -14,21 +14,18 @@ module.exports = (router) => {
     router.use(extractToken);
     router.use(decryptIdToken);
     // 사용자 - 사용자-기업 연결 생성 : 사용자가 기업소속 요청 시
-    router.get('/api/relation/user/join/:companyId', async (req, res) => {
+    router.post('/api/relation/user/join', async (req, res) => {
         try {
             let userData = req.userDataByIdToken;
-            let companyId = req.params.companyId;
-            console.log(
-                '요청 > GET > /api/relation/join: ',
-                userData,
-                companyId
-            );
+            let reqData = req.filteredData;
+            console.log('요청 > GET > /api/relation/join: ', userData, reqData);
             let joinData = {
                 userType: userData.userType,
-                // email: userData.email,
+                email: userData.email,
                 // email: 'mg.kim@aegisecu.com', // 테스트
-                email: 'ej.lim@aegisecu.com',
-                companyId: companyId,
+                // email: 'mg.sun@aegisecu.com',
+                // email: 'ej.lim@aegisecu.com',
+                companyId: reqData.selectCompanyId,
             };
 
             let result = await relationAdapter.createUserAndCompanyRelation(
@@ -48,7 +45,7 @@ module.exports = (router) => {
         }
     });
     // 사용자-기업 연결정보 가져오기
-    router.get('/api/relation/info', decryptIdToken, async (req, res) => {
+    router.get('/api/relation/info', async (req, res) => {
         try {
             let userData = req.userDataByIdToken;
             console.log('요청 > /api/relation/info : ', userData);

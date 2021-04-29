@@ -11,7 +11,6 @@ const {
 } = require('../../domain/usecase/relation');
 const userAdapter = require('./userAdapter');
 const { Repository } = require('../outbound');
-const { relationAdapter } = require('.');
 // const {
 //     checkExpiredPassword,
 // } = require('../../infrastructure/webService/authService/awsMiddleware');
