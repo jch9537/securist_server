@@ -6,11 +6,12 @@ TODO : 기존 코드에서 사용자와 기업의 처리(router에서 - infra까
 const {
     CreateUserAndCompanyRelation,
     GetRelationInfo,
-    UpdatePermitBelongingStatus,
+    UpdateBelongingStatus,
     DeleteUserAndCompanyRelation,
 } = require('../../domain/usecase/relation');
 const userAdapter = require('./userAdapter');
 const { Repository } = require('../outbound');
+const { relationAdapter } = require('.');
 // const {
 //     checkExpiredPassword,
 // } = require('../../infrastructure/webService/authService/awsMiddleware');
@@ -63,11 +64,11 @@ module.exports = {
         }
     },
     // 기업 - 사용자 소속요청 승인처리
-    async updatePermitBelongingStatus(userData, selectUserId) {
+    async updateBelongingStatus(userData, updateParam) {
         console.log(
-            '요청 > adapters > inbound > userAdaptor > updatePermitBelongingStatus - userId : ',
+            '요청 > adapters > inbound > userAdaptor > updateBelongingStatus - userId : ',
             userData,
-            selectUserId
+            updateParam
         );
         try {
             if (userData.userType === '3') {
@@ -82,22 +83,22 @@ module.exports = {
             let companyId = companyInfo[companyIdColumn];
             let updateData = {
                 userType: userData.userType,
-                email: selectUserId,
                 companyId: companyId,
+                email: updateParam.selectUserId,
+                status: updateParam.updateStatus,
             };
+            console.log(updateData, '------------------------');
 
-            let updatePermitBelongingStatus = new UpdatePermitBelongingStatus(
-                Repository
-            );
-            let result = await updatePermitBelongingStatus.excute(updateData);
+            let updateBelongingStatus = new UpdateBelongingStatus(Repository);
+            let result = await updateBelongingStatus.excute(updateData);
             console.log(
-                '응답 > adapters > inbound > userAdaptor > updatePermitBelongingStatus- result : ',
+                '응답 > adapters > inbound > userAdaptor > updateBelongingStatus- result : ',
                 result
             );
             return result;
         } catch (err) {
             console.log(
-                '에러 > adapters > inbound > userAdaptor > updatePermitBelongingStatus- error : ',
+                '에러 > adapters > inbound > userAdaptor > updateBelongingStatus- error : ',
                 err
             );
             throw err;

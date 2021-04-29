@@ -1,3 +1,4 @@
+// 여기서는 파라미터 명 OOOToken, OOOEntity만 사용!!
 module.exports = class {
     constructor(db) {
         this.db = db;
@@ -249,23 +250,23 @@ module.exports = class {
     }
 
     // UPDATE
-    async updatePermitBelongingStatus(updateRelationEntity) {
+    async updateBelongingStatus(updateRelationEntity) {
         console.log(
-            '요청 > Adapter > outBound > repository > updatePermitBelongingStatus > updateRelationEntity: ',
+            '요청 > Adapter > outBound > repository > updateBelongingStatus > updateRelationEntity: ',
             updateRelationEntity
         );
         try {
-            let result = await this.db.updatePermitBelongingStatus(
+            let result = await this.db.updateBelongingStatus(
                 updateRelationEntity
             );
             console.log(
-                '응답 > Adapter > outBound > repository > updatePermitBelongingStatus > result : ',
+                '응답 > Adapter > outBound > repository > updateBelongingStatus > result : ',
                 result
             );
             return result;
         } catch (error) {
             console.log(
-                '에러 > Adapter > outBound > repository > updatePermitBelongingStatus > error : ',
+                '에러 > Adapter > outBound > repository > updateBelongingStatus > error : ',
                 error
             );
             throw error;

@@ -1,3 +1,3 @@
 module.exports = {
-    UpdatePermitBelongingStatusEntity: require('./UpdatePermitBelongingStatusEntity'),
+    UpdateBelongingStatusEntity: require('./UpdateBelongingStatusEntity'),
 };

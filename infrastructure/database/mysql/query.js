@@ -701,6 +701,7 @@ module.exports = class {
     // CREATE
     //사용자-기업 관계 데이터 생성
     createUserAndCompanyRelation({ userType, email, companyId }) {
+        let result;
         let sql, arg;
         let tableName, userIdColumn, companyIdColumn;
 
@@ -719,21 +720,47 @@ module.exports = class {
                 if (error) {
                     reject(error);
                 } else {
-                    sql = `INSERT INTO ${tableName} (${userIdColumn}, ${companyIdColumn})
-                    VALUES (?, ?);`;
-                    arg = [email, companyId];
-
-                    await connection.query(
-                        sql,
-                        arg,
-                        (error, results, fields) => {
-                            if (error) {
-                                reject(error);
-                            } else {
-                                resolve(results);
-                            }
-                        }
+                    let checkBelongingCompany = await this.getRelationInfo({
+                        email,
+                        userType,
+                    });
+                    console.log(
+                        '~~~~~~~~~~~~~~~~~~~~~~checkBelongingCompany : ',
+                        checkBelongingCompany
                     );
+                    if (checkBelongingCompany[userIdColumn] === companyId) {
+                        // 기업에 소속된 적 있었거나 소속되어있는 사용자의 경우
+                        updateData = {
+                            userType: userType,
+                            companyId: companyId,
+                            email: email,
+                            status: '1',
+                        };
+                        result = await this.updateBelongingStatus(updateData);
+                        resolve(result);
+                    } else if (checkBelongingCompany === undefined) {
+                        // 기업에 처음 소속요청을 하는 경우
+                        sql = `INSERT INTO ${tableName} (${userIdColumn}, ${companyIdColumn})
+                        VALUES (?, ?);`;
+                        arg = [email, companyId];
+
+                        await connection.query(
+                            sql,
+                            arg,
+                            (error, results, fields) => {
+                                if (error) {
+                                    reject(error);
+                                } else {
+                                    result = results;
+                                    resolve(result);
+                                }
+                            }
+                        );
+                    } else if (
+                        checkBelongingCompany[userIdColumn] !== companyId // 이미 타기업에 소속된 사용자의 경우
+                    ) {
+                        throw error; // 타기업에 소속된 사용자는 중복 소속요청을 할 수 없습니다. - 예외처리
+                    }
                 }
             });
         });
@@ -840,12 +867,12 @@ module.exports = class {
     //         });
     //     });
     // }
-    // 기업 - 사용자 소속요청에 대한 승인 처리
-    updatePermitBelongingStatus({ email, userType, companyId }) {
+    // 업체 - 소속 상태변경(승인, 거절, 삭제)처리
+    updateBelongingStatus({ userType, companyId, email, status }) {
         let sql, arg;
         let tableName, userIdColumn, companyIdColumn;
         console.log(
-            '요청 > DB > Query >  updatePermitBelongingStatus : ',
+            '요청 > DB > Query >  updateBelongingStatus : ',
             email,
             userType,
             companyId
@@ -866,17 +893,17 @@ module.exports = class {
                     reject(error);
                 } else {
                     sql = `UPDATE ${tableName} SET active_type = ? WHERE ${companyIdColumn} = '${companyId}' AND ${userIdColumn}= '${email}';`;
-                    arg = ['1']; // 클라이언트에서 요청받는 것보다 안전해 보여 여기서 직접 승인상태 작성
+                    arg = [status];
                     connection.query(sql, arg, (error, results, filelds) => {
                         if (error) {
                             console.log(
-                                '에러 > DB > Query >  updatePermitBelongingStatus  : error',
+                                '에러 > DB > Query >  updateBelongingStatus  : error',
                                 error
                             );
                             reject(error);
                         } else {
                             console.log(
-                                ' 응답 > DB > Query >  updatePermitBelongingStatus  : results',
+                                ' 응답 > DB > Query >  updateBelongingStatus  : results',
                                 results
                             );
                             resolve(results);

@@ -3,8 +3,9 @@
 const { ParameterException } = require('../../exceptions');
 
 module.exports = class {
-    constructor({ email }) {
+    constructor({ email, status }) {
         this.email = email;
+        this.status = status;
     }
     // email
     get email() {
@@ -18,6 +19,19 @@ module.exports = class {
             throw new ParameterException('이메일');
         } else {
             this._email = email;
+        }
+    }
+    // status
+    get status() {
+        return this._status;
+    }
+    set status(status) {
+        let regStatus = /^[123]$/; // 사용자 타입 유효성 체크 : 1, 2, 3 만 사용
+
+        if (!regStatus.test(status)) {
+            throw new ParameterException('사용자 타입');
+        } else {
+            this._status = status;
         }
     }
 };
