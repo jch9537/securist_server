@@ -287,7 +287,7 @@ module.exports = class {
             idColumn = 'consulting_company_id';
         }
 
-        let companyInfo = await this.getUserBelongingInfo({ email, userType });
+        let companyInfo = await this.getRelationInfo({ email, userType });
         let companyId = companyInfo[`${idColumn}`];
 
         result = await this.getCompanyInfo({ userType }, companyId);
@@ -876,7 +876,7 @@ module.exports = class {
         });
     }
     // DELETE
-    //사용자-기업 관계 데이터 생성
+    //사용자-기업 관계 데이터 삭제
     deleteUserAndCompanyRelation({ userType, email, companyId }) {
         let sql, arg;
         let tableName, userIdColumn, companyIdColumn;
@@ -886,6 +886,10 @@ module.exports = class {
             userIdColumn = 'client_user_id';
             companyIdColumn = 'client_company_id';
         } else if (userType === '2') {
+            tableName = 'consultant_user_and_company';
+            userIdColumn = 'consultant_user_id';
+            companyIdColumn = 'consulting_company_id';
+        } else if (userType === '1') {
             tableName = 'consultant_user_and_company';
             userIdColumn = 'consultant_user_id';
             companyIdColumn = 'consulting_company_id';
@@ -914,27 +918,6 @@ module.exports = class {
             });
         });
     }
-
-    // getClientCompanyList() {
-    //     let result;
-    //     let sql, arg;
-
-    //     pool.getConnection(async (error, connection) => {
-    //         if (error) {
-    //             throw error;
-    //         }
-    //         sql = `SELECT client_company_id, company_name, president_name from consulting_companies`;
-    //         connection.query(sql, (error, results, filelds) => {
-    //             if (error) {
-    //                 throw error;
-    //             }
-    //             console.log(
-    //                 '클라이언트 기업 정보리스트 가져오기 ------------------- : ',
-    //                 results
-    //             );
-    //         });
-    //     });
-    // }
 };
 //------------------------------------------------------코드 리뷰 이후 삭제처리 ---------------------------
 // SignUp에서 모두 처리함  - 트랜잭션

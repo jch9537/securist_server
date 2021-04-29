@@ -2,11 +2,11 @@ module.exports = class {
     constructor(Repository) {
         this.Repository = Repository;
     }
-    async excute(releaseData) {
+    async excute(deleteData) {
         let result;
         try {
             result = await this.Repository.deleteUserAndCompanyRelation(
-                releaseData
+                deleteData
             );
             console.log('결과----------------', result);
         } catch (error) {

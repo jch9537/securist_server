@@ -8,7 +8,7 @@ const {
     GetRelationInfo,
     DeleteUserAndCompanyRelation,
 } = require('../../domain/usecase/relation');
-
+const userAdapter = require('./userAdapter');
 const { Repository } = require('../outbound');
 // const {
 //     checkExpiredPassword,
@@ -63,16 +63,16 @@ module.exports = {
     },
 
     // 사용자 - 사용자-기업연결 삭제
-    async deleteRelationByUser(releaseData) {
+    async deleteRelationByUser(deleteData) {
         console.log(
-            '요청 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - releaseData : ',
-            releaseData
+            '요청 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - deleteData : ',
+            deleteData
         );
         try {
             let deleteUserAndCompanyRelation = new DeleteUserAndCompanyRelation(
                 Repository
             );
-            let result = await deleteUserAndCompanyRelation.excute(releaseData);
+            let result = await deleteUserAndCompanyRelation.excute(deleteData);
             console.log(
                 '응답 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - result : ',
                 result
@@ -87,21 +87,34 @@ module.exports = {
         }
     },
     // 업체 - 사용자-기업연결 삭제
-    async deleteRelationByCompany(userData, userId) {
+    async deleteRelationByCompany(userData, selectUserId) {
+        let companyIdColumn;
         console.log(
-            '요청 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - userData, userId : ',
+            '요청 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - userData, selectUserId : ',
             userData,
-            userId
+            selectUserId
         );
         try {
-            // 사용자 기업정보가져오기 - !!!!!!!!!!!!!!!!!!
+            if (userData.userType === '3') {
+                companyIdColumn = 'client_company_id';
+            } else if (userData.userType === '2') {
+                companyIdColumn = 'consulting_company_id';
+            }
+
+            let companyInfo = await userAdapter.getUserBelongingCompanyInfo(
+                userData
+            );
+            let companyId = companyInfo[companyIdColumn];
+            let deleteData = {
+                userType: userData.userType,
+                email: selectUserId,
+                companyId: companyId,
+            };
+
             let deleteUserAndCompanyRelation = new DeleteUserAndCompanyRelation(
                 Repository
             );
-            let result = await deleteUserAndCompanyRelation.excute(
-                userData,
-                userId
-            );
+            let result = await deleteUserAndCompanyRelation.excute(deleteData);
             console.log(
                 '응답 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - result : ',
                 result

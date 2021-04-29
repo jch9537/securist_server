@@ -247,14 +247,14 @@ module.exports = class {
     // UPDATE
 
     // DELETE
-    async deleteUserAndCompanyRelation(releaseData) {
+    async deleteUserAndCompanyRelation(deleteData) {
         console.log(
-            '요청 > Adapter > outBound > repository > deleteUserAndCompanyRelation > releaseData: ',
-            releaseData
+            '요청 > Adapter > outBound > repository > deleteUserAndCompanyRelation > deleteData: ',
+            deleteData
         );
         let result;
         try {
-            result = await this.db.deleteUserAndCompanyRelation(releaseData);
+            result = await this.db.deleteUserAndCompanyRelation(deleteData);
             console.log(
                 '응답 > Adapter > outBound > repository > deleteUserAndCompanyRelation > result : ',
                 result

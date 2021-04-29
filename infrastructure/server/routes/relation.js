@@ -26,7 +26,7 @@ module.exports = (router) => {
             let joinData = {
                 userType: userData.userType,
                 email: userData.email,
-                // email: 'gs.park@aegisecu.com', // 테스트
+                // email: 'ej.lim@aegisecu.com', // 테스트
                 companyId: companyId,
             };
 
@@ -66,41 +66,7 @@ module.exports = (router) => {
             res.send(err);
         }
     });
-    // 사용자 소속기업 정보 가져오기
-    router.get(
-        '/api/relation/belonging/company/info',
-        decryptIdToken,
-        async (req, res) => {
-            try {
-                let userData = req.userDataByIdToken;
-                console.log(
-                    '요청 > /api/relation/belonging/company/info : ',
-                    userData
-                );
 
-                let result = await relationAdapter.getUserBelongingCompanyInfo(
-                    userData
-                );
-                console.log(
-                    '응답 > /api/relation/belonging/company/info : ',
-                    result
-                );
-
-                let response = new Response(
-                    200,
-                    '사용자 소속 기업정보 가져오기 완료',
-                    result
-                );
-                res.send(response);
-            } catch (err) {
-                console.log(
-                    '에러 > /api/relation/belonging/company/info : ',
-                    err
-                );
-                res.send(err);
-            }
-        }
-    );
     // 업체 - 소속 승인 : 사용자-기업 is_active 상태 승인처리
     // router.put('/api/relation/company/permit/:userId')
 
@@ -110,21 +76,22 @@ module.exports = (router) => {
             let userData = req.userDataByIdToken;
             let companyId = req.params.companyId;
             console.log(
-                '요청 > DELELTE > /api/relation/join: ',
+                '요청 > DELELTE > /api/relation/user/release/:companyId: ',
                 userData,
                 companyId
             );
-            let releaseData = {
+            let deleteData = {
                 userType: userData.userType,
                 email: userData.email,
-                // email: 'yh.jo@aegisecu.com', // 테스트
+                // email: 'ej.lim@aegisecu.com', // 테스트
                 companyId: companyId,
             };
 
-            let result = await relationAdapter.deleteRelationByUser(
-                releaseData
+            let result = await relationAdapter.deleteRelationByUser(deleteData);
+            console.log(
+                '응답 > DELELTE > /api/relation/user/release/:companyId : ',
+                result
             );
-            console.log('응담 > DELELTE > /api/relation/join : ', result);
 
             let response = new Response(
                 200,
@@ -133,42 +100,48 @@ module.exports = (router) => {
             );
             res.send(response);
         } catch (err) {
-            console.log('에러 > DELELTE > /api/relation/join: ', result);
+            console.log(
+                '에러 > DELELTE > /api/relation/user/release/:companyId: ',
+                result
+            );
             res.send(err);
         }
     });
     // 업체 - 사용자-기업 연결 삭제 : 소속요청 거절
-    router.delete('/api/relation/company/refuse/:userId', async (req, res) => {
-        try {
-            let userData = req.userDataByIdToken;
-            let userId = req.params.userId;
-            console.log(
-                '요청 > DELELTE >/api/relation/company/refuse/:userId ',
-                userData,
-                userId
-            );
+    router.delete(
+        '/api/relation/company/refuse/:selectUserId',
+        async (req, res) => {
+            try {
+                let userData = req.userDataByIdToken;
+                let selectUserId = req.params.selectUserId;
+                console.log(
+                    '요청 > DELELTE >/api/relation/company/refuse/:selectUserId ',
+                    userData,
+                    selectUserId
+                );
 
-            let result = await relationAdapter.deleteRelationByCompany(
-                userData,
-                userId
-            );
-            console.log(
-                '응담 > DELELTE > /api/relation/company/refuse/:userId : ',
-                result
-            );
+                let result = await relationAdapter.deleteRelationByCompany(
+                    userData,
+                    selectUserId
+                );
+                console.log(
+                    '응담 > DELELTE > /api/relation/company/refuse/:selectUserId : ',
+                    result
+                );
 
-            let response = new Response(
-                200,
-                '사용자-기업 연결정보 삭제 완료 - idToken',
-                result
-            );
-            res.send(response);
-        } catch (err) {
-            console.log(
-                '에러 > DELELTE > /api/relation/company/refuse/:userId : ',
-                result
-            );
-            res.send(err);
+                let response = new Response(
+                    200,
+                    '사용자-기업 연결정보 삭제 완료 - idToken',
+                    result
+                );
+                res.send(response);
+            } catch (err) {
+                console.log(
+                    '에러 > DELELTE > /api/relation/company/refuse/:selectUserId : ',
+                    result
+                );
+                res.send(err);
+            }
         }
-    });
+    );
 };
