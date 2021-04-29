@@ -7,7 +7,7 @@ const {
     CreateUserAndCompanyRelation,
     GetRelationInfo,
     UpdateBelongingStatus,
-    DeleteUserAndCompanyRelation,
+    // DeleteUserAndCompanyRelation,
 } = require('../../domain/usecase/relation');
 const userAdapter = require('./userAdapter');
 const { Repository } = require('../outbound');
@@ -62,34 +62,49 @@ module.exports = {
             throw err;
         }
     },
-    // 기업 - 사용자 소속요청 승인처리
+    // 기업-사용자 소속상태 변경 처리 : 기업, 사용자 공통
     async updateBelongingStatus(userData, updateParam) {
+        let result, updateData;
         console.log(
             '요청 > adapters > inbound > userAdaptor > updateBelongingStatus - userId : ',
             userData,
             updateParam
         );
         try {
-            if (userData.userType === '3') {
-                companyIdColumn = 'client_company_id';
-            } else if (userData.userType === '2') {
-                companyIdColumn = 'consulting_company_id';
-            }
+            // userData.userType = '1'; //테스트용
+            if (userData.userType === '1') {
+                updateData = {
+                    userType: userData.userType,
+                    companyId: updateParam.companyId,
+                    email: userData.email,
+                    // email: 'mg.sun@aegisecu.com', //테스트용
+                    status: updateParam.updateStatus,
+                };
+            } else {
+                if (userData.userType === '3') {
+                    companyIdColumn = 'client_company_id';
+                } else if (userData.userType === '2') {
+                    companyIdColumn = 'consulting_company_id';
+                }
 
-            let companyInfo = await userAdapter.getUserBelongingCompanyInfo(
-                userData
+                let companyInfo = await userAdapter.getUserBelongingCompanyInfo(
+                    userData
+                );
+                let companyId = companyInfo[companyIdColumn];
+                updateData = {
+                    userType: userData.userType,
+                    companyId: companyId,
+                    email: updateParam.selectUserId,
+                    status: updateParam.updateStatus,
+                };
+            }
+            console.log(
+                updateData,
+                '------------------------업데이트 유저데이터'
             );
-            let companyId = companyInfo[companyIdColumn];
-            let updateData = {
-                userType: userData.userType,
-                companyId: companyId,
-                email: updateParam.selectUserId,
-                status: updateParam.updateStatus,
-            };
-            console.log(updateData, '------------------------');
 
             let updateBelongingStatus = new UpdateBelongingStatus(Repository);
-            let result = await updateBelongingStatus.excute(updateData);
+            result = await updateBelongingStatus.excute(updateData);
             console.log(
                 '응답 > adapters > inbound > userAdaptor > updateBelongingStatus- result : ',
                 result
@@ -104,70 +119,70 @@ module.exports = {
         }
     },
 
-    // 사용자 - 사용자-기업연결 삭제
-    async deleteRelationByUser(deleteData) {
-        console.log(
-            '요청 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - deleteData : ',
-            deleteData
-        );
-        try {
-            let deleteUserAndCompanyRelation = new DeleteUserAndCompanyRelation(
-                Repository
-            );
-            let result = await deleteUserAndCompanyRelation.excute(deleteData);
-            console.log(
-                '응답 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - result : ',
-                result
-            );
-            return result;
-        } catch (err) {
-            console.log(
-                '에러 응답 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - err : ',
-                err
-            );
-            throw err;
-        }
-    },
-    // 업체 - 사용자-기업연결 삭제
-    async deleteRelationByCompany(userData, selectUserId) {
-        let companyIdColumn;
-        console.log(
-            '요청 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - userData, selectUserId : ',
-            userData,
-            selectUserId
-        );
-        try {
-            if (userData.userType === '3') {
-                companyIdColumn = 'client_company_id';
-            } else if (userData.userType === '2') {
-                companyIdColumn = 'consulting_company_id';
-            }
+    // // 사용자 - 사용자-기업연결 삭제
+    // async deleteRelationByUser(deleteData) {
+    //     console.log(
+    //         '요청 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - deleteData : ',
+    //         deleteData
+    //     );
+    //     try {
+    //         let deleteUserAndCompanyRelation = new DeleteUserAndCompanyRelation(
+    //             Repository
+    //         );
+    //         let result = await deleteUserAndCompanyRelation.excute(deleteData);
+    //         console.log(
+    //             '응답 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - result : ',
+    //             result
+    //         );
+    //         return result;
+    //     } catch (err) {
+    //         console.log(
+    //             '에러 응답 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - err : ',
+    //             err
+    //         );
+    //         throw err;
+    //     }
+    // },
+    // // 업체 - 사용자-기업연결 삭제
+    // async deleteRelationByCompany(userData, selectUserId) {
+    //     let companyIdColumn;
+    //     console.log(
+    //         '요청 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - userData, selectUserId : ',
+    //         userData,
+    //         selectUserId
+    //     );
+    //     try {
+    //         if (userData.userType === '3') {
+    //             companyIdColumn = 'client_company_id';
+    //         } else if (userData.userType === '2') {
+    //             companyIdColumn = 'consulting_company_id';
+    //         }
 
-            let companyInfo = await userAdapter.getUserBelongingCompanyInfo(
-                userData
-            );
-            let companyId = companyInfo[companyIdColumn];
-            let deleteData = {
-                userType: userData.userType,
-                email: selectUserId,
-                companyId: companyId,
-            };
+    //         let companyInfo = await userAdapter.getUserBelongingCompanyInfo(
+    //             userData
+    //         );
+    //         let companyId = companyInfo[companyIdColumn];
+    //         let deleteData = {
+    //             userType: userData.userType,
+    //             email: selectUserId,
+    //             companyId: companyId,
+    //         };
 
-            let deleteUserAndCompanyRelation = new DeleteUserAndCompanyRelation(
-                Repository
-            );
-            let result = await deleteUserAndCompanyRelation.excute(deleteData);
-            console.log(
-                '응답 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - result : ',
-                result
-            );
-            return result;
-        } catch (err) {
-            console.log(
-                '에러 응답 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - err : ',
-                err
-            );
-            throw err;
-        }
-    },
+    //         let deleteUserAndCompanyRelation = new DeleteUserAndCompanyRelation(
+    //             Repository
+    //         );
+    //         let result = await deleteUserAndCompanyRelation.excute(deleteData);
+    //         console.log(
+    //             '응답 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - result : ',
+    //             result
+    //         );
+    //         return result;
+    //     } catch (err) {
+    //         console.log(
+    //             '에러 응답 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - err : ',
+    //             err
+    //         );
+    //         throw err;
+    //     }
+    // },
 };

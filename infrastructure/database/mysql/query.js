@@ -887,8 +887,7 @@ module.exports = class {
             userType,
             companyId
         );
-
-        if (userType === '2') {
+        if (userType === '1' || userType === '2') {
             tableName = 'consultant_user_and_company';
             userIdColumn = 'consultant_user_id';
             companyIdColumn = 'consulting_company_id';

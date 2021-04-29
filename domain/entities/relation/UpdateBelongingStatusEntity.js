@@ -26,7 +26,7 @@ module.exports = class {
         return this._status;
     }
     set status(status) {
-        let regStatus = /^[123]$/; // 사용자 타입 유효성 체크 : 1, 2, 3 만 사용
+        let regStatus = /^[012]$/; // 상태변경 타입 유효성 체크 : 0, 1, 2 만 사용
 
         if (!regStatus.test(status)) {
             throw new ParameterException('사용자 타입');
