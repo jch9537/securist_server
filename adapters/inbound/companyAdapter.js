@@ -3,7 +3,7 @@ const {
     GetCompanyInfo,
     GetCompanyList,
     GetCompanyBelongedUsersInfo,
-    UpdateRegistrationStatus,
+    // UpdateRegistrationStatus,
 } = require('../../domain/usecase/company');
 
 module.exports = {
