@@ -303,6 +303,7 @@ module.exports = class {
     // UPDATE
     // 사용자 정보 변경 - 공통 : 연락처
     updatePhoneNum({ email, userType, phoneNum }) {
+        let result;
         let sql, arg, tableName, idColumn;
 
         if (userType === '3') {
@@ -318,32 +319,58 @@ module.exports = class {
             'DB > Query : updateClientUserInfo!! : tablename, idColumn'
         );
 
-        sql = `UPDATE ${tableName} SET phone_num = ? WHERE ${idColumn} = ?`;
-        arg = [phoneNum, email];
-
         return new Promise((resolve, reject) => {
-            pool.query(sql, arg, function (error, results, fields) {
+            pool.getConnection((error, connection) => {
                 if (error) {
-                    console.log(
-                        '에러 응답 > DB > Query >  updateClientUserInfo  : error',
-                        error
-                    );
-                    logger.log(
-                        'error',
-                        `[DB 오류] > ${email} > /`,
-                        `**SQL : ${error.sql} / **MESSAGE :  ${error.sqlMessage}`
-                    );
                     reject(error);
                 } else {
-                    console.log(
-                        '응답 > DB > Query >  updateClientUserInfo  : results',
-                        results
-                    );
-                    resolve(results);
-                    logger.log(
-                        'info',
-                        `[DB 성공] > ${email} / `,
-                        '연락처 변경 완료'
+                    sql = `UPDATE ${tableName} SET phone_num = ? WHERE ${idColumn} = ?`;
+                    arg = [phoneNum, email];
+                    connection.query(
+                        sql,
+                        arg,
+                        function (error, results, fields) {
+                            if (error) {
+                                console.log(
+                                    '에러 응답 > DB > Query >  updateClientUserInfo  : error',
+                                    error
+                                );
+                                logger.log(
+                                    'error',
+                                    `[DB 오류] > ${email} > /`,
+                                    `**SQL : ${error.sql} / **MESSAGE :  ${error.sqlMessage}`
+                                );
+                                reject(error);
+                            } else {
+                                console.log(
+                                    '응답 > DB > Query >  updateClientUserInfo  : results1',
+                                    results
+                                );
+                                sql = `SELECT phone_num FROM ${tableName} WHERE ${idColumn} = ?`;
+                                arg = [email];
+                                connection.query(
+                                    sql,
+                                    arg,
+                                    (error, results, filelds) => {
+                                        if (error) {
+                                            reject(error);
+                                        } else {
+                                            console.log(
+                                                '응답 > DB > Query >  updateClientUserInfo  : results2',
+                                                results
+                                            );
+                                            resolve(results[0]);
+                                        }
+                                    }
+                                );
+                                // resolve(results);
+                                logger.log(
+                                    'info',
+                                    `[DB 성공] > ${email} / `,
+                                    '연락처 변경 완료'
+                                );
+                            }
+                        }
                     );
                 }
             });
@@ -567,6 +594,7 @@ module.exports = class {
     // GET
     // 기업 리스트 가져오기 : 기업(클/컨) 공통
     getCompanyList(userData) {
+        console.log('=======================', userData);
         let sql;
         let tableName, idColumn;
 
@@ -585,7 +613,7 @@ module.exports = class {
                 if (error) {
                     reject(error);
                 } else {
-                    sql = `SELECT ${idColumn}, company_name, president_name from ${tableName}`;
+                    sql = `SELECT ${idColumn}, company_name, president_name from ${tableName} WHERE approval_state IN ('2', '3');`;
                     await connection.query(sql, (error, results, filelds) => {
                         if (error) {
                             reject(error);
@@ -822,61 +850,6 @@ module.exports = class {
     }
 
     // UPDATE
-    // 기업이 사용자 소속 요청에 대한 상태 업데이트
-    /* 
-    1. 사용자 소속 요청 시 레코드 생성 (승인요청되지 않은 상태로)
-    2. 사용자 취소 시 레코드 삭제
-    3. 업체 소속요청 후 거절 시 레코드 삭제
-    4. 업체 소속요청 후 승인 시 상태변경
-    */
-    // async updateRegistrationStatus(  //다른 함수로 삭제 / 수정 처리함
-    //     { email, userType },
-    //     { selectUserId, belongingStatus }
-    // ) {
-    //     let sql, arg;
-    //     let tableName, companyIdColumn, userIdColumn;
-
-    //     if (userType === '3') {
-    //         tableName = 'client_user_and_company';
-    //         companyIdColumn = 'client_company_id';
-    //         userIdColumn = 'client_user_id';
-    //     } else if (userType === '2') {
-    //         tableName = 'consultant_user_and_company';
-    //         companyIdColumn = 'consulting_company_id';
-    //         userIdColumn = 'consultant_user_id';
-    //     }
-
-    //     let companyInfo = await this.getUserBelongingCompanyInfo({
-    //         email,
-    //         userType,
-    //     });
-    //     let companyId = companyInfo[companyIdColumn];
-
-    //     return new Promise((resolve, reject) => {
-    //         pool.getConnection((error, connection) => {
-    //             if (error) {
-    //                 reject(error);
-    //             } else {
-    //                 if (belongingStatus === '0') {
-    //                     // 기업에서 거절처리했을 때
-    //                     sql = `DELETE FROM ${tableName} WHERE ${companyIdColumn} = ${companyId} AND ${userIdColumn} = ?`;
-    //                     arg = [selectUserId];
-    //                 } else if (belongingStatus === '1')
-    //                     // 기업에서 승인처리했을 때
-    //                     sql = `UPDATE ${tableName} SET is_active = ? WHERE ${companyIdColumn} = ${companyId} AND ${userIdColumn} = ?`;
-    //                 arg = [belongingStatus, selectUserId];
-    //                 connection.query(sql, arg, (error, results, filelds) => {
-    //                     if (error) {
-    //                         reject(error);
-    //                     } else {
-    //                         resolve(results);
-    //                         // 여기서 소속 컨설턴트 정보 리스트 가져오기 함수처리
-    //                     }
-    //                 });
-    //             }
-    //         });
-    //     });
-    // }
     // 업체 - 소속 상태변경(승인, 거절, 삭제)처리
     updateBelongingStatus({ userType, companyId, email, status }) {
         let sql, arg;

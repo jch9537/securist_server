@@ -269,6 +269,7 @@ module.exports = class {
     }
     // 새 access 토큰 발행
     issueNewToken(refreshToken) {
+        let result;
         const params = {
             AuthFlow: 'REFRESH_TOKEN',
             ClientId: clientId /* required */,
@@ -293,7 +294,8 @@ module.exports = class {
                             '응답 > Infrastructure > webService > authService > awsCognito.js > issueNewToken : ',
                             data
                         );
-                        resolve(data);
+                        result = data.AuthenticationResult;
+                        resolve(result);
                     }
                 }
             );

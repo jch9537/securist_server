@@ -6,6 +6,7 @@ const getUserInfoByAccessToken = require('../modules/getUserInfoByAccessToken');
 
 module.exports = (router) => {
     // 중복 이메일 체크 : xss 공격에 대한 부분과 예외처리 확인!!
+    //params로 처리할 경우 유효성 체크 전 에러남, 유효성 예외처리 체크 확인
     router.get('/api/auth/checkemail/:email', async (req, res) => {
         try {
             let checkData = req.params;
@@ -91,46 +92,6 @@ module.exports = (router) => {
             res.send(err);
         }
     });
-    // // id token으로 복호화된 사용자 cognito 가입정보 가져오기
-    // router.get('/api/auth/userinfo/id', extractToken, async (req, res) => {
-    //     try {
-    //         let idToken = req.token;
-    //         console.log('GET - /api/userinfo 요청 : ', idToken);
-    //         let result = await authAdapter.getUserByIdToken(idToken);
-    //         console.log('GET - /api/userinfo 응답 : ', result);
-    //         let response = new Response(
-    //             200,
-    //             '사용자 정보가져오기 완료 - idToken',
-    //             result
-    //         );
-    //         res.send(response);
-    //     } catch (err) {
-    //         console.log('/api/user 에러 응답 : ', err);
-    //         res.send(err);
-    //     }
-    // });
-    // access token으로 사용자 cognito 가입정보 가져오기
-    // router.get('/api/auth/userinfo/access', extractToken, async (req, res) => {
-    //     try {
-    //         let accessToken = req.token;
-
-    //         console.log('/api/userInfo 요청 : ', accessToken);
-    //         let result = await authAdapter.getUserInfoByAccessToken(
-    //             accessToken
-    //         );
-    //         console.log('/api/userInfo 응답 : ', result);
-
-    //         let response = new Response(
-    //             200,
-    //             '사용자 정보가져오기 완료 - accessToken',
-    //             result
-    //         );
-    //         res.send(response);
-    //     } catch (err) {
-    //         console.log('/api/userInfo 에러 응답 : ', err);
-    //         res.send(err);
-    //     }
-    // });
     // 사용자 인증 : 비밀번호 - 사용자 정보 수정 접근, 회원탈퇴 시 사용 API
     router.post(
         '/api/auth/verifyuser',
@@ -172,7 +133,7 @@ module.exports = (router) => {
             let result = await authAdapter.forgotPassword(reqData);
             console.log('/api/auth/forgotpassword 요청 : ', result);
 
-            let response = new Response(200, '인증번호 전송완료', result);
+            let response = new Response(200, '인증번호 전송완료');
             res.send(response);
         } catch (err) {
             console.log('/api/auth/forgotpassword 요청 : ', err);
@@ -258,47 +219,3 @@ module.exports = (router) => {
         response.then((resData) => res.send(resData));
     });
 };
-
-// router.get(
-//     '/api/auth/userinfobyidtoken',
-//     extractToken,
-//     async (req, res) => {
-//         try {
-//             let idToken = req.token
-//             console.log('/api/user 요청 : ', idToken);
-//             let result = await authAdapter.getUserByIdToken(idToken);
-//             console.log('/api/user 응답 : ', result);
-//             let response = new Response(
-//                 200,
-//                 '사용자 정보가져오기 완료 - idToken',
-//                 result
-//             );
-//             res.send(response);
-//         } catch (err) {
-//             console.log('/api/user 에러 응답 : ', result);
-//             res.send(err);
-//         }
-//     }
-// );
-
-// router.get(
-//     '/api/auth/userinfobyaccesstoken',
-//     extractToken,
-//     async (req, res) => {
-//         let accessToken = req.token
-//         try {
-//             console.log('/api/userInfo 요청 : ', accessToken);
-//             let result = await authAdapter.getUserInfo(accessToken);
-//             console.log('/api/userInfo 응답 : ', result);
-//             let response = new Response(
-//                 200,
-//                 '사용자 정보가져오기 완료 - accessToken',
-//                 result
-//             );
-//             res.send(response);
-//         } catch (err) {
-//             console.log('/api/userInfo 에러 응답 : ', err);
-//             res.send(err);
-//         }
-//     }
-// );

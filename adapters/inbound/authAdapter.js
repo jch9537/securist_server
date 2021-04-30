@@ -253,39 +253,6 @@ module.exports = {
             throw err;
         }
     },
-    // // id token으로 사용자 cognito 가입정보 가져오기 : 미들웨어 처리!!!!!!!!!
-    // async getUserByIdToken(idToken) {
-    //     console.log(
-    //         '요청 > adapters > inbound > authAdaptor.js > getUserByIdToken - idToken : ',
-    //         idToken
-    //     );
-    //     try {
-    //         let getUserByIdToken = new GetUserByIdToken(Auth);
-    //         let result = await getUserByIdToken.excute(idToken);
-    //         console.log(
-    //             '응답 > adapters > inbound > authAdaptor.js > getUserByIdToken - result : ',
-    //             result
-    //         );
-    //         return result;
-    //     } catch (err) {
-    //         console.log(
-    //             '에러 응답 > adapters > inbound > authAdaptor.js > getUserByIdToken - result : ',
-    //             err
-    //         );
-    //         throw err;
-    //     }
-    // },
-
-    // access token으로 사용자 cognito 가입정보 가져오기 : 미들웨어 처리!!!!!!!!!
-    // async getUserInfoByAccessToken(accessToken) {
-    //     try {
-    //         let getUserInfoByAccessToken = new GetUserInfoByAccessToken(Auth);
-    //         let result = await getUserInfoByAccessToken.excute(accessToken);
-    //         return result;
-    //     } catch (err) {
-    //         return err;
-    //     }
-    // },
     // 테스트용 함수(cognito 바로 연결 : 관리자 권한 처리) -------------------------------------------------------------
     // 회원삭제
     async deleteUserByAdminByAdmin(userParam) {

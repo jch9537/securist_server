@@ -1,6 +1,5 @@
 /* 
 TODO : 기존 코드에서 사용자와 기업의 처리(router에서 - infra까지)를 분기하기
-// 사용자와 기업은 다른 영역으로 보고 처리하기 : 코드가 복잡하고 꼬이게 됨
 */
 // 메서드 정의 인터페이스 - 컨트롤러
 const {
@@ -118,71 +117,4 @@ module.exports = {
             throw err;
         }
     },
-
-    // // 사용자 - 사용자-기업연결 삭제
-    // async deleteRelationByUser(deleteData) {
-    //     console.log(
-    //         '요청 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - deleteData : ',
-    //         deleteData
-    //     );
-    //     try {
-    //         let deleteUserAndCompanyRelation = new DeleteUserAndCompanyRelation(
-    //             Repository
-    //         );
-    //         let result = await deleteUserAndCompanyRelation.excute(deleteData);
-    //         console.log(
-    //             '응답 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - result : ',
-    //             result
-    //         );
-    //         return result;
-    //     } catch (err) {
-    //         console.log(
-    //             '에러 응답 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - err : ',
-    //             err
-    //         );
-    //         throw err;
-    //     }
-    // },
-    // // 업체 - 사용자-기업연결 삭제
-    // async deleteRelationByCompany(userData, selectUserId) {
-    //     let companyIdColumn;
-    //     console.log(
-    //         '요청 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - userData, selectUserId : ',
-    //         userData,
-    //         selectUserId
-    //     );
-    //     try {
-    //         if (userData.userType === '3') {
-    //             companyIdColumn = 'client_company_id';
-    //         } else if (userData.userType === '2') {
-    //             companyIdColumn = 'consulting_company_id';
-    //         }
-
-    //         let companyInfo = await userAdapter.getUserBelongingCompanyInfo(
-    //             userData
-    //         );
-    //         let companyId = companyInfo[companyIdColumn];
-    //         let deleteData = {
-    //             userType: userData.userType,
-    //             email: selectUserId,
-    //             companyId: companyId,
-    //         };
-
-    //         let deleteUserAndCompanyRelation = new DeleteUserAndCompanyRelation(
-    //             Repository
-    //         );
-    //         let result = await deleteUserAndCompanyRelation.excute(deleteData);
-    //         console.log(
-    //             '응답 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - result : ',
-    //             result
-    //         );
-    //         return result;
-    //     } catch (err) {
-    //         console.log(
-    //             '에러 응답 > adapters > inbound > relationAdapter > deleteUserAndCompanyRelation - err : ',
-    //             err
-    //         );
-    //         throw err;
-    //     }
-    // },
 };

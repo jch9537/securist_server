@@ -96,41 +96,7 @@ module.exports = class {
             throw error;
         }
     }
-    // async updateJoinStatus(updateJoinStatusEntity) {
-    //     console.log(
-    //         '요청 > Adapter > outBound > repository > updateJoinStatus > updateJoinStatusEntity : ',
-    //         updateJoinStatusEntity
-    //     );
-    //     let result;
-    //     try {
-    //         result = await this.db.updateJoinStatus(updateJoinStatusEntity);
-    //         console.log(
-    //             '응답 > Adapter > outBound > repository > updateJoinStatus > result : ',
-    //             result
-    //         );
-    //         return result;
-    //     } catch (error) {
-    //         throw error;
-    //     }
-    // }
-    // async updateRegistrationStatus(userData, regiData) {
-    //     console.log(
-    //         '요청 > Adapter > outBound > repository > updateRegistrationStatus > userData, regiData : ',
-    //         userData,
-    //         regiData
-    //     );
-    //     let result;
-    //     try {
-    //         result = await this.db.updateRegistrationStatus(userData, regiData);
-    //         console.log(
-    //             '응답 > Adapter > outBound > repository > updateRegistrationStatus > result : ',
-    //             result
-    //         );
-    //         return result;
-    //     } catch (error) {
-    //         throw error;
-    //     }
-    // }
+
     // DELETE
     async deleteUser(accessToken, deleteUserEntity) {
         console.log(

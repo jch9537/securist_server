@@ -66,6 +66,7 @@ module.exports = (router) => {
     });
 
     // 사용자 - 소속 상태변경(취소, 해제)처리
+    // 진행중인 프로젝트가 있는 경우 해제불가 : 해당 코드 프로젝트 진행 뒤 추가
     router.put('/api/relation/user/unregister', async (req, res) => {
         try {
             let userData = req.userDataByIdToken;
@@ -91,6 +92,7 @@ module.exports = (router) => {
     });
 
     // 업체 - 소속 상태변경(승인, 거절, 삭제)처리
+    // 진행중인 프로젝트가 있는 경우 해제불가 : 해당 코드 프로젝트 진행 뒤 추가
     router.put('/api/relation/company/belonging/status', async (req, res) => {
         try {
             let userData = req.userDataByIdToken;
@@ -116,7 +118,6 @@ module.exports = (router) => {
             } else if (belongingStatus === '2') {
                 response = new Response(200, '소속요청 승인 완료');
             }
-            //소속상태를 가져와서 response 상태에 따라 응답 분기
             res.send(response);
         } catch (err) {
             console.log(
@@ -126,79 +127,4 @@ module.exports = (router) => {
             res.send(err);
         }
     });
-
-    // // 사용자 - 사용자-기업 연결 삭제 : 사용자가 소속요청 취소/해제하기 처리 시
-    // router.delete('/api/relation/user/release/:companyId', async (req, res) => {
-    //     try {
-    //         let userData = req.userDataByIdToken;
-    //         let companyId = req.params.companyId;
-    //         console.log(
-    //             '요청 > DELELTE > /api/relation/user/release/:companyId: ',
-    //             userData,
-    //             companyId
-    //         );
-    //         let deleteData = {
-    //             userType: userData.userType,
-    //             email: userData.email,
-    //             // email: 'ej.lim@aegisecu.com', // 테스트
-    //             companyId: companyId,
-    //         };
-
-    //         let result = await relationAdapter.deleteRelationByUser(deleteData);
-    //         console.log(
-    //             '응답 > DELELTE > /api/relation/user/release/:companyId : ',
-    //             result
-    //         );
-
-    //         let response = new Response(
-    //             200,
-    //             '사용자-기업 연결정보 삭제 완료 - idToken',
-    //             result
-    //         );
-    //         res.send(response);
-    //     } catch (err) {
-    //         console.log(
-    //             '에러 > DELELTE > /api/relation/user/release/:companyId: ',
-    //             result
-    //         );
-    //         res.send(err);
-    //     }
-    // });
-    // // 업체 - 사용자-기업 연결 삭제 : 소속요청 거절
-    // router.delete(
-    //     '/api/relation/company/refuse/:selectUserId',
-    //     async (req, res) => {
-    //         try {
-    //             let userData = req.userDataByIdToken;
-    //             let selectUserId = req.params.selectUserId;
-    //             console.log(
-    //                 '요청 > DELELTE >/api/relation/company/refuse/:selectUserId ',
-    //                 userData,
-    //                 selectUserId
-    //             );
-
-    //             let result = await relationAdapter.deleteRelationByCompany(
-    //                 userData,
-    //                 selectUserId
-    //             );
-    //             console.log(
-    //                 '응담 > DELELTE > /api/relation/company/refuse/:selectUserId : ',
-    //                 result
-    //             );
-
-    //             let response = new Response(
-    //                 200,
-    //                 '사용자-기업 연결정보 삭제 완료 - idToken',
-    //                 result
-    //             );
-    //             res.send(response);
-    //         } catch (err) {
-    //             console.log(
-    //                 '에러 > DELELTE > /api/relation/company/refuse/:selectUserId : ',
-    //                 result
-    //             );
-    //             res.send(err);
-    //         }
-    //     }
-    // );
 };

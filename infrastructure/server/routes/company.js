@@ -42,13 +42,13 @@ module.exports = (router) => {
             res.send(err);
         }
     });
-    // 등록된 기업정보 가져오기 : 업체 검색
-    router.get('/api/company/list', async (req, res) => {
+    // 등록된 기업정보 가져오기 : 업체 검색   - 등록된 기업만 필터링
+    router.get('/api/company/list/registration', async (req, res) => {
         try {
             let userData = req.userDataByIdToken;
 
             let result = await companyAdapter.getCompanyList(userData);
-            console.log('GET - /api/company/list 응답 : ', result);
+            console.log('GET - /api/company/list/registration 응답 : ', result);
 
             let response = new Response(
                 200,
@@ -57,7 +57,7 @@ module.exports = (router) => {
             );
             res.send(response);
         } catch (err) {
-            console.log('/api/company/list 에러응답 : ', err);
+            console.log('/api/company/list/registration 에러응답 : ', err);
             res.send(err);
         }
     });
