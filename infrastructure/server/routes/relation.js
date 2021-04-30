@@ -13,6 +13,26 @@ const decryptIdToken = require('../modules/decryptIdToken');
 module.exports = (router) => {
     router.use(extractToken);
     router.use(decryptIdToken);
+    // 사용자-기업 연결정보 가져오기
+    router.get('/api/relation/info', async (req, res) => {
+        try {
+            let userData = req.userDataByIdToken;
+            console.log('요청 > /api/relation/info : ', userData);
+
+            let result = await relationAdapter.getRelationInfo(userData);
+            console.log('응답 > /api/relation/info : ', result);
+
+            let response = new Response(
+                200,
+                '사용자-기업 연결정보 가져오기 완료',
+                result
+            );
+            res.send(response);
+        } catch (err) {
+            console.log('에러 > /api/relation/info : ', err);
+            res.send(err);
+        }
+    });
     // 사용자 - 사용자-기업 연결 생성
     router.post('/api/relation/user/join', async (req, res) => {
         try {
@@ -44,26 +64,7 @@ module.exports = (router) => {
             res.send(err);
         }
     });
-    // 사용자-기업 연결정보 가져오기
-    router.get('/api/relation/info', async (req, res) => {
-        try {
-            let userData = req.userDataByIdToken;
-            console.log('요청 > /api/relation/info : ', userData);
 
-            let result = await relationAdapter.getRelationInfo(userData);
-            console.log('응답 > /api/relation/info : ', result);
-
-            let response = new Response(
-                200,
-                '사용자-기업 연결정보 가져오기 완료',
-                result
-            );
-            res.send(response);
-        } catch (err) {
-            console.log('에러 > /api/relation/info : ', err);
-            res.send(err);
-        }
-    });
     // 사용자 - 소속 상태변경(취소, 해제)처리
     router.put('/api/relation/user/unregister', async (req, res) => {
         try {
@@ -81,7 +82,7 @@ module.exports = (router) => {
             );
             console.log('응답 > /api/relation/user/unregister : ', result);
 
-            let response = new Response(200, '소속상태 변경 완료', result);
+            let response = new Response(200, '소속 해제 완료');
             res.send(response);
         } catch (err) {
             console.log('에러 > /api/relation/user/unregister : ', err);
@@ -108,8 +109,14 @@ module.exports = (router) => {
                 '응답 > /api/relation/company/belonging/status : ',
                 result
             );
-
-            let response = new Response(200, '소속상태 변경 완료', result);
+            let belongingStatus = result['active_type'];
+            let response;
+            if (belongingStatus === '0') {
+                response = new Response(200, '소속 해제 완료');
+            } else if (belongingStatus === '2') {
+                response = new Response(200, '소속요청 승인 완료');
+            }
+            //소속상태를 가져와서 response 상태에 따라 응답 분기
             res.send(response);
         } catch (err) {
             console.log(

@@ -277,15 +277,15 @@ module.exports = {
     // },
 
     // access token으로 사용자 cognito 가입정보 가져오기 : 미들웨어 처리!!!!!!!!!
-    async getUserInfoByAccessToken(accessToken) {
-        try {
-            let getUserInfoByAccessToken = new GetUserInfoByAccessToken(Auth);
-            let result = await getUserInfoByAccessToken.excute(accessToken);
-            return result;
-        } catch (err) {
-            return err;
-        }
-    },
+    // async getUserInfoByAccessToken(accessToken) {
+    //     try {
+    //         let getUserInfoByAccessToken = new GetUserInfoByAccessToken(Auth);
+    //         let result = await getUserInfoByAccessToken.excute(accessToken);
+    //         return result;
+    //     } catch (err) {
+    //         return err;
+    //     }
+    // },
     // 테스트용 함수(cognito 바로 연결 : 관리자 권한 처리) -------------------------------------------------------------
     // 회원삭제
     async deleteUserByAdminByAdmin(userParam) {

@@ -241,8 +241,6 @@ module.exports = class {
         let sql, arg;
         let tableName, idColumn;
 
-        sql = `SELECT * FROM ${tableName} WHERE ${idColumn}=?`;
-        arg = [email];
         return new Promise((resolve, reject) => {
             pool.getConnection((error, connection) => {
                 if (userType === '3') {
@@ -252,6 +250,8 @@ module.exports = class {
                     tableName = 'consultant_users';
                     idColumn = 'consultant_user_id';
                 }
+                sql = `SELECT * FROM ${tableName} WHERE ${idColumn}=?`;
+                arg = [email];
 
                 if (error) {
                     reject(error);
@@ -262,13 +262,13 @@ module.exports = class {
                         function (error, results, fields) {
                             if (error) {
                                 console.log(
-                                    '에러 응답 > DB > Query >  getConsultantUserInfo  : error',
+                                    '에러 응답 > DB > Query >  getUserInfo  : error',
                                     error
                                 );
                                 reject(error);
                             }
                             console.log(
-                                '응답 > DB > Query > :  getConsultantUserInfo  : result',
+                                '응답 > DB > Query > :  getUserInfo  : result',
                                 results
                             );
                             resolve(results[0]);
@@ -638,7 +638,7 @@ module.exports = class {
     }
     // 기업 소속 사용자들 정보 가져오기 : 기업 (클라이언트/컨설턴트) 공통
     getCompanyBelongedUsersInfo({ userType }, companyId) {
-        // console.log('--------------------', userType, companyId);
+        console.log('--------------------', userType, companyId);
         let result = [];
         let sql, arg;
         let tableName, userIdColumn, companyIdColumn, userTypeForGetInfo;
@@ -901,8 +901,8 @@ module.exports = class {
                 if (error) {
                     reject(error);
                 } else {
-                    sql = `UPDATE ${tableName} SET active_type = ? WHERE ${companyIdColumn} = '${companyId}' AND ${userIdColumn}= '${email}';`;
-                    arg = [status];
+                    sql = `UPDATE ${tableName} SET active_type = ? WHERE ${companyIdColumn} = ? AND ${userIdColumn}= ?;`;
+                    arg = [status, companyId, email];
                     connection.query(sql, arg, (error, results, filelds) => {
                         if (error) {
                             console.log(
@@ -912,10 +912,27 @@ module.exports = class {
                             reject(error);
                         } else {
                             console.log(
-                                ' 응답 > DB > Query >  updateBelongingStatus  : results',
+                                ' 응답 > DB > Query >  updateBelongingStatus  : results1',
                                 results
                             );
-                            resolve(results);
+                            // resolve(results);
+                            sql = `SELECT ${userIdColumn},active_type FROM ${tableName} WHERE ${companyIdColumn} = ? AND ${userIdColumn}= ?`;
+                            arg = [companyId, email];
+                            connection.query(
+                                sql,
+                                arg,
+                                (error, results, filelds) => {
+                                    if (error) {
+                                        reject(error);
+                                    } else {
+                                        console.log(
+                                            ' 응답 > DB > Query >  updateBelongingStatus  : results2',
+                                            results
+                                        );
+                                        resolve(results[0]);
+                                    }
+                                }
+                            );
                         }
                     });
                 }

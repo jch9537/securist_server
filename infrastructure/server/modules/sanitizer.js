@@ -23,7 +23,7 @@ module.exports = (req, res, next) => {
     } else if (req.method === 'GET') {
         // route에서 :id를 받기 전 request를 받으므로 req.params는 없음
         // if (Object.keys(req.params).length !== 0) {
-        //     console.log('req.params : ', req.params);
+        //     console.log('req.params--------------- : ', req.params);
         //     for (let key in req.params) {
         //         console.log('key: ', key, 'value :', req.params[key]);
         //         filteredData[key] = sanitizeHtml(req.params[key]);

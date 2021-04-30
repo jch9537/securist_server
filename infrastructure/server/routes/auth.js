@@ -5,10 +5,10 @@ const extractToken = require('../modules/extractToken');
 const getUserInfoByAccessToken = require('../modules/getUserInfoByAccessToken');
 
 module.exports = (router) => {
-    // 중복 이메일 체크
-    router.post('/api/auth/checkemail', async (req, res) => {
+    // 중복 이메일 체크 : xss 공격에 대한 부분과 예외처리 확인!!
+    router.get('/api/auth/checkemail/:email', async (req, res) => {
         try {
-            let checkData = req.filteredData;
+            let checkData = req.params;
             console.log('/api/auth/checkemail 요청 : ', checkData);
 
             let result = await authAdapter.checkDuplicateEmail(checkData);
@@ -110,27 +110,27 @@ module.exports = (router) => {
     //     }
     // });
     // access token으로 사용자 cognito 가입정보 가져오기
-    router.get('/api/auth/userinfo/access', extractToken, async (req, res) => {
-        try {
-            let accessToken = req.token;
+    // router.get('/api/auth/userinfo/access', extractToken, async (req, res) => {
+    //     try {
+    //         let accessToken = req.token;
 
-            console.log('/api/userInfo 요청 : ', accessToken);
-            let result = await authAdapter.getUserInfoByAccessToken(
-                accessToken
-            );
-            console.log('/api/userInfo 응답 : ', result);
+    //         console.log('/api/userInfo 요청 : ', accessToken);
+    //         let result = await authAdapter.getUserInfoByAccessToken(
+    //             accessToken
+    //         );
+    //         console.log('/api/userInfo 응답 : ', result);
 
-            let response = new Response(
-                200,
-                '사용자 정보가져오기 완료 - accessToken',
-                result
-            );
-            res.send(response);
-        } catch (err) {
-            console.log('/api/userInfo 에러 응답 : ', err);
-            res.send(err);
-        }
-    });
+    //         let response = new Response(
+    //             200,
+    //             '사용자 정보가져오기 완료 - accessToken',
+    //             result
+    //         );
+    //         res.send(response);
+    //     } catch (err) {
+    //         console.log('/api/userInfo 에러 응답 : ', err);
+    //         res.send(err);
+    //     }
+    // });
     // 사용자 인증 : 비밀번호 - 사용자 정보 수정 접근, 회원탈퇴 시 사용 API
     router.post(
         '/api/auth/verifyuser',

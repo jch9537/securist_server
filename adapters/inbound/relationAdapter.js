@@ -71,7 +71,7 @@ module.exports = {
             updateParam
         );
         try {
-            // userData.userType = '1'; //테스트용
+            userData.userType = '1'; //테스트용
             if (userData.userType === '1') {
                 updateData = {
                     userType: userData.userType,

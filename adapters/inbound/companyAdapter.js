@@ -87,11 +87,4 @@ module.exports = {
     //         throw err;
     //     }
     // },
-
-    // updateCompany(req, res) {
-    //     res.send('updateCompany!!');
-    // },
-    // deleteCompany(req, res) {
-    //     res.send('deleteCompany!!');
-    // },
 };
