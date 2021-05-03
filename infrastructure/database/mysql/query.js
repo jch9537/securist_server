@@ -2,7 +2,6 @@
 const pool = require('./index');
 const { logger } = require('../../../adapters/middleware');
 const { authService } = require('../../../adapters/outbound/auth'); // 같은 layer - 의존성에 문제 없는지 확인
-const { ConnectContactLens } = require('aws-sdk');
 
 module.exports = class {
     constructor() {}
@@ -918,6 +917,14 @@ module.exports = class {
     deleteUserAndCompanyRelation({ userType, email, companyId }) {
         let sql, arg;
         let tableName, userIdColumn, companyIdColumn;
+        console.log(
+            ' 요청 > DB > Query >  deleteUserAndCompanyRelation  : 요청데이터 : ',
+            {
+                userType,
+                email,
+                companyId,
+            }
+        );
 
         if (userType === '3') {
             tableName = 'client_user_and_company';
@@ -936,6 +943,10 @@ module.exports = class {
         return new Promise((resolve, reject) => {
             pool.getConnection(async (error, connection) => {
                 if (error) {
+                    console.log(
+                        ' 에러 > DB > Query >  deleteUserAndCompanyRelation  : error2',
+                        error
+                    );
                     reject(error);
                 } else {
                     sql = `DELETE FROM ${tableName} WHERE ${userIdColumn} = ? AND ${companyIdColumn} = ?`;
@@ -946,8 +957,16 @@ module.exports = class {
                         arg,
                         (error, results, fields) => {
                             if (error) {
+                                console.log(
+                                    ' 에러 > DB > Query >  deleteUserAndCompanyRelation  : error3',
+                                    error
+                                );
                                 reject(error);
                             } else {
+                                console.log(
+                                    ' 응답 > DB > Query >  deleteUserAndCompanyRelation  : results',
+                                    results
+                                );
                                 resolve(results);
                             }
                         }
@@ -956,7 +975,115 @@ module.exports = class {
             });
         });
     }
+    // 프로필 -------------------------------------------------------------------------------------
+    // CREATE
+    // 개인 컨설턴트 프로필 생성
+    createProfileTemp({
+        email,
+        certificationId,
+        certificationName,
+        taskId,
+        taskName,
+        taskGroupId,
+        taskGroupName,
+        industryId,
+        industryName,
+        finalAcademicType,
+        schoolName,
+        majorName,
+        graduationClassificationType,
+        certificationFile,
+        admissionDate,
+        graduateDate,
+        companyName,
+        position,
+        careerCertificateFile,
+        joiningDate,
+        resignationDate = null,
+        licenseName,
+        license_num,
+        issueInstitution,
+        licenseFile,
+        issuedDate,
+        projectName,
+        assignedTask,
+        projectIndustryName,
+        projectStartDate,
+        projectEndDate,
+        etcCertifications = null,
+        etcIndustries = null,
+    }) {
+        let sql, arg;
+        let tableName;
+
+        return new Promise((resolve, reject) => {
+            pool.getConnection(async (error, connection) => {
+                if (error) {
+                    console.log(
+                        ' 에러 > DB > Query >  deleteUserAndCompanyRelation  : error1',
+                        error
+                    );
+                    reject(error);
+                } else {
+                    sql = `INSERT INTO consultant_profile_temp 
+                    (consultant_user_id, certification_id, certification_name, task_id, task_name, task_group_id, task_group_name, industry_id, industry_name, final_academic_type, school_name, major_name, graduation_classification_type, certification_file, admission_date, graduate_date, company_name, position, career_certificate_file, joining_date, resignation_date, license_name, license_num, issue_institution, license_file, issued_date, project_name, assigned_task, project_industry_name, project_start_date, project_end_date, etc_certifications, etc_industries) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                    arg = [
+                        email,
+                        certificationId,
+                        certificationName,
+                        taskId,
+                        taskName,
+                        taskGroupId,
+                        taskGroupName,
+                        industryId,
+                        industryName,
+                        finalAcademicType,
+                        schoolName,
+                        majorName,
+                        graduationClassificationType,
+                        certificationFile,
+                        admissionDate,
+                        graduateDate,
+                        companyName,
+                        position,
+                        careerCertificateFile,
+                        joiningDate,
+                        resignationDate,
+                        licenseName,
+                        license_num,
+                        issueInstitution,
+                        licenseFile,
+                        issuedDate,
+                        projectName,
+                        assignedTask,
+                        projectIndustryName,
+                        projectStartDate,
+                        projectEndDate,
+                        etcCertifications,
+                        etcIndustries,
+                    ];
+                    connection.query(sql, arg, (error, results, filelds) => {
+                        if (error) {
+                            console.log(
+                                ' 에러 > DB > Query >  deleteUserAndCompanyRelation  : error2',
+                                error
+                            );
+                            reject(error);
+                        } else {
+                            console.log(
+                                ' 응답 > DB > Query >  deleteUserAndCompanyRelation  : results',
+                                results
+                            );
+                            resolve(results);
+                        }
+                    });
+                }
+            });
+        });
+    }
 };
+
 //------------------------------------------------------코드 리뷰 이후 삭제처리 ---------------------------
 // SignUp에서 모두 처리함  - 트랜잭션
 // // 사용자 정보 생성 - 공통

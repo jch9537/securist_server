@@ -6,7 +6,7 @@ require('./auth')(router);
 require('./user')(router);
 require('./company')(router);
 require('./relation')(router);
-// require('./project')(router);
+require('./profile')(router);
 // require('./test');
 
 module.exports = router;

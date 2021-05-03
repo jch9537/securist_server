@@ -255,7 +255,7 @@ module.exports = {
     },
     // 테스트용 함수(cognito 바로 연결 : 관리자 권한 처리) -------------------------------------------------------------
     // 회원삭제
-    async deleteUserByAdminByAdmin(userParam) {
+    async deleteUserByAdmin(userParam) {
         try {
             var test = new awsCognito();
             let result = await test.deleteUserByAdmin(userParam.id);

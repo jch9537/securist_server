@@ -257,4 +257,94 @@ module.exports = class {
             throw error;
         }
     }
+
+    // 프로필 --------------------------------------------------------------------
+    // GET
+    async getProfileTemp(deleteData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > getProfileTemp > deleteData: ',
+            deleteData
+        );
+        let result;
+        try {
+            result = await this.db.getProfileTemp(deleteData);
+            console.log(
+                '응답 > Adapter > outBound > repository > getProfileTemp > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 > Adapter > outBound > repository > getProfileTemp > result : ',
+                error
+            );
+            throw error;
+        }
+    }
+    // CREATE
+    async createProfileTemp(createProfileTempEntity) {
+        console.log(
+            '요청 > Adapter > outBound > repository > createProfileTemp > deleteData: ',
+            createProfileTempEntity
+        );
+        let result;
+        try {
+            result = await this.db.createProfileTemp(createProfileTempEntity);
+            console.log(
+                '응답 > Adapter > outBound > repository > createProfileTemp > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '응답 > Adapter > outBound > repository > createProfileTemp > result : ',
+                error
+            );
+            throw error;
+        }
+    }
+    // UPDATE
+    async updateProfileTemp(deleteData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > updateProfileTemp > deleteData: ',
+            deleteData
+        );
+        let result;
+        try {
+            result = await this.db.updateProfileTemp(deleteData);
+            console.log(
+                '응답 > Adapter > outBound > repository > updateProfileTemp > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '응답 > Adapter > outBound > repository > updateProfileTemp > result : ',
+                error
+            );
+            throw error;
+        }
+    }
+    // DELETE
+    async deleteProfileTemp(deleteData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > deleteProfileTemp > deleteData: ',
+            deleteData
+        );
+        let result;
+        try {
+            result = await this.db.deleteProfileTemp(deleteData);
+            console.log(
+                '응답 > Adapter > outBound > repository > deleteProfileTemp > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '응답 > Adapter > outBound > repository > deleteProfileTemp > result : ',
+                error
+            );
+            throw error;
+        }
+    }
 };
