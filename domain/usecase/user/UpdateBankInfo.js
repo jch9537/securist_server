@@ -1,5 +1,4 @@
-const { UpdateBankInfoEntity } = require('../../entities/user');
-
+const { UserEntity } = require('../../entities');
 module.exports = class {
     constructor(Repository) {
         this.Repository = Repository;
@@ -17,21 +16,15 @@ module.exports = class {
             };
 
             try {
-                let updateBankInfoEntity = new UpdateBankInfoEntity(
-                    updateUserData
-                );
+                let userEntity = new UserEntity(updateUserData);
                 // console.log('업데이트 데이터 : ', updateUserData);
-                result = await this.Repository.updateBankInfo(
-                    updateBankInfoEntity
-                );
+                result = await this.Repository.updateBankInfo(userEntity);
                 // console.log('결과----------------', result);
             } catch (error) {
                 // console.log('에러 ----------------', error);
                 throw error;
             }
             return result;
-        } else {
-            throw error; // 사용자 타입오류
         }
     }
 };

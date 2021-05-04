@@ -30,7 +30,7 @@ module.exports = class {
                 if (error) {
                     throw error;
                 }
-                let signUpEntity = {
+                let userEntity = {
                     email: email,
                     password: password,
                     name: name,
@@ -132,7 +132,7 @@ module.exports = class {
                                                     }
                                                 );
                                                 result = await authService.signUp(
-                                                    signUpEntity
+                                                    userEntity
                                                 ); // cognito 회원가입
 
                                                 await connection.commit(
@@ -193,7 +193,7 @@ module.exports = class {
                                             );
 
                                             result = await authService.signUp(
-                                                signUpEntity
+                                                userEntity
                                             ); // cognito 회원가입
 
                                             await connection.commit(function (
@@ -211,7 +211,7 @@ module.exports = class {
                         }
                     );
                 } else {
-                    result = await authService.signUp(signUpEntity); // cognito 회원가입
+                    result = await authService.signUp(userEntity); // cognito 회원가입
 
                     await connection.commit(function (err) {
                         if (err) throw err;
@@ -289,9 +289,9 @@ module.exports = class {
         }
         let companyInfo = await this.getRelationInfo({ email, userType });
         let companyId = companyInfo[`${idColumn}`];
+        console.log('사용자 소속기업정보 가져오기 result', companyId);
 
-        result = await this.getCompanyInfo({ userType }, companyId);
-        console.log('사용자 소속기업정보 가져오기 result', result);
+        result = await this.getCompanyInfo({ userType, companyId });
         return result;
         // } catch (error) {
         //     console.log('사용자 소속 기업정보 가져오기 err: ', error);
@@ -385,7 +385,12 @@ module.exports = class {
     }) {
         let result;
         if (userType === '1') {
-            result = await this.updateUserBankInfo;
+            result = await this.updateUserBankInfo({
+                email,
+                bankName,
+                bankAccountNum,
+                bankAccountOwner,
+            });
         } else if (userType === '2') {
             result = await this.updateCompanyBankInfo({
                 email,
@@ -592,15 +597,14 @@ module.exports = class {
 
     // GET
     // 기업 리스트 가져오기 : 기업(클/컨) 공통
-    getCompanyList(userData) {
-        console.log('=======================', userData);
+    getCompanyList({ userType }) {
         let sql;
         let tableName, idColumn;
 
-        if (userData.userType === '2') {
+        if (userType === '2') {
             tableName = 'consulting_companies';
             idColumn = 'consulting_company_id';
-        } else if (userData.userType === '3') {
+        } else if (userType === '3') {
             tableName = 'client_companies';
             idColumn = 'client_company_id';
         } else {
@@ -629,9 +633,13 @@ module.exports = class {
         });
     }
     // 기업 정보 가져오기
-    getCompanyInfo({ userType }, companyId) {
+    getCompanyInfo({ userType, companyId }) {
         let sql, arg;
         let tableName, idColumn;
+        console.log(
+            ' 요청 > DB > getCompanyInfo > 기업 정보 가져오기 ------------------- : ',
+            { userType, companyId }
+        );
 
         if (userType === '3') {
             tableName = 'client_companies';
@@ -653,7 +661,7 @@ module.exports = class {
                             reject(error);
                         } else {
                             console.log(
-                                ' 기업 정보 가져오기 ------------------- : ',
+                                ' 응답 > DB > getCompanyInfo > 기업 정보 가져오기 ------------------- : ',
                                 results
                             );
                             resolve(results[0]);
@@ -664,7 +672,7 @@ module.exports = class {
         });
     }
     // 기업 소속 사용자들 정보 가져오기 : 기업 (클라이언트/컨설턴트) 공통
-    getCompanyBelongedUsersInfo({ userType }, companyId) {
+    getCompanyBelongedUsersInfo({ userType, companyId }) {
         console.log('--------------------', userType, companyId);
         let result = [];
         let sql, arg;
@@ -730,18 +738,18 @@ module.exports = class {
     createUserAndCompanyRelation({ userType, email, companyId }) {
         let result;
         let sql, arg;
-        let tableName, userIdColumn, companyIdColumn, status;
+        let tableName, userIdColumn, companyIdColumn, belongingType;
 
         if (userType === '3') {
             tableName = 'client_user_and_company';
             userIdColumn = 'client_user_id';
             companyIdColumn = 'client_company_id';
-            status = '2'; // 클라이언트 사용자는 바로 소속처리 : 상황변경에 따라 기본값 변경
+            belongingType = '2'; // 클라이언트 사용자는 바로 소속처리 : 상황변경에 따라 기본값 변경
         } else if (userType === '2' || userType === '1') {
             tableName = 'consultant_user_and_company';
             userIdColumn = 'consultant_user_id';
             companyIdColumn = 'consulting_company_id';
-            status = '1'; // 컨설턴트 사용자는 소속요청 중 처리
+            belongingType = '1'; // 컨설턴트 사용자는 소속요청 중 처리
         }
 
         return new Promise((resolve, reject) => {
@@ -764,8 +772,8 @@ module.exports = class {
                     // );
                     if (checkBelongingCompany === undefined) {
                         // 기업에 처음 소속요청을 하는 경우
-                        sql = `INSERT INTO ${tableName} (${userIdColumn}, ${companyIdColumn}, active_type) VALUES (?, ?, ?);`;
-                        arg = [email, companyId, status];
+                        sql = `INSERT INTO ${tableName} (${userIdColumn}, ${companyIdColumn}, belonging_type) VALUES (?, ?, ?);`;
+                        arg = [email, companyId, belongingType];
 
                         await connection.query(
                             sql,
@@ -793,7 +801,7 @@ module.exports = class {
                             userType: userType,
                             companyId: companyId,
                             email: email,
-                            status: status,
+                            belongingType: belongingType,
                         };
                         result = await this.updateBelongingStatus(updateData);
                         resolve(result);
@@ -850,7 +858,7 @@ module.exports = class {
 
     // UPDATE
     // 업체 - 소속 상태변경(승인, 거절, 삭제)처리
-    updateBelongingStatus({ userType, companyId, email, status }) {
+    updateBelongingStatus({ userType, companyId, email, belongingType }) {
         let sql, arg;
         let tableName, userIdColumn, companyIdColumn;
         console.log(
@@ -873,8 +881,8 @@ module.exports = class {
                 if (error) {
                     reject(error);
                 } else {
-                    sql = `UPDATE ${tableName} SET active_type = ? WHERE ${companyIdColumn} = ? AND ${userIdColumn}= ?;`;
-                    arg = [status, companyId, email];
+                    sql = `UPDATE ${tableName} SET belonging_type = ? WHERE ${companyIdColumn} = ? AND ${userIdColumn}= ?;`;
+                    arg = [belongingType, companyId, email];
                     connection.query(sql, arg, (error, results, filelds) => {
                         if (error) {
                             console.log(
@@ -888,7 +896,7 @@ module.exports = class {
                                 results
                             );
                             // resolve(results);
-                            sql = `SELECT ${userIdColumn},active_type FROM ${tableName} WHERE ${companyIdColumn} = ? AND ${userIdColumn}= ?`;
+                            sql = `SELECT ${userIdColumn},belonging_type FROM ${tableName} WHERE ${companyIdColumn} = ? AND ${userIdColumn}= ?`;
                             arg = [companyId, email];
                             connection.query(
                                 sql,

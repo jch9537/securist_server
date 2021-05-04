@@ -39,17 +39,10 @@ module.exports = (router) => {
             let userData = req.userDataByIdToken;
             let reqData = req.filteredData;
             console.log('요청 > GET > /api/relation/join: ', userData, reqData);
-            let joinData = {
-                userType: userData.userType,
-                // email: userData.email,
-                // email: 'mg.kim@aegisecu.com', // 테스트
-                email: 'mg.sun@aegisecu.com',
-                // email: 'ej.lim@aegisecu.com',
-                companyId: reqData.selectCompanyId,
-            };
 
             let result = await relationAdapter.createUserAndCompanyRelation(
-                joinData
+                userData,
+                reqData
             );
             console.log('응담 > GET > /api/relation/join : ', result);
 
@@ -60,7 +53,7 @@ module.exports = (router) => {
             );
             res.send(response);
         } catch (err) {
-            console.log('에러 > GET > /api/relation/join: ', result);
+            console.log('에러 > GET > /api/relation/join: ', err);
             res.send(err);
         }
     });
@@ -111,11 +104,11 @@ module.exports = (router) => {
                 '응답 > /api/relation/company/belonging/status : ',
                 result
             );
-            let belongingStatus = result['active_type'];
+            let belongingType = result['belonging_type'];
             let response;
-            if (belongingStatus === '0') {
+            if (belongingType === '0') {
                 response = new Response(200, '소속 해제 완료');
-            } else if (belongingStatus === '2') {
+            } else if (belongingType === '2') {
                 response = new Response(200, '소속요청 승인 완료');
             }
             res.send(response);

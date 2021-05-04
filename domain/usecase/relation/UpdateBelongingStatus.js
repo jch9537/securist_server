@@ -1,25 +1,25 @@
-const { UpdateBelongingStatusEntity } = require('../../entities/relation');
+const { RelationEntity } = require('../../entities');
 
 module.exports = class {
     constructor(Repository) {
         this.Repository = Repository;
     }
-    async excute(updateData) {
-        let result;
+    async excute(updateStatusData) {
         try {
-            // selectUserId(email), 업데이트 할 상태(status) 만 확인, 나머지는 복호화한 데이터므로 안전한 데이터임을 보장함
-            let updateRelationEntity = new UpdateBelongingStatusEntity(
-                updateData
-            );
-            updateRelationEntity.userType = updateData.userType;
-            updateRelationEntity.companyId = updateData.companyId;
+            let relationEntity = new RelationEntity(updateStatusData);
 
-            result = await this.Repository.updateBelongingStatus(
-                updateRelationEntity
+            relationEntity.userType = updateStatusData.userType;
+            // let updateRelationEntity = new UpdateBelongingStatusEntity(
+            //     updateData
+            // );
+            // updateRelationEntity.companyId = updateData.companyId;
+
+            let result = await this.Repository.updateBelongingStatus(
+                relationEntity
             );
+            return result;
         } catch (error) {
             throw error;
         }
-        return result;
     }
 };

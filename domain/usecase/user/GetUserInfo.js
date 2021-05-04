@@ -3,12 +3,11 @@ module.exports = class {
         this.Repository = Repository;
     }
     async excute(userData) {
-        let result;
         try {
-            result = await this.Repository.getUserInfo(userData);
+            let result = await this.Repository.getUserInfo(userData);
+            return result;
         } catch (error) {
             throw error;
         }
-        return result;
     }
 };

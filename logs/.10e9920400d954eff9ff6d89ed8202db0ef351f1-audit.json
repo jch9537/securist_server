@@ -44,6 +44,11 @@
             "date": 1620004217261,
             "name": "logs\\2021-05-03.log",
             "hash": "b906fbaf3f3e7b077b1956c1fc66b95e"
+        },
+        {
+            "date": 1620094377221,
+            "name": "logs\\2021-05-04.log",
+            "hash": "d1aa07a881a951de4b692e705a62ef0a"
         }
     ]
 }

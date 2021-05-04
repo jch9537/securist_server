@@ -3,7 +3,11 @@ module.exports = class {
         this.Auth = Auth;
     }
     async excute(refreshToken) {
-        let result = await this.Auth.issueNewToken(refreshToken);
-        return result;
+        try {
+            let result = await this.Auth.issueNewToken(refreshToken);
+            return result;
+        } catch (error) {
+            throw error;
+        }
     }
 };

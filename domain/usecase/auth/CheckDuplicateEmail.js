@@ -1,16 +1,17 @@
-const { AuthEntity } = require('../../entities/auth');
+const { UserEntity } = require('../../entities');
 module.exports = class {
     constructor(Auth) {
         this.Auth = Auth;
     }
-    async excute({ email }) {
-        let validEmail;
+    async excute(checkData) {
+        let result;
         try {
-            validEmail = new AuthEntity(email);
+            let userEntity = new UserEntity(checkData);
+
+            result = await this.Auth.checkDuplicateEmail(userEntity);
         } catch (err) {
             throw err;
         }
-        let result = await this.Auth.checkDuplicateEmail(validEmail);
         return result;
     }
 };

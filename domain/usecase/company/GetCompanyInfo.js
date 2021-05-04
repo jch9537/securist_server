@@ -1,17 +1,19 @@
+const { CompanyEntity } = require('../../entities');
 module.exports = class {
     constructor(Repository) {
         this.Repository = Repository;
     }
-    async excute(userData, companyId) {
-        let result;
+    async excute(userData, companyData) {
         try {
-            //entity 추가
-            result = await this.Repository.getCompanyInfo(userData, companyId);
+            let companyEntity = new CompanyEntity(companyData);
+            companyEntity.userType = userData.userType;
+
+            let result = await this.Repository.getCompanyInfo(companyEntity);
             console.log(' 기업 리스트 결과----------------', result);
+            return result;
         } catch (error) {
             console.log('에러 ----------------', error);
             throw error;
         }
-        return result;
     }
 };

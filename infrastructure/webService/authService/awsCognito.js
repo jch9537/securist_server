@@ -47,29 +47,29 @@ module.exports = class {
         return result;
     }
     // 사용자 회원 가입
-    signUp(userData) {
+    signUp({ email, password, name, userType }) {
         console.log(
             '요청 > Infrastructure > webService > authService > awsCognito.js > signup : ',
             userData
         );
         let params = {
             ClientId: clientId /* required */,
-            Password: userData.password /* required */,
-            Username: userData.email /* required */,
+            Password: password /* required */,
+            Username: email /* required */,
             ValidationData: [
                 {
                     Name: 'email' /* required */,
-                    Value: userData.email,
+                    Value: email,
                 },
             ],
             UserAttributes: [
                 {
                     Name: 'email' /* required */,
-                    Value: userData.email,
+                    Value: email,
                 },
                 {
                     Name: 'name',
-                    Value: userData.name,
+                    Value: name,
                 },
                 {
                     Name: 'custom:retryCount', // 로그인 실패횟수
@@ -77,7 +77,7 @@ module.exports = class {
                 },
                 {
                     Name: 'custom:userType',
-                    Value: userData.userType,
+                    Value: userType,
                 },
                 {
                     Name: 'custom:passwordUpdatedAt', // 비밀번호변경시간
@@ -117,18 +117,18 @@ module.exports = class {
         return result;
     }
     // 로그인
-    logIn(userData) {
+    logIn({ email, password }) {
         let self = this;
         console.log(
             '요청 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
-            userData
+            { email, password }
         );
         let params = {
             AuthFlow: 'USER_PASSWORD_AUTH',
             ClientId: clientId /* required */,
             AuthParameters: {
-                USERNAME: `${userData.email}`,
-                PASSWORD: `${userData.password}`,
+                USERNAME: `${email}`,
+                PASSWORD: `${password}`,
             },
         };
         return new Promise((resolve, reject) => {
@@ -155,13 +155,10 @@ module.exports = class {
                             ) {
                                 try {
                                     let failCount = await self.getRetryCount(
-                                        userData.email
+                                        email
                                     );
                                     failCount += 1;
-                                    await self.setRetryCount(
-                                        userData.email,
-                                        failCount
-                                    );
+                                    await self.setRetryCount(email, failCount);
                                     err.retryCount = failCount;
                                     reject(
                                         new Exception(401, err.message, err)
@@ -214,13 +211,13 @@ module.exports = class {
         });
     }
     //로그아웃
-    logOut(token) {
+    logOut(accessToken) {
         console.log(
             '요청 > Infrastructure > webService > authService > awsCognito.js > logOut : '
-            // token
+            // accessToken
         );
         const params = {
-            AccessToken: `${token}` /* required */,
+            AccessToken: `${accessToken}` /* required */,
         };
         return new Promise((resolve, reject) => {
             this.cognitoidentityserviceprovider.globalSignOut(
@@ -263,8 +260,8 @@ module.exports = class {
         });
     }
     // access token 만료 날짜 확인
-    async checkAccessToken(token) {
-        let result = await processingToken.checkAccessToken(token);
+    async checkAccessToken(accessToken) {
+        let result = await processingToken.checkAccessToken(accessToken);
         return result;
     }
     // 새 access 토큰 발행
@@ -517,10 +514,10 @@ module.exports = class {
         });
     }
     // 사용자 비밀번호 변경
-    changePassword({ token, prePassword, newPassword }) {
+    changePassword({ accessToken, prePassword, newPassword }) {
         let self = this;
         let params = {
-            AccessToken: token,
+            AccessToken: accessToken,
             PreviousPassword: prePassword,
             ProposedPassword: newPassword,
         };

@@ -25,10 +25,10 @@ module.exports = {
             throw err;
         }
     },
-    async getCompanyInfo(userData, companyId) {
+    async getCompanyInfo(userData, companyData) {
         try {
             let getCompanyInfo = new GetCompanyInfo(Repository);
-            let result = await getCompanyInfo.excute(userData, companyId);
+            let result = await getCompanyInfo.excute(userData, companyData);
             console.log(
                 '응답 > adapters > inbound > companyAdaptor.js > getCompanyInfo - result : ',
                 result
@@ -43,14 +43,14 @@ module.exports = {
         }
     },
     // 기업 내 소속 사용자 정보 가져오기 : 기업(클/컨) 공통
-    async getCompanyBelongedUsersInfo(userData, companyId) {
+    async getCompanyBelongedUsersInfo(userData, companyData) {
         try {
             let getCompanyBelongedUsersInfo = new GetCompanyBelongedUsersInfo(
                 Repository
             );
             let result = await getCompanyBelongedUsersInfo.excute(
                 userData,
-                companyId
+                companyData
             );
             console.log(
                 '응답 > adapters > inbound > companyAdaptor.js > getCompanyBelongedUsersInfo - result : ',
