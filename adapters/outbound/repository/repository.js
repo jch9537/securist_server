@@ -2,7 +2,7 @@
 **파라미터 명 
 1. OOOToken : 토큰 
 2. OOOEntity: entity를 거친 유효한 client input Data  
-3. OOOData : 토큰을 사용해 가져온 신뢰할 수 있는 사용자 Data (entity 거치지 않음)
+3. OOOData : 토큰을 복호화해 가져온 신뢰할 수 있는 사용자 Data (entity 거치지 않음)
 */
 module.exports = class {
     constructor(db) {
