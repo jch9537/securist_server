@@ -6,7 +6,7 @@ module.exports = class {
     async excute(userData, updateData) {
         console.log(userData);
         let result;
-        if (userData.userType === '1' || userData.userType === '2') {
+        if (userData.userType === 1 || userData.userType === 2) {
             let updateUserData = {
                 email: userData.email,
                 userType: userData.userType,

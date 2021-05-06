@@ -50,7 +50,7 @@ module.exports = class {
     signUp({ email, password, name, userType }) {
         console.log(
             '요청 > Infrastructure > webService > authService > awsCognito.js > signup : ',
-            userData
+            { email, password, name, userType }
         );
         let params = {
             ClientId: clientId /* required */,
@@ -72,15 +72,16 @@ module.exports = class {
                     Value: name,
                 },
                 {
+                    Name: 'custom:userType',
+                    Value: `${userType}`,
+                },
+                {
                     Name: 'custom:retryCount', // 로그인 실패횟수
                     Value: '0',
                 },
                 {
-                    Name: 'custom:userType',
-                    Value: userType,
-                },
-                {
-                    Name: 'custom:passwordUpdatedAt', // 비밀번호변경시간
+                    // Name: 'custom:passwordUpdatedAt', // 비밀번호변경시간
+                    Name: 'custom:passwordUpdateDate', // 비밀번호변경시간
                     Value: `${Math.floor(new Date().valueOf() / 1000)}`,
                 },
                 // 아래 로그인 잠금상태/정보변경시간/회원가입날짜시간(변경불가) 의 경우 계정이 존재하면 기본적으로 cognito 응답 Users배열 내 Enabled / UserCreateDate / UserLastModifiedDate가 있어서 필요없음
@@ -200,9 +201,14 @@ module.exports = class {
 
                             let passwordUpdatedAt =
                                 res['custom:passwordUpdatedAt'];
+                            // let passwordUpdateDate =
+                            // res['custom:passwordUpdateDate'];
                             result.isPasswordExpired = checkExpiredPassword(
                                 passwordUpdatedAt // 비밀번호 만료여부
                             );
+                            // result.isPasswordExpired = checkExpiredPassword(
+                            //     passwordUpdateDate // 비밀번호 만료여부
+                            // );
                             resolve(result);
                         });
                     }
@@ -538,7 +544,7 @@ module.exports = class {
                             '응답 > Infrastructure > webService > authService > awsCognito.js > changePassword : ',
                             data
                         );
-                        await self.changePassordUpdatedAt(token);
+                        await self.changePassordUpdatedAt(accessToken);
                         resolve(data);
                     }
                 }
@@ -553,6 +559,7 @@ module.exports = class {
             UserAttributes: [
                 {
                     Name: 'custom:passwordUpdatedAt',
+                    // Name: 'custom:passwordUpdateDate',
                     Value: `${Math.floor(new Date().valueOf() / 1000)}`,
                 },
             ],

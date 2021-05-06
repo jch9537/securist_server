@@ -67,15 +67,15 @@ module.exports = {
     },
     // 기업-사용자 소속상태 변경 처리 : 기업, 사용자 공통
     async updateBelongingStatus(userData, updateData) {
-        let result, updateStatusData;
+        let result, updateStatusData, companyIdColumn;
         console.log(
             '요청 > adapters > inbound > userAdaptor > updateBelongingStatus - userId : ',
             userData,
             updateData
         );
         try {
-            // userData.userType = '1'; //테스트용
-            if (userData.userType === '1') {
+            // userData.userType = 1; //테스트용
+            if (userData.userType === 1) {
                 updateStatusData = {
                     userType: userData.userType,
                     companyId: updateData.companyId,
@@ -84,17 +84,17 @@ module.exports = {
                     belongingType: updateData.belongingType,
                 };
             } else {
-                if (userData.userType === '3') {
+                if (userData.userType === 3) {
                     companyIdColumn = 'client_company_id';
-                } else if (userData.userType === '2') {
+                } else if (userData.userType === 2) {
                     companyIdColumn = 'consulting_company_id';
                 }
 
                 let companyInfo = await userAdapter.getUserBelongingCompanyInfo(
                     userData
                 );
-                console.log('-----------------------', companyInfo);
                 let companyId = companyInfo[companyIdColumn];
+
                 updateStatusData = {
                     userType: userData.userType,
                     companyId: companyId,
@@ -102,13 +102,16 @@ module.exports = {
                     belongingType: updateData.belongingType,
                 };
             }
-            console.log(
-                updateStatusData,
-                '------------------------업데이트 유저데이터'
-            );
+            // console.log(
+            //     updateStatusData,
+            //     '------------------------업데이트 유저데이터'
+            // );
 
             let updateBelongingStatus = new UpdateBelongingStatus(Repository);
-            result = await updateBelongingStatus.excute(updateStatusData);
+            result = await updateBelongingStatus.excute(
+                userData,
+                updateStatusData
+            );
             console.log(
                 '응답 > adapters > inbound > userAdaptor > updateBelongingStatus- result : ',
                 result

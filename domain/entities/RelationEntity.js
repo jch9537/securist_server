@@ -6,7 +6,7 @@ const { ParameterException } = require('../exceptions');
 // type의 경우 위와 같이 형식을 나눠주는 것이 코드 가독성이 좋음
 // const UpdateBankInfoEntityConfig = {
 //     userType: {
-//         PERSONAL_CONSULTANT : '1',
+//         PERSONAL_CONSULTANT : 1,
 //     }
 // }
 // */

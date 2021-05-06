@@ -22,7 +22,8 @@ app.use(express.json());
 app.use(sanitizer); // 태그제거 : XSS 방어
 app.use(routes);
 
-app.get('/', (req, res) => {
+app.post('/aa', (req, res) => {
+    // console.log(req.body);
     res.send('Hello World!!');
 });
 

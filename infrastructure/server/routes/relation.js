@@ -106,10 +106,10 @@ module.exports = (router) => {
             );
             let belongingType = result['belonging_type'];
             let response;
-            if (belongingType === '0') {
+            if (String(belongingType) === '0') {
                 response = new Response(200, '소속 해제 완료');
-            } else if (belongingType === '2') {
-                response = new Response(200, '소속요청 승인 완료');
+            } else if (String(belongingType) === 2) {
+                response = new Response(200, '소속 요청 승인 완료');
             }
             res.send(response);
         } catch (err) {

@@ -2,6 +2,7 @@
 const pool = require('./index');
 const { logger } = require('../../../adapters/middleware');
 const { authService } = require('../../../adapters/outbound/auth'); // 같은 layer - 의존성에 문제 없는지 확인
+const { Imagebuilder } = require('aws-sdk');
 
 module.exports = class {
     constructor() {}
@@ -24,7 +25,16 @@ module.exports = class {
             userIdColumn,
             companyId,
             isManager;
-
+        console.log('##################', {
+            email,
+            password,
+            name,
+            userType,
+            phoneNum,
+            businessLicenseNum,
+            companyName,
+            presidentName,
+        });
         pool.getConnection(async (error, connection) => {
             try {
                 if (error) {
@@ -43,7 +53,7 @@ module.exports = class {
 
                 //사용자 생성
                 console.log('DB > Query : createConsultantUser!!');
-                if (userType === '3') {
+                if (userType === 3) {
                     tableName = 'client_users';
                     idColumn = 'client_user_id';
                 } else {
@@ -61,10 +71,10 @@ module.exports = class {
                 );
 
                 //기업 생성
-                if (userType === '2' || userType === '3') {
+                if (userType === 2 || userType === 3) {
                     console.log('DB > Query : createClientCompany!!');
 
-                    if (userType === '3') {
+                    if (userType === 3) {
                         tableName = 'client_companies';
                         idColumn = 'client_company_id';
                     } else {
@@ -98,7 +108,7 @@ module.exports = class {
                                                 isManager = '0'; // 처음가입이 아니므로 관리자 아님
 
                                                 // 등록된 기업과 사용자 연결
-                                                if (userType === '3') {
+                                                if (userType === 3) {
                                                     tableName =
                                                         'client_user_and_company';
                                                     companyIdColumn =
@@ -113,7 +123,7 @@ module.exports = class {
                                                     userIdColumn =
                                                         'consultant_user_id';
                                                 }
-                                                sql = `INSERT INTO ${tableName} (${companyIdColumn}, ${userIdColumn}, is_manager) VALUES (?, ?, ?)`;
+                                                sql = `INSERT INTO ${tableName} (${companyIdColumn}, ${userIdColumn}, belonging_type) VALUES (?, ?, ?)`;
                                                 arg = [
                                                     companyId,
                                                     email,
@@ -161,9 +171,9 @@ module.exports = class {
                                             throw error;
                                         } else {
                                             companyId = results[0][idColumn];
-                                            isManager = '1'; // 처음 등록된 기업이므로 관리자 처리
+                                            isManager = 1; // 처음 등록된 기업이므로 관리자 처리
                                             // 등록된 기업과 사용자 연결
-                                            if (userType === '3') {
+                                            if (userType === 3) {
                                                 tableName =
                                                     'client_user_and_company';
                                                 companyIdColumn =
@@ -177,7 +187,7 @@ module.exports = class {
                                                 userIdColumn =
                                                     'consultant_user_id';
                                             }
-                                            sql = `INSERT INTO ${tableName} (${companyIdColumn}, ${userIdColumn}, is_manager) VALUES (?, ?, ?)`;
+                                            sql = `INSERT INTO ${tableName} (${companyIdColumn}, ${userIdColumn}, belonging_type) VALUES (?, ?, ?)`;
                                             arg = [companyId, email, isManager];
 
                                             await connection.query(
@@ -242,7 +252,7 @@ module.exports = class {
 
         return new Promise((resolve, reject) => {
             pool.getConnection((error, connection) => {
-                if (userType === '3') {
+                if (userType === 3) {
                     tableName = 'client_users';
                     idColumn = 'client_user_id';
                 } else {
@@ -282,9 +292,9 @@ module.exports = class {
         let result;
         let idColumn;
         // try {
-        if (userType === '3') {
+        if (userType === 3) {
             idColumn = 'client_company_id';
-        } else if (userType === '2') {
+        } else if (userType === 2) {
             idColumn = 'consulting_company_id';
         }
         let companyInfo = await this.getRelationInfo({ email, userType });
@@ -305,10 +315,10 @@ module.exports = class {
         let result;
         let sql, arg, tableName, idColumn;
 
-        if (userType === '3') {
+        if (userType === 3) {
             tableName = 'client_users';
             idColumn = 'client_user_id';
-        } else if (userType === '2') {
+        } else if (userType === 2) {
             tableName = 'consultant_users';
             idColumn = 'consultant_user_id';
         } else {
@@ -384,14 +394,14 @@ module.exports = class {
         bankAccountOwner,
     }) {
         let result;
-        if (userType === '1') {
+        if (userType === 1) {
             result = await this.updateUserBankInfo({
                 email,
                 bankName,
                 bankAccountNum,
                 bankAccountOwner,
             });
-        } else if (userType === '2') {
+        } else if (userType === 2) {
             result = await this.updateCompanyBankInfo({
                 email,
                 bankName,
@@ -543,8 +553,8 @@ module.exports = class {
                     }
                 );
 
-                if (userType === '2' || userType === '3') {
-                    if (userType === '3') {
+                if (userType === 2 || userType === 3) {
+                    if (userType === 3) {
                         tableName = 'client_user_and_company';
                         userIdColumn = 'client_user_id';
                         companyIdColumn = 'client_company_id';
@@ -554,7 +564,7 @@ module.exports = class {
                         companyIdColumn = 'consulting_company_id';
                     }
                     sql = `
-                        SELECT ${companyIdColumn}, is_manager FROM ${tableName} WHERE ${userIdColumn} = ?`;
+                        SELECT ${companyIdColumn}, belonging_type FROM ${tableName} WHERE ${userIdColumn} = ?`;
                     arg = [email];
                     let userAndCompanyInfo;
                     await connection.query(
@@ -571,7 +581,7 @@ module.exports = class {
                                 ' 사용자 기업 연결정보 가져오기 ~~~~~~~~~~~',
                                 userAndCompanyInfo
                             );
-                            sql = `SELECT ${companyIdColumn}, is_manager FROM ${tableName} WHERE ${userIdColumn} = ?`;
+                            sql = `SELECT ${companyIdColumn}, belonging_type FROM ${tableName} WHERE ${userIdColumn} = ?`;
                             arg = [email];
                         }
                     );
@@ -601,10 +611,10 @@ module.exports = class {
         let sql;
         let tableName, idColumn;
 
-        if (userType === '2') {
+        if (userType === 2) {
             tableName = 'consulting_companies';
             idColumn = 'consulting_company_id';
-        } else if (userType === '3') {
+        } else if (userType === 3) {
             tableName = 'client_companies';
             idColumn = 'client_company_id';
         } else {
@@ -616,7 +626,7 @@ module.exports = class {
                 if (error) {
                     reject(error);
                 } else {
-                    sql = `SELECT ${idColumn}, company_name, president_name from ${tableName} WHERE approval_state IN ('2', '3');`;
+                    sql = `SELECT ${idColumn}, company_name, president_name from ${tableName} WHERE approval_state IN (2, 3);`;
                     await connection.query(sql, (error, results, filelds) => {
                         if (error) {
                             reject(error);
@@ -641,10 +651,10 @@ module.exports = class {
             { userType, companyId }
         );
 
-        if (userType === '3') {
+        if (userType === 3) {
             tableName = 'client_companies';
             idColumn = 'client_companies';
-        } else if (userType === '2') {
+        } else if (userType === 2) {
             tableName = 'consulting_companies';
             idColumn = 'consulting_company_id';
         }
@@ -678,16 +688,16 @@ module.exports = class {
         let sql, arg;
         let tableName, userIdColumn, companyIdColumn, userTypeForGetInfo;
 
-        if (userType === '2') {
+        if (userType === 2) {
             tableName = 'consultant_user_and_company';
             companyIdColumn = 'consulting_company_id';
             userIdColumn = 'consultant_user_id';
-            userTypeForGetInfo = '1';
-        } else if (userType === '3') {
+            userTypeForGetInfo = 1;
+        } else if (userType === 3) {
             tableName = 'client_user_and_company';
             companyIdColumn = 'client_company_id';
             userIdColumn = 'client_user_id';
-            userTypeForGetInfo = '3';
+            userTypeForGetInfo = 3;
         }
 
         return new Promise((resolve, reject) => {
@@ -740,16 +750,16 @@ module.exports = class {
         let sql, arg;
         let tableName, userIdColumn, companyIdColumn, belongingType;
 
-        if (userType === '3') {
+        if (userType === 3) {
             tableName = 'client_user_and_company';
             userIdColumn = 'client_user_id';
             companyIdColumn = 'client_company_id';
-            belongingType = '2'; // 클라이언트 사용자는 바로 소속처리 : 상황변경에 따라 기본값 변경
-        } else if (userType === '2' || userType === '1') {
+            belongingType = 2; // 클라이언트 사용자는 바로 소속처리 : 상황변경에 따라 기본값 변경
+        } else if (userType === 2 || userType === 1) {
             tableName = 'consultant_user_and_company';
             userIdColumn = 'consultant_user_id';
             companyIdColumn = 'consulting_company_id';
-            belongingType = '1'; // 컨설턴트 사용자는 소속요청 중 처리
+            belongingType = 1; // 컨설턴트 사용자는 소속요청 중 처리
         }
 
         return new Promise((resolve, reject) => {
@@ -817,10 +827,10 @@ module.exports = class {
         let tableName, userIdColumn;
         console.log('요청 > DB > Query >  getRelationInfo : ', email, userType);
 
-        if (userType === '3') {
+        if (userType === 3) {
             tableName = 'client_user_and_company';
             userIdColumn = 'client_user_id';
-        } else if (userType === '2') {
+        } else if (userType === 2) {
             tableName = 'consultant_user_and_company';
             userIdColumn = 'consultant_user_id';
         }
@@ -867,11 +877,11 @@ module.exports = class {
             userType,
             companyId
         );
-        if (userType === '1' || userType === '2') {
+        if (userType === 1 || userType === 2) {
             tableName = 'consultant_user_and_company';
             userIdColumn = 'consultant_user_id';
             companyIdColumn = 'consulting_company_id';
-        } else if (userType === '3') {
+        } else if (userType === 3) {
             tableName = 'client_user_and_company';
             userIdColumn = 'client_user_id';
             companyIdColumn = 'client_company_id';
@@ -909,6 +919,11 @@ module.exports = class {
                                             ' 응답 > DB > Query >  updateBelongingStatus  : results2',
                                             results
                                         );
+                                        if (results.length === 0) {
+                                            reject(
+                                                '선택 사용자가 소속기업이 없는 경우 // query에서 예외처리'
+                                            );
+                                        }
                                         resolve(results[0]);
                                     }
                                 }
@@ -934,15 +949,15 @@ module.exports = class {
             }
         );
 
-        if (userType === '3') {
+        if (userType === 3) {
             tableName = 'client_user_and_company';
             userIdColumn = 'client_user_id';
             companyIdColumn = 'client_company_id';
-        } else if (userType === '2') {
+        } else if (userType === 2) {
             tableName = 'consultant_user_and_company';
             userIdColumn = 'consultant_user_id';
             companyIdColumn = 'consulting_company_id';
-        } else if (userType === '1') {
+        } else if (userType === 1) {
             tableName = 'consultant_user_and_company';
             userIdColumn = 'consultant_user_id';
             companyIdColumn = 'consulting_company_id';
@@ -1099,7 +1114,7 @@ module.exports = class {
 //     console.log('DB > Query : createclienttantUser!!');
 
 //     let tableName, idColumn;
-//     if (userType === '3') {
+//     if (userType === 3) {
 //         tableName = 'client_users';
 //         idColumn = 'client_user_id';
 //     } else {
@@ -1124,7 +1139,7 @@ module.exports = class {
 //     let result = {};
 //     let sql, arg;
 //     let tableName, idColumn;
-//     if (userType === '3') {
+//     if (userType === 3) {
 //         tableName = 'client_companies';
 //         idColumn = 'client_company_id';
 //     } else {
@@ -1175,7 +1190,7 @@ module.exports = class {
 //                     results[0]
 //                 );
 //                 result.companyId = results[0][idColumn];
-//                 result.isManager = '1'; // 처음가입이므로 관리자 처리
+//                 result.isManager = 1; // 처음가입이므로 관리자 처리
 //                 resolve(result);
 //             });
 //         });
@@ -1184,7 +1199,7 @@ module.exports = class {
 // // 기업-사업자 연결 생성
 // createCompanyAndUserRelation({ userType, companyId, userId, isManager }) {
 //     let tableName, companyIdColumn, userIdColumn;
-//     if (userType === '3') {
+//     if (userType === 3) {
 //         tableName = 'client_user_and_company';
 //         companyIdColumn = 'clientCompany_id';
 //         userIdColumn = 'client_user_id';
@@ -1193,7 +1208,7 @@ module.exports = class {
 //         companyIdColumn = 'consulting_company_id';
 //         userIdColumn = 'consultant_user_id';
 //     }
-//     let sql = `INSERT INTO ${tableName} (${companyIdColumn}, ${userIdColumn}, is_manager) VALUES (?, ?, ?)`;
+//     let sql = `INSERT INTO ${tableName} (${companyIdColumn}, ${userIdColumn}, belonging_type) VALUES (?, ?, ?)`;
 //     let arg = [companyId, userId, isManager];
 //     return new Promise((resolve, reject) => {
 //         pool.query(sql, arg, function (error, results, fields) {
