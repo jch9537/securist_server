@@ -19,25 +19,28 @@ module.exports = (req, res, next) => {
         }
         console.log('body소독 : ', filteredData);
         req.filteredData = filteredData;
+        console.log('바디데이터 : ', req.filteredData);
     } else if (req.method === 'GET') {
         // route에서 :id를 받기 전 request를 받으므로 req.params는 없음
         // if (Object.keys(req.params).length !== 0) {
-        //     console.log('req.params : ', req.params);
+        //     console.log('req.params--------------- : ', req.params);
         //     for (let key in req.params) {
         //         console.log('key: ', key, 'value :', req.params[key]);
         //         filteredData[key] = sanitizeHtml(req.params[key]);
         //     }
         //     console.log('params 소독 : ', filteredData);
         // }
-        if (Object.keys(req.query).length !== 0) {
-            console.log('req.query : ', req.query);
-            for (let key in req.query) {
-                console.log('key: ', key, 'value :', req.query[key]);
-                filteredQuery[key] = sanitizeHtml(req.query[key]);
+        if (req.query) {
+            if (Object.keys(req.query).length !== 0) {
+                console.log('req.query : ', req.query);
+                for (let key in req.query) {
+                    console.log('key: ', key, 'value :', req.query[key]);
+                    filteredQuery[key] = sanitizeHtml(req.query[key]);
+                }
+                console.log('query 소독 : ', filteredQuery);
             }
-            console.log('query 소독 : ', filteredQuery);
+            req.filteredQuery = filteredQuery;
         }
-        req.filteredQuery = filteredQuery;
     }
     if (req.headers.authorization) {
         let token = req.headers.authorization;

@@ -1,5 +1,4 @@
 // TODO 확인할 것 : 확인코드의 validation의 필요성에 대해 - 알면안되는 확인코드에 대한 힌트를 줄 수 있지 않나?
-// TODO signUp에 Repository가 아닌 inbound adapter를 넘겨보기 시도
 const awsCognito = require('../../infrastructure/webService/authService/awsCognito'); // 테스트용 모듈 import
 
 // 사용자 처리 어댑터
@@ -15,8 +14,8 @@ const {
     ChangePassword,
     IssueNewToken,
     CheckAccessToken,
-    GetUserByIdToken,
-    GetUserInfoByAccessToken,
+    // GetUserByIdToken,
+    // GetUserInfoByAccessToken,
     VerifyUserByPassword,
 } = require('../../domain/usecase/auth');
 
@@ -48,23 +47,18 @@ module.exports = {
         }
     },
     // 회원가입
-    async signUp(userParam) {
+    async signUp(signUpData) {
         console.log(
-            '요청 > adapters > inbound > authAdaptor.js > signUp - userParam : ',
-            userParam
+            '요청 > adapters > inbound > authAdaptor.js > signUp - signUpData : ',
+            signUpData
         );
         try {
             let signUp = new SignUp(Auth, Repository);
-            let result = await signUp.excute(userParam); //client에서 작성된 정보만 받음
+            let result = await signUp.excute(signUpData); //client에서 작성된 정보만 받음
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > signUp - result : ',
                 result
             );
-            /* 
-            회원가입이 완료되면 
-            1. 타입(클/컨)별 사용자 정보 생성 (DB) 
-            2. 기업정보가 있는지 확인 ? 연결 : 생성 (DB)
-            */
             return result;
         } catch (err) {
             console.log(
@@ -84,14 +78,14 @@ module.exports = {
        5회이상 로그인 실패  ?  비밀번호찾기안내 : '계정이 잠금상태입니다. 관리자에게 문의해주세요' - 처리완료
     6. 비밀번호 유효기간 초과 ? 비밀번호 변경 모달 노출 :  로그인 화면 리다이렉션              - 프런트 처리
     */
-    async logIn(userParam) {
+    async logIn(logInData) {
         console.log(
-            '요청 > adapters > inbound > authAdaptor.js > logIn - userParam : ',
-            userParam
+            '요청 > adapters > inbound > authAdaptor.js > logIn - logInData : ',
+            logInData
         );
         try {
             let logIn = new LogIn(Auth);
-            let result = await logIn.excute(userParam);
+            let result = await logIn.excute(logInData);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > logIn - result : ',
                 result
@@ -124,20 +118,20 @@ module.exports = {
         }
     },
     // 사용자 인증 : 비밀번호
-    async verifyUserByPassword(accessToken, { password }) {
+    async verifyUserByPassword(verifyData) {
         console.log(
             '요청 > adapters > inbound > authAdaptor.js > verifyUserByPassword - userParam : ',
-            password
+            verifyData
         );
         try {
-            let getUserInfoByAccessToken = new GetUserInfoByAccessToken(Auth);
-            let userData = await getUserInfoByAccessToken.excute(accessToken);
-            console.log(
-                '사용자 인증 액세스토큰 ---------------------',
-                userData
-            );
+            // let getUserInfoByAccessToken = new GetUserInfoByAccessToken(Auth);
+            // let userData = await getUserInfoByAccessToken.excute(accessToken);
+            // console.log(
+            //     '사용자 인증 액세스토큰 ---------------------',
+            //     userData
+            // );
             let verifyUserByPassword = new VerifyUserByPassword(Auth);
-            let result = await verifyUserByPassword.excute(userData, password);
+            let result = await verifyUserByPassword.excute(verifyData);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > verifyUserByPassword - result : ',
                 result
@@ -176,14 +170,14 @@ module.exports = {
         }
     },
     // 비밀번호 찾기 확인코드 전송
-    async forgotPassword(email) {
+    async forgotPassword(forgotPasswordData) {
         console.log(
-            '요청 > adapters > inbound > authAdaptor.js > forgotPassword - email : ',
-            email
+            '요청 > adapters > inbound > authAdaptor.js > forgotPassword - forgotPasswordData : ',
+            forgotPasswordData
         );
         try {
             let forgotPassword = new ForgotPassword(Auth);
-            let result = await forgotPassword.excute(email);
+            let result = await forgotPassword.excute(forgotPasswordData);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > forgotPassword - result : ',
                 result
@@ -198,14 +192,14 @@ module.exports = {
         }
     },
     // 비밀번호 찾기 비밀번호 변경
-    async confirmForgotPassword(userParam) {
+    async confirmForgotPassword(changePasswordData) {
         console.log(
             '요청 > adapters > inbound > authAdaptor.js > confirmForgotPassword - email : ',
-            userParam
+            changePasswordData
         );
         try {
             let confirmForgotPassword = new ConfirmForgotPassword(Auth);
-            let result = await confirmForgotPassword.excute(userParam);
+            let result = await confirmForgotPassword.excute(changePasswordData);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > confirmForgotPassword - result : ',
                 result
@@ -220,14 +214,14 @@ module.exports = {
         }
     },
     // access 토큰 유효기간 확인
-    async checkAccessToken(token) {
+    async checkAccessToken(accessToken) {
         console.log(
-            '요청 > adapters > inbound > authAdaptor.js > checkAccessToken - token : ',
-            token
+            '요청 > adapters > inbound > authAdaptor.js > checkAccessToken - accessToken : ',
+            accessToken
         );
         try {
             let checkAccessToken = new CheckAccessToken(Auth);
-            let result = await checkAccessToken.excute(token);
+            let result = await checkAccessToken.excute(accessToken);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > checkAccessToken - result : ',
                 result
@@ -259,42 +253,9 @@ module.exports = {
             throw err;
         }
     },
-    // id token으로 사용자 cognito 가입정보 가져오기 : 미들웨어 처리
-    async getUserByIdToken(idToken) {
-        console.log(
-            '요청 > adapters > inbound > authAdaptor.js > getUserByIdToken - idToken : ',
-            idToken
-        );
-        try {
-            let getUserByIdToken = new GetUserByIdToken(Auth);
-            let result = await getUserByIdToken.excute(idToken);
-            console.log(
-                '응답 > adapters > inbound > authAdaptor.js > getUserByIdToken - result : ',
-                result
-            );
-            return result;
-        } catch (err) {
-            console.log(
-                '에러 응답 > adapters > inbound > authAdaptor.js > getUserByIdToken - result : ',
-                err
-            );
-            throw err;
-        }
-    },
-
-    // access token으로 사용자 cognito 가입정보 가져오기
-    async getUserInfoByAccessToken(accessToken) {
-        try {
-            let getUserInfoByAccessToken = new GetUserInfoByAccessToken(Auth);
-            let result = await getUserInfoByAccessToken.excute(accessToken);
-            return result;
-        } catch (err) {
-            return err;
-        }
-    },
     // 테스트용 함수(cognito 바로 연결 : 관리자 권한 처리) -------------------------------------------------------------
     // 회원삭제
-    async deleteUserByAdminByAdmin(userParam) {
+    async deleteUserByAdmin(userParam) {
         try {
             var test = new awsCognito();
             let result = await test.deleteUserByAdmin(userParam.id);

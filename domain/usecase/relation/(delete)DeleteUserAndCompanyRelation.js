@@ -1,11 +1,13 @@
 module.exports = class {
-    constructor(Auth) {
-        this.Auth = Auth;
+    constructor(Repository) {
+        this.Repository = Repository;
     }
-    async excute(token) {
+    async excute(deleteData) {
         let result;
         try {
-            result = await this.Auth.getUserInfoByAccessToken(token);
+            result = await this.Repository.deleteUserAndCompanyRelation(
+                deleteData
+            );
             console.log('결과----------------', result);
         } catch (error) {
             console.log('에러 ----------------', error);

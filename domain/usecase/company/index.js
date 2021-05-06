@@ -1,4 +1,6 @@
 module.exports = {
+    GetCompanyInfo: require('./GetCompanyInfo'),
     GetCompanyList: require('./GetCompanyList'),
-    GetCompanyUserCount: require('./GetCompanyUserCount'),
+    GetCompanyBelongedUsersInfo: require('./GetCompanyBelongedUsersInfo'),
+    // UpdateRegistrationStatus: require('./(delete)UpdateRegistrationStatus'),
 };

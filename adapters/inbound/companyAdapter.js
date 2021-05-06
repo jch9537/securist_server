@@ -1,19 +1,15 @@
 const { Auth, Repository, SendMail } = require('../outbound');
 const {
+    GetCompanyInfo,
     GetCompanyList,
-    GetCompanyUserCount,
+    GetCompanyBelongedUsersInfo,
+    // UpdateRegistrationStatus,
 } = require('../../domain/usecase/company');
-const authAdapter = require('./authAdapter');
 
 module.exports = {
     // 기업 리스트 가져오기 : 기업(클/컨) 공통
-    async getCompanyList(token) {
+    async getCompanyList(userData) {
         try {
-            let userData = await authAdapter.getUserByIdToken(token);
-            console.log(
-                '응답 > adapters > inbound > companyAdaptor.js > getUserByIdToken - userData : ',
-                userData
-            );
             let getCompanyList = new GetCompanyList(Repository);
             let result = await getCompanyList.excute(userData);
             console.log(
@@ -29,34 +25,44 @@ module.exports = {
             throw err;
         }
     },
-    // 기업 내 소속 사용자 수 가져오기 : 기업(클/컨) 공통
-    async getCompanyUserCount(token, companyId) {
+    async getCompanyInfo(userData, companyId) {
         try {
-            let userData = await authAdapter.getUserByIdToken(token);
+            let getCompanyInfo = new GetCompanyInfo(Repository);
+            let result = await getCompanyInfo.excute(userData, companyId);
             console.log(
-                '응답 > adapters > inbound > companyAdaptor.js > getUserByIdToken - userData : ',
-                userData
-            );
-            let getCompanyUserCount = new GetCompanyUserCount(Repository);
-            let result = await getCompanyUserCount.excute(userData, companyId);
-            console.log(
-                '응답 > adapters > inbound > companyAdaptor.js > getCompanyUserCount - result : ',
+                '응답 > adapters > inbound > companyAdaptor.js > getCompanyInfo - result : ',
                 result
             );
             return result;
         } catch (err) {
             console.log(
-                '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyUserCount - err : ',
+                '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyInfo - err : ',
                 err
             );
             throw err;
         }
     },
-
-    // updateCompany(req, res) {
-    //     res.send('updateCompany!!');
-    // },
-    // deleteCompany(req, res) {
-    //     res.send('deleteCompany!!');
-    // },
+    // 기업 내 소속 사용자 정보 가져오기 : 기업(클/컨) 공통
+    async getCompanyBelongedUsersInfo(userData, companyId) {
+        try {
+            let getCompanyBelongedUsersInfo = new GetCompanyBelongedUsersInfo(
+                Repository
+            );
+            let result = await getCompanyBelongedUsersInfo.excute(
+                userData,
+                companyId
+            );
+            console.log(
+                '응답 > adapters > inbound > companyAdaptor.js > getCompanyBelongedUsersInfo - result : ',
+                result
+            );
+            return result;
+        } catch (err) {
+            console.log(
+                '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyBelongedUsersInfo - err : ',
+                err
+            );
+            throw err;
+        }
+    },
 };

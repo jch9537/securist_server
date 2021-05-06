@@ -5,8 +5,10 @@ module.exports = class {
     async excute(userData) {
         let result;
         try {
-            result = await this.Repository.getUserInfo(userData);
+            result = await this.Repository.getRelationInfo(userData);
+            // console.log('결과----------------', result);
         } catch (error) {
+            // console.log('에러 ----------------', error);
             throw error;
         }
         return result;

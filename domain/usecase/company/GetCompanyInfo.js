@@ -5,11 +5,9 @@ module.exports = class {
     async excute(userData, companyId) {
         let result;
         try {
-            result = await this.Repository.getCompanyUserCount(
-                userData,
-                companyId
-            );
-            console.log('클라이언트 기업 결과----------------', result);
+            //entity 추가
+            result = await this.Repository.getCompanyInfo(userData, companyId);
+            console.log(' 기업 리스트 결과----------------', result);
         } catch (error) {
             console.log('에러 ----------------', error);
             throw error;

@@ -269,6 +269,7 @@ module.exports = class {
     }
     // 새 access 토큰 발행
     issueNewToken(refreshToken) {
+        let result;
         const params = {
             AuthFlow: 'REFRESH_TOKEN',
             ClientId: clientId /* required */,
@@ -293,7 +294,8 @@ module.exports = class {
                             '응답 > Infrastructure > webService > authService > awsCognito.js > issueNewToken : ',
                             data
                         );
-                        resolve(data);
+                        result = data.AuthenticationResult;
+                        resolve(result);
                     }
                 }
             );
@@ -309,7 +311,17 @@ module.exports = class {
         console.log('응답 : ', result);
         return result;
     }
-    // 사용자 접근정보 확인 : accessToken
+    // 사용자 cognito 접근정보 가져오기 : accessToken
+    async getAuthInfoByAccessToken(accessToken) {
+        console.log(
+            '요청 > Infrastructure > webService > authService > awsCognito.js > getUserByIdToken : '
+            // token
+        );
+        let result = await processingToken.checkAccessToken(accessToken);
+        console.log('응답 : ', result);
+        return result;
+    }
+    // 사용자 가입정보 가져오기 : accessToken
     getUserInfoByAccessToken(accessToken) {
         console.log(
             '요청 > Infrastructure > webService > authService > awsCognito.js > getUserInfoByAccessToken : '
@@ -354,14 +366,14 @@ module.exports = class {
             );
         });
     }
-    // 로그인 시도 횟수 리셋
-    resetRetryCount(token) {
+    // 로그인 시도 횟수 리셋 : accessToken
+    resetRetryCount(accessToken) {
         console.log(
             '요청 > Infrastructure > webService > authService > awsCognito.js > resetLogInCount : ',
-            token
+            accessToken
         );
         const params = {
-            AccessToken: `${token}` /* required */,
+            AccessToken: `${accessToken}` /* required */,
             UserAttributes: [
                 {
                     Name: 'custom:retryCount' /* required */,
@@ -576,7 +588,7 @@ module.exports = class {
         });
     }
     // 비밀번호 찾기 : 확인코드 보내기
-    forgotPassword(email) {
+    forgotPassword({ email }) {
         const params = {
             ClientId: clientId,
             Username: email,

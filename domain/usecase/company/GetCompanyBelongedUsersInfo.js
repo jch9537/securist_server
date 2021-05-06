@@ -2,12 +2,14 @@ module.exports = class {
     constructor(Repository) {
         this.Repository = Repository;
     }
-    async excute(userData) {
+    async excute(userData, companyId) {
         let result;
         try {
-            console.log('기업리스트 요청 ', userData);
-            result = await this.Repository.getCompanyList(userData);
-            console.log(' 기업 리스트 결과----------------', result);
+            result = await this.Repository.getCompanyBelongedUsersInfo(
+                userData,
+                companyId
+            );
+            console.log('클라이언트 기업 결과----------------', result);
         } catch (error) {
             console.log('에러 ----------------', error);
             throw error;

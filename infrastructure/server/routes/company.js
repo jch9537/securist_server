@@ -12,20 +12,44 @@ const {
 
 const Response = require('../modules/Response');
 const extractToken = require('../modules/extractToken');
-const company = require('../../../domain/entities/company');
+const decryptIdToken = require('../modules/decryptIdToken');
 
 module.exports = (router) => {
     router.use(extractToken);
+    router.use(decryptIdToken);
+
     // 기업정보 가져오기
-    // router.get('/api/company', (req, res) => {
-    //     console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-    // });
-    //등록된 기업정보 가져오기 : 업체 검색
-    router.get('/api/company/list', async (req, res) => {
-        let idToken = req.token;
+    router.get('/api/company/:companyId', async (req, res) => {
         try {
-            let result = await companyAdapter.getCompanyList(idToken);
-            console.log('GET - /api/company/list 응답 : ', result);
+            let userData = req.userDataByIdToken;
+            let companyId = req.params.companyId;
+            console.log(
+                '요청 > /api/company/:companyId : ',
+                userData,
+                companyId
+            );
+
+            let result = await companyAdapter.getCompanyInfo(
+                userData,
+                companyId
+            );
+            console.log('응답 > /api/company/:companyId : ', result);
+
+            let response = new Response(200, '기업정보 가져오기 완료', result);
+            res.send(response);
+        } catch (err) {
+            console.log('에러 > /api/company/:companyId : ', err);
+            res.send(err);
+        }
+    });
+    // 등록된 기업정보 가져오기 : 업체 검색   - 등록된 기업만 필터링
+    router.get('/api/company/list/registration', async (req, res) => {
+        try {
+            let userData = req.userDataByIdToken;
+
+            let result = await companyAdapter.getCompanyList(userData);
+            console.log('GET - /api/company/list/registration 응답 : ', result);
+
             let response = new Response(
                 200,
                 '기업리스트 가져오기 완료',
@@ -33,35 +57,78 @@ module.exports = (router) => {
             );
             res.send(response);
         } catch (err) {
-            console.log('/api/company/list 에러응답 : ', err);
+            console.log('/api/company/list/registration 에러응답 : ', err);
             res.send(err);
         }
     });
-    //선택 기업 컨설턴트 수 가져오기
-    router.get('/api/company/usercount', async (req, res) => {
-        let idToken = req.token;
-        let companyId = req.filteredQuery.id;
-        console.log('요청 데이터 : ', idToken, companyId);
-        try {
-            let result = await companyAdapter.getCompanyUserCount(
-                idToken,
-                companyId
-            );
-            console.log('GET - /api/company 응답 : ', result);
-            let response = new Response(
-                200,
-                '소속 컨설턴트수 가져오기',
-                result
-            );
-            res.send(response);
-        } catch (err) {
-            console.log('/api/company 에러응답 : ', err);
-            res.send(err);
-        }
-    });
+    //선택 기업 소속 컨설턴트들 정보 가져오기
+    router.get(
+        '/api/company/:companyId/belonging/users/info',
+        async (req, res) => {
+            try {
+                let userData = req.userDataByIdToken;
+                // let companyId = req.filteredQuery.id;
+                let companyId = req.params.companyId;
+                console.log('요청 데이터 : ', userData, companyId);
 
-    // 사용자 소속요청에 대한 응답 (승인/거부)
-    router.put('/api/company/reply', (req, res) => {
-        console.log('ㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠ', req.body);
-    });
+                let result = await companyAdapter.getCompanyBelongedUsersInfo(
+                    userData,
+                    companyId
+                );
+                console.log(
+                    '응답 > GET > /api/company/belonging/users/info : ',
+                    result
+                );
+
+                let response = new Response(
+                    200,
+                    '소속 컨설턴트들 정보가져오기 완료',
+                    result
+                );
+                res.send(response);
+            } catch (err) {
+                console.log(
+                    '에러 > GET > /api/company/belonging/users/info : ',
+                    err
+                );
+                res.send(err);
+            }
+        }
+    );
+
+    // // 사용자 소속요청에 대한 응답 (승인/거부)
+    // router.put(
+    //     '/api/company/permit/member',
+    //     decryptIdToken,
+    //     async (req, res) => {
+    //         try {
+    //             let userData = req.userDataByIdToken;
+    //             let reqData = req.filteredData;
+    //             console.log(
+    //                 'PUT > 요청 >  /api/company/permit/member  : ',
+    //                 userData,
+    //                 reqData
+    //             );
+
+    //             let result = await companyAdapter.updateRegistrationStatus(
+    //                 userData,
+    //                 reqData
+    //             );
+    //             console.log(
+    //                 'PUT > 응답 > /api/company/permit/member  : ',
+    //                 result
+    //             );
+
+    //             let response = new Response(
+    //                 200,
+    //                 '컨설턴트 소속요청 처리 완료',
+    //                 result
+    //             );
+    //             res.send(response);
+    //         } catch (err) {
+    //             console.log('PUT > 에러 > /api/company/permit/member  : ', err);
+    //             res.send(err);
+    //         }
+    //     }
+    // );
 };

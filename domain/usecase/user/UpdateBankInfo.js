@@ -20,21 +20,13 @@ module.exports = class {
                 let updateBankInfoEntity = new UpdateBankInfoEntity(
                     updateUserData
                 );
-                // userType 을 포함시키고 infra에서 나누는 걸로 수정
-                if (userData.userType === '1') {
-                    console.log('업데이트 데이터1 : ', updateUserData);
-                    result = await this.Repository.updateUserBankInfo(
-                        updateBankInfoEntity
-                    );
-                } else {
-                    console.log('업데이트 데이터2 : ', updateUserData);
-                    result = await this.Repository.updateCompanyBankInfo(
-                        updateBankInfoEntity
-                    );
-                }
-                console.log('결과----------------', result);
+                // console.log('업데이트 데이터 : ', updateUserData);
+                result = await this.Repository.updateBankInfo(
+                    updateBankInfoEntity
+                );
+                // console.log('결과----------------', result);
             } catch (error) {
-                console.log('에러 ----------------', error);
+                // console.log('에러 ----------------', error);
                 throw error;
             }
             return result;

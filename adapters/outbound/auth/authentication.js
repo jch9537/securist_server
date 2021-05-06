@@ -55,7 +55,7 @@ module.exports = class {
     async verifyUserByPassword(verifyUserByPasswordEntity) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication >  - verifyUserByPassword : '
-            // email
+            // verifyUserByPasswordEntity
         );
         let result = await this.authService.verifyUserByPassword(
             verifyUserByPasswordEntity
@@ -78,12 +78,12 @@ module.exports = class {
         );
         return result;
     }
-    async forgotPassword(email) {
+    async forgotPassword(authEntity) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication >  - forgotPassword : '
-            // email
+            // authEntity
         );
-        let result = await this.authService.forgotPassword(email);
+        let result = await this.authService.forgotPassword(authEntity);
         console.log(
             '응답 > Adapter > outBound > auth > authentication >  - forgotPassword : ',
             result
@@ -167,26 +167,24 @@ module.exports = class {
         );
         return result;
     }
-    async getUserByIdToken(idToken) {
+    async getUserByIdToken(token) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication >  - idToken : ',
-            idToken
+            token
         );
-        let result = await this.authService.getUserByIdToken(idToken);
+        let result = await this.authService.getUserByIdToken(token);
         console.log(
             '응답 > Adapter > outBound > auth > authentication >  - result : ',
             result
         );
         return result;
     }
-    async getUserInfoByAccessToken(accesstoken) {
+    async getUserInfoByAccessToken(token) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication > getUserInfoByAccessToken >  accesstoken : ',
-            accesstoken
+            token
         );
-        let result = await this.authService.getUserInfoByAccessToken(
-            accesstoken
-        );
+        let result = await this.authService.getUserInfoByAccessToken(token);
         console.log(
             '응답 > Adapter > outBound > auth > authentication > getUserInfoByAccessToken >  result : ',
             result

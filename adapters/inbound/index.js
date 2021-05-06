@@ -3,4 +3,6 @@ module.exports = {
     authAdapter: require('./authAdapter'),
     userAdapter: require('./userAdapter'),
     companyAdapter: require('./companyAdapter'),
+    relationAdapter: require('./relationAdapter'),
+    profileAdapter: require('./profileAdapter'),
 };

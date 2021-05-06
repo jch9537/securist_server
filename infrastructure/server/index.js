@@ -1,4 +1,3 @@
-// TODO : LOG 처리
 //서버
 const path = require('path');
 const dotenv = require('dotenv').config({

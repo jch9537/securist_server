@@ -56,6 +56,7 @@ const processingToken = {
     },
     // access token 확인 함수
     checkAccessToken: async (token) => {
+        let result;
         try {
             const claim = await processingToken.decodeToken(token); // request > token 수정
             const currentSeconds = Math.floor(new Date().valueOf() / 1000);
@@ -71,7 +72,7 @@ const processingToken = {
             if (claim.token_use !== 'access') {
                 throw new Error('claim use is not access');
             }
-            // console.log(`claim confirmed for ${claim.username}`);
+            console.log(`claim confirmed for ${claim.username}`);
             result = {
                 userName: claim.username,
                 clientId: claim.client_id,
