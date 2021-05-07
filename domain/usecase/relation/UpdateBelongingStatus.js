@@ -19,11 +19,13 @@ module.exports = class {
                 );
                 let companyBelongingType = relationInfo['belonging_type'];
                 let companyManagerType = relationInfo['manager_type'];
+                console.log(
+                    '릴레이션인포------------------------',
+                    companyBelongingType,
+                    companyManagerType
+                );
                 // 기업 관리자 권한 확인
-                if (
-                    String(companyBelongingType) !== 2 ||
-                    String(companyManagerType) !== 1
-                ) {
+                if (companyBelongingType !== 2 || companyManagerType !== 1) {
                     throw new AuthorizationException('소속 정보 수정');
                 }
             }

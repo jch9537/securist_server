@@ -5,10 +5,11 @@ module.exports = class {
         this.Repository = Repository;
     }
     async excute(userData, companyData) {
-        let userType = userData.userType;
+        let result;
         try {
             let companyEntity = new CompanyEntity(companyData);
             companyEntity.userType = userData.userType;
+            let userType = companyEntity.userType;
 
             if (userType === 2 || userType === 3) {
                 let relationInfo = await this.Repository.getRelationInfo(
@@ -26,7 +27,7 @@ module.exports = class {
                 }
             }
 
-            let result = await this.Repository.getCompanyBelongedUsersInfo(
+            result = await this.Repository.getCompanyBelongedUsersInfo(
                 companyEntity
             );
             console.log('클라이언트 기업 결과----------------', result);

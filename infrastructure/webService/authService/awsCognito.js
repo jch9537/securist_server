@@ -199,16 +199,16 @@ module.exports = class {
                             let userType = res['custom:userType'];
                             result.userType = userType; // 사용자 타입
 
-                            let passwordUpdatedAt =
-                                res['custom:passwordUpdatedAt'];
-                            // let passwordUpdateDate =
-                            // res['custom:passwordUpdateDate'];
-                            result.isPasswordExpired = checkExpiredPassword(
-                                passwordUpdatedAt // 비밀번호 만료여부
-                            );
+                            // let passwordUpdatedAt =
+                            //     res['custom:passwordUpdatedAt'];
+                            let passwordUpdateDate =
+                                res['custom:passwordUpdateDate'];
                             // result.isPasswordExpired = checkExpiredPassword(
-                            //     passwordUpdateDate // 비밀번호 만료여부
+                            //     passwordUpdatedAt // 비밀번호 만료여부
                             // );
+                            result.isPasswordExpired = checkExpiredPassword(
+                                passwordUpdateDate // 비밀번호 만료여부
+                            );
                             resolve(result);
                         });
                     }
@@ -310,9 +310,14 @@ module.exports = class {
             '요청 > Infrastructure > webService > authService > awsCognito.js > getUserByIdToken : '
             // token
         );
-        let result = await processingToken.getUserByIdToken(idToken);
-        console.log('응답 : ', result);
-        return result;
+        try {
+            let result = await processingToken.getUserByIdToken(idToken);
+            console.log('응답 : ', result);
+            return result;
+        } catch (error) {
+            console.log('!!!!!!!!!!!!!!!!!!', error);
+            throw error;
+        }
     }
     // 사용자 cognito 접근정보 가져오기 : accessToken
     async getAuthInfoByAccessToken(accessToken) {
@@ -356,8 +361,18 @@ module.exports = class {
                             if (
                                 userInfo[i]['Name'].substr(0, 7) === 'custom:'
                             ) {
-                                result[userInfo[i]['Name'].substr(7)] =
-                                    userInfo[i]['Value'];
+                                let key = [userInfo[i]['Name'].substr(7)][0];
+                                if (
+                                    key === 'retryCount' ||
+                                    key === 'userType'
+                                ) {
+                                    result[
+                                        userInfo[i]['Name'].substr(7)
+                                    ] = Number(userInfo[i]['Value']);
+                                } else {
+                                    result[userInfo[i]['Name'].substr(7)] =
+                                        userInfo[i]['Value'];
+                                }
                             } else {
                                 result[userInfo[i]['Name']] =
                                     userInfo[i]['Value'];
@@ -558,8 +573,8 @@ module.exports = class {
             AccessToken: token,
             UserAttributes: [
                 {
-                    Name: 'custom:passwordUpdatedAt',
-                    // Name: 'custom:passwordUpdateDate',
+                    // Name: 'custom:passwordUpdatedAt',
+                    Name: 'custom:passwordUpdateDate',
                     Value: `${Math.floor(new Date().valueOf() / 1000)}`,
                 },
             ],

@@ -50,7 +50,7 @@ const processingToken = {
             }
             claim = await verifyPromised(token, key.pem);
         } catch (error) {
-            claim = error;
+            throw error;
         }
         return claim;
     },
@@ -88,19 +88,20 @@ const processingToken = {
         let result;
         try {
             const claim = await processingToken.decodeToken(token); // request > token 수정
+            console.log('~~~~~~~~~~~~~~~~~~', claim);
             result = {
                 id: claim['cognito:username'],
-                userType: claim['custom:userType'],
+                userType: Number(claim['custom:userType']),
                 name: claim.name,
                 email: claim.email,
                 emailVerified: claim.email_verified,
-                passwordUpdatedAt: claim['custom:passwordUpdatedAt'],
+                passwordUpdateDate: claim['custom:passwordUpdateDate'],
                 authTime: claim.auth_time,
                 expTime: claim.exp,
                 issueTime: claim.iat,
             };
         } catch (error) {
-            result = error;
+            throw error;
         }
         return result;
     },

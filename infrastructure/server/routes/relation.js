@@ -8,7 +8,7 @@ const Response = require('../modules/Response');
 const extractToken = require('../modules/extractToken');
 const decryptIdToken = require('../modules/decryptIdToken');
 // const decryptAccessToken = require('../modules/decryptAccessToken');
-// const getUserInfoByAccessToken = require('../modules/getUserInfoByAccessToken');
+const getUserInfoByAccessToken = require('../modules/getUserInfoByAccessToken');
 
 module.exports = (router) => {
     router.use(extractToken);
