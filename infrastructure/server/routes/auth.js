@@ -5,14 +5,12 @@ const extractToken = require('../modules/extractToken');
 const getUserInfoByAccessToken = require('../modules/getUserInfoByAccessToken');
 
 module.exports = (router) => {
-    // 중복 이메일 체크 : xss 공격에 대한 부분과 예외처리 확인!!
-    //params로 처리할 경우 유효성 체크 전 에러남, 유효성 예외처리 체크 확인
     router.get('/api/auth/checkemail/:email', async (req, res) => {
         try {
-            let checkData = req.params;
-            console.log('/api/auth/checkemail 요청 : ', checkData);
+            let reqParamsData = req.params;
+            console.log('/api/auth/checkemail 요청 : ', reqParamsData);
 
-            let result = await authAdapter.checkDuplicateEmail(checkData);
+            let result = await authAdapter.checkDuplicateEmail(reqParamsData);
             console.log('/api/auth/checkemail 응답 : ', result);
 
             let response;

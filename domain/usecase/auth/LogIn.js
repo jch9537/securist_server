@@ -1,13 +1,18 @@
-const { LogInEntity } = require('../../entities/auth');
+const { UserEntity } = require('../../entities');
 //로그인
 module.exports = class {
     constructor(Auth) {
         this.Auth = Auth;
     }
-    async excute({ email, password }) {
-        let logInEntity = new LogInEntity({ email, password });
-        let result = await this.Auth.logIn(logInEntity);
-        return result;
+    async excute(logInData) {
+        try {
+            let userEntity = new UserEntity(logInData);
+
+            let result = await this.Auth.logIn(userEntity);
+            return result;
+        } catch (error) {
+            throw error;
+        }
     }
 };
 /*

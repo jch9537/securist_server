@@ -14,8 +14,12 @@ module.exports = (req, res, next) => {
     ) {
         console.log('body : ', req.body);
         for (let key in req.body) {
-            console.log('key: ', key, 'value :', req.body[key]);
-            filteredData[key] = sanitizeHtml(req.body[key]);
+            console.log('key: ', key, '// value :', req.body[key]);
+            if (typeof req.body[key] === 'number') {
+                filteredData[key] = Number(sanitizeHtml(req.body[key]));
+            } else {
+                filteredData[key] = sanitizeHtml(req.body[key]);
+            }
         }
         console.log('body소독 : ', filteredData);
         req.filteredData = filteredData;

@@ -22,16 +22,16 @@ module.exports = (router) => {
     router.get('/api/company/:companyId', async (req, res) => {
         try {
             let userData = req.userDataByIdToken;
-            let companyId = req.params.companyId;
+            let reqParamsData = req.params;
             console.log(
                 '요청 > /api/company/:companyId : ',
                 userData,
-                companyId
+                reqParamsData
             );
 
             let result = await companyAdapter.getCompanyInfo(
                 userData,
-                companyId
+                reqParamsData
             );
             console.log('응답 > /api/company/:companyId : ', result);
 
@@ -67,13 +67,12 @@ module.exports = (router) => {
         async (req, res) => {
             try {
                 let userData = req.userDataByIdToken;
-                // let companyId = req.filteredQuery.id;
-                let companyId = req.params.companyId;
-                console.log('요청 데이터 : ', userData, companyId);
+                let reqParamsData = req.params;
+                console.log('요청 데이터 : ', userData, reqParamsData);
 
                 let result = await companyAdapter.getCompanyBelongedUsersInfo(
                     userData,
-                    companyId
+                    reqParamsData
                 );
                 console.log(
                     '응답 > GET > /api/company/belonging/users/info : ',

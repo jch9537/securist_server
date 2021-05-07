@@ -162,7 +162,7 @@ test('요청 phone_num이 유효성을 통과하지 못하면 요청 DATA.phone_
 //사용자 타입 유효성 검사
 //test 6-1
 const userData12 = {
-    user_type: '1',
+    user_type: 1,
 };
 const testReqUserData12 = new UserEntity(userData12);
 
@@ -187,7 +187,7 @@ test('요청 user_type이 유효성을 통과하지 못하면 요청 DATA.user_t
 //사용자 상태 유효성 검사
 //test 7-1
 const userData14 = {
-    user_state: '2',
+    user_state: 2,
 };
 const testReqUserData14 = new UserEntity(userData14);
 

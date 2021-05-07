@@ -47,40 +47,41 @@ module.exports = class {
         return result;
     }
     // 사용자 회원 가입
-    signUp(userData) {
+    signUp({ email, password, name, userType }) {
         console.log(
             '요청 > Infrastructure > webService > authService > awsCognito.js > signup : ',
-            userData
+            { email, password, name, userType }
         );
         let params = {
             ClientId: clientId /* required */,
-            Password: userData.password /* required */,
-            Username: userData.email /* required */,
+            Password: password /* required */,
+            Username: email /* required */,
             ValidationData: [
                 {
                     Name: 'email' /* required */,
-                    Value: userData.email,
+                    Value: email,
                 },
             ],
             UserAttributes: [
                 {
                     Name: 'email' /* required */,
-                    Value: userData.email,
+                    Value: email,
                 },
                 {
                     Name: 'name',
-                    Value: userData.name,
+                    Value: name,
+                },
+                {
+                    Name: 'custom:userType',
+                    Value: `${userType}`,
                 },
                 {
                     Name: 'custom:retryCount', // 로그인 실패횟수
                     Value: '0',
                 },
                 {
-                    Name: 'custom:userType',
-                    Value: userData.userType,
-                },
-                {
-                    Name: 'custom:passwordUpdatedAt', // 비밀번호변경시간
+                    // Name: 'custom:passwordUpdatedAt', // 비밀번호변경시간
+                    Name: 'custom:passwordUpdateDate', // 비밀번호변경시간
                     Value: `${Math.floor(new Date().valueOf() / 1000)}`,
                 },
                 // 아래 로그인 잠금상태/정보변경시간/회원가입날짜시간(변경불가) 의 경우 계정이 존재하면 기본적으로 cognito 응답 Users배열 내 Enabled / UserCreateDate / UserLastModifiedDate가 있어서 필요없음
@@ -117,18 +118,18 @@ module.exports = class {
         return result;
     }
     // 로그인
-    logIn(userData) {
+    logIn({ email, password }) {
         let self = this;
         console.log(
             '요청 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
-            userData
+            { email, password }
         );
         let params = {
             AuthFlow: 'USER_PASSWORD_AUTH',
             ClientId: clientId /* required */,
             AuthParameters: {
-                USERNAME: `${userData.email}`,
-                PASSWORD: `${userData.password}`,
+                USERNAME: `${email}`,
+                PASSWORD: `${password}`,
             },
         };
         return new Promise((resolve, reject) => {
@@ -155,13 +156,10 @@ module.exports = class {
                             ) {
                                 try {
                                     let failCount = await self.getRetryCount(
-                                        userData.email
+                                        email
                                     );
                                     failCount += 1;
-                                    await self.setRetryCount(
-                                        userData.email,
-                                        failCount
-                                    );
+                                    await self.setRetryCount(email, failCount);
                                     err.retryCount = failCount;
                                     reject(
                                         new Exception(401, err.message, err)
@@ -201,10 +199,15 @@ module.exports = class {
                             let userType = res['custom:userType'];
                             result.userType = userType; // 사용자 타입
 
-                            let passwordUpdatedAt =
-                                res['custom:passwordUpdatedAt'];
+                            // let passwordUpdatedAt =
+                            //     res['custom:passwordUpdatedAt'];
+                            let passwordUpdateDate =
+                                res['custom:passwordUpdateDate'];
+                            // result.isPasswordExpired = checkExpiredPassword(
+                            //     passwordUpdatedAt // 비밀번호 만료여부
+                            // );
                             result.isPasswordExpired = checkExpiredPassword(
-                                passwordUpdatedAt // 비밀번호 만료여부
+                                passwordUpdateDate // 비밀번호 만료여부
                             );
                             resolve(result);
                         });
@@ -214,13 +217,13 @@ module.exports = class {
         });
     }
     //로그아웃
-    logOut(token) {
+    logOut(accessToken) {
         console.log(
             '요청 > Infrastructure > webService > authService > awsCognito.js > logOut : '
-            // token
+            // accessToken
         );
         const params = {
-            AccessToken: `${token}` /* required */,
+            AccessToken: `${accessToken}` /* required */,
         };
         return new Promise((resolve, reject) => {
             this.cognitoidentityserviceprovider.globalSignOut(
@@ -263,8 +266,8 @@ module.exports = class {
         });
     }
     // access token 만료 날짜 확인
-    async checkAccessToken(token) {
-        let result = await processingToken.checkAccessToken(token);
+    async checkAccessToken(accessToken) {
+        let result = await processingToken.checkAccessToken(accessToken);
         return result;
     }
     // 새 access 토큰 발행
@@ -307,9 +310,14 @@ module.exports = class {
             '요청 > Infrastructure > webService > authService > awsCognito.js > getUserByIdToken : '
             // token
         );
-        let result = await processingToken.getUserByIdToken(idToken);
-        console.log('응답 : ', result);
-        return result;
+        try {
+            let result = await processingToken.getUserByIdToken(idToken);
+            console.log('응답 : ', result);
+            return result;
+        } catch (error) {
+            console.log('!!!!!!!!!!!!!!!!!!', error);
+            throw error;
+        }
     }
     // 사용자 cognito 접근정보 가져오기 : accessToken
     async getAuthInfoByAccessToken(accessToken) {
@@ -353,8 +361,18 @@ module.exports = class {
                             if (
                                 userInfo[i]['Name'].substr(0, 7) === 'custom:'
                             ) {
-                                result[userInfo[i]['Name'].substr(7)] =
-                                    userInfo[i]['Value'];
+                                let key = [userInfo[i]['Name'].substr(7)][0];
+                                if (
+                                    key === 'retryCount' ||
+                                    key === 'userType'
+                                ) {
+                                    result[
+                                        userInfo[i]['Name'].substr(7)
+                                    ] = Number(userInfo[i]['Value']);
+                                } else {
+                                    result[userInfo[i]['Name'].substr(7)] =
+                                        userInfo[i]['Value'];
+                                }
                             } else {
                                 result[userInfo[i]['Name']] =
                                     userInfo[i]['Value'];
@@ -517,10 +535,10 @@ module.exports = class {
         });
     }
     // 사용자 비밀번호 변경
-    changePassword({ token, prePassword, newPassword }) {
+    changePassword({ accessToken, prePassword, newPassword }) {
         let self = this;
         let params = {
-            AccessToken: token,
+            AccessToken: accessToken,
             PreviousPassword: prePassword,
             ProposedPassword: newPassword,
         };
@@ -541,7 +559,7 @@ module.exports = class {
                             '응답 > Infrastructure > webService > authService > awsCognito.js > changePassword : ',
                             data
                         );
-                        await self.changePassordUpdatedAt(token);
+                        await self.changePassordUpdatedAt(accessToken);
                         resolve(data);
                     }
                 }
@@ -555,7 +573,8 @@ module.exports = class {
             AccessToken: token,
             UserAttributes: [
                 {
-                    Name: 'custom:passwordUpdatedAt',
+                    // Name: 'custom:passwordUpdatedAt',
+                    Name: 'custom:passwordUpdateDate',
                     Value: `${Math.floor(new Date().valueOf() / 1000)}`,
                 },
             ],

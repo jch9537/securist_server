@@ -1,4 +1,9 @@
-// 여기서는 파라미터 명 OOOToken, OOOEntity만 사용!!
+/* 
+**파라미터 명 
+1. OOOToken : 토큰 
+2. OOOEntity: entity를 거친 유효한 client input Data  
+3. OOOData : 토큰을 복호화해 가져온 신뢰할 수 있는 사용자 Data (entity 거치지 않음)
+*/
 module.exports = class {
     constructor(db) {
         this.db = db;
@@ -79,14 +84,14 @@ module.exports = class {
         }
         return result;
     }
-    async updateBankInfo(updateBankInfoEntity) {
+    async updateBankInfo(userEntity) {
         console.log(
-            '요청 > Adapter > outBound > repository > updateBankInfo > updateBankInfoEntity : ',
-            updateBankInfoEntity
+            '요청 > Adapter > outBound > repository > updateBankInfo > userEntity : ',
+            userEntity
         );
         let result;
         try {
-            result = await this.db.updateBankInfo(updateBankInfoEntity);
+            result = await this.db.updateBankInfo(userEntity);
             console.log(
                 '응답 > Adapter > outBound > repository > updateBankInfo > result : ',
                 result
@@ -98,14 +103,14 @@ module.exports = class {
     }
 
     // DELETE
-    async deleteUser(accessToken, deleteUserEntity) {
+    async deleteUser(accessToken, userEntity) {
         console.log(
-            '요청 > Adapter > outBound > repository > deleteUser > deleteUserEntity : ',
-            deleteUserEntity
+            '요청 > Adapter > outBound > repository > deleteUser > userEntity : ',
+            userEntity
         );
         let result;
         try {
-            result = await this.db.deleteUser(accessToken, deleteUserEntity);
+            result = await this.db.deleteUser(accessToken, userEntity);
             console.log(
                 '응답 > Adapter > outBound > repository > deleteUser > result : ',
                 result
@@ -122,14 +127,14 @@ module.exports = class {
 
     // 기업--------------------------------------------------------------------
     // GET
-    async getCompanyInfo(userData, companyId) {
+    async getCompanyInfo(companyEntity) {
         console.log(
             '요청 > Adapter > outBound > repository > getCompanyInfo > userData : ',
-            companyId
+            companyEntity
         );
         let result;
         try {
-            result = await this.db.getCompanyInfo(userData, companyId);
+            result = await this.db.getCompanyInfo(companyEntity);
             console.log(
                 '응답 > Adapter > outBound > repository > getCompanyInfo > result : ',
                 result
@@ -155,18 +160,14 @@ module.exports = class {
             throw error;
         }
     }
-    async getCompanyBelongedUsersInfo(userData, companyId) {
+    async getCompanyBelongedUsersInfo(companyEntity) {
         console.log(
-            '요청 > Adapter > outBound > repository > getCompanyBelongedUsersInfo > userData, companyId : ',
-            companyId,
-            userData
+            '요청 > Adapter > outBound > repository > getCompanyBelongedUsersInfo > companyEntity : ',
+            companyEntity
         );
         let result;
         try {
-            result = await this.db.getCompanyBelongedUsersInfo(
-                userData,
-                companyId
-            );
+            result = await this.db.getCompanyBelongedUsersInfo(companyEntity);
             console.log(
                 '응답 > Adapter > outBound > repository > getCompanyBelongedUsersInfo > result : ',
                 result
@@ -178,14 +179,14 @@ module.exports = class {
     }
     // 사용자-기업 관계--------------------------------------------------------------------
     // CREATE
-    async createUserAndCompanyRelation(joinData) {
+    async createUserAndCompanyRelation(companyEntity) {
         console.log(
-            '요청 > Adapter > outBound > repository > createUserAndCompanyRelation > joinData: ',
-            joinData
+            '요청 > Adapter > outBound > repository > createUserAndCompanyRelation > companyEntity: ',
+            companyEntity
         );
         let result;
         try {
-            result = await this.db.createUserAndCompanyRelation(joinData);
+            result = await this.db.createUserAndCompanyRelation(companyEntity);
             console.log(
                 '응답 > Adapter > outBound > repository > createUserAndCompanyRelation > result : ',
                 result
@@ -216,15 +217,13 @@ module.exports = class {
     }
 
     // UPDATE
-    async updateBelongingStatus(updateRelationEntity) {
+    async updateBelongingStatus(relationEntity) {
         console.log(
-            '요청 > Adapter > outBound > repository > updateBelongingStatus > updateRelationEntity: ',
-            updateRelationEntity
+            '요청 > Adapter > outBound > repository > updateBelongingStatus > relationEntity: ',
+            relationEntity
         );
         try {
-            let result = await this.db.updateBelongingStatus(
-                updateRelationEntity
-            );
+            let result = await this.db.updateBelongingStatus(relationEntity);
             console.log(
                 '응답 > Adapter > outBound > repository > updateBelongingStatus > result : ',
                 result

@@ -93,7 +93,8 @@ module.exports = {
     async updatePhoneNum(userData, updateData) {
         console.log(
             '요청 > adapters > inbound > userAdaptor.js > updatePhoneNum - userId : ',
-            userData
+            userData,
+            updateData
         );
         try {
             let updatePhoneNum = new UpdatePhoneNum(Repository);

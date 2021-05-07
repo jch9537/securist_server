@@ -15,30 +15,6 @@ const { Repository } = require('../outbound');
 // } = require('../../infrastructure/webService/authService/awsMiddleware');
 
 module.exports = {
-    // 사용자-기업 연결 정보 생성
-    async createUserAndCompanyRelation(joinData) {
-        console.log(
-            '요청 > adapters > inbound > relationAdapter > createUserAndCompanyRelation - joinData : ',
-            joinData
-        );
-        try {
-            let createUserAndCompanyRelation = new CreateUserAndCompanyRelation(
-                Repository
-            );
-            let result = await createUserAndCompanyRelation.excute(joinData);
-            console.log(
-                '응답 > adapters > inbound > relationAdapter > createUserAndCompanyRelation - result : ',
-                result
-            );
-            return result;
-        } catch (err) {
-            console.log(
-                '에러 응답 > adapters > inbound > relationAdapter > createUserAndCompanyRelation - err : ',
-                err
-            );
-            throw err;
-        }
-    },
     // 사용자-기업 연결정보 가져오기
     async getRelationInfo(userData) {
         console.log(
@@ -61,28 +37,56 @@ module.exports = {
             throw err;
         }
     },
+    // 사용자-기업 연결 정보 생성
+    async createUserAndCompanyRelation(userData, companyData) {
+        console.log(
+            '요청 > adapters > inbound > relationAdapter > createUserAndCompanyRelation - companyData : ',
+            userData,
+            companyData
+        );
+        try {
+            let createUserAndCompanyRelation = new CreateUserAndCompanyRelation(
+                Repository
+            );
+            let result = await createUserAndCompanyRelation.excute(
+                userData,
+                companyData
+            );
+            console.log(
+                '응답 > adapters > inbound > relationAdapter > createUserAndCompanyRelation - result : ',
+                result
+            );
+            return result;
+        } catch (err) {
+            console.log(
+                '에러 응답 > adapters > inbound > relationAdapter > createUserAndCompanyRelation - err : ',
+                err
+            );
+            throw err;
+        }
+    },
     // 기업-사용자 소속상태 변경 처리 : 기업, 사용자 공통
-    async updateBelongingStatus(userData, updateParam) {
-        let result, updateData;
+    async updateBelongingStatus(userData, updateData) {
+        let result, updateStatusData, companyIdColumn;
         console.log(
             '요청 > adapters > inbound > userAdaptor > updateBelongingStatus - userId : ',
             userData,
-            updateParam
+            updateData
         );
         try {
-            userData.userType = '1'; //테스트용
-            if (userData.userType === '1') {
-                updateData = {
+            // userData.userType = 1; //테스트용
+            if (userData.userType === 1) {
+                updateStatusData = {
                     userType: userData.userType,
-                    companyId: updateParam.companyId,
+                    companyId: updateData.companyId,
                     email: userData.email,
                     // email: 'mg.sun@aegisecu.com', //테스트용
-                    status: updateParam.updateStatus,
+                    belongingType: updateData.belongingType,
                 };
             } else {
-                if (userData.userType === '3') {
+                if (userData.userType === 3) {
                     companyIdColumn = 'client_company_id';
-                } else if (userData.userType === '2') {
+                } else if (userData.userType === 2) {
                     companyIdColumn = 'consulting_company_id';
                 }
 
@@ -90,20 +94,24 @@ module.exports = {
                     userData
                 );
                 let companyId = companyInfo[companyIdColumn];
-                updateData = {
+
+                updateStatusData = {
                     userType: userData.userType,
                     companyId: companyId,
-                    email: updateParam.selectUserId,
-                    status: updateParam.updateStatus,
+                    email: updateData.userId,
+                    belongingType: updateData.belongingType,
                 };
             }
-            console.log(
-                updateData,
-                '------------------------업데이트 유저데이터'
-            );
+            // console.log(
+            //     updateStatusData,
+            //     '------------------------업데이트 유저데이터'
+            // );
 
             let updateBelongingStatus = new UpdateBelongingStatus(Repository);
-            result = await updateBelongingStatus.excute(updateData);
+            result = await updateBelongingStatus.excute(
+                userData,
+                updateStatusData
+            );
             console.log(
                 '응답 > adapters > inbound > userAdaptor > updateBelongingStatus- result : ',
                 result

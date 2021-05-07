@@ -3,31 +3,18 @@ module.exports = class {
     constructor(authService) {
         this.authService = authService;
     }
-    async checkDuplicateEmail(email) {
+    async checkDuplicateEmail(userEntity) {
         console.log(
-            '요청 > Adapter > outBound > auth > authentication >  - checkDuplicateEmail > email : ',
-            email
+            '요청 > Adapter > outBound > auth > authentication >  - checkDuplicateEmail > userEntity : ',
+            userEntity
         );
-        let result = await this.authService.checkExistEmail(email);
+        let result = await this.authService.checkExistEmail(userEntity);
         console.log(
             '응답 > Adapter > outBound > auth > authentication >  - checkDuplicateEmail > result : ',
             result
         );
         return result;
     }
-
-    // async signUp(userEntity) {                         // Repository > signUp에서 처리함
-    //     console.log(
-    //         '요청 > Adapter > outBound > auth > authentication >  - signUp : ',
-    //         userEntity
-    //     );
-    //     let result = await this.authService.signUp(userEntity);
-    //     console.log(
-    //         '응답 > Adapter > outBound > auth > authentication >  - signUp > result : ',
-    //         result
-    //     );
-    //     return result;
-    // }
     async logIn(userEntity) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication >  - logIn : ',
@@ -40,26 +27,24 @@ module.exports = class {
         );
         return result;
     }
-    async logOut(token) {
+    async logOut(accessToken) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication >  - logOut : '
-            // token
+            // accessToken
         );
-        let result = await this.authService.logOut(token);
+        let result = await this.authService.logOut(accessToken);
         console.log(
             '응답 > Adapter > outBound > auth > authentication >  - logOut : ',
             result
         );
         return result;
     }
-    async verifyUserByPassword(verifyUserByPasswordEntity) {
+    async verifyUserByPassword(userEntity) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication >  - verifyUserByPassword : '
-            // verifyUserByPasswordEntity
+            // userEntity
         );
-        let result = await this.authService.verifyUserByPassword(
-            verifyUserByPasswordEntity
-        );
+        let result = await this.authService.verifyUserByPassword(userEntity);
         console.log(
             '응답 > Adapter > outBound > auth > authentication >  - verifyUserByPassword : ',
             result
@@ -69,7 +54,7 @@ module.exports = class {
     async changePassword(userEntity) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication >  - changePassword : '
-            // email
+            // userEntity
         );
         let result = await this.authService.changePassword(userEntity);
         console.log(
@@ -78,12 +63,12 @@ module.exports = class {
         );
         return result;
     }
-    async forgotPassword(authEntity) {
+    async forgotPassword(userEntity) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication >  - forgotPassword : '
-            // authEntity
+            // userEntity
         );
-        let result = await this.authService.forgotPassword(authEntity);
+        let result = await this.authService.forgotPassword(userEntity);
         console.log(
             '응답 > Adapter > outBound > auth > authentication >  - forgotPassword : ',
             result
@@ -143,12 +128,13 @@ module.exports = class {
     //     );
     //     return result;
     // }
-    async checkAccessToken(token) {
+    async checkAccessToken(accessToken) {
+        // 미들웨어 처리 할지 확인!!!
         console.log(
             '요청 > Adapter > outBound > auth > authentication >  - checkAccessToken : '
-            // token
+            // accessToken
         );
-        let result = await this.authService.checkAccessToken(token);
+        let result = await this.authService.checkAccessToken(accessToken);
         console.log(
             '응답 > Adapter > outBound > auth > authentication >  - checkAccessToken : ',
             result
@@ -167,24 +153,26 @@ module.exports = class {
         );
         return result;
     }
-    async getUserByIdToken(token) {
+    async getUserByIdToken(idToken) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication >  - idToken : ',
-            token
+            idToken
         );
-        let result = await this.authService.getUserByIdToken(token);
+        let result = await this.authService.getUserByIdToken(idToken);
         console.log(
             '응답 > Adapter > outBound > auth > authentication >  - result : ',
             result
         );
         return result;
     }
-    async getUserInfoByAccessToken(token) {
+    async getUserInfoByAccessToken(accessToken) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication > getUserInfoByAccessToken >  accesstoken : ',
-            token
+            accessToken
         );
-        let result = await this.authService.getUserInfoByAccessToken(token);
+        let result = await this.authService.getUserInfoByAccessToken(
+            accessToken
+        );
         console.log(
             '응답 > Adapter > outBound > auth > authentication > getUserInfoByAccessToken >  result : ',
             result

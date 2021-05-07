@@ -100,14 +100,14 @@ module.exports = {
         }
     },
     // 로그아웃
-    async logOut(token) {
+    async logOut(accessToken) {
         console.log(
-            '요청 > adapters > inbound > authAdaptor.js > logOut - token : ',
-            token
+            '요청 > adapters > inbound > authAdaptor.js > logOut - accessToken : ',
+            accessToken
         );
         try {
             let logOut = new LogOut(Auth);
-            let result = await logOut.excute(token);
+            let result = await logOut.excute(accessToken);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > logOut - result : ',
                 result
@@ -124,12 +124,6 @@ module.exports = {
             verifyData
         );
         try {
-            // let getUserInfoByAccessToken = new GetUserInfoByAccessToken(Auth);
-            // let userData = await getUserInfoByAccessToken.excute(accessToken);
-            // console.log(
-            //     '사용자 인증 액세스토큰 ---------------------',
-            //     userData
-            // );
             let verifyUserByPassword = new VerifyUserByPassword(Auth);
             let result = await verifyUserByPassword.excute(verifyData);
             console.log(
@@ -147,15 +141,18 @@ module.exports = {
     },
 
     // 사용자 비밀번호 수정
-    async changePassword(token, updatePasswordData) {
+    async changePassword(accessToken, updatePasswordData) {
         console.log(
             '요청 > adapters > inbound > authAdaptor.js > changePassword - userParam : ',
-            token,
+            accessToken,
             updatePasswordData
         );
         try {
             let changePassword = new ChangePassword(Auth);
-            let result = await changePassword.excute(token, updatePasswordData);
+            let result = await changePassword.excute(
+                accessToken,
+                updatePasswordData
+            );
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > changePassword - result : ',
                 result

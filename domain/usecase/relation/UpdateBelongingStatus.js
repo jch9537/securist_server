@@ -1,25 +1,40 @@
-const { UpdateBelongingStatusEntity } = require('../../entities/relation');
+const { RelationEntity } = require('../../entities');
+const { AuthorizationException } = require('../../exceptions');
 
 module.exports = class {
     constructor(Repository) {
         this.Repository = Repository;
     }
-    async excute(updateData) {
+    async excute(userData, updateStatusData) {
         let result;
         try {
-            // selectUserId(email), 업데이트 할 상태(status) 만 확인, 나머지는 복호화한 데이터므로 안전한 데이터임을 보장함
-            let updateRelationEntity = new UpdateBelongingStatusEntity(
-                updateData
-            );
-            updateRelationEntity.userType = updateData.userType;
-            updateRelationEntity.companyId = updateData.companyId;
+            let relationEntity = new RelationEntity(updateStatusData);
 
+            relationEntity.userType = updateStatusData.userType;
+            let userType = relationEntity.userType;
+
+            if (userType === 2 || userType === 3) {
+                let relationInfo = await this.Repository.getRelationInfo(
+                    userData
+                );
+                let companyBelongingType = relationInfo['belonging_type'];
+                let companyManagerType = relationInfo['manager_type'];
+                console.log(
+                    '릴레이션인포------------------------',
+                    companyBelongingType,
+                    companyManagerType
+                );
+                // 기업 관리자 권한 확인
+                if (companyBelongingType !== 2 || companyManagerType !== 1) {
+                    throw new AuthorizationException('소속 정보 수정');
+                }
+            }
             result = await this.Repository.updateBelongingStatus(
-                updateRelationEntity
+                relationEntity
             );
+            return result;
         } catch (error) {
             throw error;
         }
-        return result;
     }
 };

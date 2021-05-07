@@ -1,3 +1,4 @@
 module.exports = {
-    ParameterException: require('./ParameterExeption'),
+    ParameterException: require('./ParameterException'),
+    AuthorizationException: require('./AuthorizationException'),
 };
