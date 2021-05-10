@@ -1,3 +1,20 @@
+const express = require('express');
+const sanitizer = require('../../server/modules/sanitizer');
+const multer = require('multer');
+
+// var storage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//       cb(null, '/tmp/my-uploads')
+//     },
+//     filename: function (req, file, cb) {
+//       cb(null, file.fieldname + '-' + Date.now())
+//     }
+//   })
+// 옵션을 이용해 구별이 가능한 이름으로 변경
+//   var upload = multer({ storage: storage })
+
+const upload = multer({ dest: '/uploads' });
+
 const { profileAdapter } = require('../../../adapters/inbound');
 
 const Response = require('../modules/Response');
@@ -10,33 +27,42 @@ module.exports = (router) => {
     router.use(extractToken);
     router.use(decryptIdToken);
     // 사용자 - 프로필 임시정보 생성 : 임시저장
-    router.post('/api/profile/user/temp', async (req, res) => {
-        try {
-            let userData = req.userDataByIdToken;
-            let reqData = req.filteredData;
-            console.log(
-                'POST - /api/profile/user/temp 요청 : ',
-                userData,
-                reqData
-            );
-
-            let result = await profileAdapter.createProfileTemp(
-                userData,
-                reqData
-            );
-            console.log('POST - /api/profile/user/temp 응답 : ', result);
-
-            let response = new Response(
-                200,
-                '사용자 정보가져오기 완료 - idToken',
-                result
-            );
-            res.send(response);
-        } catch (err) {
-            console.log('/api/profile/user/temp 에러 응답 : ', result);
-            res.send(err);
+    router.post(
+        '/api/profile/user/temp',
+        upload.any(),
+        sanitizer,
+        async (req, res) => {
+            try {
+                // console.log('POST - /api/profile/user/temp 요청 : ', req.body);
+                let userData = req.userDataByIdToken;
+                let reqData = req.filteredData;
+                let uploadFiles = req.files;
+                console.log(
+                    'POST - /api/profile/user/temp 요청 : ',
+                    userData,
+                    reqData,
+                    uploadFiles
+                );
+                reqData.certificationFileName = uploadFiles[0].originalname;
+                reqData.certificationFilePath = uploadFiles[0].path;
+                console.log(reqData);
+                // let result = await profileAdapter.createProfileTemp(
+                //     userData,
+                //     reqData
+                // );
+                // console.log('POST - /api/profile/user/temp 응답 : ', result);
+                // let response = new Response(
+                //     200,
+                //     '사용자 정보가져오기 완료 - idToken',
+                //     result
+                // );
+                // res.send(response);
+            } catch (err) {
+                console.log('/api/profile/user/temp 에러 응답 : ', err);
+                res.send(err);
+            }
         }
-    });
+    );
     // 프로필 임시정보 가져오기 : 임시저장 데이터 가져오기
     router.get('/api/profile/temp/:userId', async (req, res) => {
         try {

@@ -1,6 +1,6 @@
 //TODO : 예외처리 - new Exception(err.statusCode, err.message, err) 추가
 const pool = require('./index');
-const { logger } = require('../../../adapters/middleware');
+// const { logger } = require('../../../adapters/middleware');
 const { authService } = require('../../../adapters/outbound/auth'); // 같은 layer - 의존성에 문제 없는지 확인
 const { Imagebuilder } = require('aws-sdk');
 
@@ -344,11 +344,11 @@ module.exports = class {
                                     '에러 응답 > DB > Query >  updateClientUserInfo  : error',
                                     error
                                 );
-                                logger.log(
-                                    'error',
-                                    `[DB 오류] > ${email} > /`,
-                                    `**SQL : ${error.sql} / **MESSAGE :  ${error.sqlMessage}`
-                                );
+                                // logger.log(
+                                //     'error',
+                                //     `[DB 오류] > ${email} > /`,
+                                //     `**SQL : ${error.sql} / **MESSAGE :  ${error.sqlMessage}`
+                                // );
                                 reject(error);
                             } else {
                                 console.log(
@@ -372,12 +372,11 @@ module.exports = class {
                                         }
                                     }
                                 );
-                                // resolve(results);
-                                logger.log(
-                                    'info',
-                                    `[DB 성공] > ${email} / `,
-                                    '연락처 변경 완료'
-                                );
+                                // logger.log(
+                                //     'info',
+                                //     `[DB 성공] > ${email} / `,
+                                //     '연락처 변경 완료'
+                                // );
                             }
                         }
                     );

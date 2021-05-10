@@ -1,1 +1,0 @@
-2021-04-21 18:59:08 [31merror[39m 연락처 변경 오류 /  **SQL : UPDATE consultant_users SET phone_num = '01011111111' WHERE consultant_user_id11 = 'ch.jung@aegisecu.com' / **MESSAGE :  Unknown column 'consultant_user_id11' in 'where clause'

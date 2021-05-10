@@ -8,6 +8,8 @@ const cors = require('cors');
 
 const sanitizer = require('../server/modules/sanitizer');
 const routes = require('./routes');
+const multer = require('multer');
+const upload = multer({ dest: 'aws경로 s3' });
 
 const app = express();
 const port = process.env.SERVER_PORT || 3000;
@@ -18,11 +20,13 @@ const corsOptions = {
 };
 
 app.options('*', cors(corsOptions));
+// app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(sanitizer); // 태그제거 : XSS 방어
 app.use(routes);
 
-app.post('/aa', (req, res) => {
+app.post('/aa', upload.any(), (req, res) => {
+    console.log('123', req.files, '456', req.body);
     // console.log(req.body);
     res.send('Hello World!!');
 });
