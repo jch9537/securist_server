@@ -19,8 +19,43 @@ module.exports = (req, res, next) => {
             console.log('~~~~~', req.body);
         }
         for (let key in req.body) {
-            console.log('key: ', key, '// value :', req.body[key]);
-            if (typeof req.body[key] === 'number') {
+            let category = req.body[key];
+            console.log('key: ', key, '// value :', category);
+            if (typeof category === 'object') {
+                if (Array.isArray(category)) {
+                    let array = [];
+                    console.log('배열 ~~~~~~ : ', category);
+                    for (let i = 0; i < category.length; i++) {
+                        let innerObject = {};
+                        for (let innerKey in category[i]) {
+                            if (typeof category[i][innerKey] === 'number') {
+                                innerObject[innerKey] = Number(
+                                    sanitizeHtml(category[i][innerKey])
+                                );
+                            } else {
+                                innerObject[innerKey] = sanitizeHtml(
+                                    category[i][innerKey]
+                                );
+                            }
+                        }
+                        array.push(innerObject);
+                    }
+                    filteredData[key] = array;
+                } else {
+                    let object = {};
+                    console.log('객체 ~~~~~~ : ', category);
+                    for (let innerKey in category) {
+                        if (typeof category[innerKey] === 'number') {
+                            object[innerKey] = Number(
+                                sanitizeHtml(category[innerKey])
+                            );
+                        } else {
+                            object[innerKey] = sanitizeHtml(category[innerKey]);
+                        }
+                    }
+                    filteredData[key] = object;
+                }
+            } else if (typeof req.body[key] === 'number') {
                 filteredData[key] = Number(sanitizeHtml(req.body[key]));
             } else {
                 filteredData[key] = sanitizeHtml(req.body[key]);

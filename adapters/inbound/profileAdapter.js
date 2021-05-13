@@ -1,22 +1,57 @@
 const { Auth, Repository, SendMail } = require('../outbound');
 const {
-    CreateProfileTemp,
+    CreateConsultantProfileTemp,
     GetProfileTemp,
     UpdateProfileTemp,
     DeleteProfileTemp,
 } = require('../../domain/usecase/profile');
 
 module.exports = {
-    // 프로필 임시정보 생성 : 임시저장
-    async createProfileTemp(userData, tempData) {
+    // 사용자 - 프로필 임시정보 생성 : 임시저장
+    async createConsultantProfileTemp(userData, tempData, uploadData) {
+        console.log(
+            '요청 > adapters > inbound > profileAdapter > createConsultantProfileTemp - result : ',
+            userData,
+            tempData,
+            uploadData
+        );
+        try {
+            let createConsultantProfileTemp = new CreateConsultantProfileTemp(
+                Repository
+            );
+            let result = await createConsultantProfileTemp.excute(
+                userData,
+                tempData,
+                uploadData
+            );
+            console.log(
+                '응답 > adapters > inbound > profileAdapter > createConsultantProfileTemp - result : ',
+                result
+            );
+            return result;
+        } catch (err) {
+            console.log(
+                '에러 응답 > adapters > inbound > profileAdapter > createConsultantProfileTemp - err : ',
+                err
+            );
+            throw err;
+        }
+    },
+    // 기업 - 프로필 임시정보 생성 : 임시저장
+    async createProfileTemp(userData, tempData, uploadData) {
         console.log(
             '요청 > adapters > inbound > profileAdapter > createProfileTemp - result : ',
             userData,
-            tempData
+            tempData,
+            uploadData
         );
         try {
             let createProfileTemp = new CreateProfileTemp(Repository);
-            let result = await createProfileTemp.excute(userData, tempData);
+            let result = await createProfileTemp.excute(
+                userData,
+                tempData,
+                uploadData
+            );
             console.log(
                 '응답 > adapters > inbound > profileAdapter > createProfileTemp - result : ',
                 result

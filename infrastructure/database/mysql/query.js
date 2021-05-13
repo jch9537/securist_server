@@ -1000,54 +1000,292 @@ module.exports = class {
     // 프로필 -------------------------------------------------------------------------------------
     // CREATE
     // 개인 컨설턴트 프로필 생성
-    createProfileTemp({
-        email,
-        certificationId,
-        certificationName,
-        taskId,
-        taskName,
-        taskGroupId,
-        taskGroupName,
-        industryId,
-        industryName,
-        finalAcademicType,
-        schoolName,
-        majorName,
-        graduationClassificationType,
-        certificationFile,
-        admissionDate,
-        graduateDate,
-        companyName,
-        position,
-        careerCertificateFile,
-        joiningDate,
-        resignationDate = null,
-        licenseName,
-        license_num,
-        issueInstitution,
-        licenseFile,
-        issuedDate,
-        projectName,
-        assignedTask,
-        projectIndustryName,
-        projectStartDate,
-        projectEndDate,
-        etcCertifications = null,
-        etcIndustries = null,
-    }) {
-        let sql, arg;
-        let tableName;
+    createConsultantProfileTemp(
+        {
+            email,
+            abilityCertifications, // 수행가능 인증들 데이터 - 여러개이므로 배열형태로 받기
+            // certificationId,
+            // certificationName,
+            abilityTasks, // 수행가능 세부과제들 데이터 - 여러개이므로 배열형태로 받기
+            // taskId,
+            // taskName,
+            // taskGroupId,
+            // taskGroupName,
+            abilityIndustries, // 수행가능 업종들 데이터 - 여러개이므로 배열형태로 받기
+            // industryId,
+            // industryName,
+            academicBackground, // 학력정보들 - 여러개이므로 배열형태로 받기 // 파일 업로드 처리
+            // finalAcademicType,
+            // schoolName,
+            // majorName,
+            // graduationClassificationType,
+            // academicCertificationFile,
+            // admissionDate,
+            // graduateDate,
+            career, // 경력 정보들 - 여러개이므로 배열형태로 받기  // 파일 업로드 처리
+            // companyName,
+            // position,
+            // assignedWork,
+            // careerCertificationFile,
+            // joiningDate,
+            // resignationDate = null,
+            license, // 자격증 정보들 - 여러개이므로 배열형태로 받기 // 파일 업로드 처리
+            // licenseName,
+            // license_num,
+            // issueInstitution,
+            // licenseFile,
+            // issuedDate,
+            projectHistory,
+            // projectName,
+            // assignedTask,
+            // projectIndustryName,
+            // projectStartDate,
+            // projectEndDate,
+            etc,
+            // etcCertifications = null,
+            // etcIndustries = null,
+        },
+        uploadData
+    ) {
+        // email = 'mg.sun@aegisecu.com'; // 테스트용
+        let result, sql, arg;
+        console.log(
+            '요청 > DB > Query >  CreateConsultantProfileTemp  : parameter',
+            // email,
+            // abilityCertifications[0],
+            // abilityIndustries,
+            // abilityIndustries[0],
+            // academicBackground,
+            // career[0],
+            // license[0],
+            // projectHistory[0],
+            // etc},
+            uploadData
+        );
 
-        return new Promise((resolve, reject) => {
-            pool.getConnection(async (error, connection) => {
+        pool.getConnection(async (error, connection) => {
+            try {
                 if (error) {
                     console.log(
-                        ' 에러 > DB > Query >  deleteUserAndCompanyRelation  : error1',
+                        ' 에러 > DB > Query >  CreateConsultantProfileTemp  : error1',
                         error
                     );
-                    reject(error);
-                } else {
-                    sql = `INSERT INTO consultant_profile_temp 
+                    throw error;
+                }
+                connection.beginTransaction(function (error) {
+                    if (error) throw error;
+                });
+
+                sql = `INSERT INTO consultant_profile_temp (consultant_user_id) VALUES (?)`;
+                arg = [email];
+                await connection.query(sql, arg, (error, results, filelds) => {
+                    if (error) {
+                        console.log(
+                            ' 에러 > DB > Query >  CreateConsultantProfileTemp  : error2',
+                            error
+                        );
+                        throw error;
+                    }
+                });
+                sql = `SELECT * FROM consultant_profile_temp WHERE consultant_user_id=?`;
+                arg = [email];
+                connection.query(sql, arg, (error, results, fields) => {
+                    if (error) {
+                        throw error;
+                    }
+                    console.log(
+                        ' 응답 > DB > Query >  CreateConsultantProfileTemp  : results',
+                        results
+                    );
+                    let consultantProfileTempId =
+                        results[0]['consultant_profile_temp_id'];
+                    // console.log('~~~~~~~~~~', consultantProfileTempId);
+
+                    // 수행가능인증 - 여러개 : 아이디/인증명 가져오기
+                    sql = `INSERT INTO temp_profile_ability_certifications (consultant_user_id, consultant_profile_temp_id, certification_id, certification_name) VALUES (?, ?, ?, ?)`;
+
+                    for (let i = 0; i < abilityCertifications.length; i++) {
+                        arg = [
+                            email,
+                            consultantProfileTempId,
+                            abilityCertifications[i].certificationId,
+                            abilityCertifications[i].certificationName,
+                        ];
+                        connection.query(
+                            sql,
+                            arg,
+                            (error, results, filelds) => {
+                                if (error) throw error;
+                                console.log(
+                                    'abilityCertifications 결과 : ',
+                                    results
+                                );
+                            }
+                        );
+                    }
+
+                    // 수행가능업종 - 여러개 : 추후 정책 확인 후 완료
+                    sql = `INSERT INTO temp_profile_ability_industries (consultant_user_id, consultant_profile_temp_id, industry_id, industry_name) VALUES (?, ?, ?, ?)`;
+                    for (let i = 0; i < abilityIndustries.length; i++) {
+                        arg = [
+                            email,
+                            consultantProfileTempId,
+                            abilityIndustries[i].industryId,
+                            abilityIndustries[i].industryName,
+                        ];
+                        connection.query(
+                            sql,
+                            arg,
+                            (error, results, filelds) => {
+                                if (error) throw error;
+                                console.log(
+                                    'abilityIndustries 결과 : ',
+                                    results
+                                );
+                            }
+                        );
+                    }
+
+                    // 수행가능 세부과제 - 여러개 : 세부과제 id/과제명/분류id/분류명
+                    sql = `INSERT INTO temp_profile_ability_tasks (consultant_user_id, consultant_profile_temp_id, task_id, task_name, task_group_id, task_group_name) VALUES (?, ?, ?, ?, ?, ?)`;
+                    for (let i = 0; i < abilityTasks.length; i++) {
+                        arg = [
+                            email,
+                            consultantProfileTempId,
+                            abilityTasks[i].taskId,
+                            abilityTasks[i].taskName,
+                            abilityTasks[i].taskGroupId,
+                            abilityTasks[i].taskGroupName,
+                        ];
+                        connection.query(
+                            sql,
+                            arg,
+                            (error, results, filelds) => {
+                                if (error) throw error;
+                                console.log('abilityTasks 결과 : ', results);
+                            }
+                        );
+                    }
+
+                    //학력 - 최종학력 1개 academicCertificationFilePath - 지정
+                    sql = `INSERT INTO temp_profile_academic_background (consultant_user_id, consultant_profile_temp_id, final_academic_type, school_name, major_name, graduation_classification_type, academic_certification_file, academic_certification_file_path, admission_date, graduate_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                    arg = [
+                        email,
+                        consultantProfileTempId,
+                        academicBackground.finalAcademicType,
+                        academicBackground.schoolName,
+                        academicBackground.majorName,
+                        academicBackground.graduationClassificationType,
+                        academicBackground.academicCertificationFile,
+                        academicBackground.academicCertificationFilePath,
+                        academicBackground.admissionDate,
+                        academicBackground.graduateDate,
+                    ];
+                    connection.query(sql, arg, (error, results, filelds) => {
+                        if (error) throw error;
+                        console.log('academicBackground 결과 : ', results);
+                    });
+
+                    //경력 : 여러개 careerCertificationFilePath - 지정!!
+                    sql = `INSERT INTO temp_profile_career (consultant_user_id, consultant_profile_temp_id, company_name, position, assigned_work, career_certification_file, career_certification_file_path, joining_date, resignation_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                    for (let i = 0; i < career.length; i++) {
+                        arg = [
+                            email,
+                            consultantProfileTempId,
+                            career[i].companyName,
+                            career[i].position,
+                            career[i].assignedWork,
+                            career[i].careerCertificationFile,
+                            career[i].careerCertificationFilePath,
+                            career[i].joiningDate,
+                            career[i].resignationDate,
+                        ];
+                        connection.query(
+                            sql,
+                            arg,
+                            (error, results, filelds) => {
+                                if (error) throw error;
+                                console.log('career 결과 : ', results);
+                            }
+                        );
+                    }
+
+                    //자격증 : 여러개 licenseFilePath- 지정!!
+                    sql = `INSERT INTO temp_profile_license (consultant_user_id, consultant_profile_temp_id, license_name, license_num, issue_institution, license_file, license_file_path, issued_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+                    for (let i = 0; i < license.length; i++) {
+                        arg = [
+                            email,
+                            consultantProfileTempId,
+                            license[i].licenseName,
+                            license[i].license_num,
+                            license[i].issueInstitution,
+                            license[i].licenseFile,
+                            license[i].licenseFilePath,
+                            license[i].issuedDate,
+                        ];
+                        connection.query(
+                            sql,
+                            arg,
+                            (error, results, filelds) => {
+                                if (error) throw error;
+                                console.log('license 결과 : ', results);
+                            }
+                        );
+                    }
+                    // 수행이력 : 여러개
+                    sql = `INSERT INTO temp_profile_project_history (consultant_user_id, consultant_profile_temp_id, project_name, assigned_task, project_industry_name, project_start_date, project_end_date) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                    for (let i = 0; i < projectHistory.length; i++) {
+                        arg = [
+                            email,
+                            consultantProfileTempId,
+                            projectHistory[i].projectName,
+                            projectHistory[i].assignedTask,
+                            projectHistory[i].projectIndustryName,
+                            projectHistory[i].projectStartDate,
+                            projectHistory[i].projectEndDate,
+                        ];
+                        connection.query(
+                            sql,
+                            arg,
+                            (error, results, filelds) => {
+                                if (error) throw error;
+                                console.log('projectHistory 결과 : ', results);
+                            }
+                        );
+                    }
+
+                    // 기타 : 기타 수행가능 업종/인증 (input 작성) - 추후 정책 처리 된 후 수정
+                    sql = `INSERT INTO temp_profile_ability_etc (consultant_user_id, consultant_profile_temp_id, etc_certifications, etc_industries) VALUES (?, ?, ?, ?)`;
+                    arg = [
+                        email,
+                        consultantProfileTempId,
+                        etc.etcCertifications,
+                        etc.etcIndustries,
+                    ];
+                    connection.query(sql, arg, (error, results, filelds) => {
+                        if (error) throw error;
+                    });
+
+                    connection.commit(function (err) {
+                        if (err) throw err;
+                    });
+                    console.log('임시저장 success!!!');
+                });
+            } catch (error) {
+                console.log('fail!');
+                return connection.rollback(function () {
+                    throw error;
+                });
+            } finally {
+                connection.release();
+                return result;
+            }
+        });
+    }
+};
+
+/*
+sql = `INSERT INTO consultant_profile_temp 
                     (consultant_user_id, certification_id, certification_name, task_id, task_name, task_group_id, task_group_name, industry_id, industry_name, final_academic_type, school_name, major_name, graduation_classification_type, certification_file, admission_date, graduate_date, company_name, position, career_certificate_file, joining_date, resignation_date, license_name, license_num, issue_institution, license_file, issued_date, project_name, assigned_task, project_industry_name, project_start_date, project_end_date, etc_certifications, etc_industries) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
                     arg = [
@@ -1069,6 +1307,7 @@ module.exports = class {
                         graduateDate,
                         companyName,
                         position,
+                        assignedWork
                         careerCertificateFile,
                         joiningDate,
                         resignationDate,
@@ -1085,26 +1324,7 @@ module.exports = class {
                         etcCertifications,
                         etcIndustries,
                     ];
-                    connection.query(sql, arg, (error, results, filelds) => {
-                        if (error) {
-                            console.log(
-                                ' 에러 > DB > Query >  deleteUserAndCompanyRelation  : error2',
-                                error
-                            );
-                            reject(error);
-                        } else {
-                            console.log(
-                                ' 응답 > DB > Query >  deleteUserAndCompanyRelation  : results',
-                                results
-                            );
-                            resolve(results);
-                        }
-                    });
-                }
-            });
-        });
-    }
-};
+*/
 
 //------------------------------------------------------코드 리뷰 이후 삭제처리 ---------------------------
 // SignUp에서 모두 처리함  - 트랜잭션
