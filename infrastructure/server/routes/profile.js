@@ -13,7 +13,7 @@ const decryptIdToken = require('../modules/decryptIdToken');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, `tmp/${file.fieldname}`);
+        cb(null, `tmp`);
     },
     filename: function (req, file, cb) {
         cb(null, Date.now() + '-' + file.originalname);
