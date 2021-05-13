@@ -281,14 +281,45 @@ module.exports = class {
         }
     }
     // CREATE
-    async createProfileTemp(createProfileTempEntity) {
+    // 사용자
+    async createConsultantProfileTemp(createProfileTempEntity, uploadData) {
         console.log(
-            '요청 > Adapter > outBound > repository > createProfileTemp > deleteData: ',
-            createProfileTempEntity
+            '요청 > Adapter > outBound > repository > createConsultantProfileTemp > createProfileTempEntity: ',
+            createProfileTempEntity,
+            uploadData
         );
         let result;
         try {
-            result = await this.db.createProfileTemp(createProfileTempEntity);
+            result = await this.db.createConsultantProfileTemp(
+                createProfileTempEntity,
+                uploadData
+            );
+            console.log(
+                '응답 > Adapter > outBound > repository > createConsultantProfileTemp > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '응답 > Adapter > outBound > repository > createConsultantProfileTemp > result : ',
+                error
+            );
+            throw error;
+        }
+    }
+    //기업
+    async createProfileTemp(createProfileTempEntity, uploadData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > createProfileTemp > deleteData: ',
+            createProfileTempEntity,
+            uploadData
+        );
+        let result;
+        try {
+            result = await this.db.createProfileTemp(
+                createProfileTempEntity,
+                uploadData
+            );
             console.log(
                 '응답 > Adapter > outBound > repository > createProfileTemp > result : ',
                 result
