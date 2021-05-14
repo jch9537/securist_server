@@ -1019,21 +1019,18 @@ module.exports = class {
             // schoolName,
             // majorName,
             // graduationClassificationType,
-            // academicCertificationFile,
             // admissionDate,
             // graduateDate,
             career, // 경력 정보들 - 여러개이므로 배열형태로 받기  // 파일 업로드 처리
             // companyName,
             // position,
             // assignedWork,
-            // careerCertificationFile,
             // joiningDate,
             // resignationDate = null,
             license, // 자격증 정보들 - 여러개이므로 배열형태로 받기 // 파일 업로드 처리
             // licenseName,
             // license_num,
             // issueInstitution,
-            // licenseFile,
             // issuedDate,
             projectHistory,
             // projectName,
@@ -1209,7 +1206,6 @@ module.exports = class {
                             }
                         );
                     }
-
                     //자격증 : 여러개 licenseFilePath- 지정!!
                     sql = `INSERT INTO temp_profile_license (consultant_user_id, consultant_profile_temp_id, license_name, license_num, issue_institution, license_file, license_file_path, issued_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
                     for (let i = 0; i < license.length; i++) {
@@ -1266,8 +1262,37 @@ module.exports = class {
                         if (error) throw error;
                     });
 
-                    connection.commit(function (err) {
-                        if (err) throw err;
+                    // 업로드 파일들 처리
+                    sql = `INSERT INTO temp_upload_files (consultant_user_id, consultant_profile_temp_id, file_category_type, original_file_name, file_name, file_path) VALUES (?, ?, ?, ?, ?, ?)`;
+                    let fileCategoryType;
+
+                    for (let i = 0; i < uploadData.length; i++) {
+                        if (uploadData[i]['fieldname'] === 'academic') {
+                            fileCategoryType = 0;
+                        } else if (uploadData[i]['fieldname'] === 'career') {
+                            fileCategoryType = 1;
+                        } else if (uploadData[i]['fieldname'] === 'license') {
+                            fileCategoryType = 2;
+                        } else {
+                            // 타입 에러 예외처리
+                        }
+                        arg = [
+                            email,
+                            consultantProfileTempId,
+                            fileCategoryType,
+                            uploadData[i].originalname,
+                            uploadData[i].filename,
+                            uploadData[i].path,
+                        ];
+
+                        connection.query(sql, arg, (error, results, fields) => {
+                            if (error) throw error;
+                            console.log('upload 처리 결과 : ', results);
+                        });
+                    }
+
+                    connection.commit(function (error) {
+                        if (error) throw error;
                     });
                     console.log('임시저장 success!!!');
                 });
