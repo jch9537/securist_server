@@ -7,7 +7,7 @@ module.exports = class {
         let result;
         try {
             if (userData.userType === 2) {
-                let createProfileTempEntity = tempData;
+                let createProfileTempEntity = tempData; // 유효성 확인 추가!!!
                 createProfileTempEntity.email = userData.email;
 
                 result = await this.Repository.createConsultantProfileTemp(

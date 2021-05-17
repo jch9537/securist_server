@@ -2,7 +2,6 @@
 const pool = require('./index');
 // const { logger } = require('../../../adapters/middleware');
 const { authService } = require('../../../adapters/outbound/auth'); // 같은 layer - 의존성에 문제 없는지 확인
-const { Imagebuilder } = require('aws-sdk');
 
 module.exports = class {
     constructor() {}
@@ -1263,7 +1262,7 @@ module.exports = class {
                     });
 
                     // 업로드 파일들 처리
-                    sql = `INSERT INTO temp_upload_files (consultant_user_id, consultant_profile_temp_id, file_category_type, original_file_name, file_name, file_path) VALUES (?, ?, ?, ?, ?, ?)`;
+                    sql = `INSERT INTO temp_upload_files (consultant_user_id, consultant_profile_temp_id, file_category_type, original_file_name, file_path) VALUES (?, ?, ?, ?, ?)`;
                     let fileCategoryType;
 
                     for (let i = 0; i < uploadData.length; i++) {
@@ -1281,8 +1280,7 @@ module.exports = class {
                             consultantProfileTempId,
                             fileCategoryType,
                             uploadData[i].originalname,
-                            uploadData[i].filename,
-                            uploadData[i].path,
+                            uploadData[i].location,
                         ];
 
                         connection.query(sql, arg, (error, results, fields) => {
