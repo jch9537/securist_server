@@ -9,6 +9,7 @@ const decryptIdToken = require('../modules/decryptIdToken');
 // const getUserInfoByAccessToken = require('../modules/getUserInfoByAccessToken');
 const {
     uploadConsultantProfileTemp,
+    uploadConsultingCompanyBusinessLicenseTemp,
 } = require('../../webService/storageService');
 
 module.exports = (router) => {
@@ -43,7 +44,11 @@ module.exports = (router) => {
                     uploadFiles
                 );
                 console.log('POST - /api/profile/user/temp 응답 : ', result);
-                let response = new Response(200, '임시 저장 완료', result);
+                let response = new Response(
+                    200,
+                    '컨설턴트 프로필 임시 저장 완료',
+                    result
+                );
                 res.send(response);
             } catch (err) {
                 console.log('/api/profile/user/temp 에러 응답 : ', err);
@@ -54,16 +59,19 @@ module.exports = (router) => {
     // 기업 - 프로필 임시정보 생성 : 임시저장
     router.post(
         '/api/company/profile/temp',
-        // upload.any(),
+        uploadConsultingCompanyBusinessLicenseTemp.any(),
         sanitizer,
         async (req, res) => {
             try {
-                // console.log('POST - /api/profile/user/temp 요청 : ', req.body);
+                console.log(
+                    'POST - /api/company/profile/temp 요청 : ',
+                    req.body
+                );
                 let userData = req.userDataByIdToken;
                 let reqData = req.filteredData;
                 let uploadFiles = req.files;
                 console.log(
-                    'POST - /api/profile/user/temp 요청 : ',
+                    'POST - /api/company/profile/temp 요청 : ',
                     userData,
                     reqData,
                     uploadFiles
@@ -75,15 +83,15 @@ module.exports = (router) => {
                     reqData,
                     uploadFiles
                 );
-                console.log('POST - /api/profile/user/temp 응답 : ', result);
+                console.log('POST - /api/company/profile/temp 응답 : ', result);
                 let response = new Response(
                     200,
-                    '사용자 정보가져오기 완료 - idToken',
+                    '기업 프로필 임시 저장 완료',
                     result
                 );
                 res.send(response);
             } catch (err) {
-                console.log('/api/profile/user/temp 에러 응답 : ', err);
+                console.log('/api/company/profile/temp 에러 응답 : ', err);
                 res.send(err);
             }
         }

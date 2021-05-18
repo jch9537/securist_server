@@ -26,4 +26,23 @@ module.exports = class {
         const upload = multer({ storage: storage });
         return upload;
     }
+
+    uploadConsultingCompanyBusinessLicenseTemp(req, res, next) {
+        let storage = multerS3({
+            s3: this.s3,
+            bucket: 'securist-user',
+            acl: 'public-read-write',
+            key: function (req, file, cb) {
+                console.log('5555555555555555555555', file);
+                cb(
+                    null,
+                    `consulting-company/temp/business-license/${Date.now()}_${
+                        file.originalname
+                    }`
+                );
+            },
+        });
+        const upload = multer({ storage: storage });
+        return upload;
+    }
 };

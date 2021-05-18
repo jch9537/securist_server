@@ -1002,6 +1002,7 @@ module.exports = class {
     createConsultantProfileTemp(
         {
             email,
+            introduce,
             abilityCertifications, // 수행가능 인증들 데이터 - 여러개이므로 배열형태로 받기
             // certificationId,
             // certificationName,
@@ -1072,8 +1073,8 @@ module.exports = class {
                     if (error) throw error;
                 });
 
-                sql = `INSERT INTO consultant_profile_temp (consultant_user_id) VALUES (?)`;
-                arg = [email];
+                sql = `INSERT INTO consultant_profile_temp (consultant_user_id, consultant_introduce) VALUES (?, ?)`;
+                arg = [email, introduce];
                 await connection.query(sql, arg, (error, results, filelds) => {
                     if (error) {
                         console.log(
@@ -1305,8 +1306,91 @@ module.exports = class {
             }
         });
     }
-};
+    createConsultingCompanyProfileTemp(
+        { companyId, introduce, projectHistory },
+        uploadData
+    ) {
+        let result, sql, arg;
+        console.log(
+            '요청 > DB > Query >  createConsultingCompanyProfileTemp  : parameter',
+            { companyId, introduce, projectHistory },
+            uploadData
+        );
 
+        pool.getConnection(async (error, connection) => {
+            try {
+                if (error) {
+                    console.log(
+                        ' 에러 > DB > Query >  createConsultingCompanyProfileTemp  : error1',
+                        error
+                    );
+                    throw error;
+                }
+                connection.beginTransaction(function (error) {
+                    if (error) throw error;
+                });
+                // 기업 프로필 임시저장 데이터 저장
+                sql = `INSERT INTO consulting_company_profile_temp (consulting_company_id, company_introduce, business_license_file, business_license_file_path) VALUES (?, ?, ?, ?)`;
+                arg = [
+                    companyId,
+                    introduce,
+                    uploadData[0]['originalname'],
+                    uploadData[0]['location'],
+                ];
+                connection.query(sql, arg, (error, results, fields) => {
+                    if (error) throw error;
+                    // 기업 프로필 임시저장 아이디 가져오기
+                    sql = `SELECT consulting_company_profile_temp_id FROM consulting_company_profile_temp WHERE consulting_company_id=?`;
+                    arg = companyId;
+                    connection.query(sql, arg, (error, results, fields) => {
+                        if (error) throw error;
+                        let profileTempId =
+                            results[0]['consulting_company_profile_temp_id'];
+                        console.log('프로필 임시 아이디', profileTempId);
+                        // 기업 수행이력 임시저장 데이터 저장
+                        sql = `INSERT INTO temp_consulting_company_profile_project_history (consulting_company_id, consulting_company_profile_temp_id, project_name, assigned_task, industry_category_id, industry_category_name, project_start_date, project_end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+
+                        for (let i = 0; i < projectHistory.length; i++) {
+                            console.log(
+                                '-------------------------',
+                                projectHistory[i]
+                            );
+                            arg = [
+                                companyId,
+                                profileTempId,
+                                projectHistory[i].projectName,
+                                projectHistory[i].assignedTask,
+                                projectHistory[i].industryCategoryId,
+                                projectHistory[i].industryCategoryName,
+                                projectHistory[i].projectStartDate,
+                                projectHistory[i].projectEndDate,
+                            ];
+                            connection.query(
+                                sql,
+                                arg,
+                                (error, results, fields) => {
+                                    if (error) throw error;
+                                }
+                            );
+                        }
+                        connection.commit(function (error) {
+                            if (error) throw error;
+                        });
+                        console.log('임시저장 success!!!');
+                    });
+                });
+            } catch (error) {
+                console.log('fail!!');
+                return connection.rollback(() => {
+                    throw error;
+                });
+            } finally {
+                connection.release();
+                return result;
+            }
+        });
+    }
+};
 /*
 sql = `INSERT INTO consultant_profile_temp 
                     (consultant_user_id, certification_id, certification_name, task_id, task_name, task_group_id, task_group_name, industry_id, industry_name, final_academic_type, school_name, major_name, graduation_classification_type, certification_file, admission_date, graduate_date, company_name, position, career_certificate_file, joining_date, resignation_date, license_name, license_num, issue_institution, license_file, issued_date, project_name, assigned_task, project_industry_name, project_start_date, project_end_date, etc_certifications, etc_industries) 

@@ -308,26 +308,29 @@ module.exports = class {
         }
     }
     //기업
-    async createProfileTemp(createProfileTempEntity, uploadData) {
+    async createConsultingCompanyProfileTemp(
+        createProfileTempEntity,
+        uploadData
+    ) {
         console.log(
-            '요청 > Adapter > outBound > repository > createProfileTemp > deleteData: ',
+            '요청 > Adapter > outBound > repository > createConsultingCompanyProfileTemp > deleteData: ',
             createProfileTempEntity,
             uploadData
         );
         let result;
         try {
-            result = await this.db.createProfileTemp(
+            result = await this.db.createConsultingCompanyProfileTemp(
                 createProfileTempEntity,
                 uploadData
             );
             console.log(
-                '응답 > Adapter > outBound > repository > createProfileTemp > result : ',
+                '응답 > Adapter > outBound > repository > createConsultingCompanyProfileTemp > result : ',
                 result
             );
             return result;
         } catch (error) {
             console.log(
-                '응답 > Adapter > outBound > repository > createProfileTemp > result : ',
+                '응답 > Adapter > outBound > repository > createConsultingCompanyProfileTemp > result : ',
                 error
             );
             throw error;

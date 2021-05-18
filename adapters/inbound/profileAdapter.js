@@ -1,6 +1,7 @@
 const { Auth, Repository, SendMail } = require('../outbound');
 const {
     CreateConsultantProfileTemp,
+    CreateConsultingCompanyProfileTemp,
     GetProfileTemp,
     UpdateProfileTemp,
     DeleteProfileTemp,
@@ -38,28 +39,30 @@ module.exports = {
         }
     },
     // 기업 - 프로필 임시정보 생성 : 임시저장
-    async createProfileTemp(userData, tempData, uploadData) {
+    async createConsultingCompanyProfileTemp(userData, tempData, uploadData) {
         console.log(
-            '요청 > adapters > inbound > profileAdapter > createProfileTemp - result : ',
+            '요청 > adapters > inbound > profileAdapter > createConsultingCompanyProfileTemp - result : ',
             userData,
             tempData,
             uploadData
         );
         try {
-            let createProfileTemp = new CreateProfileTemp(Repository);
-            let result = await createProfileTemp.excute(
+            let createConsultingCompanyProfileTemp = new CreateConsultingCompanyProfileTemp(
+                Repository
+            );
+            let result = await createConsultingCompanyProfileTemp.excute(
                 userData,
                 tempData,
                 uploadData
             );
             console.log(
-                '응답 > adapters > inbound > profileAdapter > createProfileTemp - result : ',
+                '응답 > adapters > inbound > profileAdapter > createConsultingCompanyProfileTemp - result : ',
                 result
             );
             return result;
         } catch (err) {
             console.log(
-                '에러 응답 > adapters > inbound > profileAdapter > createProfileTemp - err : ',
+                '에러 응답 > adapters > inbound > profileAdapter > createConsultingCompanyProfileTemp - err : ',
                 err
             );
             throw err;
