@@ -280,6 +280,27 @@ module.exports = class {
             throw error;
         }
     }
+    async getConsultingCompanyProfileTemp(userData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > getConsultingCompanyProfileTemp > userData: ',
+            userData
+        );
+        let result;
+        try {
+            result = await this.db.getConsultingCompanyProfileTemp(userData);
+            console.log(
+                '응답 > Adapter > outBound > repository > getConsultingCompanyProfileTemp > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 > Adapter > outBound > repository > getConsultingCompanyProfileTemp > result : ',
+                error
+            );
+            throw error;
+        }
+    }
     // CREATE
     // 사용자
     async createConsultantProfileTemp(createProfileTempEntity, uploadData) {

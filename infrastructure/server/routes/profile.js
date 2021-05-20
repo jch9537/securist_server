@@ -102,9 +102,7 @@ module.exports = (router) => {
             let userData = req.userDataByIdToken;
             console.log('GET - /api/user/profile/temp 요청 : ', userData);
 
-            let result = await profileAdapter.getConsultantProfileTemp(
-                userData
-            );
+            let result = await profileAdapter.getProfileTemp(userData);
             console.log('GET - /api/user/profile/temp 응답 : ', result);
 
             let response = new Response(
@@ -124,9 +122,7 @@ module.exports = (router) => {
             let userData = req.userDataByIdToken;
             console.log('GET - /api/company/profile/temp 요청 : ', userData);
 
-            let result = await profileAdapter.getConsultingCompanyProfileTemp(
-                userData
-            );
+            let result = await profileAdapter.getProfileTemp(userData);
             console.log('GET - /api/company/profile/temp 응답 : ', result);
 
             let response = new Response(

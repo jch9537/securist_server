@@ -15,10 +15,7 @@ module.exports = class {
                 let relationInfo = await this.Repository.getRelationInfo(
                     userData
                 );
-                console.log(
-                    '릴레이션인포------------------------',
-                    relationInfo
-                );
+
                 let companyBelongingType = relationInfo['belonging_type'];
                 let companyManagerType = relationInfo['manager_type'];
                 // 기업 관리자 권한 확인

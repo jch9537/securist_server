@@ -1412,7 +1412,6 @@ module.exports = class {
                         async (error, results, fields) => {
                             if (error) reject(error);
                             let consultantProfileTempInfo = {
-                                email: email,
                                 consultantProfileTempId:
                                     results[0]['consultant_profile_temp_id'],
                                 consultantIntroduce:
@@ -1721,6 +1720,114 @@ module.exports = class {
                 });
             } catch (error) {
                 reject(error);
+            }
+        });
+    }
+    getConsultingCompanyProfileTemp({ email, userType }) {
+        let result, sql, arg;
+        let self = this;
+
+        return new Promise((resolve, reject) => {
+            try {
+                pool.getConnection(async (error, connection) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        let consultingCompanyInfo = await self.getUserBelongingCompanyInfo(
+                            {
+                                email,
+                                userType,
+                            }
+                        );
+                        console.log(
+                            'DB > Query > getConsultingCompanyProfileTemp > getUserBelongingCompanyInfo',
+                            consultingCompanyInfo
+                        );
+                        let consultingCompanyId =
+                            consultingCompanyInfo['consulting_company_id'];
+                        let consultingCompanyProfileTempInfo = {
+                            consultingCompanyId: consultingCompanyId,
+                        };
+
+                        sql = `SELECT * FROM consulting_company_profile_temp WHERE consulting_company_id = ?`;
+                        arg = [consultingCompanyId];
+                        connection.query(sql, arg, (error, results, fields) => {
+                            if (error) {
+                                reject(error);
+                            } else {
+                                consultingCompanyProfileTempInfo.companyIntroduce =
+                                    results[0]['company_introduce'];
+                                consultingCompanyProfileTempInfo.businessLicenseFile =
+                                    results[0]['business_license_file'];
+                                consultingCompanyProfileTempInfo.businessLicenseFilePath =
+                                    results[0]['business_license_file_path'];
+
+                                let consultingCompanyProfileTempId =
+                                    results[0][
+                                        'consulting_company_profile_temp_id'
+                                    ];
+
+                                sql = `SELECT * FROM temp_consulting_company_profile_project_history WHERE consulting_company_profile_temp_id = ? AND consulting_company_id = ?`;
+                                arg = [
+                                    consultingCompanyProfileTempId,
+                                    consultingCompanyId,
+                                ];
+                                connection.query(
+                                    sql,
+                                    arg,
+                                    (error, results, fields) => {
+                                        if (error) {
+                                            reject(error);
+                                        } else {
+                                            let consultingCompanyProjectHistoryTemp = [];
+                                            for (
+                                                let i = 0;
+                                                i < results.length;
+                                                i++
+                                            ) {
+                                                let consultingCompanyProjectHistoryTempItem = {
+                                                    projectName:
+                                                        results[i][
+                                                            'project_name'
+                                                        ],
+                                                    assignedTask:
+                                                        results[i][
+                                                            'assigned_task'
+                                                        ],
+                                                    industryCategoryId:
+                                                        results[i][
+                                                            'industry_category_id'
+                                                        ],
+                                                    industryCategoryName:
+                                                        results[i][
+                                                            'industry_category_name'
+                                                        ],
+                                                    projectStartDate:
+                                                        results[i][
+                                                            'project_start_date'
+                                                        ],
+                                                    projectEndDate:
+                                                        results[i][
+                                                            'project_end_date'
+                                                        ],
+                                                };
+                                                consultingCompanyProjectHistoryTemp.push(
+                                                    consultingCompanyProjectHistoryTempItem
+                                                );
+                                            }
+                                            consultingCompanyProfileTempInfo.projectHistoty = consultingCompanyProjectHistoryTemp;
+
+                                            result = consultingCompanyProfileTempInfo;
+                                            resolve(result);
+                                        }
+                                    }
+                                );
+                            }
+                        });
+                    }
+                });
+            } catch (error) {
+                throw error;
             }
         });
     }
