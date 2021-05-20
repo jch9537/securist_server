@@ -23,6 +23,7 @@ module.exports = class {
                 );
             },
         });
+        console.log('s3 리퀘스트', req);
         const upload = multer({ storage: storage });
         return upload;
     }

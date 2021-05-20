@@ -2,7 +2,7 @@ const { Auth, Repository, SendMail } = require('../outbound');
 const {
     CreateConsultantProfileTemp,
     CreateConsultingCompanyProfileTemp,
-    GetProfileTemp,
+    GetConsultantProfileTemp,
     UpdateProfileTemp,
     DeleteProfileTemp,
 } = require('../../domain/usecase/profile');
@@ -69,23 +69,24 @@ module.exports = {
         }
     },
 
-    async getProfileTemp(userData) {
+    async getConsultantProfileTemp(userData) {
         console.log(
-            '요청 > adapters > inbound > profileAdapter > getProfileTemp - result : ',
-            userData,
-            tempData
+            '요청 > adapters > inbound > profileAdapter > getConsultantProfileTemp - result : ',
+            userData
         );
         try {
-            let getProfileTemp = new GetProfileTemp(Repository);
-            let result = await getProfileTemp.excute(userData, tempData);
+            let getConsultantProfileTemp = new GetConsultantProfileTemp(
+                Repository
+            );
+            let result = await getConsultantProfileTemp.excute(userData);
             console.log(
-                '응답 > adapters > inbound > profileAdapter > getProfileTemp - result : ',
+                '응답 > adapters > inbound > profileAdapter > getConsultantProfileTemp - result : ',
                 result
             );
             return result;
         } catch (err) {
             console.log(
-                '에러 응답 > adapters > inbound > profileAdapter > getProfileTemp - err : ',
+                '에러 응답 > adapters > inbound > profileAdapter > getConsultantProfileTemp - err : ',
                 err
             );
             throw err;

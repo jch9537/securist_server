@@ -1,7 +1,7 @@
 module.exports = {
     CreateConsultantProfileTemp: require('./CreateConsultantProfileTemp'),
     CreateConsultingCompanyProfileTemp: require('./CreateConsultingCompanyProfileTemp'),
-    GetProfileTemp: require('./GetProfileTemp'),
+    GetConsultantProfileTemp: require('./GetConsultantProfileTemp'),
     UpdateProfileTemp: require('./UpdateProfileTemp'),
     DeleteProfileTemp: require('./DeleteProfileTemp'),
 };

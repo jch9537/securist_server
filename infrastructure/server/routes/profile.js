@@ -17,7 +17,7 @@ module.exports = (router) => {
     router.use(decryptIdToken);
     // 사용자 - 프로필 임시정보 생성 : 임시저장
     router.post(
-        '/api/profile/user/temp',
+        '/api/user/profile/temp',
         uploadConsultantProfileTemp.any(),
         sanitizer,
         async (req, res) => {
@@ -27,15 +27,15 @@ module.exports = (router) => {
                 let uploadFiles = req.files;
 
                 console.log(
-                    'POST - /api/profile/user/temp 요청 :  userData : ',
+                    'POST - /api/user/profile/temp 요청 :  userData : ',
                     userData
                 );
                 console.log(
-                    'POST - /api/profile/user/temp 요청 :  reqData : ',
+                    'POST - /api/user/profile/temp 요청 :  reqData : ',
                     reqData
                 );
                 console.log(
-                    'POST - /api/profile/user/temp 요청 : uploadFiles : ',
+                    'POST - /api/user/profile/temp 요청 : uploadFiles : ',
                     uploadFiles
                 );
                 let result = await profileAdapter.createConsultantProfileTemp(
@@ -43,7 +43,7 @@ module.exports = (router) => {
                     reqData,
                     uploadFiles
                 );
-                console.log('POST - /api/profile/user/temp 응답 : ', result);
+                console.log('POST - /api/user/profile/temp 응답 : ', result);
                 let response = new Response(
                     200,
                     '컨설턴트 프로필 임시 저장 완료',
@@ -51,7 +51,7 @@ module.exports = (router) => {
                 );
                 res.send(response);
             } catch (err) {
-                console.log('/api/profile/user/temp 에러 응답 : ', err);
+                console.log('/api/user/profile/temp 에러 응답 : ', err);
                 res.send(err);
             }
         }
@@ -96,18 +96,16 @@ module.exports = (router) => {
             }
         }
     );
-    // 프로필 임시정보 가져오기 : 임시저장 데이터 가져오기
-    router.get('/api/profile/temp/:userId', async (req, res) => {
+    // 사용자 프로필 임시정보 가져오기 : 임시저장 데이터 가져오기
+    router.get('/api/user/profile/temp', async (req, res) => {
         try {
             let userData = req.userDataByIdToken;
-            console.log(
-                'GET - /api/profile/temp/:userId 요청 : ',
-                userData,
-                reqData
-            );
+            console.log('GET - /api/user/profile/temp 요청 : ', userData);
 
-            let result = await profileAdapter.getProfileTemp(userData);
-            console.log('GET - /api/profile/temp/:userId 응답 : ', result);
+            let result = await profileAdapter.getConsultantProfileTemp(
+                userData
+            );
+            console.log('GET - /api/user/profile/temp 응답 : ', result);
 
             let response = new Response(
                 200,
@@ -116,28 +114,30 @@ module.exports = (router) => {
             );
             res.send(response);
         } catch (err) {
-            console.log('/api/profile/temp/:userId 에러 응답 : ', result);
+            console.log('/api/user/profile/temp 에러 응답 : ', result);
             res.send(err);
         }
     });
-    // // 프로필 정보가져오기
-    // router.get('/api/profile/:userId', async (req, res) => {
-    //     try {
-    //         let userData = req.userDataByIdToken;
-    //         console.log('GET - /api/profile/:userId 요청 : ', userData);
+    // 사용자 프로필 임시정보 가져오기 : 임시저장 데이터 가져오기
+    router.get('/api/company/profile/temp', async (req, res) => {
+        try {
+            let userData = req.userDataByIdToken;
+            console.log('GET - /api/company/profile/temp 요청 : ', userData);
 
-    //         let result = await userAdapter.getProfile(userData);
-    //         console.log('GET - /api/profile/:userId 응답 : ', result);
+            let result = await profileAdapter.getConsultingCompanyProfileTemp(
+                userData
+            );
+            console.log('GET - /api/company/profile/temp 응답 : ', result);
 
-    //         let response = new Response(
-    //             200,
-    //             '사용자 정보가져오기 완료 - idToken',
-    //             result
-    //         );
-    //         res.send(response);
-    //     } catch (err) {
-    //         console.log('/api/profile/:userId 에러 응답 : ', result);
-    //         res.send(err);
-    //     }
-    // });
+            let response = new Response(
+                200,
+                '사용자 정보가져오기 완료 - idToken',
+                result
+            );
+            res.send(response);
+        } catch (err) {
+            console.log('/api/company/profile/temp 에러 응답 : ', result);
+            res.send(err);
+        }
+    });
 };

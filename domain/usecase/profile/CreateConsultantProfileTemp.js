@@ -6,6 +6,7 @@ module.exports = class {
     async excute(userData, tempData, uploadData) {
         let result;
         try {
+            userData.userType = 1; // 테스트용
             if (userData.userType === 1) {
                 let createProfileTempEntity = tempData; // 유효성 확인 추가!!!
                 createProfileTempEntity.email = userData.email;

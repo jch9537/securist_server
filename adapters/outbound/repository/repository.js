@@ -259,22 +259,22 @@ module.exports = class {
 
     // 프로필 --------------------------------------------------------------------
     // GET
-    async getProfileTemp(deleteData) {
+    async getConsultantProfileTemp(userData) {
         console.log(
-            '요청 > Adapter > outBound > repository > getProfileTemp > deleteData: ',
-            deleteData
+            '요청 > Adapter > outBound > repository > getConsultantProfileTemp > userData: ',
+            userData
         );
         let result;
         try {
-            result = await this.db.getProfileTemp(deleteData);
+            result = await this.db.getConsultantProfileTemp(userData);
             console.log(
-                '응답 > Adapter > outBound > repository > getProfileTemp > result : ',
+                '응답 > Adapter > outBound > repository > getConsultantProfileTemp > result : ',
                 result
             );
             return result;
         } catch (error) {
             console.log(
-                '에러 > Adapter > outBound > repository > getProfileTemp > result : ',
+                '에러 > Adapter > outBound > repository > getConsultantProfileTemp > result : ',
                 error
             );
             throw error;
