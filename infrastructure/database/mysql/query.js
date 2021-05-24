@@ -1099,11 +1099,10 @@ module.exports = class {
                     // console.log('~~~~~~~~~~', consultantProfileTempId);
 
                     // 수행가능인증 - 여러개 : 아이디/인증명 가져오기
-                    sql = `INSERT INTO temp_profile_ability_certifications (consultant_user_id, consultant_profile_temp_id, certification_id, certification_name) VALUES (?, ?, ?, ?)`;
+                    sql = `INSERT INTO temp_profile_ability_certifications (consultant_profile_temp_id, certification_id, certification_name) VALUES (?, ?, ?)`;
 
                     for (let i = 0; i < abilityCertifications.length; i++) {
                         arg = [
-                            email,
                             consultantProfileTempId,
                             abilityCertifications[i].certificationId,
                             abilityCertifications[i].certificationName,
@@ -1122,10 +1121,9 @@ module.exports = class {
                     }
 
                     // 수행가능업종 - 여러개 : 추후 정책 확인 후 완료
-                    sql = `INSERT INTO temp_profile_ability_industries (consultant_user_id, consultant_profile_temp_id, industry_id, industry_name) VALUES (?, ?, ?, ?)`;
+                    sql = `INSERT INTO temp_profile_ability_industries (consultant_profile_temp_id, industry_id, industry_name) VALUES (?, ?, ?)`;
                     for (let i = 0; i < abilityIndustries.length; i++) {
                         arg = [
-                            email,
                             consultantProfileTempId,
                             abilityIndustries[i].industryId,
                             abilityIndustries[i].industryName,
@@ -1144,10 +1142,9 @@ module.exports = class {
                     }
 
                     // 수행가능 세부과제 - 여러개 : 세부과제 id/과제명/분류id/분류명
-                    sql = `INSERT INTO temp_profile_ability_tasks (consultant_user_id, consultant_profile_temp_id, task_id, task_name, task_group_id, task_group_name) VALUES (?, ?, ?, ?, ?, ?)`;
+                    sql = `INSERT INTO temp_profile_ability_tasks (consultant_profile_temp_id, task_id, task_name, task_group_id, task_group_name) VALUES (?, ?, ?, ?, ?)`;
                     for (let i = 0; i < abilityTasks.length; i++) {
                         arg = [
-                            email,
                             consultantProfileTempId,
                             abilityTasks[i].taskId,
                             abilityTasks[i].taskName,
@@ -1165,9 +1162,8 @@ module.exports = class {
                     }
 
                     //학력 - 최종학력 1개 academicCertificationFilePath - 지정
-                    sql = `INSERT INTO temp_profile_academic_background (consultant_user_id, consultant_profile_temp_id, final_academic_type, school_name, major_name, graduation_classification_type, admission_date, graduate_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+                    sql = `INSERT INTO temp_profile_academic_background (consultant_profile_temp_id, final_academic_type, school_name, major_name, graduation_classification_type, admission_date, graduate_date) VALUES (?, ?, ?, ?, ?, ?, ?)`;
                     arg = [
-                        email,
                         consultantProfileTempId,
                         academicBackground.finalAcademicType,
                         academicBackground.schoolName,
@@ -1184,10 +1180,9 @@ module.exports = class {
                     });
 
                     //경력 : 여러개 careerCertificationFilePath - 지정!!
-                    sql = `INSERT INTO temp_profile_career (consultant_user_id, consultant_profile_temp_id, company_name, position, assigned_work, joining_date, resignation_date) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                    sql = `INSERT INTO temp_profile_career (consultant_profile_temp_id, company_name, position, assigned_work, joining_date, resignation_date) VALUES (?, ?, ?, ?, ?, ?)`;
                     for (let i = 0; i < career.length; i++) {
                         arg = [
-                            email,
                             consultantProfileTempId,
                             career[i].companyName,
                             career[i].position,
@@ -1207,10 +1202,9 @@ module.exports = class {
                         );
                     }
                     //자격증 : 여러개 licenseFilePath- 지정!!
-                    sql = `INSERT INTO temp_profile_license (consultant_user_id, consultant_profile_temp_id, license_name, license_num, issue_institution, issued_date) VALUES (?, ?, ?, ?, ?, ?)`;
+                    sql = `INSERT INTO temp_profile_license (consultant_profile_temp_id, license_name, license_num, issue_institution, issued_date) VALUES (?, ?, ?, ?, ?)`;
                     for (let i = 0; i < license.length; i++) {
                         arg = [
-                            email,
                             consultantProfileTempId,
                             license[i].licenseName,
                             license[i].licenseNum,
@@ -1229,10 +1223,9 @@ module.exports = class {
                         );
                     }
                     // 수행이력 : 여러개
-                    sql = `INSERT INTO temp_profile_project_history (consultant_user_id, consultant_profile_temp_id, project_name, assigned_task, industry_category_id, industry_category_name, project_start_date, project_end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+                    sql = `INSERT INTO temp_profile_project_history (consultant_profile_temp_id, project_name, assigned_task, industry_category_id, industry_category_name, project_start_date, project_end_date) VALUES (?, ?, ?, ?, ?, ?, ?)`;
                     for (let i = 0; i < projectHistory.length; i++) {
                         arg = [
-                            email,
                             consultantProfileTempId,
                             projectHistory[i].projectName,
                             projectHistory[i].assignedTask,
@@ -1252,9 +1245,8 @@ module.exports = class {
                     }
 
                     // 기타 : 기타 수행가능 업종/인증 (input 작성) - 추후 정책 처리 된 후 수정
-                    sql = `INSERT INTO temp_profile_ability_etc (consultant_user_id, consultant_profile_temp_id, etc_certifications, etc_industries) VALUES (?, ?, ?, ?)`;
+                    sql = `INSERT INTO temp_profile_ability_etc (consultant_profile_temp_id, etc_certifications, etc_industries) VALUES (?, ?, ?)`;
                     arg = [
-                        email,
                         consultantProfileTempId,
                         etc.etcCertifications,
                         etc.etcIndustries,
@@ -1264,7 +1256,7 @@ module.exports = class {
                     });
 
                     // 업로드 파일들 처리
-                    sql = `INSERT INTO temp_upload_files (consultant_user_id, consultant_profile_temp_id, file_category_type, file_name, file_path) VALUES (?, ?, ?, ?, ?)`;
+                    sql = `INSERT INTO temp_upload_files (consultant_profile_temp_id, file_category_type, file_name, file_path) VALUES (?, ?, ?, ?)`;
                     let fileCategoryType;
 
                     for (let i = 0; i < uploadData.length; i++) {
@@ -1278,7 +1270,6 @@ module.exports = class {
                             // 타입 에러 예외처리
                         }
                         arg = [
-                            email,
                             consultantProfileTempId,
                             fileCategoryType,
                             uploadData[i].originalname,
@@ -1349,7 +1340,7 @@ module.exports = class {
                             results[0]['consulting_company_profile_temp_id'];
                         console.log('프로필 임시 아이디', profileTempId);
                         // 기업 수행이력 임시저장 데이터 저장
-                        sql = `INSERT INTO temp_consulting_company_profile_project_history (consulting_company_id, consulting_company_profile_temp_id, project_name, assigned_task, industry_category_id, industry_category_name, project_start_date, project_end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+                        sql = `INSERT INTO temp_consulting_company_profile_project_history (consulting_company_profile_temp_id, project_name, assigned_task, industry_category_id, industry_category_name, project_start_date, project_end_date) VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
                         for (let i = 0; i < projectHistory.length; i++) {
                             console.log(
@@ -1357,7 +1348,7 @@ module.exports = class {
                                 projectHistory[i]
                             );
                             arg = [
-                                companyId,
+                                // companyId,
                                 profileTempId,
                                 projectHistory[i].projectName,
                                 projectHistory[i].assignedTask,
@@ -1828,6 +1819,68 @@ module.exports = class {
                 });
             } catch (error) {
                 throw error;
+            }
+        });
+    }
+    deleteProfileTemp({ email, userType }) {
+        let sql, arg;
+
+        // userType = 1; // 테스트용
+        pool.getConnection((error, connection) => {
+            try {
+                connection.beginTransaction(function (error) {
+                    if (error) throw error;
+                });
+
+                if (error) throw error;
+                if (userType === 1) {
+                    sql = `DELETE FROM a, b, c, d, e, f, g, h, i, j 
+                    USING consultant_profile_temp AS a 
+                    LEFT JOIN temp_profile_ability_certifications AS b 
+                    ON a.consultant_profile_temp_id = b.consultant_profile_temp_id
+                    LEFT JOIN temp_profile_ability_tasks AS c
+                    ON a.consultant_profile_temp_id = c.consultant_profile_temp_id
+                    LEFT JOIN temp_profile_ability_industries AS d
+                    ON a.consultant_profile_temp_id = d.consultant_profile_temp_id
+                    LEFT JOIN temp_profile_academic_background AS e
+                    ON a.consultant_profile_temp_id = e.consultant_profile_temp_id
+                    LEFT JOIN temp_profile_career AS f
+                    ON a.consultant_profile_temp_id = f.consultant_profile_temp_id
+                    LEFT JOIN temp_profile_license AS g
+                    ON a.consultant_profile_temp_id = g.consultant_profile_temp_id
+                    LEFT JOIN temp_profile_project_history AS h
+                    ON a.consultant_profile_temp_id = h.consultant_profile_temp_id
+                    LEFT JOIN temp_profile_ability_etc AS i
+                    ON a.consultant_profile_temp_id = i.consultant_profile_temp_id
+                    LEFT JOIN temp_upload_files AS j
+                    ON a.consultant_profile_temp_id = j.consultant_profile_temp_id
+                    WHERE a.consultant_user_id = ?`;
+                } else if (userType === 2) {
+                    sql = `DELETE FROM a, b
+                    USING consulting_company_profile_temp AS a LEFT JOIN temp_consulting_company_profile_project_history AS b
+                    ON a.consulting_company_profile_temp_id = b.consulting_company_profile_temp_id
+                    WHERE a.consulting_company_id = (SELECT consulting_company_id FROM consultant_user_and_company WHERE consultant_user_id = ?)`;
+                }
+                arg = [email];
+
+                connection.query(sql, arg, (error, results, fields) => {
+                    if (error) throw error;
+                    console.log(
+                        'DB > query > deleteProfileTemp > 삭제결과 : ',
+                        results
+                    );
+                    connection.commit(function (error) {
+                        if (error) throw error;
+                    });
+                    console.log('임시저장 success!!!');
+                });
+            } catch (error) {
+                console.log('fail!!');
+                return connection.rollback(() => {
+                    throw error;
+                });
+            } finally {
+                connection.release();
             }
         });
     }

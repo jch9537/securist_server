@@ -68,7 +68,7 @@ module.exports = {
             throw err;
         }
     },
-
+    // 프로필 임시저장 가져오기 : 컨설턴트 (개인/기업) 공통
     async getProfileTemp(userData) {
         console.log(
             '요청 > adapters > inbound > profileAdapter > getProfileTemp - result : ',
@@ -90,62 +90,26 @@ module.exports = {
             throw err;
         }
     },
-    // // 기업 리스트 가져오기 : 기업(클/컨) 공통
-    // async getCompanyList(userData) {
-    //     try {
-    //         let getCompanyList = new GetCompanyList(Repository);
-    //         let result = await getCompanyList.excute(userData);
-    //         console.log(
-    //             '응답 > adapters > inbound > companyAdaptor.js > getCompanyList - result : ',
-    //             result
-    //         );
-    //         return result;
-    //     } catch (err) {
-    //         console.log(
-    //             '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyList - err : ',
-    //             err
-    //         );
-    //         throw err;
-    //     }
-    // },
-    // async getCompanyInfo(userData, companyId) {
-    //     try {
-    //         let getCompanyInfo = new GetCompanyInfo(Repository);
-    //         let result = await getCompanyInfo.excute(userData, companyId);
-    //         console.log(
-    //             '응답 > adapters > inbound > companyAdaptor.js > getCompanyInfo - result : ',
-    //             result
-    //         );
-    //         return result;
-    //     } catch (err) {
-    //         console.log(
-    //             '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyInfo - err : ',
-    //             err
-    //         );
-    //         throw err;
-    //     }
-    // },
-    // // 기업 내 소속 사용자 정보 가져오기 : 기업(클/컨) 공통
-    // async getCompanyBelongedUsersInfo(userData, companyId) {
-    //     try {
-    //         let getCompanyBelongedUsersInfo = new GetCompanyBelongedUsersInfo(
-    //             Repository
-    //         );
-    //         let result = await getCompanyBelongedUsersInfo.excute(
-    //             userData,
-    //             companyId
-    //         );
-    //         console.log(
-    //             '응답 > adapters > inbound > companyAdaptor.js > getCompanyBelongedUsersInfo - result : ',
-    //             result
-    //         );
-    //         return result;
-    //     } catch (err) {
-    //         console.log(
-    //             '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyBelongedUsersInfo - err : ',
-    //             err
-    //         );
-    //         throw err;
-    //     }
-    // },
+    // 프로필 임시저장 정보 삭제 : 컨설턴트 (개인/기업) 공통
+    async deleteProfileTemp(userData) {
+        console.log(
+            '요청 > adapters > inbound > profileAdapter > deleteProfileTemp - result : ',
+            userData
+        );
+        try {
+            let deleteProfileTemp = new DeleteProfileTemp(Repository);
+            let result = await deleteProfileTemp.excute(userData);
+            console.log(
+                '응답 > adapters > inbound > profileAdapter > deleteProfileTemp - result : ',
+                result
+            );
+            return result;
+        } catch (err) {
+            console.log(
+                '에러 응답 > adapters > inbound > profileAdapter > deleteProfileTemp - err : ',
+                err
+            );
+            throw err;
+        }
+    },
 };
