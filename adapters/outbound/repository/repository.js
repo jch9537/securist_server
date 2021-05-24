@@ -258,28 +258,6 @@ module.exports = class {
     }
 
     // 프로필 --------------------------------------------------------------------
-    // GET
-    async getProfileTemp(deleteData) {
-        console.log(
-            '요청 > Adapter > outBound > repository > getProfileTemp > deleteData: ',
-            deleteData
-        );
-        let result;
-        try {
-            result = await this.db.getProfileTemp(deleteData);
-            console.log(
-                '응답 > Adapter > outBound > repository > getProfileTemp > result : ',
-                result
-            );
-            return result;
-        } catch (error) {
-            console.log(
-                '에러 > Adapter > outBound > repository > getProfileTemp > result : ',
-                error
-            );
-            throw error;
-        }
-    }
     // CREATE
     // 사용자
     async createConsultantProfileTemp(createProfileTempEntity, uploadData) {
@@ -308,26 +286,72 @@ module.exports = class {
         }
     }
     //기업
-    async createProfileTemp(createProfileTempEntity, uploadData) {
+    async createConsultingCompanyProfileTemp(
+        createProfileTempEntity,
+        uploadData
+    ) {
         console.log(
-            '요청 > Adapter > outBound > repository > createProfileTemp > deleteData: ',
+            '요청 > Adapter > outBound > repository > createConsultingCompanyProfileTemp > deleteData: ',
             createProfileTempEntity,
             uploadData
         );
         let result;
         try {
-            result = await this.db.createProfileTemp(
+            result = await this.db.createConsultingCompanyProfileTemp(
                 createProfileTempEntity,
                 uploadData
             );
             console.log(
-                '응답 > Adapter > outBound > repository > createProfileTemp > result : ',
+                '응답 > Adapter > outBound > repository > createConsultingCompanyProfileTemp > result : ',
                 result
             );
             return result;
         } catch (error) {
             console.log(
-                '응답 > Adapter > outBound > repository > createProfileTemp > result : ',
+                '응답 > Adapter > outBound > repository > createConsultingCompanyProfileTemp > result : ',
+                error
+            );
+            throw error;
+        }
+    }
+    // GET
+    async getConsultantProfileTemp(userData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > getConsultantProfileTemp > userData: ',
+            userData
+        );
+        let result;
+        try {
+            result = await this.db.getConsultantProfileTemp(userData);
+            console.log(
+                '응답 > Adapter > outBound > repository > getConsultantProfileTemp > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 > Adapter > outBound > repository > getConsultantProfileTemp > result : ',
+                error
+            );
+            throw error;
+        }
+    }
+    async getConsultingCompanyProfileTemp(userData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > getConsultingCompanyProfileTemp > userData: ',
+            userData
+        );
+        let result;
+        try {
+            result = await this.db.getConsultingCompanyProfileTemp(userData);
+            console.log(
+                '응답 > Adapter > outBound > repository > getConsultingCompanyProfileTemp > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 > Adapter > outBound > repository > getConsultingCompanyProfileTemp > result : ',
                 error
             );
             throw error;
@@ -356,14 +380,14 @@ module.exports = class {
         }
     }
     // DELETE
-    async deleteProfileTemp(deleteData) {
+    async deleteProfileTemp(userData) {
         console.log(
-            '요청 > Adapter > outBound > repository > deleteProfileTemp > deleteData: ',
-            deleteData
+            '요청 > Adapter > outBound > repository > deleteProfileTemp > userData: ',
+            userData
         );
         let result;
         try {
-            result = await this.db.deleteProfileTemp(deleteData);
+            result = await this.db.deleteProfileTemp(userData);
             console.log(
                 '응답 > Adapter > outBound > repository > deleteProfileTemp > result : ',
                 result

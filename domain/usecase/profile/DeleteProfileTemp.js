@@ -1,19 +1,16 @@
 //Entity 생성
 module.exports = class {
-    // constructor(Repository) {
-    //     this.Repository = Repository;
-    // }
-    // async excute(joinData) {
-    //     let result;
-    //     try {
-    //         result = await this.Repository.createUserAndCompanyRelation(
-    //             joinData
-    //         );
-    //         console.log('결과----------------', result);
-    //     } catch (error) {
-    //         console.log('에러 ----------------', error);
-    //         throw error;
-    //     }
-    //     return result;
-    // }
+    constructor(Repository) {
+        this.Repository = Repository;
+    }
+    async excute(userData) {
+        try {
+            let result = await this.Repository.deleteProfileTemp(userData);
+            console.log('결과----------------', result);
+            return result;
+        } catch (error) {
+            console.log('에러 ----------------', error);
+            throw error;
+        }
+    }
 };

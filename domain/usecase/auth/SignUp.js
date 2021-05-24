@@ -11,12 +11,8 @@ module.exports = class {
         let signUpEntity = new UserEntity(signUpData);
         let userType = signUpEntity.userType;
         //userType - 1: 개인 컨설턴트 2: 컨설팅업체 3: 클라이언트 기업
-        console.log('11^^^^^^^^^^^^^^^^^^^^^^^^^^', signUpEntity);
         try {
             if (userType === 2 || userType === 3) {
-                //기업 정보 유효성 확인
-                console.log('22^^^^^^^^^^^^^^^^^^^^^^^^^^', signUpEntity);
-
                 let companyData = {
                     businessLicenseNum: signUpData.businessLicenseNum,
                     companyName: signUpData.companyName,

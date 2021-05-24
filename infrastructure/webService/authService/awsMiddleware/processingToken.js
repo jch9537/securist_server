@@ -100,10 +100,10 @@ const processingToken = {
                 expTime: claim.exp,
                 issueTime: claim.iat,
             };
+            return result; // 수정
         } catch (error) {
             throw error;
         }
-        return result;
     },
 };
 
