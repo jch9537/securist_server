@@ -315,14 +315,13 @@ module.exports = class {
             console.log('응답 : ', result);
             return result;
         } catch (error) {
-            console.log('!!!!!!!!!!!!!!!!!!', error);
             throw error;
         }
     }
     // 사용자 cognito 접근정보 가져오기 : accessToken
     async getAuthInfoByAccessToken(accessToken) {
         console.log(
-            '요청 > Infrastructure > webService > authService > awsCognito.js > getUserByIdToken : '
+            '요청 > Infrastructure > webService > authService > awsCognito.js > getAuthInfoByAccessToken : '
             // token
         );
         let result = await processingToken.checkAccessToken(accessToken);
