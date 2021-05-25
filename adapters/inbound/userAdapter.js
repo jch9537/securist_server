@@ -13,9 +13,6 @@ const {
 
 const { Repository } = require('../outbound');
 const authAdapter = require('./authAdapter');
-// const {
-//     checkExpiredPassword,
-// } = require('../../infrastructure/webService/authService/awsMiddleware');
 
 module.exports = {
     // 사용자 DB 정보 가져오기

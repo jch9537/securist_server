@@ -2,5 +2,5 @@
 module.exports = {
     Auth: require('./auth'),
     Repository: require('./repository'),
-    SendMail: require('./sendMail'),
+    // SendMail: require('./sendMail'),
 };

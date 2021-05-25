@@ -10,9 +10,6 @@ const {
 } = require('../../domain/usecase/relation');
 const userAdapter = require('./userAdapter');
 const { Repository } = require('../outbound');
-// const {
-//     checkExpiredPassword,
-// } = require('../../infrastructure/webService/authService/awsMiddleware');
 
 module.exports = {
     // 사용자-기업 연결정보 가져오기
@@ -102,10 +99,6 @@ module.exports = {
                     belongingType: updateData.belongingType,
                 };
             }
-            // console.log(
-            //     updateStatusData,
-            //     '------------------------업데이트 유저데이터'
-            // );
 
             let updateBelongingStatus = new UpdateBelongingStatus(Repository);
             result = await updateBelongingStatus.excute(

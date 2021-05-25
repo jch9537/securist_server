@@ -15,6 +15,18 @@ module.exports = class {
         );
         return result;
     }
+    async resendComfirmEmail(userEntity) {
+        console.log(
+            '요청 > Adapter > outBound > auth > authentication >  - resendComfirmEmail > userEntity : ',
+            userEntity
+        );
+        let result = await this.authService.resendComfirmEmail(userEntity);
+        console.log(
+            '응답 > Adapter > outBound > auth > authentication >  - resendComfirmEmail > result : ',
+            result
+        );
+        return result;
+    }
     async logIn(userEntity) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication >  - logIn : ',

@@ -6,6 +6,7 @@ const { Auth, Repository } = require('../outbound');
 
 const {
     CheckDuplicateEmail,
+    ResendComfirmEmail,
     SignUp,
     LogIn,
     LogOut,
@@ -14,8 +15,6 @@ const {
     ChangePassword,
     IssueNewToken,
     CheckAccessToken,
-    // GetUserByIdToken,
-    // GetUserInfoByAccessToken,
     VerifyUserByPassword,
 } = require('../../domain/usecase/auth');
 
@@ -66,6 +65,17 @@ module.exports = {
                 err
             );
             throw err;
+        }
+    },
+    // 가입메일 재발송
+    async resendComfirmEmail(resendEmailData) {
+        try {
+            let resendComfirmEmail = new ResendComfirmEmail(Auth);
+            let result = await resendComfirmEmail.excute(resendEmailData);
+
+            return result;
+        } catch (error) {
+            throw error;
         }
     },
     // 로그인
@@ -251,6 +261,7 @@ module.exports = {
         }
     },
     // 테스트용 함수(cognito 바로 연결 : 관리자 권한 처리) -------------------------------------------------------------
+
     // 회원삭제
     async deleteUserByAdmin(userParam) {
         try {

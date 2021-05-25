@@ -5,12 +5,12 @@ const extractToken = require('../modules/extractToken');
 const getUserInfoByAccessToken = require('../modules/getUserInfoByAccessToken');
 
 module.exports = (router) => {
-    router.get('/api/auth/checkemail/:email', async (req, res) => {
+    router.post('/api/auth/checkemail', async (req, res) => {
         try {
-            let reqParamsData = req.params;
-            console.log('/api/auth/checkemail 요청 : ', reqParamsData);
+            let reqData = req.filteredData;
+            console.log('/api/auth/checkemail 요청 : ', reqData);
 
-            let result = await authAdapter.checkDuplicateEmail(reqParamsData);
+            let result = await authAdapter.checkDuplicateEmail(reqData);
             console.log('/api/auth/checkemail 응답 : ', result);
 
             let response;
@@ -50,6 +50,19 @@ module.exports = (router) => {
             res.send(response);
         } catch (err) {
             console.log('/api/auth/signup 에러 응답 : ', err);
+            res.send(err);
+        }
+    });
+    // 가입확인 메일 재발송
+    router.post('/api/auth/resendemail', async (req, res) => {
+        try {
+            let reqData = req.filteredData;
+            let result = await authAdapter.resendComfirmEmail(reqData);
+            console.log('결과 ------------------', result);
+            let response = new Response(200, '가입 메일 전송 완료');
+            res.send(response);
+        } catch (err) {
+            console.log('에러 ------------------------', err);
             res.send(err);
         }
     });
