@@ -117,6 +117,28 @@ module.exports = class {
         });
         return result;
     }
+    // 가입 확인 메일 재전송
+    resendComfirmEmail({ email }) {
+        const params = {
+            ClientId: clientId /* required */,
+            Username: email /* required */,
+        };
+        return new Promise((resolve, reject) => {
+            this.cognitoidentityserviceprovider.resendConfirmationCode(
+                params,
+                function (err, data) {
+                    if (err) {
+                        console.log('~~~~~~~~~~~~~~~~~~', err, err.stack);
+                        // an error occurred
+                        reject(err);
+                    } else {
+                        console.log('확인메일 -----------------------: ', data); // successful response
+                        resolve(data);
+                    }
+                }
+            );
+        });
+    }
     // 로그인
     logIn({ email, password }) {
         let self = this;
@@ -725,6 +747,7 @@ module.exports = class {
     // }
 
     //테스트 관리자코드------------------------------------------------------------
+
     // 관리자 회원 삭제
     deleteUserByAdmin(id) {
         let params = {

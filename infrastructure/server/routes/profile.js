@@ -156,33 +156,4 @@ module.exports = (router) => {
             res.send(err);
         }
     });
-    // // 기업 프로필 임시정보 삭제 : 임시저장 데이터 삭제
-    // router.delete('/api/company/profile/temp/:tempId', async (req, res) => {
-    //     try {
-    //         let userData = req.userDataByIdToken;
-    //         console.log(
-    //             'GET - /api/company/profile/temp/:tempId 요청 : ',
-    //             userData
-    //         );
-
-    //         let result = await profileAdapter.deleteProfileTemp(userData);
-    //         console.log(
-    //             'GET - /api/company/profile/temp/:tempId 응답 : ',
-    //             result
-    //         );
-
-    //         let response = new Response(
-    //             200,
-    //             '사용자 임시 프로필 정보 삭제 완료 - idToken',
-    //             result
-    //         );
-    //         res.send(response);
-    //     } catch (err) {
-    //         console.log(
-    //             '/api/company/profile/temp/:tempId 에러 응답 : ',
-    //             result
-    //         );
-    //         res.send(err);
-    //     }
-    // });
 };
