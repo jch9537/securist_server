@@ -5,7 +5,7 @@ module.exports = class {
     async excute(userData) {
         let result;
         try {
-            userData.userType = 1; // 테스트용
+            // userData.userType = 1; // 테스트용
             if (userData.userType === 1) {
                 result = await this.Repository.getConsultantProfileTemp(
                     userData

@@ -1,5 +1,6 @@
 module.exports = {
     CheckDuplicateEmail: require('./CheckDuplicateEmail'),
+    ResendComfirmEmail: require('./ResendComfirmEmail'),
     SignUp: require('./SignUp'),
     LogIn: require('./LogIn'),
     LogOut: require('./LogOut'),
@@ -8,7 +9,5 @@ module.exports = {
     ConfirmForgotPassword: require('./ConfirmForgotPassword'),
     CheckAccessToken: require('./CheckAccessToken'),
     IssueNewToken: require('./IssueNewToken'),
-    // GetUserByIdToken: require('./(delete)GetUserByIdToken'),
-    // GetUserInfoByAccessToken: require('./(delete)GetUserInfoByAccessToken'),
     VerifyUserByPassword: require('./VerifyUserByPassword'),
 };

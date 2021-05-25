@@ -4,11 +4,7 @@
 2. 기업의 이름만 가져온 후 select에서 선택 시 기업의 이름으로 필터링해서 DB검색 후 가져오기 
 3. onChange마다 DB에서 업체명 검색해서 가져오기 - 리소스 많이 들 것 같음
 */
-const {
-    authAdapter,
-    userAdapter,
-    companyAdapter,
-} = require('../../../adapters/inbound');
+const { companyAdapter } = require('../../../adapters/inbound');
 
 const Response = require('../modules/Response');
 const extractToken = require('../modules/extractToken');
