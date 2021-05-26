@@ -137,15 +137,20 @@ module.exports = (router) => {
 
     // 비밀번호 찾기 확인코드전송
     router.post('/api/auth/forgotpassword', async (req, res) => {
+        let response;
         try {
             let reqData = req.filteredData;
             console.log('/api/auth/forgotpassword 요청 : ', reqData);
 
             let result = await authAdapter.forgotPassword(reqData);
             console.log('/api/auth/forgotpassword 요청 : ', result);
-
-            let response = new Response(200, '인증번호 전송완료');
-            res.send(response);
+            if (!result) {
+                response = new Response(400, '가입되지 않은 메일 주소입니다.');
+                res.send(response);
+            } else {
+                response = new Response(200, '인증번호 전송완료');
+                res.send(response);
+            }
         } catch (err) {
             console.log('/api/auth/forgotpassword 요청 : ', err);
             res.send(err);
