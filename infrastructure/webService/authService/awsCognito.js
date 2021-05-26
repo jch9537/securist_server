@@ -628,33 +628,42 @@ module.exports = class {
         });
     }
     // 비밀번호 찾기 : 확인코드 보내기
-    forgotPassword({ email }) {
-        const params = {
-            ClientId: clientId,
-            Username: email,
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.forgotPassword(
-                params,
-                function (err, data) {
-                    if (err) {
-                        // an error occurred
-                        console.log(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  forgotPassword : ',
-                            err
-                        );
-                        reject(new Exception(err.statusCode, err.message, err));
-                    } else {
-                        // successful response
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > forgotPassword : ',
-                            data
-                        );
-                        resolve(data);
+    async forgotPassword({ email }) {
+        let self = this;
+        let userExist = await self.checkExistEmail({ email });
+        console.log('--------------------------비밀번호 찾기', userExist);
+        if (!userExist) {
+            return userExist;
+        } else {
+            const params = {
+                ClientId: clientId,
+                Username: email,
+            };
+            return new Promise((resolve, reject) => {
+                this.cognitoidentityserviceprovider.forgotPassword(
+                    params,
+                    function (err, data) {
+                        if (err) {
+                            // an error occurred
+                            console.log(
+                                '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  forgotPassword : ',
+                                err
+                            );
+                            reject(
+                                new Exception(err.statusCode, err.message, err)
+                            );
+                        } else {
+                            // successful response
+                            console.log(
+                                '응답 > Infrastructure > webService > authService > awsCognito.js > forgotPassword : ',
+                                data
+                            );
+                            resolve(data);
+                        }
                     }
-                }
-            );
-        });
+                );
+            });
+        }
     }
     // 비밀번호 찾기 : 확인코드와 함께 비밀번호 수정
     confirmForgotPassword({ email, code, password }) {
