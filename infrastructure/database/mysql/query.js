@@ -1009,8 +1009,7 @@ module.exports = class {
             abilityTasks, // 수행가능 세부과제들 데이터 - 여러개이므로 배열형태로 받기
             // taskId,
             // taskName,
-            // taskGroupId,
-            // taskGroupName,
+            // taskGroupType
             abilityIndustries, // 수행가능 업종들 데이터 - 여러개이므로 배열형태로 받기
             // industryId,
             // industryName,
@@ -1142,14 +1141,13 @@ module.exports = class {
                     }
 
                     // 수행가능 세부과제 - 여러개 : 세부과제 id/과제명/분류id/분류명
-                    sql = `INSERT INTO temp_profile_ability_tasks (consultant_profile_temp_id, task_id, task_name, task_group_id, task_group_name) VALUES (?, ?, ?, ?, ?)`;
+                    sql = `INSERT INTO temp_profile_ability_tasks (consultant_profile_temp_id, task_id, task_name, task_group_type) VALUES (?, ?, ?, ?)`;
                     for (let i = 0; i < abilityTasks.length; i++) {
                         arg = [
                             consultantProfileTempId,
                             abilityTasks[i].taskId,
                             abilityTasks[i].taskName,
-                            abilityTasks[i].taskGroupId,
-                            abilityTasks[i].taskGroupName,
+                            abilityTasks[i].taskGroupType,
                         ];
                         connection.query(
                             sql,
@@ -1458,10 +1456,8 @@ module.exports = class {
                                         let abilityTasksTempItems = {
                                             taskId: results[i]['task_id'],
                                             taskName: results[i]['task_name'],
-                                            taskGroupId:
-                                                results[i]['task_group_id'],
-                                            taskGroupName:
-                                                results[i]['task_group_name'],
+                                            taskGroupType:
+                                                results[i]['task_group_type'],
                                         };
                                         abilityTasksTemp.push(
                                             abilityTasksTempItems
@@ -1887,16 +1883,15 @@ module.exports = class {
 };
 /*
 sql = `INSERT INTO consultant_profile_temp 
-                    (consultant_user_id, certification_id, certification_name, task_id, task_name, task_group_id, task_group_name, industry_id, industry_name, final_academic_type, school_name, major_name, graduation_classification_type, certification_file, admission_date, graduate_date, company_name, position, career_certificate_file, joining_date, resignation_date, license_name, license_num, issue_institution, license_file, issued_date, project_name, assigned_task, project_industry_name, project_start_date, project_end_date, etc_certifications, etc_industries) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                    (consultant_user_id, certification_id, certification_name, task_id, task_name, task_group_type, industry_id, industry_name, final_academic_type, school_name, major_name, graduation_classification_type, certification_file, admission_date, graduate_date, company_name, position, career_certificate_file, joining_date, resignation_date, license_name, license_num, issue_institution, license_file, issued_date, project_name, assigned_task, project_industry_name, project_start_date, project_end_date, etc_certifications, etc_industries) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
                     arg = [
                         email,
                         certificationId,
                         certificationName,
                         taskId,
                         taskName,
-                        taskGroupId,
-                        taskGroupName,
+                        taskGroupType
                         industryId,
                         industryName,
                         finalAcademicType,

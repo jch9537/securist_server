@@ -18,7 +18,7 @@ const corsOptions = {
 };
 
 app.options('*', cors(corsOptions));
-// app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(sanitizer); // 태그제거 : XSS 방어
 app.use(routes);
