@@ -1,8 +1,12 @@
+// const exec = require('child_process').exec;
+// const bodyParser = require('body-parser');
+
 const { authAdapter } = require('../../../adapters/inbound');
 const Response = require('../modules/Response');
 const extractToken = require('../modules/extractToken');
 // const decryptAccessToken = require('../modules/decryptAccessToken');
 const getUserInfoByAccessToken = require('../modules/getUserInfoByAccessToken');
+const niceModule = require('../modules/nice_module/niceModule');
 
 module.exports = (router) => {
     router.post('/api/auth/checkemail', async (req, res) => {
@@ -169,6 +173,74 @@ module.exports = (router) => {
             res.send(response);
         } catch (err) {
             console.log('/api/auth/confirmforgotpassword 에러 응답 : ', err);
+            res.send(err);
+        }
+    });
+    // 휴대폰 본인 인증 (nice 모듈) 시작
+    router.get('/api/auth/checkplus_main', async (req, res) => {
+        try {
+            console.log('진입성공');
+            let result = await niceModule.main();
+            console.log('모듈시작 결과 : ', result);
+            let response = new Response(200, '본인 인증 모듈 시작 완료');
+            res.send(response);
+        } catch (err) {
+            res.send(err);
+        }
+    });
+    // 휴대폰 본인 인증 (nice 모듈) 성공 처리 : chrome 80 이상
+    router.get('/api/auth/checkplus_success', async (req, res) => {
+        try {
+            let encodeData = req.param('EncodeData');
+
+            console.log('success 진입성공');
+            let result = await niceModule.successGet(encodeData);
+            console.log('모듈성공 결과 : ', result);
+            let response = new Response(200, '본인 인증 완료', result);
+            res.send(response);
+        } catch (err) {
+            res.send(err);
+        }
+    });
+    // 휴대폰 본인 인증 (nice 모듈) 성공 처리 : chrome 80 이하 또는 다른 브라우저
+    router.post('/api/auth/checkplus_success', async (req, res) => {
+        try {
+            let encodeData = req.filteredData.EncodeData;
+
+            console.log('success 진입성공', encodeData);
+            let result = await niceModule.successPost(encodeData);
+            console.log('모듈성공 결과 : ', result);
+            let response = new Response(200, '본인 인증 완료', result);
+            res.send(response);
+        } catch (err) {
+            res.send(err);
+        }
+    });
+    // 휴대폰 본인 인증 (nice 모듈) 실패 처리 : chrome 80 이상
+    router.get('/api/auth/checkplus_fail', async (req, res) => {
+        try {
+            let encodeData = req.param('EncodeData');
+
+            console.log('fail 진입성공');
+            let result = await niceModule.failGet(encodeData);
+            console.log('모듈실패 결과 : ', result);
+            let response = new Response(400, '본인 인증 실패', result);
+            res.send(response);
+        } catch (err) {
+            res.send(err);
+        }
+    });
+    // 휴대폰 본인 인증 (nice 모듈) 실패 처리 : chrome 80 이하 또는 다른 브라우저
+    router.post('/api/auth/checkplus_fail', async (req, res) => {
+        try {
+            let encodeData = request.body.EncodeData;
+
+            console.log('fail 진입성공');
+            let result = await niceModule.failPost(encodeData);
+            console.log('모듈실패 결과 : ', result);
+            let response = new Response(400, '본인 인증 실패', result);
+            res.send(response);
+        } catch (err) {
             res.send(err);
         }
     });
