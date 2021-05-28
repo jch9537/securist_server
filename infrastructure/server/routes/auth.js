@@ -188,10 +188,13 @@ module.exports = (router) => {
             res.send(err);
         }
     });
+    // 휴대폰 본인 인증 (nice 모듈) 성공 처리 : chrome 80 이상
     router.get('/api/auth/checkplus_success', async (req, res) => {
         try {
+            let encodeData = req.param('EncodeData');
+
             console.log('success 진입성공');
-            let result = await niceModule.success();
+            let result = await niceModule.successGet(encodeData);
             console.log('모듈성공 결과 : ', result);
             let response = new Response(200, '본인 인증 완료', result);
             res.send(response);
@@ -199,12 +202,43 @@ module.exports = (router) => {
             res.send(err);
         }
     });
-    router.get('/api/auth/checkplus_fail', async (req, res) => {
+    // 휴대폰 본인 인증 (nice 모듈) 성공 처리 : chrome 80 이하 또는 다른 브라우저
+    router.post('/api/auth/checkplus_success', async (req, res) => {
         try {
-            console.log('fail 진입성공');
-            let result = await niceModule.success();
+            let encodeData = req.filteredData.EncodeData;
+
+            console.log('success 진입성공', encodeData);
+            let result = await niceModule.successPost(encodeData);
             console.log('모듈성공 결과 : ', result);
             let response = new Response(200, '본인 인증 완료', result);
+            res.send(response);
+        } catch (err) {
+            res.send(err);
+        }
+    });
+    // 휴대폰 본인 인증 (nice 모듈) 실패 처리 : chrome 80 이상
+    router.get('/api/auth/checkplus_fail', async (req, res) => {
+        try {
+            let encodeData = req.param('EncodeData');
+
+            console.log('fail 진입성공');
+            let result = await niceModule.failGet(encodeData);
+            console.log('모듈실패 결과 : ', result);
+            let response = new Response(400, '본인 인증 실패', result);
+            res.send(response);
+        } catch (err) {
+            res.send(err);
+        }
+    });
+    // 휴대폰 본인 인증 (nice 모듈) 실패 처리 : chrome 80 이하 또는 다른 브라우저
+    router.post('/api/auth/checkplus_fail', async (req, res) => {
+        try {
+            let encodeData = request.body.EncodeData;
+
+            console.log('fail 진입성공');
+            let result = await niceModule.failPost(encodeData);
+            console.log('모듈실패 결과 : ', result);
+            let response = new Response(400, '본인 인증 실패', result);
             res.send(response);
         } catch (err) {
             res.send(err);
