@@ -1,8 +1,9 @@
 const { CompanyEntity } = require('../../entities');
 const { AuthorizationException } = require('../../exceptions');
 module.exports = class {
-    constructor(Repository) {
-        this.Repository = Repository;
+    constructor({ companyRepository, relationRepository }) {
+        this.companyRepository = companyRepository;
+        this.relationRepository = relationRepository;
     }
     async excute(userData, companyData) {
         let result;
@@ -12,7 +13,7 @@ module.exports = class {
             let userType = companyEntity.userType;
 
             if (userType === 2 || userType === 3) {
-                let relationInfo = await this.Repository.getRelationInfo(
+                let relationInfo = await this.relationRepository.getRelationInfo(
                     userData
                 );
 
@@ -24,7 +25,7 @@ module.exports = class {
                 }
             }
 
-            result = await this.Repository.getCompanyBelongedUsersInfo(
+            result = await this.companyRepository.getCompanyBelongedUsersInfo(
                 companyEntity
             );
             console.log('클라이언트 기업 결과----------------', result);

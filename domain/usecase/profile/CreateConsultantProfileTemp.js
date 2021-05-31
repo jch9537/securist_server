@@ -1,7 +1,7 @@
 //Entity 생성해야함!!!
 module.exports = class {
-    constructor(Repository) {
-        this.Repository = Repository;
+    constructor({ profileRepository }) {
+        this.profileRepository = profileRepository;
     }
     async excute(userData, tempData, uploadData) {
         let result;
@@ -11,7 +11,7 @@ module.exports = class {
                 let createProfileTempEntity = tempData; // 유효성 확인 추가!!!
                 createProfileTempEntity.email = userData.email;
 
-                result = await this.Repository.createConsultantProfileTemp(
+                result = await this.profileRepository.createConsultantProfileTemp(
                     createProfileTempEntity,
                     uploadData
                 );

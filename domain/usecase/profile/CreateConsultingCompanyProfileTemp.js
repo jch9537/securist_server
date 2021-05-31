@@ -1,15 +1,16 @@
 const { GetUserBelongingCompanyInfo } = require('../user');
 //Entity 생성해야함!!!
 module.exports = class {
-    constructor(Repository) {
-        this.Repository = Repository;
+    constructor({ companyRepository, profileRepository }) {
+        this.companyRepository = companyRepository;
+        this.profileRepository = profileRepository;
     }
     async excute(userData, tempData, uploadData) {
         let result;
         try {
             if (userData.userType === 2) {
                 let getUserBelongingCompanyInfo = new GetUserBelongingCompanyInfo(
-                    this.Repository
+                    this.companyRepository
                 );
                 let companyData = await getUserBelongingCompanyInfo.excute(
                     userData
@@ -19,7 +20,7 @@ module.exports = class {
                 createProfileTempEntity.companyId =
                     companyData['consulting_company_id'];
 
-                result = await this.Repository.createConsultingCompanyProfileTemp(
+                result = await this.profileRepository.createConsultingCompanyProfileTemp(
                     createProfileTempEntity,
                     uploadData
                 );

@@ -1,16 +1,15 @@
-const { Auth, Repository, SendMail } = require('../outbound');
+const { repository } = require('../outbound');
 const {
     GetCompanyInfo,
     GetCompanyList,
     GetCompanyBelongedUsersInfo,
-    // UpdateRegistrationStatus,
 } = require('../../domain/usecase/company');
 
 module.exports = {
     // 기업 리스트 가져오기 : 기업(클/컨) 공통
     async getCompanyList(userData) {
         try {
-            let getCompanyList = new GetCompanyList(Repository);
+            let getCompanyList = new GetCompanyList(repository);
             let result = await getCompanyList.excute(userData);
             console.log(
                 '응답 > adapters > inbound > companyAdaptor.js > getCompanyList - result : ',
@@ -27,7 +26,7 @@ module.exports = {
     },
     async getCompanyInfo(userData, companyData) {
         try {
-            let getCompanyInfo = new GetCompanyInfo(Repository);
+            let getCompanyInfo = new GetCompanyInfo(repository);
             let result = await getCompanyInfo.excute(userData, companyData);
             console.log(
                 '응답 > adapters > inbound > companyAdaptor.js > getCompanyInfo - result : ',
@@ -46,7 +45,7 @@ module.exports = {
     async getCompanyBelongedUsersInfo(userData, companyData) {
         try {
             let getCompanyBelongedUsersInfo = new GetCompanyBelongedUsersInfo(
-                Repository
+                repository
             );
             let result = await getCompanyBelongedUsersInfo.excute(
                 userData,

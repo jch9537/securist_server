@@ -14,8 +14,8 @@ const ProfileRepository = require('./ProfileRepository');
 const RelationRepository = require('./RelationRepository');
 
 module.exports = {
-    UserRepository: new UserRepository(db),
-    CompanyRepository: new CompanyRepository(db),
-    ProfileRepository: new ProfileRepository(db),
-    RelationRepository: new RelationRepository(db),
+    userRepository: new UserRepository(db),
+    companyRepository: new CompanyRepository(db),
+    profileRepository: new ProfileRepository(db),
+    relationRepository: new RelationRepository(db),
 };

@@ -1,9 +1,8 @@
-const { Auth, Repository, SendMail } = require('../outbound');
+const { repository } = require('../outbound');
 const {
     CreateConsultantProfileTemp,
     CreateConsultingCompanyProfileTemp,
     GetProfileTemp,
-    UpdateProfileTemp,
     DeleteProfileTemp,
 } = require('../../domain/usecase/profile');
 
@@ -18,7 +17,7 @@ module.exports = {
         );
         try {
             let createConsultantProfileTemp = new CreateConsultantProfileTemp(
-                Repository
+                repository
             );
             let result = await createConsultantProfileTemp.excute(
                 userData,
@@ -48,7 +47,7 @@ module.exports = {
         );
         try {
             let createConsultingCompanyProfileTemp = new CreateConsultingCompanyProfileTemp(
-                Repository
+                repository
             );
             let result = await createConsultingCompanyProfileTemp.excute(
                 userData,
@@ -75,7 +74,7 @@ module.exports = {
             userData
         );
         try {
-            let getProfileTemp = new GetProfileTemp(Repository);
+            let getProfileTemp = new GetProfileTemp(repository);
             let result = await getProfileTemp.excute(userData);
             console.log(
                 '응답 > adapters > inbound > profileAdapter > getProfileTemp - result : ',
@@ -97,7 +96,7 @@ module.exports = {
             userData
         );
         try {
-            let deleteProfileTemp = new DeleteProfileTemp(Repository);
+            let deleteProfileTemp = new DeleteProfileTemp(repository);
             let result = await deleteProfileTemp.excute(userData);
             console.log(
                 '응답 > adapters > inbound > profileAdapter > deleteProfileTemp - result : ',

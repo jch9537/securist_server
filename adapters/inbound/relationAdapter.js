@@ -6,10 +6,9 @@ const {
     CreateUserAndCompanyRelation,
     GetRelationInfo,
     UpdateBelongingStatus,
-    // DeleteUserAndCompanyRelation,
 } = require('../../domain/usecase/relation');
 const userAdapter = require('./userAdapter');
-const { Repository } = require('../outbound');
+const { repository } = require('../outbound');
 
 module.exports = {
     // 사용자-기업 연결정보 가져오기
@@ -19,7 +18,7 @@ module.exports = {
             userData
         );
         try {
-            let getRelationInfo = new GetRelationInfo(Repository);
+            let getRelationInfo = new GetRelationInfo(repository);
             let result = await getRelationInfo.excute(userData);
             console.log(
                 '응답 > adapters > inbound > userAdaptor > getRelationInfo - result : ',
@@ -43,7 +42,7 @@ module.exports = {
         );
         try {
             let createUserAndCompanyRelation = new CreateUserAndCompanyRelation(
-                Repository
+                repository
             );
             let result = await createUserAndCompanyRelation.excute(
                 userData,
@@ -100,7 +99,7 @@ module.exports = {
                 };
             }
 
-            let updateBelongingStatus = new UpdateBelongingStatus(Repository);
+            let updateBelongingStatus = new UpdateBelongingStatus(repository);
             result = await updateBelongingStatus.excute(
                 userData,
                 updateStatusData

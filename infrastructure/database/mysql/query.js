@@ -1,6 +1,7 @@
 //TODO : 예외처리 - new Exception(err.statusCode, err.message, err) 추가
 const pool = require('./index');
 // const { logger } = require('../../../adapters/middleware');
+const Exception = require('../../../adapters/exceptions');
 const { authService } = require('../../../adapters/outbound/auth'); // 같은 layer - 의존성에 문제 없는지 확인
 
 module.exports = class {
@@ -696,6 +697,8 @@ module.exports = class {
             companyIdColumn = 'client_company_id';
             userIdColumn = 'client_user_id';
             userTypeForGetInfo = 3;
+        } else {
+            return new Exception(400, '사용자 타입오류');
         }
 
         return new Promise((resolve, reject) => {
@@ -831,6 +834,8 @@ module.exports = class {
         } else if (userType === 2) {
             tableName = 'consultant_user_and_company';
             userIdColumn = 'consultant_user_id';
+        } else {
+            return new Exception(400, '사용자 타입에러');
         }
 
         return new Promise((resolve, reject) => {
@@ -883,6 +888,8 @@ module.exports = class {
             tableName = 'client_user_and_company';
             userIdColumn = 'client_user_id';
             companyIdColumn = 'client_company_id';
+        } else {
+            return new Exception(400, '사용자 타입오류');
         }
         return new Promise((resolve, reject) => {
             pool.getConnection((error, connection) => {

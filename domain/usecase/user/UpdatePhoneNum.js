@@ -2,8 +2,9 @@ const { UserEntity } = require('../../entities');
 const { AuthorizationException } = require('../../exceptions');
 
 module.exports = class {
-    constructor(Repository) {
-        this.Repository = Repository;
+    constructor({ userRepository, relationRepository }) {
+        this.userRepository = userRepository;
+        this.relationRepository = relationRepository;
     }
     async excute(userData, updateData) {
         let updateUserData = {
@@ -17,7 +18,7 @@ module.exports = class {
             let userEntity = new UserEntity(updateUserData);
 
             if (userEntity.userType === 2 || userEntity.userType === 3) {
-                let relationInfo = await this.Repository.getRelationInfo(
+                let relationInfo = await this.relationRepository.getRelationInfo(
                     userData
                 );
                 let companyBelongingType = relationInfo['belonging_type'];
@@ -32,7 +33,7 @@ module.exports = class {
                     throw new AuthorizationException('기업 정보 수정');
                 }
             }
-            result = await this.Repository.updatePhoneNum(userEntity);
+            result = await this.userRepository.updatePhoneNum(userEntity);
             console.log('결과----------------', result);
             return result;
         } catch (error) {

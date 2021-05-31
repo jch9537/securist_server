@@ -675,7 +675,7 @@ module.exports = class {
         );
         const params = {
             ClientId: clientId,
-            ConfirmationCode: code,
+            ConfirmationCode: `${code}`,
             Password: password,
             Username: email,
         };

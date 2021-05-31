@@ -2,7 +2,7 @@
 const awsCognito = require('../../infrastructure/webService/authService/awsCognito'); // 테스트용 모듈 import
 
 // 사용자 처리 어댑터
-const { Auth, Repository } = require('../outbound');
+const { auth, repository } = require('../outbound');
 
 const {
     CheckDuplicateEmail,
@@ -26,7 +26,7 @@ module.exports = {
             checkData
         );
         try {
-            let checkDuplicateEmail = new CheckDuplicateEmail(Auth);
+            let checkDuplicateEmail = new CheckDuplicateEmail(auth);
             let result = await checkDuplicateEmail.excute(checkData);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - result : ',
@@ -52,7 +52,7 @@ module.exports = {
             signUpData
         );
         try {
-            let signUp = new SignUp(Auth, Repository);
+            let signUp = new SignUp(repository);
             let result = await signUp.excute(signUpData); //client에서 작성된 정보만 받음
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > signUp - result : ',
@@ -70,7 +70,7 @@ module.exports = {
     // 가입메일 재발송
     async resendComfirmEmail(resendEmailData) {
         try {
-            let resendComfirmEmail = new ResendComfirmEmail(Auth);
+            let resendComfirmEmail = new ResendComfirmEmail(auth);
             let result = await resendComfirmEmail.excute(resendEmailData);
 
             return result;
@@ -94,7 +94,7 @@ module.exports = {
             logInData
         );
         try {
-            let logIn = new LogIn(Auth);
+            let logIn = new LogIn(auth);
             let result = await logIn.excute(logInData);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > logIn - result : ',
@@ -116,7 +116,7 @@ module.exports = {
             accessToken
         );
         try {
-            let logOut = new LogOut(Auth);
+            let logOut = new LogOut(auth);
             let result = await logOut.excute(accessToken);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > logOut - result : ',
@@ -134,7 +134,7 @@ module.exports = {
             verifyData
         );
         try {
-            let verifyUserByPassword = new VerifyUserByPassword(Auth);
+            let verifyUserByPassword = new VerifyUserByPassword(auth);
             let result = await verifyUserByPassword.excute(verifyData);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > verifyUserByPassword - result : ',
@@ -158,7 +158,7 @@ module.exports = {
             updatePasswordData
         );
         try {
-            let changePassword = new ChangePassword(Auth);
+            let changePassword = new ChangePassword(auth);
             let result = await changePassword.excute(
                 accessToken,
                 updatePasswordData
@@ -183,7 +183,7 @@ module.exports = {
             forgotPasswordData
         );
         try {
-            let forgotPassword = new ForgotPassword(Auth);
+            let forgotPassword = new ForgotPassword(auth);
             let result = await forgotPassword.excute(forgotPasswordData);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > forgotPassword - result : ',
@@ -205,7 +205,7 @@ module.exports = {
             changePasswordData
         );
         try {
-            let confirmForgotPassword = new ConfirmForgotPassword(Auth);
+            let confirmForgotPassword = new ConfirmForgotPassword(auth);
             let result = await confirmForgotPassword.excute(changePasswordData);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > confirmForgotPassword - result : ',
@@ -227,7 +227,7 @@ module.exports = {
             accessToken
         );
         try {
-            let checkAccessToken = new CheckAccessToken(Auth);
+            let checkAccessToken = new CheckAccessToken(auth);
             let result = await checkAccessToken.excute(accessToken);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > checkAccessToken - result : ',
@@ -245,7 +245,7 @@ module.exports = {
             refreshToken
         );
         try {
-            let issueNewToken = new IssueNewToken(Auth);
+            let issueNewToken = new IssueNewToken(auth);
             let result = await issueNewToken.excute(refreshToken);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > issueNewToken - result : ',

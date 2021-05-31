@@ -2,8 +2,8 @@ const { RelationEntity } = require('../../entities');
 const { AuthorizationException } = require('../../exceptions');
 
 module.exports = class {
-    constructor(Repository) {
-        this.Repository = Repository;
+    constructor({ relationRepository }) {
+        this.relationRepository = relationRepository;
     }
     async excute(userData, updateStatusData) {
         let result;
@@ -14,7 +14,7 @@ module.exports = class {
             let userType = relationEntity.userType;
 
             if (userType === 2 || userType === 3) {
-                let relationInfo = await this.Repository.getRelationInfo(
+                let relationInfo = await this.relationRepository.getRelationInfo(
                     userData
                 );
                 let companyBelongingType = relationInfo['belonging_type'];
@@ -29,7 +29,7 @@ module.exports = class {
                     throw new AuthorizationException('소속 정보 수정');
                 }
             }
-            result = await this.Repository.updateBelongingStatus(
+            result = await this.relationRepository.updateBelongingStatus(
                 relationEntity
             );
             return result;

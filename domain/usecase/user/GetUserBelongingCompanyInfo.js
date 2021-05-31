@@ -1,10 +1,10 @@
 module.exports = class {
-    constructor(Repository) {
-        this.Repository = Repository;
+    constructor({userRepository}) {
+        this.userRepository = userRepository;
     }
     async excute(userData) {
         try {
-            let result = await this.Repository.getUserBelongingCompanyInfo(
+            let result = await this.userRepository.getUserBelongingCompanyInfo(
                 userData
             );
             // console.log('결과----------------', result);

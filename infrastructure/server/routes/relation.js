@@ -1,8 +1,4 @@
-const {
-    authAdapter,
-    userAdapter,
-    relationAdapter,
-} = require('../../../adapters/inbound');
+const { relationAdapter } = require('../../../adapters/inbound');
 
 const Response = require('../modules/Response');
 const extractToken = require('../modules/extractToken');
@@ -105,11 +101,15 @@ module.exports = (router) => {
                 result
             );
             let belongingType = result['belonging_type'];
+            console.log('--------------------', belongingType);
             let response;
-            if (String(belongingType) === '0') {
+            if (belongingType === 0) {
                 response = new Response(200, '소속 해제 완료');
-            } else if (String(belongingType) === 2) {
+            } else if (belongingType === 2) {
                 response = new Response(200, '소속 요청 승인 완료');
+            } else if (belongingType === 1) {
+                response = new Response(400, '소속 타입에러 ');
+                throw response;
             }
             res.send(response);
         } catch (err) {

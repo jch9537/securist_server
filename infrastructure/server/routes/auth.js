@@ -1,6 +1,3 @@
-// const exec = require('child_process').exec;
-// const bodyParser = require('body-parser');
-
 const { authAdapter } = require('../../../adapters/inbound');
 const Response = require('../modules/Response');
 const extractToken = require('../modules/extractToken');

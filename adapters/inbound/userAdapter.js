@@ -11,7 +11,7 @@ const {
     DeleteUser,
 } = require('../../domain/usecase/user');
 
-const { Repository } = require('../outbound');
+const { repository } = require('../outbound');
 const authAdapter = require('./authAdapter');
 
 module.exports = {
@@ -22,7 +22,7 @@ module.exports = {
             userData
         );
         try {
-            let getUserInfo = new GetUserInfo(Repository);
+            let getUserInfo = new GetUserInfo(repository);
             let result = await getUserInfo.excute(userData);
             console.log(
                 '응답 > adapters > inbound > userAdaptor.js > getUserInfo - result : ',
@@ -45,7 +45,7 @@ module.exports = {
         );
         try {
             let getUserBelongingCompanyInfo = new GetUserBelongingCompanyInfo(
-                Repository
+                repository
             );
             let result = await getUserBelongingCompanyInfo.excute(userData);
             console.log(
@@ -94,7 +94,7 @@ module.exports = {
             updateData
         );
         try {
-            let updatePhoneNum = new UpdatePhoneNum(Repository);
+            let updatePhoneNum = new UpdatePhoneNum(repository);
             let result = await updatePhoneNum.excute(userData, updateData);
             console.log(
                 '응답 > adapters > inbound > userAdaptor.js > updatePhoneNum - result : ',
@@ -117,7 +117,7 @@ module.exports = {
             updateData
         );
         try {
-            let updateBankInfo = new UpdateBankInfo(Repository);
+            let updateBankInfo = new UpdateBankInfo(repository);
             let result = await updateBankInfo.excute(userData, updateData);
             console.log(
                 '응답 > adapters > inbound > userAdaptor.js > updateBankInfo - result : ',
@@ -164,7 +164,7 @@ module.exports = {
                 userType: userData.userType,
                 withdrawalType: deleteData.withdrawalType,
             };
-            let deleteUser = new DeleteUser(Repository);
+            let deleteUser = new DeleteUser(repository);
             let result = await deleteUser.excute(newToken, withdrawalData);
             console.log(
                 '응답 > adapters > inbound > userAdaptor > deleteUser - result : ',

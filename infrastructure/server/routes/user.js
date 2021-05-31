@@ -26,7 +26,7 @@ module.exports = (router) => {
             );
             res.send(response);
         } catch (err) {
-            console.log('/api/user 에러 응답 : ', result);
+            console.log('/api/user 에러 응답 : ', err);
             res.send(err);
         }
     });

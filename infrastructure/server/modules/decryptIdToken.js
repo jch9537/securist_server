@@ -7,10 +7,11 @@ module.exports = async (req, res, next) => {
             let idToken = req.token;
             let userData = await authService.getUserByIdToken(idToken);
             req.userDataByIdToken = userData;
+            next();
         } catch (error) {
             //에러메세지
-            throw error;
+            console.log('토큰 복호화 에러3 : ', error);
+            res.send(error);
         }
     }
-    next();
 };

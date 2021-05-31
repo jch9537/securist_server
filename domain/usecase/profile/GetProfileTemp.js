@@ -1,18 +1,18 @@
 module.exports = class {
-    constructor(Repository) {
-        this.Repository = Repository;
+    constructor({ profileRepository }) {
+        this.profileRepository = profileRepository;
     }
     async excute(userData) {
         let result;
         try {
             // userData.userType = 1; // 테스트용
             if (userData.userType === 1) {
-                result = await this.Repository.getConsultantProfileTemp(
+                result = await this.profileRepository.getConsultantProfileTemp(
                     userData
                 );
                 console.log('결과----------------', result);
             } else if (userData.userType === 2) {
-                result = await this.Repository.getConsultingCompanyProfileTemp(
+                result = await this.profileRepository.getConsultingCompanyProfileTemp(
                     userData
                 );
                 console.log('결과----------------', result);
