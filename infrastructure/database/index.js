@@ -1,1 +1,1 @@
-module.exports = require('./mysql/Query');
+module.exports = require('./mysql/query/query');

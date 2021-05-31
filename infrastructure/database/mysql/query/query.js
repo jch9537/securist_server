@@ -1,8 +1,8 @@
 //TODO : 예외처리 - new Exception(err.statusCode, err.message, err) 추가
-const pool = require('./index');
-// const { logger } = require('../../../adapters/middleware');
-const Exception = require('../../../adapters/exceptions');
-const { authService } = require('../../../adapters/outbound/auth'); // 같은 layer - 의존성에 문제 없는지 확인
+const pool = require('../index');
+const Error = require('../../../error');
+const Exception = require('../../../../adapters/exceptions');
+const { authService } = require('../../../../adapters/outbound/auth'); // 같은 layer - 의존성에 문제 없는지 확인
 
 module.exports = class {
     constructor() {}
@@ -47,8 +47,15 @@ module.exports = class {
                     userType: userType,
                 };
 
-                connection.beginTransaction(function (err) {
-                    if (err) throw err;
+                connection.beginTransaction(function (error) {
+                    if (error)
+                        throw new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        );
                 });
 
                 //사용자 생성
@@ -66,7 +73,14 @@ module.exports = class {
                     sql,
                     arg,
                     function (error, results, fields) {
-                        if (error) throw error;
+                        if (error)
+                            throw new Error(
+                                error.code,
+                                error.errno,
+                                error.message,
+                                error.stack,
+                                error.sql
+                            );
                     }
                 );
 
@@ -101,7 +115,13 @@ module.exports = class {
                                             fields
                                         ) {
                                             if (error) {
-                                                throw error;
+                                                throw new Error(
+                                                    error.code,
+                                                    error.errno,
+                                                    error.message,
+                                                    error.stack,
+                                                    error.sql
+                                                );
                                             } else {
                                                 companyId =
                                                     results[0][idColumn];
@@ -138,7 +158,14 @@ module.exports = class {
                                                         results,
                                                         fields
                                                     ) {
-                                                        if (error) throw error;
+                                                        if (error)
+                                                            throw new Error(
+                                                                error.code,
+                                                                error.errno,
+                                                                error.message,
+                                                                error.stack,
+                                                                error.sql
+                                                            );
                                                     }
                                                 );
                                                 result = await authService.signUp(
@@ -146,8 +173,15 @@ module.exports = class {
                                                 ); // cognito 회원가입
 
                                                 await connection.commit(
-                                                    function (err) {
-                                                        if (err) throw err;
+                                                    function (error) {
+                                                        if (error)
+                                                            new Error(
+                                                                error.code,
+                                                                error.errno,
+                                                                error.message,
+                                                                error.stack,
+                                                                error.sql
+                                                            );
                                                     }
                                                 );
                                                 console.log(
@@ -157,7 +191,13 @@ module.exports = class {
                                         }
                                     );
                                 } else {
-                                    throw error;
+                                    new Error(
+                                        error.code,
+                                        error.errno,
+                                        error.message,
+                                        error.stack,
+                                        error.sql
+                                    );
                                 }
                             } else {
                                 // 등록되지 않은 사업자인 경우 - 기업id 가져오기
@@ -168,7 +208,13 @@ module.exports = class {
                                     arg,
                                     async function (error, results, fields) {
                                         if (error) {
-                                            throw error;
+                                            throw new Error(
+                                                error.code,
+                                                error.errno,
+                                                error.message,
+                                                error.stack,
+                                                error.sql
+                                            );
                                         } else {
                                             companyId = results[0][idColumn];
                                             isManager = 1; // 처음 등록된 기업이므로 관리자 처리
@@ -198,7 +244,14 @@ module.exports = class {
                                                     results,
                                                     fields
                                                 ) {
-                                                    if (error) throw error;
+                                                    if (error)
+                                                        throw new Error(
+                                                            error.code,
+                                                            error.errno,
+                                                            error.message,
+                                                            error.stack,
+                                                            error.sql
+                                                        );
                                                 }
                                             );
 
@@ -207,9 +260,16 @@ module.exports = class {
                                             ); // cognito 회원가입
 
                                             await connection.commit(function (
-                                                err
+                                                error
                                             ) {
-                                                if (err) throw err;
+                                                if (error)
+                                                    throw new Error(
+                                                        error.code,
+                                                        error.errno,
+                                                        error.message,
+                                                        error.stack,
+                                                        error.sql
+                                                    );
                                             });
                                             console.log(
                                                 'success! 최초 등록 기업!!'
@@ -223,15 +283,28 @@ module.exports = class {
                 } else {
                     result = await authService.signUp(userEntity); // cognito 회원가입
 
-                    await connection.commit(function (err) {
-                        if (err) throw err;
+                    await connection.commit(function (error) {
+                        if (error)
+                            throw new Error(
+                                error.code,
+                                error.errno,
+                                error.message,
+                                error.stack,
+                                error.sql
+                            );
                     });
                     console.log('success! 개인 컨설턴트!!');
                 }
             } catch (error) {
                 console.log('fail!');
                 return connection.rollback(function () {
-                    throw error;
+                    throw new Error(
+                        error.code,
+                        error.errno,
+                        error.message,
+                        error.stack,
+                        error.sql
+                    );
                 });
             } finally {
                 connection.release();
@@ -252,19 +325,27 @@ module.exports = class {
 
         return new Promise((resolve, reject) => {
             pool.getConnection((error, connection) => {
-                if (userType === 3) {
-                    tableName = 'client_users';
-                    idColumn = 'client_user_id';
-                } else {
-                    tableName = 'consultant_users';
-                    idColumn = 'consultant_user_id';
-                }
-                sql = `SELECT * FROM ${tableName} WHERE ${idColumn}=?`;
-                arg = [email];
-
                 if (error) {
-                    reject(error);
+                    reject(
+                        new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        )
+                    );
                 } else {
+                    if (userType === 3) {
+                        tableName = 'client_users';
+                        idColumn = 'client_user_id';
+                    } else {
+                        tableName = 'consultant_users';
+                        idColumn = 'consultant_user_id';
+                    }
+                    sql = `SELECT * FROM ${tableName} WHERE ${idColumn}=?`;
+
+                    arg = [email];
                     connection.query(
                         sql,
                         arg,
@@ -274,7 +355,15 @@ module.exports = class {
                                     '에러 응답 > DB > Query >  getUserInfo  : error',
                                     error
                                 );
-                                reject(error);
+                                reject(
+                                    new Error(
+                                        error.code,
+                                        error.errno,
+                                        error.message,
+                                        error.stack,
+                                        error.sql
+                                    )
+                                );
                             }
                             console.log(
                                 '응답 > DB > Query > :  getUserInfo  : result',
@@ -308,30 +397,36 @@ module.exports = class {
         //     throw error;
         // }
     }
-
     // UPDATE
     // 사용자 정보 변경 - 공통 : 연락처
     updatePhoneNum({ email, userType, phoneNum }) {
         let result;
         let sql, arg, tableName, idColumn;
-
-        if (userType === 3) {
-            tableName = 'client_users';
-            idColumn = 'client_user_id';
-        } else if (userType === 2) {
-            tableName = 'consultant_users';
-            idColumn = 'consultant_user_id';
-        } else {
-            throw err; // 사용자 타입오류
-        }
-        console.log(
-            'DB > Query : updateClientUserInfo!! : tablename, idColumn'
-        );
-
         return new Promise((resolve, reject) => {
+            if (userType === 3) {
+                tableName = 'client_users';
+                idColumn = 'client_user_id1';
+            } else if (userType === 1 || userType === 2) {
+                tableName = 'consultant_users';
+                idColumn = 'consultant_user_id1';
+            } else {
+                reject(new Exception('사용자 타입 오류')); // 사용자 타입오류
+            }
+            console.log(
+                'DB > Query : updateClientUserInfo!! : tablename, idColumn'
+            );
+
             pool.getConnection((error, connection) => {
                 if (error) {
-                    reject(error);
+                    reject(
+                        new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        )
+                    );
                 } else {
                     sql = `UPDATE ${tableName} SET phone_num = ? WHERE ${idColumn} = ?`;
                     arg = [phoneNum, email];
@@ -349,7 +444,15 @@ module.exports = class {
                                 //     `[DB 오류] > ${email} > /`,
                                 //     `**SQL : ${error.sql} / **MESSAGE :  ${error.sqlMessage}`
                                 // );
-                                reject(error);
+                                reject(
+                                    new Error(
+                                        error.code,
+                                        error.errno,
+                                        error.message,
+                                        error.stack,
+                                        error.sql
+                                    )
+                                );
                             } else {
                                 console.log(
                                     '응답 > DB > Query >  updateClientUserInfo  : results1',
@@ -362,7 +465,15 @@ module.exports = class {
                                     arg,
                                     (error, results, filelds) => {
                                         if (error) {
-                                            reject(error);
+                                            reject(
+                                                new Error(
+                                                    error.code,
+                                                    error.errno,
+                                                    error.message,
+                                                    error.stack,
+                                                    error.sql
+                                                )
+                                            );
                                         } else {
                                             console.log(
                                                 '응답 > DB > Query >  updateClientUserInfo  : results2',
@@ -393,24 +504,28 @@ module.exports = class {
         bankAccountOwner,
     }) {
         let result;
-        if (userType === 1) {
-            result = await this.updateUserBankInfo({
-                email,
-                bankName,
-                bankAccountNum,
-                bankAccountOwner,
-            });
-        } else if (userType === 2) {
-            result = await this.updateCompanyBankInfo({
-                email,
-                bankName,
-                bankAccountNum,
-                bankAccountOwner,
-            });
-        } else {
+        try {
+            if (userType === 1) {
+                result = await this.updateUserBankInfo({
+                    email,
+                    bankName,
+                    bankAccountNum,
+                    bankAccountOwner,
+                });
+            } else if (userType === 2) {
+                result = await this.updateCompanyBankInfo({
+                    email,
+                    bankName,
+                    bankAccountNum,
+                    bankAccountOwner,
+                });
+            } else {
+                throw new Exception('사용자 타입에러');
+            }
+            return result;
+        } catch (error) {
             throw error;
         }
-        return result;
     }
     // 사용자 정보 변경 - 개인컨설턴트 입금정보
     updateUserBankInfo({ email, bankName, bankAccountNum, bankAccountOwner }) {
@@ -431,7 +546,15 @@ module.exports = class {
                         '에러 응답 > DB > Query >  updateBankInfo  : error',
                         error
                     );
-                    reject(error);
+                    reject(
+                        new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        )
+                    );
                 }
                 sql = `SELECT bank_name, bank_account_num, bank_account_owner FROM consultant_users WHERE consultant_user_id = ?`;
                 arg = [email];
@@ -442,7 +565,15 @@ module.exports = class {
                             '에러 응답 > DB > Query >  updateBankInfo  : error',
                             error
                         );
-                        reject(error);
+                        reject(
+                            new Error(
+                                error.code,
+                                error.errno,
+                                error.message,
+                                error.stack,
+                                error.sql
+                            )
+                        );
                     }
                     console.log(
                         '응답 > DB > Query >  updateBankInfo  : results',
@@ -473,7 +604,15 @@ module.exports = class {
         return new Promise((resolve, reject) => {
             pool.query(sql, arg, function (error, results, fields) {
                 if (error) {
-                    reject(error);
+                    reject(
+                        new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        )
+                    );
                 }
                 let consultingCompanyId = results[0]['consulting_company_id'];
 
@@ -487,14 +626,30 @@ module.exports = class {
 
                 pool.query(sql, arg, function (error, results, fields) {
                     if (error) {
-                        reject(error);
+                        reject(
+                            new Error(
+                                error.code,
+                                error.errno,
+                                error.message,
+                                error.stack,
+                                error.sql
+                            )
+                        );
                     }
                     sql = `SELECT bank_name, bank_account_num, bank_account_owner FROM consulting_companies WHERE consulting_company_id = ?`;
                     arg = [consultingCompanyId];
 
                     pool.query(sql, arg, function (error, results, fields) {
                         if (error) {
-                            reject(error);
+                            reject(
+                                new Error(
+                                    error.code,
+                                    error.errno,
+                                    error.message,
+                                    error.stack,
+                                    error.sql
+                                )
+                            );
                         }
                         resolve(results[0]);
                     });
@@ -536,10 +691,23 @@ module.exports = class {
         pool.getConnection(async (error, connection) => {
             try {
                 if (error) {
-                    throw error;
+                    throw new Error(
+                        error.code,
+                        error.errno,
+                        error.message,
+                        error.stack,
+                        error.sql
+                    );
                 }
-                connection.beginTransaction(function (err) {
-                    if (err) throw err;
+                connection.beginTransaction(function (error) {
+                    if (error)
+                        throw new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        );
                 });
                 sql = `INSERT INTO withdrawal_info (user_type, withdrawal_type) VALUES (?, ?)`;
                 arg = [userType, withdrawalType];
@@ -547,7 +715,14 @@ module.exports = class {
                     sql,
                     arg,
                     function (error, results, fields) {
-                        if (error) throw error;
+                        if (error)
+                            throw new Error(
+                                error.code,
+                                error.errno,
+                                error.message,
+                                error.stack,
+                                error.sql
+                            );
                         console.log('deleteUser > 탈퇴정보 저장', results);
                     }
                 );
@@ -570,7 +745,14 @@ module.exports = class {
                         sql,
                         arg,
                         function (error, results, fields) {
-                            if (error) throw error;
+                            if (error)
+                                throw new Error(
+                                    error.code,
+                                    error.errno,
+                                    error.message,
+                                    error.stack,
+                                    error.sql
+                                );
                             // console.log(
                             //     '사용자 기업 연결정보 가져오기 --------------------',
                             //     results
@@ -586,14 +768,27 @@ module.exports = class {
                     );
                 }
 
-                await connection.commit(function (err) {
-                    if (err) throw err;
+                await connection.commit(function (error) {
+                    if (error)
+                        throw new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        );
                 });
                 console.log('success! 회원탈퇴처리완료!!');
             } catch (error) {
                 console.log('fail!');
                 return connection.rollback(function () {
-                    throw error;
+                    throw new Error(
+                        error.code,
+                        error.errno,
+                        error.message,
+                        error.stack,
+                        error.sql
+                    );
                 });
             } finally {
                 connection.release();
@@ -617,18 +812,34 @@ module.exports = class {
             tableName = 'client_companies';
             idColumn = 'client_company_id';
         } else {
-            throw error;
+            throw new Exception('사용자 타입 에러');
         }
 
         return new Promise((resolve, reject) => {
             pool.getConnection(async (error, connection) => {
                 if (error) {
-                    reject(error);
+                    reject(
+                        new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        )
+                    );
                 } else {
                     sql = `SELECT ${idColumn}, company_name, president_name from ${tableName} WHERE approval_state IN (2, 3);`;
                     await connection.query(sql, (error, results, filelds) => {
                         if (error) {
-                            reject(error);
+                            reject(
+                                new Error(
+                                    error.code,
+                                    error.errno,
+                                    error.message,
+                                    error.stack,
+                                    error.sql
+                                )
+                            );
                         } else {
                             console.log(
                                 '컨설팅 기업 정보리스트 가져오기 ------------------- : ',
@@ -661,13 +872,29 @@ module.exports = class {
         return new Promise((resolve, reject) => {
             pool.getConnection((error, connection) => {
                 if (error) {
-                    reject(error);
+                    reject(
+                        new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        )
+                    );
                 } else {
                     sql = `SELECT * FROM ${tableName} WHERE ${idColumn} = ?`;
                     arg = [companyId];
                     connection.query(sql, arg, (error, results, filelds) => {
                         if (error) {
-                            reject(error);
+                            reject(
+                                new Error(
+                                    error.code,
+                                    error.errno,
+                                    error.message,
+                                    error.stack,
+                                    error.sql
+                                )
+                            );
                         } else {
                             console.log(
                                 ' 응답 > DB > getCompanyInfo > 기업 정보 가져오기 ------------------- : ',
@@ -698,13 +925,21 @@ module.exports = class {
             userIdColumn = 'client_user_id';
             userTypeForGetInfo = 3;
         } else {
-            return new Exception(400, '사용자 타입오류');
+            return new Exception('사용자 타입오류');
         }
 
         return new Promise((resolve, reject) => {
             pool.getConnection((error, connection) => {
                 if (error) {
-                    reject(error);
+                    reject(
+                        new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        )
+                    );
                 } else {
                     sql = `SELECT ${userIdColumn} FROM ${tableName} WHERE ${companyIdColumn} = ?`;
                     arg = [companyId];
@@ -713,7 +948,15 @@ module.exports = class {
                         arg,
                         async (error, results, fields) => {
                             if (error) {
-                                reject(error);
+                                reject(
+                                    new Error(
+                                        error.code,
+                                        error.errno,
+                                        error.message,
+                                        error.stack,
+                                        error.sql
+                                    )
+                                );
                             } else {
                                 let belongedUsers = results.map(
                                     (user) => user[userIdColumn]
@@ -766,7 +1009,15 @@ module.exports = class {
         return new Promise((resolve, reject) => {
             pool.getConnection(async (error, connection) => {
                 if (error) {
-                    reject(error);
+                    reject(
+                        new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        )
+                    );
                 } else {
                     let checkBelongingCompany = await this.getRelationInfo({
                         email,
@@ -791,18 +1042,21 @@ module.exports = class {
                             arg,
                             (error, results, fields) => {
                                 if (error) {
-                                    reject(error);
+                                    reject(
+                                        new Error(
+                                            error.code,
+                                            error.errno,
+                                            error.message,
+                                            error.stack,
+                                            error.sql
+                                        )
+                                    );
                                 } else {
                                     result = results;
                                     resolve(result);
                                 }
                             }
                         );
-                    } else if (
-                        checkBelongingCompany[companyIdColumn] !==
-                        Number(companyId) // 이미 타기업에 소속된 사용자의 경우
-                    ) {
-                        reject(error); // 타기업에 소속된 사용자는 중복 소속요청을 할 수 없습니다. - 예외처리!!!!!!!!!!!
                     } else if (
                         checkBelongingCompany[companyIdColumn] ===
                         Number(companyId)
@@ -816,6 +1070,9 @@ module.exports = class {
                         };
                         result = await this.updateBelongingStatus(updateData);
                         resolve(result);
+                    } else {
+                        // if ( checkBelongingCompany[companyIdColumn] !==Number(companyId) // 이미 타기업에 소속된 사용자의 경우)
+                        reject(new Exception('타 기업에 소속된 사용자')); // 타기업에 소속된 사용자는 중복 소속요청을 할 수 없습니다. - 예외처리!!!!!!!!!!!
                     }
                 }
             });
@@ -835,13 +1092,21 @@ module.exports = class {
             tableName = 'consultant_user_and_company';
             userIdColumn = 'consultant_user_id';
         } else {
-            return new Exception(400, '사용자 타입에러');
+            return new Exception('사용자 타입에러');
         }
 
         return new Promise((resolve, reject) => {
             pool.getConnection(async (error, connection) => {
                 if (error) {
-                    reject(error);
+                    reject(
+                        new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        )
+                    );
                 } else {
                     sql = `SELECT * FROM ${tableName} WHERE ${userIdColumn} = ?`;
                     arg = [email];
@@ -854,7 +1119,15 @@ module.exports = class {
                                     '에러 > DB > Query >  getRelationInfo : ',
                                     error
                                 );
-                                reject(error);
+                                reject(
+                                    new Error(
+                                        error.code,
+                                        error.errno,
+                                        error.message,
+                                        error.stack,
+                                        error.sql
+                                    )
+                                );
                             } else {
                                 console.log(
                                     '응답 > DB > Query >  getRelationInfo : ',
@@ -889,12 +1162,20 @@ module.exports = class {
             userIdColumn = 'client_user_id';
             companyIdColumn = 'client_company_id';
         } else {
-            return new Exception(400, '사용자 타입오류');
+            return new Exception('사용자 타입오류');
         }
         return new Promise((resolve, reject) => {
             pool.getConnection((error, connection) => {
                 if (error) {
-                    reject(error);
+                    reject(
+                        new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        )
+                    );
                 } else {
                     sql = `UPDATE ${tableName} SET belonging_type = ? WHERE ${companyIdColumn} = ? AND ${userIdColumn}= ?;`;
                     arg = [belongingType, companyId, email];
@@ -904,13 +1185,20 @@ module.exports = class {
                                 '에러 > DB > Query >  updateBelongingStatus  : error',
                                 error
                             );
-                            reject(error);
+                            reject(
+                                new Error(
+                                    error.code,
+                                    error.errno,
+                                    error.message,
+                                    error.stack,
+                                    error.sql
+                                )
+                            );
                         } else {
                             console.log(
                                 ' 응답 > DB > Query >  updateBelongingStatus  : results1',
                                 results
                             );
-                            // resolve(results);
                             sql = `SELECT ${userIdColumn},belonging_type FROM ${tableName} WHERE ${companyIdColumn} = ? AND ${userIdColumn}= ?`;
                             arg = [companyId, email];
                             connection.query(
@@ -918,7 +1206,15 @@ module.exports = class {
                                 arg,
                                 (error, results, filelds) => {
                                     if (error) {
-                                        reject(error);
+                                        reject(
+                                            new Error(
+                                                error.code,
+                                                error.errno,
+                                                error.message,
+                                                error.stack,
+                                                error.sql
+                                            )
+                                        );
                                     } else {
                                         console.log(
                                             ' 응답 > DB > Query >  updateBelongingStatus  : results2',
@@ -926,10 +1222,13 @@ module.exports = class {
                                         );
                                         if (results.length === 0) {
                                             reject(
-                                                '선택 사용자가 소속기업이 없는 경우 // query에서 예외처리'
+                                                new Exception(
+                                                    '소속 기업이 없는 사용자 입니다.'
+                                                )
                                             );
+                                        } else {
+                                            resolve(results[0]);
                                         }
-                                        resolve(results[0]);
                                     }
                                 }
                             );
@@ -966,6 +1265,8 @@ module.exports = class {
             tableName = 'consultant_user_and_company';
             userIdColumn = 'consultant_user_id';
             companyIdColumn = 'consulting_company_id';
+        } else {
+            throw new Exception('사용자 타입 오류');
         }
 
         return new Promise((resolve, reject) => {
@@ -975,7 +1276,15 @@ module.exports = class {
                         ' 에러 > DB > Query >  deleteUserAndCompanyRelation  : error2',
                         error
                     );
-                    reject(error);
+                    reject(
+                        new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        )
+                    );
                 } else {
                     sql = `DELETE FROM ${tableName} WHERE ${userIdColumn} = ? AND ${companyIdColumn} = ?`;
                     arg = [email, companyId];
@@ -989,7 +1298,15 @@ module.exports = class {
                                     ' 에러 > DB > Query >  deleteUserAndCompanyRelation  : error3',
                                     error
                                 );
-                                reject(error);
+                                reject(
+                                    new Error(
+                                        error.code,
+                                        error.errno,
+                                        error.message,
+                                        error.stack,
+                                        error.sql
+                                    )
+                                );
                             } else {
                                 console.log(
                                     ' 응답 > DB > Query >  deleteUserAndCompanyRelation  : results',
@@ -1073,10 +1390,23 @@ module.exports = class {
                         ' 에러 > DB > Query >  CreateConsultantProfileTemp  : error1',
                         error
                     );
-                    throw error;
+                    throw new Error(
+                        error.code,
+                        error.errno,
+                        error.message,
+                        error.stack,
+                        error.sql
+                    );
                 }
                 connection.beginTransaction(function (error) {
-                    if (error) throw error;
+                    if (error)
+                        throw new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        );
                 });
 
                 sql = `INSERT INTO consultant_profile_temp (consultant_user_id, consultant_introduce) VALUES (?, ?)`;
@@ -1087,14 +1417,26 @@ module.exports = class {
                             ' 에러 > DB > Query >  CreateConsultantProfileTemp  : error2',
                             error
                         );
-                        throw error;
+                        throw new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        );
                     }
                 });
                 sql = `SELECT * FROM consultant_profile_temp WHERE consultant_user_id=?`;
                 arg = [email];
                 connection.query(sql, arg, (error, results, fields) => {
                     if (error) {
-                        throw error;
+                        throw new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        );
                     }
                     console.log(
                         ' 응답 > DB > Query >  CreateConsultantProfileTemp  : results',
@@ -1117,7 +1459,14 @@ module.exports = class {
                             sql,
                             arg,
                             (error, results, filelds) => {
-                                if (error) throw error;
+                                if (error)
+                                    throw new Error(
+                                        error.code,
+                                        error.errno,
+                                        error.message,
+                                        error.stack,
+                                        error.sql
+                                    );
                                 console.log(
                                     'abilityCertifications 결과 : ',
                                     results
@@ -1138,7 +1487,14 @@ module.exports = class {
                             sql,
                             arg,
                             (error, results, filelds) => {
-                                if (error) throw error;
+                                if (error)
+                                    throw new Error(
+                                        error.code,
+                                        error.errno,
+                                        error.message,
+                                        error.stack,
+                                        error.sql
+                                    );
                                 console.log(
                                     'abilityIndustries 결과 : ',
                                     results
@@ -1160,7 +1516,14 @@ module.exports = class {
                             sql,
                             arg,
                             (error, results, filelds) => {
-                                if (error) throw error;
+                                if (error)
+                                    throw new Error(
+                                        error.code,
+                                        error.errno,
+                                        error.message,
+                                        error.stack,
+                                        error.sql
+                                    );
                                 console.log('abilityTasks 결과 : ', results);
                             }
                         );
@@ -1180,7 +1543,14 @@ module.exports = class {
                         academicBackground.graduateDate,
                     ];
                     connection.query(sql, arg, (error, results, filelds) => {
-                        if (error) throw error;
+                        if (error)
+                            throw new Error(
+                                error.code,
+                                error.errno,
+                                error.message,
+                                error.stack,
+                                error.sql
+                            );
                         console.log('academicBackground 결과 : ', results);
                     });
 
@@ -1201,7 +1571,14 @@ module.exports = class {
                             sql,
                             arg,
                             (error, results, filelds) => {
-                                if (error) throw error;
+                                if (error)
+                                    throw new Error(
+                                        error.code,
+                                        error.errno,
+                                        error.message,
+                                        error.stack,
+                                        error.sql
+                                    );
                                 console.log('career 결과 : ', results);
                             }
                         );
@@ -1222,7 +1599,14 @@ module.exports = class {
                             sql,
                             arg,
                             (error, results, filelds) => {
-                                if (error) throw error;
+                                if (error)
+                                    throw new Error(
+                                        error.code,
+                                        error.errno,
+                                        error.message,
+                                        error.stack,
+                                        error.sql
+                                    );
                                 console.log('license 결과 : ', results);
                             }
                         );
@@ -1243,7 +1627,14 @@ module.exports = class {
                             sql,
                             arg,
                             (error, results, filelds) => {
-                                if (error) throw error;
+                                if (error)
+                                    throw new Error(
+                                        error.code,
+                                        error.errno,
+                                        error.message,
+                                        error.stack,
+                                        error.sql
+                                    );
                                 console.log('projectHistory 결과 : ', results);
                             }
                         );
@@ -1257,7 +1648,14 @@ module.exports = class {
                         etc.etcIndustries,
                     ];
                     connection.query(sql, arg, (error, results, filelds) => {
-                        if (error) throw error;
+                        if (error)
+                            throw new Error(
+                                error.code,
+                                error.errno,
+                                error.message,
+                                error.stack,
+                                error.sql
+                            );
                     });
 
                     // 업로드 파일들 처리
@@ -1282,20 +1680,40 @@ module.exports = class {
                         ];
 
                         connection.query(sql, arg, (error, results, fields) => {
-                            if (error) throw error;
+                            if (error)
+                                throw new Error(
+                                    error.code,
+                                    error.errno,
+                                    error.message,
+                                    error.stack,
+                                    error.sql
+                                );
                             console.log('upload 처리 결과 : ', results);
                         });
                     }
 
                     connection.commit(function (error) {
-                        if (error) throw error;
+                        if (error)
+                            throw new Error(
+                                error.code,
+                                error.errno,
+                                error.message,
+                                error.stack,
+                                error.sql
+                            );
                     });
                     console.log('임시저장 success!!!');
                 });
             } catch (error) {
                 console.log('fail!');
                 return connection.rollback(function () {
-                    throw error;
+                    throw new Error(
+                        error.code,
+                        error.errno,
+                        error.message,
+                        error.stack,
+                        error.sql
+                    );
                 });
             } finally {
                 connection.release();
@@ -1321,10 +1739,23 @@ module.exports = class {
                         ' 에러 > DB > Query >  createConsultingCompanyProfileTemp  : error1',
                         error
                     );
-                    throw error;
+                    throw new Error(
+                        error.code,
+                        error.errno,
+                        error.message,
+                        error.stack,
+                        error.sql
+                    );
                 }
                 connection.beginTransaction(function (error) {
-                    if (error) throw error;
+                    if (error)
+                        throw new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        );
                 });
                 // 기업 프로필 임시저장 데이터 저장
                 sql = `INSERT INTO consulting_company_profile_temp (consulting_company_id, company_introduce, business_license_file, business_license_file_path) VALUES (?, ?, ?, ?)`;
@@ -1335,12 +1766,26 @@ module.exports = class {
                     uploadData[0]['location'],
                 ];
                 connection.query(sql, arg, (error, results, fields) => {
-                    if (error) throw error;
+                    if (error)
+                        throw new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        );
                     // 기업 프로필 임시저장 아이디 가져오기
                     sql = `SELECT consulting_company_profile_temp_id FROM consulting_company_profile_temp WHERE consulting_company_id=?`;
                     arg = companyId;
                     connection.query(sql, arg, (error, results, fields) => {
-                        if (error) throw error;
+                        if (error)
+                            throw new Error(
+                                error.code,
+                                error.errno,
+                                error.message,
+                                error.stack,
+                                error.sql
+                            );
                         let profileTempId =
                             results[0]['consulting_company_profile_temp_id'];
                         console.log('프로필 임시 아이디', profileTempId);
@@ -1366,12 +1811,26 @@ module.exports = class {
                                 sql,
                                 arg,
                                 (error, results, fields) => {
-                                    if (error) throw error;
+                                    if (error)
+                                        throw new Error(
+                                            error.code,
+                                            error.errno,
+                                            error.message,
+                                            error.stack,
+                                            error.sql
+                                        );
                                 }
                             );
                         }
                         connection.commit(function (error) {
-                            if (error) throw error;
+                            if (error)
+                                throw new Error(
+                                    error.code,
+                                    error.errno,
+                                    error.message,
+                                    error.stack,
+                                    error.sql
+                                );
                         });
                         console.log('임시저장 success!!!');
                     });
@@ -1379,7 +1838,13 @@ module.exports = class {
             } catch (error) {
                 console.log('fail!!');
                 return connection.rollback(() => {
-                    throw error;
+                    throw new Error(
+                        error.code,
+                        error.errno,
+                        error.message,
+                        error.stack,
+                        error.sql
+                    );
                 });
             } finally {
                 connection.release();
@@ -1397,7 +1862,16 @@ module.exports = class {
         return new Promise((resolve, reject) => {
             try {
                 pool.getConnection((error, connection) => {
-                    if (error) reject(error);
+                    if (error)
+                        reject(
+                            new Error(
+                                error.code,
+                                error.errno,
+                                error.message,
+                                error.stack,
+                                error.sql
+                            )
+                        );
                     // 프로필 임시저장 기본 정보
                     sql = `SELECT * FROM consultant_profile_temp WHERE consultant_user_id=?`;
                     arg = [email];
@@ -1406,7 +1880,16 @@ module.exports = class {
                         sql,
                         arg,
                         async (error, results, fields) => {
-                            if (error) reject(error);
+                            if (error)
+                                reject(
+                                    new Error(
+                                        error.code,
+                                        error.errno,
+                                        error.message,
+                                        error.stack,
+                                        error.sql
+                                    )
+                                );
                             let consultantProfileTempInfo = {
                                 consultantProfileTempId:
                                     results[0]['consultant_profile_temp_id'],
@@ -1427,7 +1910,16 @@ module.exports = class {
                                 sql,
                                 arg,
                                 (error, results, fields) => {
-                                    if (error) reject(error);
+                                    if (error)
+                                        reject(
+                                            new Error(
+                                                error.code,
+                                                error.errno,
+                                                error.message,
+                                                error.stack,
+                                                error.sql
+                                            )
+                                        );
                                     let abilityCertificationTemp = [];
                                     for (let i = 0; i < results.length; i++) {
                                         let abilityCertificationTempItems = {
@@ -1457,7 +1949,16 @@ module.exports = class {
                                 sql,
                                 arg,
                                 (error, results, fields) => {
-                                    if (error) reject(error);
+                                    if (error)
+                                        reject(
+                                            new Error(
+                                                error.code,
+                                                error.errno,
+                                                error.message,
+                                                error.stack,
+                                                error.sql
+                                            )
+                                        );
                                     let abilityTasksTemp = [];
                                     for (let i = 0; i < results.length; i++) {
                                         let abilityTasksTempItems = {
@@ -1485,7 +1986,16 @@ module.exports = class {
                                 sql,
                                 arg,
                                 (error, results, fields) => {
-                                    if (error) reject(error);
+                                    if (error)
+                                        reject(
+                                            new Error(
+                                                error.code,
+                                                error.errno,
+                                                error.message,
+                                                error.stack,
+                                                error.sql
+                                            )
+                                        );
                                     let abilityIndustriesTemp = [];
                                     for (let i = 0; i < results.length; i++) {
                                         let abilityIndustriesTempItems = {
@@ -1512,7 +2022,16 @@ module.exports = class {
                                 sql,
                                 arg,
                                 (error, results, fields) => {
-                                    if (error) reject(error);
+                                    if (error)
+                                        reject(
+                                            new Error(
+                                                error.code,
+                                                error.errno,
+                                                error.message,
+                                                error.stack,
+                                                error.sql
+                                            )
+                                        );
                                     consultantProfileTempInfo.academicBackground = {
                                         finalAcademicType:
                                             results[0]['final_academic_type'],
@@ -1540,7 +2059,16 @@ module.exports = class {
                                 sql,
                                 arg,
                                 (error, results, fields) => {
-                                    if (error) reject(error);
+                                    if (error)
+                                        reject(
+                                            new Error(
+                                                error.code,
+                                                error.errno,
+                                                error.message,
+                                                error.stack,
+                                                error.sql
+                                            )
+                                        );
                                     let careerTemp = [];
                                     for (let i = 0; i < results.length; i++) {
                                         let careerTempItem = {
@@ -1570,7 +2098,16 @@ module.exports = class {
                                 sql,
                                 arg,
                                 (error, results, fields) => {
-                                    if (error) reject(error);
+                                    if (error)
+                                        reject(
+                                            new Error(
+                                                error.code,
+                                                error.errno,
+                                                error.message,
+                                                error.stack,
+                                                error.sql
+                                            )
+                                        );
                                     let licenseTemp = [];
                                     for (let i = 0; i < results.length; i++) {
                                         let licenseTempItem = {
@@ -1599,7 +2136,16 @@ module.exports = class {
                                 sql,
                                 arg,
                                 (error, results, fields) => {
-                                    if (error) reject(error);
+                                    if (error)
+                                        reject(
+                                            new Error(
+                                                error.code,
+                                                error.errno,
+                                                error.message,
+                                                error.stack,
+                                                error.sql
+                                            )
+                                        );
                                     let projectHistoryTemp = [];
                                     for (let i = 0; i < results.length; i++) {
                                         let projectHistoryTempItem = {
@@ -1640,7 +2186,16 @@ module.exports = class {
                                 sql,
                                 arg,
                                 (error, results, fields) => {
-                                    if (error) reject(error);
+                                    if (error)
+                                        reject(
+                                            new Error(
+                                                error.code,
+                                                error.errno,
+                                                error.message,
+                                                error.stack,
+                                                error.sql
+                                            )
+                                        );
                                     let etcTemp = {
                                         etcCertifications:
                                             results[0]['etc_certifications'],
@@ -1661,7 +2216,16 @@ module.exports = class {
                                 sql,
                                 arg,
                                 (error, results, fields) => {
-                                    if (error) reject(error);
+                                    if (error)
+                                        reject(
+                                            new Error(
+                                                error.code,
+                                                error.errno,
+                                                error.message,
+                                                error.stack,
+                                                error.sql
+                                            )
+                                        );
                                     let uploadFilesTemp = {
                                         academic: [],
                                         career: [],
@@ -1725,7 +2289,15 @@ module.exports = class {
             try {
                 pool.getConnection(async (error, connection) => {
                     if (error) {
-                        reject(error);
+                        reject(
+                            new Error(
+                                error.code,
+                                error.errno,
+                                error.message,
+                                error.stack,
+                                error.sql
+                            )
+                        );
                     } else {
                         let consultingCompanyInfo = await self.getUserBelongingCompanyInfo(
                             {
@@ -1747,7 +2319,15 @@ module.exports = class {
                         arg = [consultingCompanyId];
                         connection.query(sql, arg, (error, results, fields) => {
                             if (error) {
-                                reject(error);
+                                reject(
+                                    new Error(
+                                        error.code,
+                                        error.errno,
+                                        error.message,
+                                        error.stack,
+                                        error.sql
+                                    )
+                                );
                             } else {
                                 consultingCompanyProfileTempInfo.companyIntroduce =
                                     results[0]['company_introduce'];
@@ -1771,7 +2351,15 @@ module.exports = class {
                                     arg,
                                     (error, results, fields) => {
                                         if (error) {
-                                            reject(error);
+                                            reject(
+                                                new Error(
+                                                    error.code,
+                                                    error.errno,
+                                                    error.message,
+                                                    error.stack,
+                                                    error.sql
+                                                )
+                                            );
                                         } else {
                                             let consultingCompanyProjectHistoryTemp = [];
                                             for (
@@ -1831,11 +2419,25 @@ module.exports = class {
         // userType = 1; // 테스트용
         pool.getConnection((error, connection) => {
             try {
+                if (error)
+                    throw new Error(
+                        error.code,
+                        error.errno,
+                        error.message,
+                        error.stack,
+                        error.sql
+                    );
                 connection.beginTransaction(function (error) {
-                    if (error) throw error;
+                    if (error)
+                        throw new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        );
                 });
 
-                if (error) throw error;
                 if (userType === 1) {
                     sql = `DELETE FROM a, b, c, d, e, f, g, h, i, j 
                     USING consultant_profile_temp AS a 
@@ -1863,24 +2465,46 @@ module.exports = class {
                     USING consulting_company_profile_temp AS a LEFT JOIN temp_consulting_company_profile_project_history AS b
                     ON a.consulting_company_profile_temp_id = b.consulting_company_profile_temp_id
                     WHERE a.consulting_company_id = (SELECT consulting_company_id FROM consultant_user_and_company WHERE consultant_user_id = ?)`;
+                } else {
+                    throw new Exception('사용자 타입 오류');
                 }
                 arg = [email];
 
                 connection.query(sql, arg, (error, results, fields) => {
-                    if (error) throw error;
+                    if (error)
+                        throw new Error(
+                            error.code,
+                            error.errno,
+                            error.message,
+                            error.stack,
+                            error.sql
+                        );
                     console.log(
                         'DB > query > deleteProfileTemp > 삭제결과 : ',
                         results
                     );
                     connection.commit(function (error) {
-                        if (error) throw error;
+                        if (error)
+                            throw new Error(
+                                error.code,
+                                error.errno,
+                                error.message,
+                                error.stack,
+                                error.sql
+                            );
                     });
                     console.log('임시저장 success!!!');
                 });
             } catch (error) {
                 console.log('fail!!');
                 return connection.rollback(() => {
-                    throw error;
+                    throw new Error(
+                        error.code,
+                        error.errno,
+                        error.message,
+                        error.stack,
+                        error.sql
+                    );
                 });
             } finally {
                 connection.release();

@@ -1,7 +1,7 @@
 module.exports = class {
-    constructor(code, message, error) {
-        this.code = code;
+    constructor(message, code = 400, error) {
         this.message = message;
+        this.code = code;
         this.error = error;
     }
 };
