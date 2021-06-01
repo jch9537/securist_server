@@ -1,6 +1,5 @@
-//TODO : 예외처리 - new Exception(err.statusCode, err.message, err) 추가
 const pool = require('../index');
-const Error = require('../../../error');
+const { DatabaseError } = require('../../../error');
 const Exception = require('../../../../adapters/exceptions');
 const { authService } = require('../../../../adapters/outbound/auth'); // 같은 layer - 의존성에 문제 없는지 확인
 
@@ -49,7 +48,7 @@ module.exports = class {
 
                 connection.beginTransaction(function (error) {
                     if (error)
-                        throw new Error(
+                        throw new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -74,7 +73,7 @@ module.exports = class {
                     arg,
                     function (error, results, fields) {
                         if (error)
-                            throw new Error(
+                            throw new DatabaseError(
                                 error.code,
                                 error.errno,
                                 error.message,
@@ -115,7 +114,7 @@ module.exports = class {
                                             fields
                                         ) {
                                             if (error) {
-                                                throw new Error(
+                                                throw new DatabaseError(
                                                     error.code,
                                                     error.errno,
                                                     error.message,
@@ -159,7 +158,7 @@ module.exports = class {
                                                         fields
                                                     ) {
                                                         if (error)
-                                                            throw new Error(
+                                                            throw new DatabaseError(
                                                                 error.code,
                                                                 error.errno,
                                                                 error.message,
@@ -175,7 +174,7 @@ module.exports = class {
                                                 await connection.commit(
                                                     function (error) {
                                                         if (error)
-                                                            new Error(
+                                                            new DatabaseError(
                                                                 error.code,
                                                                 error.errno,
                                                                 error.message,
@@ -191,7 +190,7 @@ module.exports = class {
                                         }
                                     );
                                 } else {
-                                    new Error(
+                                    new DatabaseError(
                                         error.code,
                                         error.errno,
                                         error.message,
@@ -208,7 +207,7 @@ module.exports = class {
                                     arg,
                                     async function (error, results, fields) {
                                         if (error) {
-                                            throw new Error(
+                                            throw new DatabaseError(
                                                 error.code,
                                                 error.errno,
                                                 error.message,
@@ -245,7 +244,7 @@ module.exports = class {
                                                     fields
                                                 ) {
                                                     if (error)
-                                                        throw new Error(
+                                                        throw new DatabaseError(
                                                             error.code,
                                                             error.errno,
                                                             error.message,
@@ -263,7 +262,7 @@ module.exports = class {
                                                 error
                                             ) {
                                                 if (error)
-                                                    throw new Error(
+                                                    throw new DatabaseError(
                                                         error.code,
                                                         error.errno,
                                                         error.message,
@@ -285,7 +284,7 @@ module.exports = class {
 
                     await connection.commit(function (error) {
                         if (error)
-                            throw new Error(
+                            throw new DatabaseError(
                                 error.code,
                                 error.errno,
                                 error.message,
@@ -298,7 +297,7 @@ module.exports = class {
             } catch (error) {
                 console.log('fail!');
                 return connection.rollback(function () {
-                    throw new Error(
+                    throw new DatabaseError(
                         error.code,
                         error.errno,
                         error.message,
@@ -327,7 +326,7 @@ module.exports = class {
             pool.getConnection((error, connection) => {
                 if (error) {
                     reject(
-                        new Error(
+                        new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -356,7 +355,7 @@ module.exports = class {
                                     error
                                 );
                                 reject(
-                                    new Error(
+                                    new DatabaseError(
                                         error.code,
                                         error.errno,
                                         error.message,
@@ -419,7 +418,7 @@ module.exports = class {
             pool.getConnection((error, connection) => {
                 if (error) {
                     reject(
-                        new Error(
+                        new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -445,7 +444,7 @@ module.exports = class {
                                 //     `**SQL : ${error.sql} / **MESSAGE :  ${error.sqlMessage}`
                                 // );
                                 reject(
-                                    new Error(
+                                    new DatabaseError(
                                         error.code,
                                         error.errno,
                                         error.message,
@@ -466,7 +465,7 @@ module.exports = class {
                                     (error, results, filelds) => {
                                         if (error) {
                                             reject(
-                                                new Error(
+                                                new DatabaseError(
                                                     error.code,
                                                     error.errno,
                                                     error.message,
@@ -547,7 +546,7 @@ module.exports = class {
                         error
                     );
                     reject(
-                        new Error(
+                        new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -566,7 +565,7 @@ module.exports = class {
                             error
                         );
                         reject(
-                            new Error(
+                            new DatabaseError(
                                 error.code,
                                 error.errno,
                                 error.message,
@@ -605,7 +604,7 @@ module.exports = class {
             pool.query(sql, arg, function (error, results, fields) {
                 if (error) {
                     reject(
-                        new Error(
+                        new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -627,7 +626,7 @@ module.exports = class {
                 pool.query(sql, arg, function (error, results, fields) {
                     if (error) {
                         reject(
-                            new Error(
+                            new DatabaseError(
                                 error.code,
                                 error.errno,
                                 error.message,
@@ -642,7 +641,7 @@ module.exports = class {
                     pool.query(sql, arg, function (error, results, fields) {
                         if (error) {
                             reject(
-                                new Error(
+                                new DatabaseError(
                                     error.code,
                                     error.errno,
                                     error.message,
@@ -691,7 +690,7 @@ module.exports = class {
         pool.getConnection(async (error, connection) => {
             try {
                 if (error) {
-                    throw new Error(
+                    throw new DatabaseError(
                         error.code,
                         error.errno,
                         error.message,
@@ -701,7 +700,7 @@ module.exports = class {
                 }
                 connection.beginTransaction(function (error) {
                     if (error)
-                        throw new Error(
+                        throw new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -716,7 +715,7 @@ module.exports = class {
                     arg,
                     function (error, results, fields) {
                         if (error)
-                            throw new Error(
+                            throw new DatabaseError(
                                 error.code,
                                 error.errno,
                                 error.message,
@@ -746,7 +745,7 @@ module.exports = class {
                         arg,
                         function (error, results, fields) {
                             if (error)
-                                throw new Error(
+                                throw new DatabaseError(
                                     error.code,
                                     error.errno,
                                     error.message,
@@ -770,7 +769,7 @@ module.exports = class {
 
                 await connection.commit(function (error) {
                     if (error)
-                        throw new Error(
+                        throw new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -782,7 +781,7 @@ module.exports = class {
             } catch (error) {
                 console.log('fail!');
                 return connection.rollback(function () {
-                    throw new Error(
+                    throw new DatabaseError(
                         error.code,
                         error.errno,
                         error.message,
@@ -819,7 +818,7 @@ module.exports = class {
             pool.getConnection(async (error, connection) => {
                 if (error) {
                     reject(
-                        new Error(
+                        new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -832,7 +831,7 @@ module.exports = class {
                     await connection.query(sql, (error, results, filelds) => {
                         if (error) {
                             reject(
-                                new Error(
+                                new DatabaseError(
                                     error.code,
                                     error.errno,
                                     error.message,
@@ -873,7 +872,7 @@ module.exports = class {
             pool.getConnection((error, connection) => {
                 if (error) {
                     reject(
-                        new Error(
+                        new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -887,7 +886,7 @@ module.exports = class {
                     connection.query(sql, arg, (error, results, filelds) => {
                         if (error) {
                             reject(
-                                new Error(
+                                new DatabaseError(
                                     error.code,
                                     error.errno,
                                     error.message,
@@ -932,7 +931,7 @@ module.exports = class {
             pool.getConnection((error, connection) => {
                 if (error) {
                     reject(
-                        new Error(
+                        new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -949,7 +948,7 @@ module.exports = class {
                         async (error, results, fields) => {
                             if (error) {
                                 reject(
-                                    new Error(
+                                    new DatabaseError(
                                         error.code,
                                         error.errno,
                                         error.message,
@@ -1010,7 +1009,7 @@ module.exports = class {
             pool.getConnection(async (error, connection) => {
                 if (error) {
                     reject(
-                        new Error(
+                        new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -1043,7 +1042,7 @@ module.exports = class {
                             (error, results, fields) => {
                                 if (error) {
                                     reject(
-                                        new Error(
+                                        new DatabaseError(
                                             error.code,
                                             error.errno,
                                             error.message,
@@ -1099,7 +1098,7 @@ module.exports = class {
             pool.getConnection(async (error, connection) => {
                 if (error) {
                     reject(
-                        new Error(
+                        new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -1120,7 +1119,7 @@ module.exports = class {
                                     error
                                 );
                                 reject(
-                                    new Error(
+                                    new DatabaseError(
                                         error.code,
                                         error.errno,
                                         error.message,
@@ -1168,7 +1167,7 @@ module.exports = class {
             pool.getConnection((error, connection) => {
                 if (error) {
                     reject(
-                        new Error(
+                        new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -1186,7 +1185,7 @@ module.exports = class {
                                 error
                             );
                             reject(
-                                new Error(
+                                new DatabaseError(
                                     error.code,
                                     error.errno,
                                     error.message,
@@ -1207,7 +1206,7 @@ module.exports = class {
                                 (error, results, filelds) => {
                                     if (error) {
                                         reject(
-                                            new Error(
+                                            new DatabaseError(
                                                 error.code,
                                                 error.errno,
                                                 error.message,
@@ -1277,7 +1276,7 @@ module.exports = class {
                         error
                     );
                     reject(
-                        new Error(
+                        new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -1299,7 +1298,7 @@ module.exports = class {
                                     error
                                 );
                                 reject(
-                                    new Error(
+                                    new DatabaseError(
                                         error.code,
                                         error.errno,
                                         error.message,
@@ -1390,7 +1389,7 @@ module.exports = class {
                         ' 에러 > DB > Query >  CreateConsultantProfileTemp  : error1',
                         error
                     );
-                    throw new Error(
+                    throw new DatabaseError(
                         error.code,
                         error.errno,
                         error.message,
@@ -1400,7 +1399,7 @@ module.exports = class {
                 }
                 connection.beginTransaction(function (error) {
                     if (error)
-                        throw new Error(
+                        throw new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -1417,7 +1416,7 @@ module.exports = class {
                             ' 에러 > DB > Query >  CreateConsultantProfileTemp  : error2',
                             error
                         );
-                        throw new Error(
+                        throw new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -1430,7 +1429,7 @@ module.exports = class {
                 arg = [email];
                 connection.query(sql, arg, (error, results, fields) => {
                     if (error) {
-                        throw new Error(
+                        throw new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -1460,7 +1459,7 @@ module.exports = class {
                             arg,
                             (error, results, filelds) => {
                                 if (error)
-                                    throw new Error(
+                                    throw new DatabaseError(
                                         error.code,
                                         error.errno,
                                         error.message,
@@ -1488,7 +1487,7 @@ module.exports = class {
                             arg,
                             (error, results, filelds) => {
                                 if (error)
-                                    throw new Error(
+                                    throw new DatabaseError(
                                         error.code,
                                         error.errno,
                                         error.message,
@@ -1517,7 +1516,7 @@ module.exports = class {
                             arg,
                             (error, results, filelds) => {
                                 if (error)
-                                    throw new Error(
+                                    throw new DatabaseError(
                                         error.code,
                                         error.errno,
                                         error.message,
@@ -1544,7 +1543,7 @@ module.exports = class {
                     ];
                     connection.query(sql, arg, (error, results, filelds) => {
                         if (error)
-                            throw new Error(
+                            throw new DatabaseError(
                                 error.code,
                                 error.errno,
                                 error.message,
@@ -1572,7 +1571,7 @@ module.exports = class {
                             arg,
                             (error, results, filelds) => {
                                 if (error)
-                                    throw new Error(
+                                    throw new DatabaseError(
                                         error.code,
                                         error.errno,
                                         error.message,
@@ -1600,7 +1599,7 @@ module.exports = class {
                             arg,
                             (error, results, filelds) => {
                                 if (error)
-                                    throw new Error(
+                                    throw new DatabaseError(
                                         error.code,
                                         error.errno,
                                         error.message,
@@ -1628,7 +1627,7 @@ module.exports = class {
                             arg,
                             (error, results, filelds) => {
                                 if (error)
-                                    throw new Error(
+                                    throw new DatabaseError(
                                         error.code,
                                         error.errno,
                                         error.message,
@@ -1649,7 +1648,7 @@ module.exports = class {
                     ];
                     connection.query(sql, arg, (error, results, filelds) => {
                         if (error)
-                            throw new Error(
+                            throw new DatabaseError(
                                 error.code,
                                 error.errno,
                                 error.message,
@@ -1681,7 +1680,7 @@ module.exports = class {
 
                         connection.query(sql, arg, (error, results, fields) => {
                             if (error)
-                                throw new Error(
+                                throw new DatabaseError(
                                     error.code,
                                     error.errno,
                                     error.message,
@@ -1694,7 +1693,7 @@ module.exports = class {
 
                     connection.commit(function (error) {
                         if (error)
-                            throw new Error(
+                            throw new DatabaseError(
                                 error.code,
                                 error.errno,
                                 error.message,
@@ -1707,7 +1706,7 @@ module.exports = class {
             } catch (error) {
                 console.log('fail!');
                 return connection.rollback(function () {
-                    throw new Error(
+                    throw new DatabaseError(
                         error.code,
                         error.errno,
                         error.message,
@@ -1739,7 +1738,7 @@ module.exports = class {
                         ' 에러 > DB > Query >  createConsultingCompanyProfileTemp  : error1',
                         error
                     );
-                    throw new Error(
+                    throw new DatabaseError(
                         error.code,
                         error.errno,
                         error.message,
@@ -1749,7 +1748,7 @@ module.exports = class {
                 }
                 connection.beginTransaction(function (error) {
                     if (error)
-                        throw new Error(
+                        throw new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -1767,7 +1766,7 @@ module.exports = class {
                 ];
                 connection.query(sql, arg, (error, results, fields) => {
                     if (error)
-                        throw new Error(
+                        throw new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -1779,7 +1778,7 @@ module.exports = class {
                     arg = companyId;
                     connection.query(sql, arg, (error, results, fields) => {
                         if (error)
-                            throw new Error(
+                            throw new DatabaseError(
                                 error.code,
                                 error.errno,
                                 error.message,
@@ -1812,7 +1811,7 @@ module.exports = class {
                                 arg,
                                 (error, results, fields) => {
                                     if (error)
-                                        throw new Error(
+                                        throw new DatabaseError(
                                             error.code,
                                             error.errno,
                                             error.message,
@@ -1824,7 +1823,7 @@ module.exports = class {
                         }
                         connection.commit(function (error) {
                             if (error)
-                                throw new Error(
+                                throw new DatabaseError(
                                     error.code,
                                     error.errno,
                                     error.message,
@@ -1838,7 +1837,7 @@ module.exports = class {
             } catch (error) {
                 console.log('fail!!');
                 return connection.rollback(() => {
-                    throw new Error(
+                    throw new DatabaseError(
                         error.code,
                         error.errno,
                         error.message,
@@ -1864,7 +1863,7 @@ module.exports = class {
                 pool.getConnection((error, connection) => {
                     if (error)
                         reject(
-                            new Error(
+                            new DatabaseError(
                                 error.code,
                                 error.errno,
                                 error.message,
@@ -1882,7 +1881,7 @@ module.exports = class {
                         async (error, results, fields) => {
                             if (error)
                                 reject(
-                                    new Error(
+                                    new DatabaseError(
                                         error.code,
                                         error.errno,
                                         error.message,
@@ -1912,7 +1911,7 @@ module.exports = class {
                                 (error, results, fields) => {
                                     if (error)
                                         reject(
-                                            new Error(
+                                            new DatabaseError(
                                                 error.code,
                                                 error.errno,
                                                 error.message,
@@ -1951,7 +1950,7 @@ module.exports = class {
                                 (error, results, fields) => {
                                     if (error)
                                         reject(
-                                            new Error(
+                                            new DatabaseError(
                                                 error.code,
                                                 error.errno,
                                                 error.message,
@@ -1988,7 +1987,7 @@ module.exports = class {
                                 (error, results, fields) => {
                                     if (error)
                                         reject(
-                                            new Error(
+                                            new DatabaseError(
                                                 error.code,
                                                 error.errno,
                                                 error.message,
@@ -2024,7 +2023,7 @@ module.exports = class {
                                 (error, results, fields) => {
                                     if (error)
                                         reject(
-                                            new Error(
+                                            new DatabaseError(
                                                 error.code,
                                                 error.errno,
                                                 error.message,
@@ -2061,7 +2060,7 @@ module.exports = class {
                                 (error, results, fields) => {
                                     if (error)
                                         reject(
-                                            new Error(
+                                            new DatabaseError(
                                                 error.code,
                                                 error.errno,
                                                 error.message,
@@ -2100,7 +2099,7 @@ module.exports = class {
                                 (error, results, fields) => {
                                     if (error)
                                         reject(
-                                            new Error(
+                                            new DatabaseError(
                                                 error.code,
                                                 error.errno,
                                                 error.message,
@@ -2138,7 +2137,7 @@ module.exports = class {
                                 (error, results, fields) => {
                                     if (error)
                                         reject(
-                                            new Error(
+                                            new DatabaseError(
                                                 error.code,
                                                 error.errno,
                                                 error.message,
@@ -2188,7 +2187,7 @@ module.exports = class {
                                 (error, results, fields) => {
                                     if (error)
                                         reject(
-                                            new Error(
+                                            new DatabaseError(
                                                 error.code,
                                                 error.errno,
                                                 error.message,
@@ -2218,7 +2217,7 @@ module.exports = class {
                                 (error, results, fields) => {
                                     if (error)
                                         reject(
-                                            new Error(
+                                            new DatabaseError(
                                                 error.code,
                                                 error.errno,
                                                 error.message,
@@ -2290,7 +2289,7 @@ module.exports = class {
                 pool.getConnection(async (error, connection) => {
                     if (error) {
                         reject(
-                            new Error(
+                            new DatabaseError(
                                 error.code,
                                 error.errno,
                                 error.message,
@@ -2320,7 +2319,7 @@ module.exports = class {
                         connection.query(sql, arg, (error, results, fields) => {
                             if (error) {
                                 reject(
-                                    new Error(
+                                    new DatabaseError(
                                         error.code,
                                         error.errno,
                                         error.message,
@@ -2352,7 +2351,7 @@ module.exports = class {
                                     (error, results, fields) => {
                                         if (error) {
                                             reject(
-                                                new Error(
+                                                new DatabaseError(
                                                     error.code,
                                                     error.errno,
                                                     error.message,
@@ -2420,7 +2419,7 @@ module.exports = class {
         pool.getConnection((error, connection) => {
             try {
                 if (error)
-                    throw new Error(
+                    throw new DatabaseError(
                         error.code,
                         error.errno,
                         error.message,
@@ -2429,7 +2428,7 @@ module.exports = class {
                     );
                 connection.beginTransaction(function (error) {
                     if (error)
-                        throw new Error(
+                        throw new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -2472,7 +2471,7 @@ module.exports = class {
 
                 connection.query(sql, arg, (error, results, fields) => {
                     if (error)
-                        throw new Error(
+                        throw new DatabaseError(
                             error.code,
                             error.errno,
                             error.message,
@@ -2485,7 +2484,7 @@ module.exports = class {
                     );
                     connection.commit(function (error) {
                         if (error)
-                            throw new Error(
+                            throw new DatabaseError(
                                 error.code,
                                 error.errno,
                                 error.message,
@@ -2498,7 +2497,7 @@ module.exports = class {
             } catch (error) {
                 console.log('fail!!');
                 return connection.rollback(() => {
-                    throw new Error(
+                    throw new DatabaseError(
                         error.code,
                         error.errno,
                         error.message,
