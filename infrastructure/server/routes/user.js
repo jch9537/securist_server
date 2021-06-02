@@ -188,7 +188,6 @@ module.exports = (router) => {
 
     // 사용자 - 소속 상태변경(취소, 해제)처리
     // 진행중인 프로젝트가 있는 경우 해제불가 : 해당 코드 프로젝트 진행 뒤 추가
-    // belongingType(소속타입) 정보 받지 않는 걸로 고려 : 추후 확인 후 코드수정 -해킹시 관리자 권한으로 바꿀 수도 있으므로
     router.put(
         '/api/user/relation/unregister',
         decryptIdToken,

@@ -2,9 +2,8 @@ const { UserEntity } = require('../../entities');
 const { AuthorizationException } = require('../../exceptions');
 
 module.exports = class {
-    constructor({ userRepository, relationRepository }) {
+    constructor({ userRepository }) {
         this.userRepository = userRepository;
-        this.relationRepository = relationRepository;
     }
     async excute(userData, updateData) {
         let updateUserData = {
@@ -16,9 +15,9 @@ module.exports = class {
         try {
             let result;
             let userEntity = new UserEntity(updateUserData);
-
+            // 기업의 경우 소속/관리자 정보 확인
             if (userEntity.userType === 2 || userEntity.userType === 3) {
-                let relationInfo = await this.relationRepository.getRelationInfo(
+                let relationInfo = await this.userRepository.getRelationInfo(
                     userData
                 );
                 let companyBelongingType = relationInfo['belonging_type'];
@@ -28,8 +27,8 @@ module.exports = class {
                     companyBelongingType,
                     companyManagerType
                 );
-                // 기업 관리자 권한 확인
-                if (companyBelongingType !== 2 || companyManagerType !== 1) {
+                // 기업 & 관리자 권한 처리
+                if (!(companyBelongingType === 2 && companyManagerType === 1)) {
                     throw new AuthorizationException('기업 정보 수정');
                 }
             }

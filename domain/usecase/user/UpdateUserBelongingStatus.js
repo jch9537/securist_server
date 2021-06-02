@@ -1,5 +1,8 @@
 const { RelationEntity } = require('../../entities');
-const { AuthorizationException } = require('../../exceptions');
+const {
+    AuthorizationException,
+    ParameterException,
+} = require('../../exceptions');
 
 module.exports = class {
     constructor({ userRepository }) {
@@ -9,8 +12,14 @@ module.exports = class {
         let result;
         try {
             let relationEntity = new RelationEntity(updateStatusData);
-
-            relationEntity.userType = updateStatusData.userType;
+            relationEntity.userType = userData.userType;
+            if (relationEntity.belongingType !== 0) {
+                throw new ParameterException('소속 타입 요청');
+            }
+            result = await this.userRepository.updateUserBelongingStatus(
+                relationEntity
+            );
+            return result;
             // let userType = relationEntity.userType;
             // if (userType === 2 || userType === 3) {
             //     let relationInfo = await this.userRepository.getRelationInfo(
@@ -28,10 +37,6 @@ module.exports = class {
             //         throw new AuthorizationException('소속 정보 수정');
             //     }
             // }
-            result = await this.userRepository.updateUserBelongingStatus(
-                relationEntity
-            );
-            return result;
         } catch (error) {
             throw error;
         }
