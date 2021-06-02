@@ -1,7 +1,7 @@
 module.exports = class {
-    constructor(code, errMessage, errStack) {
-        this.code = code;
+    constructor(errMessage, code, errStack) {
         this.errMessage = errMessage;
+        this.code = code;
         this.errStack = errStack;
     }
 };

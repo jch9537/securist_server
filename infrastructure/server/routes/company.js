@@ -16,6 +16,7 @@ module.exports = (router) => {
 
     // 기업정보 가져오기
     router.get('/api/company/:companyId', async (req, res) => {
+        let result, response;
         try {
             let userData = req.userDataByIdToken;
             let reqParamsData = req.params;
@@ -25,13 +26,13 @@ module.exports = (router) => {
                 reqParamsData
             );
 
-            let result = await companyAdapter.getCompanyInfo(
+            result = await companyAdapter.getCompanyInfo(
                 userData,
                 reqParamsData
             );
             console.log('응답 > /api/company/:companyId : ', result);
 
-            let response = new Response(200, '기업정보 가져오기 완료', result);
+            response = new Response(200, '기업정보 가져오기 완료', result);
             res.send(response);
         } catch (err) {
             console.log('에러 > /api/company/:companyId : ', err);
@@ -40,17 +41,14 @@ module.exports = (router) => {
     });
     // 등록된 기업정보 가져오기 : 업체 검색   - 등록된 기업만 필터링
     router.get('/api/company/list/registration', async (req, res) => {
+        let result, response;
         try {
             let userData = req.userDataByIdToken;
 
-            let result = await companyAdapter.getCompanyList(userData);
+            result = await companyAdapter.getCompanyList(userData);
             console.log('GET - /api/company/list/registration 응답 : ', result);
 
-            let response = new Response(
-                200,
-                '기업리스트 가져오기 완료',
-                result
-            );
+            response = new Response(200, '기업리스트 가져오기 완료', result);
             res.send(response);
         } catch (err) {
             console.log('/api/company/list/registration 에러응답 : ', err);
@@ -61,12 +59,13 @@ module.exports = (router) => {
     router.get(
         '/api/company/:companyId/belonging/users/info',
         async (req, res) => {
+            let result, response;
             try {
                 let userData = req.userDataByIdToken;
                 let reqParamsData = req.params;
                 console.log('요청 데이터 : ', userData, reqParamsData);
 
-                let result = await companyAdapter.getCompanyBelongedUsersInfo(
+                result = await companyAdapter.getCompanyBelongedUsersInfo(
                     userData,
                     reqParamsData
                 );
@@ -75,7 +74,7 @@ module.exports = (router) => {
                     result
                 );
 
-                let response = new Response(
+                response = new Response(
                     200,
                     '소속 컨설턴트들 정보가져오기 완료',
                     result
@@ -96,6 +95,7 @@ module.exports = (router) => {
     //     '/api/company/permit/member',
     //     decryptIdToken,
     //     async (req, res) => {
+    //let result, response;
     //         try {
     //             let userData = req.userDataByIdToken;
     //             let reqData = req.filteredData;
@@ -105,7 +105,7 @@ module.exports = (router) => {
     //                 reqData
     //             );
 
-    //             let result = await companyAdapter.updateRegistrationStatus(
+    //             result = await companyAdapter.updateRegistrationStatus(
     //                 userData,
     //                 reqData
     //             );
@@ -114,7 +114,7 @@ module.exports = (router) => {
     //                 result
     //             );
 
-    //             let response = new Response(
+    //             response = new Response(
     //                 200,
     //                 '컨설턴트 소속요청 처리 완료',
     //                 result

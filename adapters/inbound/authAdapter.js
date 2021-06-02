@@ -1,9 +1,7 @@
-// TODO 확인할 것 : 확인코드의 validation의 필요성에 대해 - 알면안되는 확인코드에 대한 힌트를 줄 수 있지 않나?
 const awsCognito = require('../../infrastructure/webService/authService/awsCognito'); // 테스트용 모듈 import
 
 // 사용자 처리 어댑터
 const { auth, repository } = require('../outbound');
-
 const {
     CheckDuplicateEmail,
     ResendComfirmEmail,
@@ -37,12 +35,12 @@ module.exports = {
                 userExist: result,
             };
             return data;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - err : ',
-                err
+                '에러 응답 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 회원가입
@@ -59,12 +57,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > authAdaptor.js > signUp - err : ',
-                err
+                '에러 응답 > adapters > inbound > authAdaptor.js > signUp - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 가입메일 재발송
@@ -74,8 +72,8 @@ module.exports = {
             let result = await resendComfirmEmail.excute(resendEmailData);
 
             return result;
-        } catch (error) {
-            throw error;
+        } catch (erroror) {
+            throw erroror;
         }
     },
     // 로그인
@@ -101,12 +99,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > authAdaptor.js > logIn - err : ',
-                err
+                '에러 응답 > adapters > inbound > authAdaptor.js > logIn - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 로그아웃
@@ -123,8 +121,8 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
-            throw err;
+        } catch (error) {
+            throw error;
         }
     },
     // 사용자 인증 : 비밀번호
@@ -141,12 +139,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
                 '에러 응답 > adapters > inbound > authAdaptor.js > verifyUserByPassword - result : ',
-                err
+                error
             );
-            throw err;
+            throw error;
         }
     },
 
@@ -168,12 +166,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
                 '에러 응답 > adapters > inbound > authAdaptor.js > changePassword - result : ',
-                err
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 비밀번호 찾기 확인코드 전송
@@ -190,12 +188,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
                 '에러 응답 > adapters > inbound > authAdaptor.js > forgotPassword - result : ',
-                err
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 비밀번호 찾기 비밀번호 변경
@@ -212,12 +210,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
                 '에러 응답 > adapters > inbound > authAdaptor.js > confirmForgotPassword - result : ',
-                err
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // access 토큰 유효기간 확인
@@ -234,8 +232,8 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
-            throw err;
+        } catch (error) {
+            throw error;
         }
     },
     // access 토큰 갱신
@@ -252,12 +250,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
                 '에러 응답 > adapters > inbound > authAdaptor.js > issueNewToken - result : ',
-                err
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 테스트용 함수(cognito 바로 연결 : 관리자 권한 처리) -------------------------------------------------------------
@@ -269,8 +267,8 @@ module.exports = {
             let result = await test.deleteUserByAdmin(userParam.id);
 
             return result;
-        } catch (err) {
-            return err;
+        } catch (error) {
+            return error;
         }
     },
     async disableUserByAdmin(userParam) {
@@ -278,8 +276,8 @@ module.exports = {
             var test = new awsCognito();
             let result = await test.disableUserByAdmin(userParam.id);
             return result;
-        } catch (err) {
-            return err;
+        } catch (error) {
+            return error;
         }
     },
     async enableUserByAdmin(userParam) {
@@ -287,8 +285,8 @@ module.exports = {
             var test = new awsCognito();
             let result = await test.enableUserByAdmin(userParam.id);
             return result;
-        } catch (err) {
-            return err;
+        } catch (error) {
+            return error;
         }
     },
 };

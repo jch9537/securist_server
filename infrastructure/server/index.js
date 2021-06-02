@@ -22,10 +22,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(sanitizer); // 태그제거 : XSS 방어
 app.use(routes);
+app.use(errorHandler);
 
 app.post('/', (req, res) => {
     res.send('Hello World!!');
 });
+
+function errorHandler(err, req, res, next) {
+    // res.status(err.status || 500);
+    res.send(err || 'Error!!');
+}
 
 app.listen(port, () => {
     console.log(`Securist App listen http://localhost:${port}`);

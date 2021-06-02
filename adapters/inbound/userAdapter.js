@@ -29,12 +29,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > userAdaptor.js > getUserInfo - err : ',
-                err
+                '에러 응답 > adapters > inbound > userAdaptor.js > getUserInfo - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 사용자 소속기업 정보 가져오기
@@ -53,12 +53,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > userAdaptor > getUserBelongingInfo - err : ',
-                err
+                '에러 응답 > adapters > inbound > userAdaptor > getUserBelongingInfo - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 사용자 비밀번호 수정
@@ -78,12 +78,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
                 '에러 응답 > adapters > inbound > userAdaptor > changePassword - result : ',
-                err
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 사용자 정보 변경 - 공통 : 연락처
@@ -101,12 +101,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > userAdaptor.js > updatePhoneNum - err : ',
-                err
+                '에러 응답 > adapters > inbound > userAdaptor.js > updatePhoneNum - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 사용자 정보 변경 - 컨설턴트 공통 : 입금정보
@@ -124,12 +124,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > userAdaptor.js > updateBankInfo - err : ',
-                err
+                '에러 응답 > adapters > inbound > userAdaptor.js > updateBankInfo - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 회원탈퇴
@@ -171,12 +171,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
                 '에러 응답 > adapters > inbound > userAdaptor > deleteUser - result : ',
-                err
+                error
             );
-            throw err;
+            throw error;
         }
     },
 };

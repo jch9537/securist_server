@@ -25,12 +25,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > userAdaptor > getRelationInfo - err : ',
-                err
+                '에러 응답 > adapters > inbound > userAdaptor > getRelationInfo - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 사용자-기업 연결 정보 생성
@@ -53,12 +53,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > relationAdapter > createUserAndCompanyRelation - err : ',
-                err
+                '에러 응답 > adapters > inbound > relationAdapter > createUserAndCompanyRelation - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 기업-사용자 소속상태 변경 처리 : 기업, 사용자 공통
@@ -109,12 +109,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 > adapters > inbound > userAdaptor > updateBelongingStatus- error : ',
-                err
+                '에러 > adapters > inbound > userAdaptor > updateBelongingStatus- erroror : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
 };

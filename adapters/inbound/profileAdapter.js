@@ -29,12 +29,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > profileAdapter > createConsultantProfileTemp - err : ',
-                err
+                '에러 응답 > adapters > inbound > profileAdapter > createConsultantProfileTemp - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 기업 - 프로필 임시정보 생성 : 임시저장
@@ -59,12 +59,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > profileAdapter > createConsultingCompanyProfileTemp - err : ',
-                err
+                '에러 응답 > adapters > inbound > profileAdapter > createConsultingCompanyProfileTemp - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 프로필 임시저장 가져오기 : 컨설턴트 (개인/기업) 공통
@@ -81,12 +81,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > profileAdapter > getProfileTemp - err : ',
-                err
+                '에러 응답 > adapters > inbound > profileAdapter > getProfileTemp - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 프로필 임시저장 정보 삭제 : 컨설턴트 (개인/기업) 공통
@@ -103,12 +103,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > profileAdapter > deleteProfileTemp - err : ',
-                err
+                '에러 응답 > adapters > inbound > profileAdapter > deleteProfileTemp - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
 };

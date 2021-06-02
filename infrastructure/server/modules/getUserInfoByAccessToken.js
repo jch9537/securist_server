@@ -8,8 +8,8 @@ module.exports = async (req, res, next) => {
             accessToken
         );
         req.userDataByAccessToken = accessUserData;
+        next();
     } catch (error) {
-        throw error;
+        next(error);
     }
-    next();
 };

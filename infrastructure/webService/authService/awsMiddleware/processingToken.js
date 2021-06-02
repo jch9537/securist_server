@@ -18,22 +18,25 @@ const processingToken = {
     // 퍼블릭키 가져오기 함수
     getPublicKeys: async () => {
         let cacheKeys;
-        if (!cacheKeys) {
-            const url = `${cognitoIssuer}/.well-known/jwks.json`;
-            const publicKeys = await axios.default.get(url);
-            cacheKeys = publicKeys.data.keys.reduce((agg, current) => {
-                const pem = jwkToPem(current);
-                agg[current.kid] = { instance: current, pem };
-                return agg;
-            }, {});
-            return cacheKeys;
-        } else {
-            return cacheKeys;
+        try {
+            if (!cacheKeys) {
+                const url = `${cognitoIssuer}/.well-known/jwks.json`;
+                const publicKeys = await axios.default.get(url);
+                cacheKeys = publicKeys.data.keys.reduce((agg, current) => {
+                    const pem = jwkToPem(current);
+                    agg[current.kid] = { instance: current, pem };
+                    return agg;
+                }, {});
+                return cacheKeys;
+            } else {
+                return cacheKeys;
+            }
+        } catch (error) {
+            throw error;
         }
     },
     // 토큰 복호화 함수 : 퍼블릭키와 일치여부 확인
     decodeToken: async (token) => {
-        let claim;
         try {
             const tokenSections = (token || '').split('.');
             if (tokenSections.length < 2) {
@@ -48,11 +51,11 @@ const processingToken = {
             if (key === undefined) {
                 throw new Error('claim made for unknown kid');
             }
-            claim = await verifyPromised(token, key.pem);
+            let claim = await verifyPromised(token, key.pem);
+            return claim;
         } catch (error) {
             throw error;
         }
-        return claim;
     },
     // access token 확인 함수
     checkAccessToken: async (token) => {
@@ -80,16 +83,16 @@ const processingToken = {
             };
         } catch (error) {
             result = { userName: '', clientId: '', error, isValid: false };
+        } finally {
+            return result;
         }
-        return result;
     },
     // id token 으로 사용자 정보 가져오기 함수
     getUserByIdToken: async (token) => {
-        let result;
         try {
             const claim = await processingToken.decodeToken(token); // request > token 수정
             console.log('~~~~~~~~~~~~~~~~~~', claim);
-            result = {
+            let result = {
                 id: claim['cognito:username'],
                 userType: Number(claim['custom:userType']),
                 name: claim.name,
@@ -100,7 +103,7 @@ const processingToken = {
                 expTime: claim.exp,
                 issueTime: claim.iat,
             };
-            return result; // 수정
+            return result;
         } catch (error) {
             throw error;
         }

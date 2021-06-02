@@ -16,12 +16,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyList - err : ',
-                err
+                '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyList - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     async getCompanyInfo(userData, companyData) {
@@ -33,12 +33,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyInfo - err : ',
-                err
+                '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyInfo - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 기업 내 소속 사용자 정보 가져오기 : 기업(클/컨) 공통
@@ -56,12 +56,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyBelongedUsersInfo - err : ',
-                err
+                '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyBelongedUsersInfo - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
 };
