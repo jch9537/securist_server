@@ -54,4 +54,25 @@ module.exports = class {
             throw error;
         }
     }
+    // UPDATE
+    async updateRegistrationStatus(relationEntity) {
+        console.log(
+            '요청 > Adapter > outBound > repository > updateRegistrationStatus > relationEntity: ',
+            relationEntity
+        );
+        try {
+            let result = await this.db.updateRegistrationStatus(relationEntity);
+            console.log(
+                '응답 > Adapter > outBound > repository > updateRegistrationStatus > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 > Adapter > outBound > repository > updateRegistrationStatus > error : ',
+                error
+            );
+            throw error;
+        }
+    }
 };

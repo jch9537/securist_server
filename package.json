@@ -28,7 +28,6 @@
         "jwk-to-pem": "^2.0.4",
         "multer": "^1.4.2",
         "multer-s3": "^2.9.0",
-        "mysql": "^2.18.1",
         "mysql2": "^2.2.5",
         "sanitize-html": "^2.3.3",
         "save": "^2.4.0",

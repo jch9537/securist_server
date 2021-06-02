@@ -1,12 +1,10 @@
 module.exports = class {
-    constructor({ relationRepository }) {
-        this.relationRepository = relationRepository;
+    constructor({ userRepository }) {
+        this.userRepository = userRepository;
     }
     async excute(userData) {
         try {
-            let result = await this.relationRepository.getRelationInfo(
-                userData
-            );
+            let result = await this.userRepository.getRelationInfo(userData);
             console.log('relation info결과----------------', result);
             return result;
         } catch (error) {

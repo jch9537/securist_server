@@ -4,17 +4,49 @@ TODO : 기존 코드에서 사용자와 기업의 처리(router에서 - infra까
 */
 // 메서드 정의 인터페이스 - 컨트롤러
 const {
+    CreateUserAndCompanyRelation,
     GetUserInfo,
+    GetRelationInfo,
     GetUserBelongingCompanyInfo,
     UpdatePhoneNum,
     UpdateBankInfo,
+    UpdateUserBelongingStatus,
     DeleteUser,
 } = require('../../domain/usecase/user');
 
 const { repository } = require('../outbound');
 const authAdapter = require('./authAdapter');
+const { Exception } = require('../exceptions');
 
 module.exports = {
+    // 사용자-기업 연결 정보 생성
+    async createUserAndCompanyRelation(userData, companyData) {
+        console.log(
+            '요청 > adapters > inbound > relationAdapter > createUserAndCompanyRelation - companyData : ',
+            userData,
+            companyData
+        );
+        try {
+            let createUserAndCompanyRelation = new CreateUserAndCompanyRelation(
+                repository
+            );
+            let result = await createUserAndCompanyRelation.excute(
+                userData,
+                companyData
+            );
+            console.log(
+                '응답 > adapters > inbound > relationAdapter > createUserAndCompanyRelation - result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 응답 > adapters > inbound > relationAdapter > createUserAndCompanyRelation - error : ',
+                error
+            );
+            throw error;
+        }
+    },
     // 사용자 DB 정보 가져오기
     async getUserInfo(userData) {
         console.log(
@@ -32,6 +64,28 @@ module.exports = {
         } catch (error) {
             console.log(
                 '에러 응답 > adapters > inbound > userAdaptor.js > getUserInfo - error : ',
+                error
+            );
+            throw error;
+        }
+    },
+    // 사용자-기업 연결정보 가져오기
+    async getRelationInfo(userData) {
+        console.log(
+            '요청 > adapters > inbound > userAdaptor > getRelationInfo - userData : ',
+            userData
+        );
+        try {
+            let getRelationInfo = new GetRelationInfo(repository);
+            let result = await getRelationInfo.excute(userData);
+            console.log(
+                '응답 > adapters > inbound > userAdaptor > getRelationInfo - result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 응답 > adapters > inbound > userAdaptor > getRelationInfo - error : ',
                 error
             );
             throw error;
@@ -132,6 +186,63 @@ module.exports = {
             throw error;
         }
     },
+    // 기업-사용자 소속상태 변경 처리 : 기업, 사용자 공통
+    async updateUserBelongingStatus(userData, updateData) {
+        let result, updateStatusData, companyIdColumn;
+        console.log(
+            '요청 > adapters > inbound > userAdaptor > updateBelongingStatus - userId : ',
+            userData,
+            updateData
+        );
+        try {
+            // userData.userType = 1; //테스트용
+            if (userData.userType === 1) {
+                updateStatusData = {
+                    userType: userData.userType,
+                    companyId: updateData.companyId,
+                    email: userData.email,
+                    // email: 'mg.sun@aegisecu.com', //테스트용
+                    belongingType: updateData.belongingType,
+                };
+            } else {
+                // if (userData.userType === 3) {
+                //     companyIdColumn = 'client_company_id';
+                // } else if (userData.userType === 2) {
+                //     companyIdColumn = 'consulting_company_id';
+                // }
+                // let companyInfo = await userAdapter.getUserBelongingCompanyInfo(
+                //     userData
+                // );
+                // let companyId = companyInfo[companyIdColumn];
+                // updateStatusData = {
+                //     userType: userData.userType,
+                //     companyId: companyId,
+                //     email: updateData.userId,
+                //     belongingType: updateData.belongingType,
+                // };
+                throw new Exception('사용자 타입 오류');
+            }
+
+            let updateBelongingStatus = new UpdateUserBelongingStatus(
+                repository
+            );
+            result = await updateBelongingStatus.excute(
+                userData,
+                updateStatusData
+            );
+            console.log(
+                '응답 > adapters > inbound > userAdaptor > updateBelongingStatus- result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 > adapters > inbound > userAdaptor > updateBelongingStatus- error : ',
+                error
+            );
+            throw error;
+        }
+    },
     // 회원탈퇴
     async deleteUser(accessToken, deleteData) {
         // 기업삭제를 할꺼면 email과 userType을 가져와야하고 / 사용자만 삭제할 꺼면 현재대로 처리해도 됨
@@ -176,6 +287,24 @@ module.exports = {
                 '에러 응답 > adapters > inbound > userAdaptor > deleteUser - result : ',
                 error
             );
+            throw error;
+        }
+    },
+    // DELETE
+    async deleteUserAndCompanyRelation(deleteData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > deleteUserAndCompanyRelation > deleteData: ',
+            deleteData
+        );
+        let result;
+        try {
+            result = await this.db.deleteUserAndCompanyRelation(deleteData);
+            console.log(
+                '응답 > Adapter > outBound > repository > deleteUserAndCompanyRelation > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
             throw error;
         }
     },

@@ -89,6 +89,41 @@ module.exports = (router) => {
             }
         }
     );
+    // 업체 - 소속 상태변경(승인, 거절, 삭제)처리
+    // 진행중인 프로젝트가 있는 경우 해제불가 : 해당 코드 프로젝트 진행 뒤 추가
+    router.put('/api/company/relation/status', async (req, res) => {
+        let result, response;
+        try {
+            let userData = req.userDataByIdToken;
+            let reqData = req.filteredData;
+            console.log(
+                '요청 > /api/company/relation/status : ',
+                userData,
+                reqData
+            );
+
+            result = await companyAdapter.updateRegistrationStatus(
+                userData,
+                reqData
+            );
+            console.log('응답 > /api/company/relation/status : ', result);
+            let belongingType = result['belonging_type'];
+            console.log('--------------------', belongingType);
+
+            if (belongingType === 0) {
+                response = new Response(200, '소속 해제 완료');
+            } else if (belongingType === 2) {
+                response = new Response(200, '소속 요청 승인 완료');
+            } else {
+                response = new Response(400, '소속 타입 에러 ');
+                throw response;
+            }
+            res.send(response);
+        } catch (err) {
+            console.log('에러 > /api/company/relation/status : ', err);
+            res.send(err);
+        }
+    });
 
     // // 사용자 소속요청에 대한 응답 (승인/거부)
     // router.put(
