@@ -45,7 +45,7 @@ module.exports = (router) => {
             result = await authAdapter.signUp(reqData);
             console.log('/api/auth/signup 응답 : ', result);
 
-            response = new Response(201, '회원가입 완료 (Accepted)', result);
+            response = new Response(201, '회원가입 완료 (Accepted)');
             res.send(response);
         } catch (err) {
             console.log('/api/auth/signup 에러 응답 : ', err);

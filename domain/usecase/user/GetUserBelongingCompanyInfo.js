@@ -1,9 +1,14 @@
+const { UserTypeException } = require('../../exceptions');
 module.exports = class {
-    constructor({userRepository}) {
+    constructor({ userRepository }) {
         this.userRepository = userRepository;
     }
     async excute(userData) {
         try {
+            let userType = userData.userType;
+            if (!(userType === 1 || userType === 2 || userType === 3)) {
+                throw new UserTypeException('사용자 타입');
+            }
             let result = await this.userRepository.getUserBelongingCompanyInfo(
                 userData
             );
