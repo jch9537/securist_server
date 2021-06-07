@@ -1,3 +1,4 @@
+const { UserTypeException } = require('../../exceptions');
 module.exports = class {
     constructor({ profileRepository }) {
         this.profileRepository = profileRepository;
@@ -5,22 +6,27 @@ module.exports = class {
     async excute(userData) {
         let result;
         try {
-            // userData.userType = 1; // 테스트용
-            if (userData.userType === 1) {
+            let userType = userData.userType;
+            if (!(userType === 1 || userType === 2)) {
+                throw new UserTypeException('사용자 타입');
+            }
+
+            if (userType === 1) {
                 result = await this.profileRepository.getConsultantProfileTemp(
                     userData
                 );
                 console.log('결과----------------', result);
-            } else if (userData.userType === 2) {
+            } else {
+                // userData.userType === 2
                 result = await this.profileRepository.getConsultingCompanyProfileTemp(
                     userData
                 );
                 console.log('결과----------------', result);
             }
+            return result;
         } catch (error) {
             console.log('에러 ----------------', error);
             throw error;
         }
-        return result;
     }
 };
