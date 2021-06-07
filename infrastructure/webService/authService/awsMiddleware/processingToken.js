@@ -81,11 +81,14 @@ const processingToken = {
                 clientId: claim.client_id,
                 isValid: true,
             };
-        } catch (error) {
-            result = { userName: '', clientId: '', error, isValid: false };
-        } finally {
             return result;
+        } catch (error) {
+            error.isValid = false;
+            throw error;
         }
+        // finally {
+        //     return result;
+        // }
     },
     // id token 으로 사용자 정보 가져오기 함수
     getUserByIdToken: async (token) => {

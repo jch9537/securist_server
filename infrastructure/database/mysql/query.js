@@ -72,7 +72,8 @@ module.exports = class {
             //사용자 정보 생성
             sql = `INSERT INTO ${usersTableName} (${userIdColumn}, name, user_type, phone_num) VALUES (?, ?, ?, ?)`;
             arg = [email, name, userType, phoneNum];
-            await conn.query(sql, arg);
+            let a = await conn.query(sql, arg);
+            successMessage = 'success! 개인 컨설턴트!!';
 
             // 기업사용자 처리 : 개인컨설턴트(userType === 1)는 다 처리했으므로 마지막에 공통처리
             if (userType === 2 || userType === 3) {
@@ -148,12 +149,15 @@ module.exports = class {
                     let connectUserAndCompany = await conn.query(sql, arg);
                     console.log('!!!!!!!!!!!!!!!!!!!6', connectUserAndCompany);
                 }
-                result = await authService.signUp(userEntity);
-                console.log('****************', successMessage);
-                await conn.commit();
-                conn.release();
-                return result;
             }
+            result = await authService.signUp(userEntity);
+            if (!successMessage) {
+                successMessage = 'success! 개인 컨설턴트!!';
+            }
+            console.log('****************', successMessage);
+            await conn.commit();
+            conn.release();
+            return result;
         } catch (error) {
             await conn.rollback();
             throw new DatabaseError(
@@ -163,13 +167,6 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
-        } finally {
-            conn.release();
-            if (!successMessage) {
-                successMessage = 'success! 개인 컨설턴트!!';
-            }
-            console.log(successMessage);
-            return result;
         }
     }
 
@@ -616,12 +613,8 @@ module.exports = class {
                 tableName = 'client_user_and_company';
                 userIdColumn = 'client_user_id';
                 companyIdColumn = 'client_company_id';
-            } else if (userType === 2) {
-                tableName = 'consultant_user_and_company';
-                userIdColumn = 'consultant_user_id';
-                companyIdColumn = 'consulting_company_id';
             } else {
-                userType === 1;
+                //  userType === 1 || userType === 2
                 tableName = 'consultant_user_and_company';
                 userIdColumn = 'consultant_user_id';
                 companyIdColumn = 'consulting_company_id';
@@ -684,7 +677,7 @@ module.exports = class {
             const conn = await pool.getConnection();
             if (userType === 3) {
                 tableName = 'client_companies';
-                idColumn = 'client_companies';
+                idColumn = 'client_company_id';
             } else {
                 //userType === 1 || userType === 2
                 tableName = 'consulting_companies';

@@ -84,23 +84,6 @@ module.exports = (router) => {
             res.send(err);
         }
     });
-    // 로그아웃
-    router.get('/api/auth/logout', extractToken, async (req, res) => {
-        let result, response;
-        try {
-            let accessToken = req.token;
-            console.log('/api/auth/logOut 요청 : ', accessToken);
-
-            result = await authAdapter.logOut(accessToken);
-            console.log('/api/auth/logOut 응답 : ', result);
-
-            response = new Response(204, '로그아웃 완료 (No Content)', result);
-            res.send(response);
-        } catch (err) {
-            console.log('/api/auth/logOut 에러 응답 : ', err);
-            res.send(err);
-        }
-    });
     // 사용자 인증 : 비밀번호 - 사용자 정보 수정 접근, 회원탈퇴 시 사용 API
     router.post(
         '/api/auth/verifyuser',
@@ -169,6 +152,23 @@ module.exports = (router) => {
             res.send(response);
         } catch (err) {
             console.log('/api/auth/confirmforgotpassword 에러 응답 : ', err);
+            res.send(err);
+        }
+    });
+    // 로그아웃
+    router.get('/api/auth/logout', extractToken, async (req, res) => {
+        let result, response;
+        try {
+            let accessToken = req.token;
+            console.log('/api/auth/logOut 요청 : ', accessToken);
+
+            result = await authAdapter.logOut(accessToken);
+            console.log('/api/auth/logOut 응답 : ');
+
+            response = new Response(204, '로그아웃 완료 (No Content)', result);
+            res.send(response);
+        } catch (err) {
+            console.log('/api/auth/logOut 에러 응답 : ', err);
             res.send(err);
         }
     });

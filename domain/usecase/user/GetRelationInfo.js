@@ -7,6 +7,7 @@ module.exports = class {
     async excute(userData) {
         try {
             let userType = userData.userType;
+            console.log('1111111111111111111111111111111', userType);
             if (!(userType === 2 || userType === 3)) {
                 throw new UserTypeException('사용자 타입');
             }

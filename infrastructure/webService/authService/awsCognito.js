@@ -373,8 +373,14 @@ module.exports = class {
     }
     // access token 만료 날짜 확인
     async checkAccessToken(accessToken) {
-        let result = await processingToken.checkAccessToken(accessToken);
-        return result;
+        try {
+            let result = await processingToken.checkAccessToken(accessToken);
+            console.log('22222222222222222222222', result);
+            return result;
+        } catch (err) {
+            console.log('11111111111111', err);
+            throw new CognitoError(err.message, err.statusCode, err);
+        }
     }
     // 새 access 토큰 발행
     issueNewToken(refreshToken) {
@@ -396,6 +402,7 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  issueNewToken : ',
                             err
                         );
+
                         reject(
                             new CognitoError(err.message, err.statusCode, err)
                         );
@@ -406,6 +413,7 @@ module.exports = class {
                             data
                         );
                         result = data.AuthenticationResult;
+
                         resolve(result);
                     }
                 }
