@@ -49,181 +49,280 @@ module.exports = class UserEntity {
         this.etc = etc;
     }
     // introduce
+    // "introduce":"자기소개 시작",
     get introduce() {
         return this._introduce;
     }
     set introduce(introduce) {
-        if (introduce !== '') {
-            let regIntroduce = /^.*$/; // 유효성 체크 확인 : 한글/영어/숫자/특수문자
-            if (
-                !(
-                    introduce !== '' &&
-                    introduce !== undefined &&
-                    regIntroduce.test(introduce)
-                )
-            ) {
-                console.log('----------------------------', introduce);
+        if (introduce === '') {
+            this._introduce = introduce;
+        } else {
+            console.log('----------------------------', introduce);
+            let regIntroduce = /^.*$/; // 유효성 체크 확인 : 한글/영어/숫자/특수문자 글자수 제한 없음
+            if (!regIntroduce.test(introduce)) {
                 throw new ParameterException('자기소개');
             } else {
                 this._introduce = introduce;
             }
-        } else {
-            this._introduce = introduce;
         }
     }
     // abilityCertifications
+    // "abilityCertifications":[{"certificationId":1,"certificationName":"ISMS-P"},
+    //                          { "certificationId":9,"certificationName":"KSMS-K" }],
     get abilityCertifications() {
         return this._abilityCertifications;
     }
     set abilityCertifications(abilityCertifications) {
+        let regCertificationId = /^[0-9]+$/; //  숫자 - 정규식 작성
+        let regCertificationName = /^[0-9a-zA-Z가-힣!@#$%^&+=_-]+$/; // 영어/한글/특수문자
+        console.log('tttttt-abilityCertifications', abilityCertifications);
         if (!abilityCertifications.length) {
-            let regPwd = /^.*(?=^.{8,20}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/;
-            //특수문자 / 문자 / 숫자 포함 형태의 8~20자리 이내의 암호 정규식
-
-            if (!regPwd.test(abilityCertifications)) {
-                throw new ParameterException('비밀번호');
-            } else {
-                this._abilityCertifications = abilityCertifications;
-            }
+            this._abilityCertifications = abilityCertifications;
         } else {
+            for (let i = 0; i < abilityCertifications.length; i++) {
+                if (
+                    (abilityCertifications[i].certificationId !== '' &&
+                        !regCertificationId.test(
+                            abilityCertifications[i].certificationId
+                        )) ||
+                    (abilityCertifications[i].certificationName !== '' &&
+                        !regCertificationName.test(
+                            abilityCertifications[i].certificationName
+                        ))
+                ) {
+                    throw new ParameterException('인증 구분 정보 ');
+                }
+            }
             this._abilityCertifications = abilityCertifications;
         }
     }
-    // name
-    get name() {
-        return this._name;
+    // abilityIndustries
+    // "abilityIndustries":[{"industryId":2,"industryName":"쇼핑몰"}],
+    get abilityIndustries() {
+        return this._abilityIndustries;
     }
-    set name(name) {
-        if (name !== null) {
-            let regName = /^[a-zA-Z가-힣]{2,50}$/; // 이름 유효성 체크 : 한글, 영문 50자 이내
-
-            if (!regName.test(name)) {
-                throw new ParameterException('이름');
-            } else {
-                this._name = name;
-            }
+    set abilityIndustries(abilityIndustries) {
+        let regIndustryId = /^[0-9]+$/; // 숫자
+        let regIndustryName = /^[0-9a-zA-Z가-힣!@#$%^&+=_-]+$/; //
+        console.log('tttttt-abilityIndustries', abilityIndustries);
+        if (!abilityIndustries.length) {
+            this._abilityIndustries = abilityIndustries;
         } else {
-            this._name = name;
+            for (let i = 0; i < abilityIndustries.length; i++) {
+                if (
+                    (abilityIndustries[i].industryId !== '' &&
+                        !regIndustryId.test(abilityIndustries[i].industryId)) ||
+                    (abilityIndustries[i].industryName !== '' &&
+                        !regIndustryName.test(
+                            abilityIndustries[i].industryName
+                        ))
+                ) {
+                    throw new ParameterException('수행가능 업종 정보 ');
+                }
+            }
+            this._abilityIndustries = abilityIndustries;
         }
     }
     // abilityTasks
-    get userType() {
-        return this._userType;
+    // "abilityTasks":[{"taskId":3,"taskName":"세부과제1","taskGroupType":1}],
+    get abilityTasks() {
+        return this._abilityTasks;
     }
-    set userType(userType) {
-        if (userType !== null) {
-            let regUserType = /^[123]$/; // 사용자 타입 유효성 체크 : 1, 2, 3 만 사용
-
-            if (!regUserType.test(userType)) {
-                throw new ParameterException('사용자 타입');
-            } else {
-                this._userType = userType;
-            }
+    set abilityTasks(abilityTasks) {
+        let regTaskId = /^[0-9]+$/; // 숫자
+        let regTaskName = /^[0-9a-zA-Z가-힣!@#$%^&+=_-]+$/; // 영어/한글/특수문자
+        let regTaskGroupType = /^[0-3]$/;
+        console.log('tttttt-abilityTasks', abilityTasks);
+        if (!abilityTasks.length) {
+            this._abilityTasks = abilityTasks;
         } else {
-            this._userType = userType;
+            for (let i = 0; i < abilityTasks.length; i++) {
+                if (
+                    (abilityTasks[i].taskId !== '' &&
+                        !regTaskId.test(abilityTasks[i].taskId)) ||
+                    (abilityTasks[i].taskName !== '' &&
+                        !regTaskName.test(abilityTasks[i].taskName)) ||
+                    (abilityTasks[i].taskGroupType !== '' &&
+                        !regTaskGroupType.test(abilityTasks[i].taskGroupType))
+                ) {
+                    throw new ParameterException('수행가능 과제 정보 ');
+                }
+            }
+            this._abilityTasks = abilityTasks;
         }
     }
     // academicBackground
-    get phoneNum() {
-        return this._phoneNum;
+    // "academicBackground":{"finalAcademicType":0,"schoolName":"이지시큐대학","majorName":"정보보안학과",
+    //     "graduationClassificationType":0, "admissionDate": "2020/01/01", "graduateDate": "2020/02/01"},
+    get academicBackground() {
+        return this._academicBackground;
     }
-    set phoneNum(phoneNum) {
-        if (phoneNum !== null) {
-            let regPhoneNum = /^(01[016789]{1}|02|0[3-9]{1}[0-9]{1})-?[0-9]{3,4}-?[0-9]{4}$/;
-            //특수문자 / 문자 / 숫자 포함 형태의 8~20자리 이내의 암호 정규식
-
-            if (!regPhoneNum.test(phoneNum)) {
-                throw new ParameterException('연락처');
-            } else {
-                this._phoneNum = phoneNum;
-            }
+    set academicBackground(academicBackground) {
+        let regAcademicType = /^[0-1]$/;
+        let regSchoolName = /^[0-9a-zA-Z가-힣]{0,20}$/; //  한글/영어/숫자 20글자 제한
+        let regMajorName = /^[0-9a-zA-Z가-힣]{0,20}$/; //  한글/영어/숫자 20글자 제한
+        let regGraduationType = /^[0-7]$/;
+        let regSelectDate = /^([0-9]{4})\/([0-9]{2})\/([0-9]{2})$/;
+        console.log('tttttt-academicBackground', academicBackground);
+        if (!Object.keys(academicBackground).length) {
+            this._academicBackground = academicBackground;
         } else {
-            this._phoneNum = phoneNum;
+            if (
+                (academicBackground.finalAcademicType !== '' &&
+                    !regAcademicType.test(
+                        academicBackground.finalAcademicType
+                    )) ||
+                (academicBackground.schoolName !== '' &&
+                    !regSchoolName.test(academicBackground.schoolName)) ||
+                (academicBackground.majorName !== '' &&
+                    !regMajorName.test(academicBackground.majorName)) ||
+                (academicBackground.graduationClassificationType !== '' &&
+                    !regGraduationType.test(
+                        academicBackground.graduationClassificationType
+                    )) ||
+                (academicBackground.admissionDate !== '' &&
+                    !regSelectDate.test(academicBackground.admissionDate)) ||
+                (academicBackground.graduateDate !== '' &&
+                    !regSelectDate.test(academicBackground.graduateDate))
+            ) {
+                throw new ParameterException('학력 정보');
+            }
+
+            this._academicBackground = academicBackground;
         }
     }
     // career
-    get bankName() {
-        return this._bankName;
+    // "career":[{"companyName":"무신사","position":"PM","assignedWork":"관리","joiningDate":"2021/02/01",
+    //     "resignationDate":"2021/03/01"}],
+    get career() {
+        return this._career;
     }
-    set bankName(bankName) {
-        if (bankName !== null) {
-            let regBankName = /^[a-zA-Z가-힣]{2,50}$/; // 은행명 유효성 체크 : 한글, 영문 50자 이내
-
-            if (!regBankName.test(bankName)) {
-                throw new ParameterException('은행명');
-            } else {
-                this._bankName = bankName;
-            }
+    set career(career) {
+        let regCompanyName = /^[0-9a-zA-Z가-힣]{0,20}$/; // 한글/영어/숫자 20글자 제한
+        let regPosition = /^[0-9a-zA-Z가-힣]{0,20}$/; // 한글/영어/숫자 20글자 제한
+        let regAssignedWork = /^[0-9a-zA-Z가-힣]{0,20}$/; // 영어/한글/특수문자
+        let regSelectDate = /^([0-9]{4})\/([0-9]{2})\/([0-9]{2})$/; // 숫자4자리/숫자2자리/숫자2자리 ex)2020/01/01
+        console.log('tttttt-career', career);
+        if (!career.length) {
+            this._career = career;
         } else {
-            this._bankName = bankName;
+            for (let i = 0; i < career.length; i++) {
+                if (
+                    (career[i].companyName !== '' &&
+                        !regCompanyName.test(career[i].companyName)) ||
+                    (career[i].position !== '' &&
+                        !regPosition.test(career[i].position)) ||
+                    (career[i].assignedWork !== '' &&
+                        !regAssignedWork.test(career[i].assignedWork)) ||
+                    (career[i].joiningDate !== '' &&
+                        !regSelectDate.test(career[i].joiningDate)) ||
+                    (career[i].resignationDate !== '' &&
+                        !regSelectDate.test(career[i].resignationDate))
+                ) {
+                    throw new ParameterException('경력 정보 ');
+                }
+            }
+            this._career = career;
         }
     }
     // license
-    get bankAccountNum() {
-        return this._bankAccountNum;
+    // "license":[{"licenseName":"CPPG","licenseNum":"123456789","issueInstitution":"정보보안학회",
+    //     "issuedDate":"2020-12-01"}],
+    get license() {
+        return this._license;
     }
-    set bankAccountNum(bankAccountNum) {
-        if (bankAccountNum !== null) {
-            let regBankAccountNum = /^[0-9]{2,30}$/; // 계좌번호 유효성 체크 : 수정해야함!!!!!!!!!!!!!
-
-            if (!regBankAccountNum.test(bankAccountNum)) {
-                throw new ParameterException('계좌번호');
-            } else {
-                this._bankAccountNum = bankAccountNum;
-            }
+    set license(license) {
+        let regLicenseName = /^[0-9a-zA-Z가-힣]{0,20}$/; // 한글/영어/숫자 20글자 제한
+        let regLicenseNum = /^[0-9a-zA-Z]+$/; // 영문/숫자 하나 이상
+        let regIssueInstitution = /^[0-9a-zA-Z가-힣]{0,20}$/; //  한글/영어/숫자 20글자 제한
+        let regSelectDate = /^([0-9]{4})\/([0-9]{2})\/([0-9]{2})$/;
+        console.log('tttttt-license', license);
+        if (!license.length) {
+            this._license = license;
         } else {
-            this._bankAccountNum = bankAccountNum;
+            for (let i = 0; i < license.length; i++) {
+                if (
+                    (license[i].licenseName !== '' &&
+                        !regLicenseName.test(license[i].licenseName)) ||
+                    (license[i].licenseNum !== '' &&
+                        !regLicenseNum.test(license[i].licenseNum)) ||
+                    (license[i].issueInstitution !== '' &&
+                        !regIssueInstitution.test(
+                            license[i].issueInstitution
+                        )) ||
+                    (license[i].issuedDate !== '' &&
+                        !regSelectDate.test(license[i].issuedDate))
+                ) {
+                    throw new ParameterException('자격증 정보 ');
+                }
+            }
+            this._license = license;
         }
     }
     // projectHistory
-    get bankAccountOwner() {
-        return this._bankAccountOwner;
+    // "projectHistory":[{"projectName":"무신사쇼핑몰","assignedTask":"관리","industryCategoryId": 3,
+    //     "industryCategoryName":"쇼핑몰","projectStartDate":"2021-02-01","projectEndDate":"2021-03-01"}],
+    get projectHistory() {
+        return this._projectHistory;
     }
-    set bankAccountOwner(bankAccountOwner) {
-        if (bankAccountOwner !== null) {
-            let regBankAccountOwner = /^[a-zA-Z가-힣]{2,50}$/; // 계좌주 유효성 체크 : 한글, 영문 50자 이내
-
-            if (!regBankAccountOwner.test(bankAccountOwner)) {
-                throw new ParameterException('계좌주');
-            } else {
-                this._bankAccountOwner = bankAccountOwner;
-            }
+    set projectHistory(projectHistory) {
+        let regHistoryName = /^[0-9a-zA-Z가-힣]{0,20}$/; //  한글/영어/숫자 20글자 제한
+        let regTaskName = /^[0-9a-zA-Z가-힣]{0,20}$/; //  한글/영어/숫자 20글자 제한
+        let regIndustryCategoryId = /^[0-9]+$/; // 숫자 하나 이상
+        let regIndustryCategoryName = /^[0-9a-zA-Z가-힣]{0,20}$/; //  한글/영어/숫자 20글자 제한
+        let regSelectDate = /^([0-9]{4})\/([0-9]{2})\/([0-9]{2})$/;
+        console.log('ttttttttttttttttttttt0-projectHistory', projectHistory);
+        if (!projectHistory.length) {
+            this._projectHistory = projectHistory;
         } else {
-            this._bankAccountOwner = bankAccountOwner;
+            for (let i = 0; i < projectHistory.length; i++) {
+                if (
+                    (projectHistory[i].projectName !== '' &&
+                        !regHistoryName.test(projectHistory[i].projectName)) ||
+                    (projectHistory[i].assignedTask !== '' &&
+                        !regTaskName.test(projectHistory[i].assignedTask)) ||
+                    (projectHistory[i].industryCategoryId !== '' &&
+                        !regIndustryCategoryId.test(
+                            projectHistory[i].industryCategoryId
+                        )) ||
+                    (projectHistory[i].industryCategoryName !== '' &&
+                        !regIndustryCategoryName.test(
+                            projectHistory[i].industryCategoryName
+                        )) ||
+                    (projectHistory[i].projectStartDate !== '' &&
+                        !regSelectDate.test(
+                            projectHistory[i].projectStartDate
+                        )) ||
+                    (projectHistory[i].projectEndDate !== '' &&
+                        !regSelectDate.test(projectHistory[i].projectEndDate))
+                ) {
+                    throw new ParameterException('수행 이력 정보 ');
+                }
+            }
+            this._projectHistory = projectHistory;
         }
     }
-    get code() {
-        return this._code;
+    // etc":{"etcCertifications":"iso27001","etcIndustries":"병원"}}
+    get etc() {
+        return this._etc;
     }
-    set code(code) {
-        if (code !== null) {
-            let regCode = /^(?=[0-9]{6}$)/;
-            //특수문자 / 문자 / 숫자 포함 형태의 8~20자리 이내의 암호 정규식  : 유효성 코드 필요한지 확인?!
-
-            if (!regCode.test(code)) {
-                throw new ParameterException('code');
-            } else {
-                this._code = code;
-            }
+    set etc(etc) {
+        let regEtcCertification = /^[0-9a-zA-Z가-힣]{0,10}$/; // 한글/영어/숫자 10글자 제한
+        let regEtcIndustry = /^[0-9a-zA-Z가-힣]{0,10}$/; //한글/영어/숫자 10글자 제한
+        console.log('tttttt-etc', etc);
+        if (!Object.keys(etc).length) {
+            this._etc = etc;
         } else {
-            this._code = code;
-        }
-    }
-    // withdrawalType
-    get withdrawalType() {
-        return this._withdrawalType;
-    }
-    set withdrawalType(withdrawalType) {
-        if (withdrawalType !== null) {
-            let regWithdrawalType = /^[0123]$/; // 탈퇴사유 타입 유효성 체크 : 0, 1, 2, 3 만 사용
-
-            if (!regWithdrawalType.test(withdrawalType)) {
-                throw new ParameterException('사용자 타입');
-            } else {
-                this._withdrawalType = withdrawalType;
+            if (
+                (etc.etcCertifications !== '' &&
+                    !regEtcCertification.test(etc.etcCertifications)) ||
+                (etc.etcIndustries !== '' &&
+                    !regEtcIndustry.test(etc.etcIndustries))
+            ) {
+                throw new ParameterException('기타 입력 정보 ');
             }
-        } else {
-            this._withdrawalType = withdrawalType;
+
+            this._etc = etc;
         }
     }
 };

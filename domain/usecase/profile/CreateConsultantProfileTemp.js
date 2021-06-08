@@ -1,4 +1,4 @@
-//Entity 생성해야함!!!
+const { ProfileEntity } = require('../../entities');
 const { UserTypeException } = require('../../exceptions');
 module.exports = class {
     constructor({ profileRepository }) {
@@ -12,11 +12,12 @@ module.exports = class {
             if (userData.userType !== 1) {
                 throw new UserTypeException('사용자 타입');
             }
-            let createProfileTempEntity = tempData; // 유효성 확인 추가!!!
-            createProfileTempEntity.email = userData.email;
+            let profileEntity = new ProfileEntity(tempData);
+            // let createProfileTempEntity = tempData; // 유효성 확인 추가!!!
+            profileEntity.email = userData.email;
 
             result = await this.profileRepository.createConsultantProfileTemp(
-                createProfileTempEntity,
+                profileEntity,
                 uploadData
             );
             // console.log('결과----------------', result);
