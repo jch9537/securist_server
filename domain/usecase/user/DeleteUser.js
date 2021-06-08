@@ -1,8 +1,8 @@
 const { UserEntity } = require('../../entities');
 
 module.exports = class {
-    constructor(Repository) {
-        this.Repository = Repository;
+    constructor({ userRepository }) {
+        this.userRepository = userRepository;
     }
     async excute(accessToken, withdrawalData) {
         try {
@@ -13,7 +13,10 @@ module.exports = class {
             //     withdrawalType: deleteUserEntity.withdrawalType,
             // };
             // console.log('-------------------------', withdrawalEntity);
-            let result = this.Repository.deleteUser(accessToken, userEntity);
+            let result = this.userRepository.deleteUser(
+                accessToken,
+                userEntity
+            );
             return result;
         } catch (error) {
             console.log('에러 ----------------', error);

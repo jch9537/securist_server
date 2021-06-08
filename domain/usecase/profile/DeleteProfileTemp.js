@@ -1,11 +1,16 @@
-//Entity 생성
+const { UserTypeException } = require('../../exceptions');
 module.exports = class {
-    constructor(Repository) {
-        this.Repository = Repository;
+    constructor({ profileRepository }) {
+        this.profileRepository = profileRepository;
     }
     async excute(userData) {
         try {
-            let result = await this.Repository.deleteProfileTemp(userData);
+            if (!(userData.userType === 1 || userData.userType === 2)) {
+                throw new UserTypeException('사용자 타입');
+            }
+            let result = await this.profileRepository.deleteProfileTemp(
+                userData
+            );
             console.log('결과----------------', result);
             return result;
         } catch (error) {

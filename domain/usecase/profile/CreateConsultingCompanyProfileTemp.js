@@ -1,34 +1,29 @@
-const { GetUserBelongingCompanyInfo } = require('../user');
-//Entity 생성해야함!!!
+const { ProfileEntity } = require('../../entities');
+const { UserTypeException } = require('../../exceptions');
 module.exports = class {
-    constructor(Repository) {
-        this.Repository = Repository;
+    constructor({ userRepository, profileRepository }) {
+        this.userRepository = userRepository;
+        this.profileRepository = profileRepository;
     }
     async excute(userData, tempData, uploadData) {
-        let result;
         try {
-            if (userData.userType === 2) {
-                let getUserBelongingCompanyInfo = new GetUserBelongingCompanyInfo(
-                    this.Repository
-                );
-                let companyData = await getUserBelongingCompanyInfo.excute(
-                    userData
-                );
-                console.log('기업정보 가져오기 ', companyData);
-                let createProfileTempEntity = tempData; // 유효성 확인 추가!!!
-                createProfileTempEntity.companyId =
-                    companyData['consulting_company_id'];
-
-                result = await this.Repository.createConsultingCompanyProfileTemp(
-                    createProfileTempEntity,
-                    uploadData
-                );
+            if (userData.userType !== 2) {
+                throw new UserTypeException('사용자 타입');
             }
+            let profileEntity = new ProfileEntity(tempData);
+            // let createProfileTempEntity = tempData; // 유효성 확인 추가!!!
+            profileEntity.email = userData.email;
+            profileEntity.userType = userData.userType;
+
+            let result = await this.profileRepository.createConsultingCompanyProfileTemp(
+                profileEntity,
+                uploadData
+            );
             // console.log('결과----------------', result);
+            return result;
         } catch (error) {
             // console.log('에러 ----------------', error);
             throw error;
         }
-        return result;
     }
 };

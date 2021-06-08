@@ -1,9 +1,7 @@
-// TODO 확인할 것 : 확인코드의 validation의 필요성에 대해 - 알면안되는 확인코드에 대한 힌트를 줄 수 있지 않나?
 const awsCognito = require('../../infrastructure/webService/authService/awsCognito'); // 테스트용 모듈 import
 
 // 사용자 처리 어댑터
-const { Auth, Repository } = require('../outbound');
-
+const { auth, repository } = require('../outbound');
 const {
     CheckDuplicateEmail,
     ResendComfirmEmail,
@@ -26,7 +24,7 @@ module.exports = {
             checkData
         );
         try {
-            let checkDuplicateEmail = new CheckDuplicateEmail(Auth);
+            let checkDuplicateEmail = new CheckDuplicateEmail(auth);
             let result = await checkDuplicateEmail.excute(checkData);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - result : ',
@@ -37,12 +35,12 @@ module.exports = {
                 userExist: result,
             };
             return data;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - err : ',
-                err
+                '에러 응답 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 회원가입
@@ -52,30 +50,30 @@ module.exports = {
             signUpData
         );
         try {
-            let signUp = new SignUp(Auth, Repository);
+            let signUp = new SignUp(repository);
             let result = await signUp.excute(signUpData); //client에서 작성된 정보만 받음
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > signUp - result : ',
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > authAdaptor.js > signUp - err : ',
-                err
+                '에러 응답 > adapters > inbound > authAdaptor.js > signUp - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 가입메일 재발송
     async resendComfirmEmail(resendEmailData) {
         try {
-            let resendComfirmEmail = new ResendComfirmEmail(Auth);
+            let resendComfirmEmail = new ResendComfirmEmail(auth);
             let result = await resendComfirmEmail.excute(resendEmailData);
 
             return result;
-        } catch (error) {
-            throw error;
+        } catch (erroror) {
+            throw erroror;
         }
     },
     // 로그인
@@ -94,19 +92,19 @@ module.exports = {
             logInData
         );
         try {
-            let logIn = new LogIn(Auth);
+            let logIn = new LogIn(auth);
             let result = await logIn.excute(logInData);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > logIn - result : ',
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > authAdaptor.js > logIn - err : ',
-                err
+                '에러 응답 > adapters > inbound > authAdaptor.js > logIn - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 로그아웃
@@ -116,15 +114,15 @@ module.exports = {
             accessToken
         );
         try {
-            let logOut = new LogOut(Auth);
+            let logOut = new LogOut(auth);
             let result = await logOut.excute(accessToken);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > logOut - result : ',
                 result
             );
             return result;
-        } catch (err) {
-            throw err;
+        } catch (error) {
+            throw error;
         }
     },
     // 사용자 인증 : 비밀번호
@@ -134,19 +132,19 @@ module.exports = {
             verifyData
         );
         try {
-            let verifyUserByPassword = new VerifyUserByPassword(Auth);
+            let verifyUserByPassword = new VerifyUserByPassword(auth);
             let result = await verifyUserByPassword.excute(verifyData);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > verifyUserByPassword - result : ',
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
                 '에러 응답 > adapters > inbound > authAdaptor.js > verifyUserByPassword - result : ',
-                err
+                error
             );
-            throw err;
+            throw error;
         }
     },
 
@@ -158,7 +156,7 @@ module.exports = {
             updatePasswordData
         );
         try {
-            let changePassword = new ChangePassword(Auth);
+            let changePassword = new ChangePassword(auth);
             let result = await changePassword.excute(
                 accessToken,
                 updatePasswordData
@@ -168,12 +166,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
                 '에러 응답 > adapters > inbound > authAdaptor.js > changePassword - result : ',
-                err
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 비밀번호 찾기 확인코드 전송
@@ -183,19 +181,19 @@ module.exports = {
             forgotPasswordData
         );
         try {
-            let forgotPassword = new ForgotPassword(Auth);
+            let forgotPassword = new ForgotPassword(auth);
             let result = await forgotPassword.excute(forgotPasswordData);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > forgotPassword - result : ',
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
                 '에러 응답 > adapters > inbound > authAdaptor.js > forgotPassword - result : ',
-                err
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 비밀번호 찾기 비밀번호 변경
@@ -205,19 +203,19 @@ module.exports = {
             changePasswordData
         );
         try {
-            let confirmForgotPassword = new ConfirmForgotPassword(Auth);
+            let confirmForgotPassword = new ConfirmForgotPassword(auth);
             let result = await confirmForgotPassword.excute(changePasswordData);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > confirmForgotPassword - result : ',
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
                 '에러 응답 > adapters > inbound > authAdaptor.js > confirmForgotPassword - result : ',
-                err
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // access 토큰 유효기간 확인
@@ -227,15 +225,15 @@ module.exports = {
             accessToken
         );
         try {
-            let checkAccessToken = new CheckAccessToken(Auth);
+            let checkAccessToken = new CheckAccessToken(auth);
             let result = await checkAccessToken.excute(accessToken);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > checkAccessToken - result : ',
                 result
             );
             return result;
-        } catch (err) {
-            throw err;
+        } catch (error) {
+            throw error;
         }
     },
     // access 토큰 갱신
@@ -245,19 +243,19 @@ module.exports = {
             refreshToken
         );
         try {
-            let issueNewToken = new IssueNewToken(Auth);
+            let issueNewToken = new IssueNewToken(auth);
             let result = await issueNewToken.excute(refreshToken);
             console.log(
                 '응답 > adapters > inbound > authAdaptor.js > issueNewToken - result : ',
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
                 '에러 응답 > adapters > inbound > authAdaptor.js > issueNewToken - result : ',
-                err
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 테스트용 함수(cognito 바로 연결 : 관리자 권한 처리) -------------------------------------------------------------
@@ -269,8 +267,8 @@ module.exports = {
             let result = await test.deleteUserByAdmin(userParam.id);
 
             return result;
-        } catch (err) {
-            return err;
+        } catch (error) {
+            return error;
         }
     },
     async disableUserByAdmin(userParam) {
@@ -278,8 +276,8 @@ module.exports = {
             var test = new awsCognito();
             let result = await test.disableUserByAdmin(userParam.id);
             return result;
-        } catch (err) {
-            return err;
+        } catch (error) {
+            return error;
         }
     },
     async enableUserByAdmin(userParam) {
@@ -287,8 +285,8 @@ module.exports = {
             var test = new awsCognito();
             let result = await test.enableUserByAdmin(userParam.id);
             return result;
-        } catch (err) {
-            return err;
+        } catch (error) {
+            return error;
         }
     },
 };

@@ -14,7 +14,7 @@ module.exports = class {
             bucket: 'securist-user',
             acl: 'public-read-write',
             key: function (req, file, cb) {
-                console.log('444444444444444444444444444444', file);
+                // console.log('444444444444444444444444444444', file);
                 cb(
                     null,
                     `consultant/profile/temp/${file.fieldname}/${Date.now()}_${
@@ -29,6 +29,7 @@ module.exports = class {
     }
 
     uploadConsultingCompanyBusinessLicenseTemp(req, res, next) {
+        console.log('s3 리퀘스트1111111', req);
         let storage = multerS3({
             s3: this.s3,
             bucket: 'securist-user',

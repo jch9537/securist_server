@@ -1,7 +1,7 @@
 const { CompanyEntity } = require('../../entities');
 module.exports = class {
-    constructor(Repository) {
-        this.Repository = Repository;
+    constructor({ userRepository }) {
+        this.userRepository = userRepository;
     }
     async excute(userData, joinData) {
         try {
@@ -11,7 +11,7 @@ module.exports = class {
             // companyEntity.email = 'mg.kim@aegisecu.com', // 테스트
             // companyEntity.email = 'mg.sun@aegisecu.com'
             // companyEntity.email = 'ej.lim@aegisecu.com'
-            let result = await this.Repository.createUserAndCompanyRelation(
+            let result = await this.userRepository.createUserAndCompanyRelation(
                 companyEntity
             );
             // console.log('결과----------------', result);

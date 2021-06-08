@@ -16,6 +16,7 @@ module.exports = (router) => {
 
     // 기업정보 가져오기
     router.get('/api/company/:companyId', async (req, res) => {
+        let result, response;
         try {
             let userData = req.userDataByIdToken;
             let reqParamsData = req.params;
@@ -25,13 +26,13 @@ module.exports = (router) => {
                 reqParamsData
             );
 
-            let result = await companyAdapter.getCompanyInfo(
+            result = await companyAdapter.getCompanyInfo(
                 userData,
                 reqParamsData
             );
             console.log('응답 > /api/company/:companyId : ', result);
 
-            let response = new Response(200, '기업정보 가져오기 완료', result);
+            response = new Response(200, '기업정보 가져오기 완료', result);
             res.send(response);
         } catch (err) {
             console.log('에러 > /api/company/:companyId : ', err);
@@ -40,17 +41,14 @@ module.exports = (router) => {
     });
     // 등록된 기업정보 가져오기 : 업체 검색   - 등록된 기업만 필터링
     router.get('/api/company/list/registration', async (req, res) => {
+        let result, response;
         try {
             let userData = req.userDataByIdToken;
 
-            let result = await companyAdapter.getCompanyList(userData);
+            result = await companyAdapter.getCompanyList(userData);
             console.log('GET - /api/company/list/registration 응답 : ', result);
 
-            let response = new Response(
-                200,
-                '기업리스트 가져오기 완료',
-                result
-            );
+            response = new Response(200, '기업리스트 가져오기 완료', result);
             res.send(response);
         } catch (err) {
             console.log('/api/company/list/registration 에러응답 : ', err);
@@ -61,12 +59,13 @@ module.exports = (router) => {
     router.get(
         '/api/company/:companyId/belonging/users/info',
         async (req, res) => {
+            let result, response;
             try {
                 let userData = req.userDataByIdToken;
                 let reqParamsData = req.params;
                 console.log('요청 데이터 : ', userData, reqParamsData);
 
-                let result = await companyAdapter.getCompanyBelongedUsersInfo(
+                result = await companyAdapter.getCompanyBelongedUsersInfo(
                     userData,
                     reqParamsData
                 );
@@ -75,7 +74,7 @@ module.exports = (router) => {
                     result
                 );
 
-                let response = new Response(
+                response = new Response(
                     200,
                     '소속 컨설턴트들 정보가져오기 완료',
                     result
@@ -90,40 +89,39 @@ module.exports = (router) => {
             }
         }
     );
+    // 업체 - 소속 상태변경(승인, 거절, 삭제)처리 ----------권한필요!!(해당기업 소속의 관리자 권한)
+    // 진행중인 프로젝트가 있는 경우 해제불가 : 해당 코드 프로젝트 진행 뒤 추가
+    router.put('/api/company/relation/status', async (req, res) => {
+        let result, response;
+        try {
+            let userData = req.userDataByIdToken;
+            let reqData = req.filteredData;
+            console.log(
+                '요청 > /api/company/relation/status : ',
+                userData,
+                reqData
+            );
 
-    // // 사용자 소속요청에 대한 응답 (승인/거부)
-    // router.put(
-    //     '/api/company/permit/member',
-    //     decryptIdToken,
-    //     async (req, res) => {
-    //         try {
-    //             let userData = req.userDataByIdToken;
-    //             let reqData = req.filteredData;
-    //             console.log(
-    //                 'PUT > 요청 >  /api/company/permit/member  : ',
-    //                 userData,
-    //                 reqData
-    //             );
+            result = await companyAdapter.updateRegistrationStatus(
+                userData,
+                reqData
+            );
+            console.log('응답 > /api/company/relation/status : ', result);
+            let belongingType = result['belonging_type'];
+            console.log('--------------------', belongingType);
 
-    //             let result = await companyAdapter.updateRegistrationStatus(
-    //                 userData,
-    //                 reqData
-    //             );
-    //             console.log(
-    //                 'PUT > 응답 > /api/company/permit/member  : ',
-    //                 result
-    //             );
-
-    //             let response = new Response(
-    //                 200,
-    //                 '컨설턴트 소속요청 처리 완료',
-    //                 result
-    //             );
-    //             res.send(response);
-    //         } catch (err) {
-    //             console.log('PUT > 에러 > /api/company/permit/member  : ', err);
-    //             res.send(err);
-    //         }
-    //     }
-    // );
+            if (belongingType === 0) {
+                response = new Response(200, '소속 해제 완료');
+            } else if (belongingType === 2) {
+                response = new Response(200, '소속 요청 승인 완료');
+            } else {
+                response = new Response(400, '소속 타입 에러 ');
+                throw response;
+            }
+            res.send(response);
+        } catch (err) {
+            console.log('에러 > /api/company/relation/status : ', err);
+            res.send(err);
+        }
+    });
 };
