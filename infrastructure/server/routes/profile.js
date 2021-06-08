@@ -21,6 +21,7 @@ module.exports = (router) => {
         uploadConsultantProfileTemp.any(),
         sanitizer,
         async (req, res) => {
+            let result, response;
             try {
                 let userData = req.userDataByIdToken;
                 let reqData = req.filteredData;
@@ -38,13 +39,13 @@ module.exports = (router) => {
                     'POST - /api/user/profile/temp 요청 : uploadFiles : ',
                     uploadFiles
                 );
-                let result = await profileAdapter.createConsultantProfileTemp(
+                result = await profileAdapter.createConsultantProfileTemp(
                     userData,
                     reqData,
                     uploadFiles
                 );
                 console.log('POST - /api/user/profile/temp 응답 : ', result);
-                let response = new Response(
+                response = new Response(
                     200,
                     '컨설턴트 프로필 임시 저장 완료',
                     result
@@ -62,6 +63,7 @@ module.exports = (router) => {
         uploadConsultingCompanyBusinessLicenseTemp.any(),
         sanitizer,
         async (req, res) => {
+            let result, response;
             try {
                 console.log(
                     'POST - /api/company/profile/temp 요청 : ',
@@ -78,13 +80,13 @@ module.exports = (router) => {
                 );
                 console.log(reqData);
 
-                let result = await profileAdapter.createConsultingCompanyProfileTemp(
+                result = await profileAdapter.createConsultingCompanyProfileTemp(
                     userData,
                     reqData,
                     uploadFiles
                 );
                 console.log('POST - /api/company/profile/temp 응답 : ', result);
-                let response = new Response(
+                response = new Response(
                     200,
                     '기업 프로필 임시 저장 완료',
                     result
@@ -98,14 +100,15 @@ module.exports = (router) => {
     );
     // 사용자 프로필 임시정보 가져오기 : 임시저장 데이터 가져오기
     router.get('/api/user/profile/temp', async (req, res) => {
+        let result, response;
         try {
             let userData = req.userDataByIdToken;
             console.log('GET - /api/user/profile/temp 요청 : ', userData);
 
-            let result = await profileAdapter.getProfileTemp(userData);
+            result = await profileAdapter.getProfileTemp(userData);
             console.log('GET - /api/user/profile/temp 응답 : ', result);
 
-            let response = new Response(
+            response = new Response(
                 200,
                 '사용자 임시 프로필 정보가져오기 완료 - idToken',
                 result
@@ -118,14 +121,15 @@ module.exports = (router) => {
     });
     // 기업 프로필 임시정보 가져오기 : 임시저장 데이터 가져오기
     router.get('/api/company/profile/temp', async (req, res) => {
+        let result, response;
         try {
             let userData = req.userDataByIdToken;
             console.log('GET - /api/company/profile/temp 요청 : ', userData);
 
-            let result = await profileAdapter.getProfileTemp(userData);
+            result = await profileAdapter.getProfileTemp(userData);
             console.log('GET - /api/company/profile/temp 응답 : ', result);
 
-            let response = new Response(
+            response = new Response(
                 200,
                 '기업 임시 프로필 정보가져오기 완료 - idToken',
                 result
@@ -138,14 +142,15 @@ module.exports = (router) => {
     });
     // 임시저장 프로필 정보 삭제 : 공통
     router.delete('/api/profile/temp', async (req, res) => {
+        let result, response;
         try {
             let userData = req.userDataByIdToken;
             console.log('DELETE - /api/profile/temp 요청 : ', userData);
 
-            let result = await profileAdapter.deleteProfileTemp(userData);
+            result = await profileAdapter.deleteProfileTemp(userData);
             console.log('DELETE - /api/profile/temp 응답 : ', result);
 
-            let response = new Response(
+            response = new Response(
                 200,
                 '프로필 임시저장 정보 삭제 완료',
                 result

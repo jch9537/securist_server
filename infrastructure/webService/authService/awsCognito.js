@@ -1,8 +1,8 @@
 //개별 클라우드 인증서비스의 실행클래스 - cognito
 const AWS = require('../awsConfig');
 const { processingToken, checkExpiredPassword } = require('./awsMiddleware');
-const Exception = require('../../../adapters/exceptions');
-const colors = require('colors');
+const { Exception } = require('../../../adapters/exceptions');
+const { CognitoError } = require('../../error');
 
 const userPoolId = process.env.AWS_COGNITO_USERPOOL_ID;
 const clientId = process.env.AWS_APP_CLIENT_ID;
@@ -18,7 +18,7 @@ module.exports = class {
         );
         const params = {
             UserPoolId: userPoolId,
-            AttributesToGet: ['email'],
+            // AttributesToGet: ['emai'],
             Filter: `email = \"${email}\"`,
         };
         let result = new Promise((resolve, reject) => {
@@ -31,7 +31,9 @@ module.exports = class {
                             err
                         );
                         // an error occurred
-                        reject(new Exception(err.statusCode, err.message, err));
+                        reject(
+                            new CognitoError(err.message, err.statusCode, err)
+                        );
                     } else {
                         // successful response
                         console.log(
@@ -97,13 +99,37 @@ module.exports = class {
                             err
                         );
                         if (err.code === 'UsernameExistsException') {
-                            reject(new Exception(409, err.message, err));
+                            reject(
+                                new CognitoError(
+                                    err.message,
+                                    err.statusCode,
+                                    err
+                                )
+                            );
                         } else if (err.code === 'InvalidPasswordException') {
-                            reject(new Exception(400, err.message, err));
+                            reject(
+                                new CognitoError(
+                                    err.message,
+                                    err.statusCode,
+                                    err
+                                )
+                            );
                         } else if (err.code === 'InvalidParameterException') {
-                            reject(new Exception(400, err.message, err));
+                            reject(
+                                new CognitoError(
+                                    err.message,
+                                    err.statusCode,
+                                    err
+                                )
+                            );
                         } else {
-                            reject(err);
+                            reject(
+                                new CognitoError(
+                                    err.message,
+                                    err.statusCode,
+                                    err
+                                )
+                            );
                         }
                     } else {
                         console.log(
@@ -130,7 +156,9 @@ module.exports = class {
                     if (err) {
                         console.log('~~~~~~~~~~~~~~~~~~', err, err.stack);
                         // an error occurred
-                        reject(err);
+                        reject(
+                            new CognitoError(err.message, err.statusCode, err)
+                        );
                     } else {
                         console.log('확인메일 -----------------------: ', data); // successful response
                         resolve(data);
@@ -168,9 +196,21 @@ module.exports = class {
                         ResourceNotFoundException
                         */
                         if (err.code === 'InvalidParameterException') {
-                            reject(new Exception(400, err.message, err));
+                            reject(
+                                new CognitoError(
+                                    err.message,
+                                    err.statusCode,
+                                    err
+                                )
+                            );
                         } else if (err.code === 'UserNotConfirmedException') {
-                            reject(new Exception(401, err.message, err));
+                            reject(
+                                new CognitoError(
+                                    err.message,
+                                    err.statusCode,
+                                    err
+                                )
+                            );
                         } else if (err.code === 'NotAuthorizedException') {
                             if (
                                 err.message ===
@@ -184,11 +224,19 @@ module.exports = class {
                                     await self.setRetryCount(email, failCount);
                                     err.retryCount = failCount;
                                     reject(
-                                        new Exception(401, err.message, err)
+                                        new CognitoError(
+                                            err.message,
+                                            err.statusCode,
+                                            err
+                                        )
                                     );
                                 } catch (error) {
                                     reject(
-                                        new Exception(404, err.message, err)
+                                        new CognitoError(
+                                            err.message,
+                                            err.statusCode,
+                                            err
+                                        )
                                     );
                                 }
                             } else if (
@@ -196,13 +244,29 @@ module.exports = class {
                                 // cognito 기본 로그인 횟수제한 (5번, 이후 시도 시마다 1초~15분까지 두배로 시도 시간 증가)
                                 //이 에러 발생하면 비밀번호 찾기로 이동처리
                             ) {
-                                reject(new Exception(401, err.message, err));
+                                reject(
+                                    new CognitoError(
+                                        err.message,
+                                        err.statusCode,
+                                        err
+                                    )
+                                );
                             } else if (err.message === 'User is disabled.') {
-                                reject(new Exception(403, err.message, err));
+                                reject(
+                                    new CognitoError(
+                                        err.message,
+                                        err.statusCode,
+                                        err
+                                    )
+                                );
                             }
                         } else {
                             reject(
-                                new Exception(err.statusCode, err.message, err)
+                                new CognitoError(
+                                    err.message,
+                                    err.statusCode,
+                                    err
+                                )
                             );
                         }
                     } else {
@@ -263,18 +327,38 @@ module.exports = class {
                         if (err.code === 'NotAuthorizedException') {
                             if (err.message === 'Access Token has expired') {
                                 // 토큰 만료 : 리프레시 토큰 필요
-                                reject(new Exception(403, err.message, err));
+                                reject(
+                                    new CognitoError(
+                                        err.message,
+                                        err.statusCode,
+                                        err
+                                    )
+                                );
                             } else if (
                                 // 토큰 취소 : 로그인 필요
                                 err.message === 'Access Token has been revoked'
                             ) {
-                                reject(new Exception(401, err.message, err));
+                                reject(
+                                    new CognitoError(
+                                        err.message,
+                                        err.statusCode,
+                                        err
+                                    )
+                                );
                             } else if (err.message === 'Invalid Access Token') {
                                 // 유효하지 않은 토큰 : 로그인 필요
-                                reject(new Exception(401, err.message, err));
+                                reject(
+                                    new CognitoError(
+                                        err.message,
+                                        err.statusCode,
+                                        err
+                                    )
+                                );
                             }
                         }
-                        reject(new Exception(err.statusCode, err.message, err));
+                        reject(
+                            new CognitoError(err.message, err.statusCode, err)
+                        );
                     } else {
                         // successful response
                         console.log(
@@ -289,8 +373,14 @@ module.exports = class {
     }
     // access token 만료 날짜 확인
     async checkAccessToken(accessToken) {
-        let result = await processingToken.checkAccessToken(accessToken);
-        return result;
+        try {
+            let result = await processingToken.checkAccessToken(accessToken);
+            console.log('22222222222222222222222', result);
+            return result;
+        } catch (err) {
+            console.log('11111111111111', err);
+            throw new CognitoError(err.message, err.statusCode, err);
+        }
     }
     // 새 access 토큰 발행
     issueNewToken(refreshToken) {
@@ -312,7 +402,10 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  issueNewToken : ',
                             err
                         );
-                        reject(new Exception(err.statusCode, err.message, err));
+
+                        reject(
+                            new CognitoError(err.message, err.statusCode, err)
+                        );
                     } else {
                         // successful response
                         console.log(
@@ -320,6 +413,7 @@ module.exports = class {
                             data
                         );
                         result = data.AuthenticationResult;
+
                         resolve(result);
                     }
                 }
@@ -369,7 +463,9 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js > getUserInfoByAccessToken : ',
                             err
                         );
-                        reject(new Exception(err.statusCode, err.message, err));
+                        reject(
+                            new CognitoError(err.message, err.statusCode, err)
+                        );
                     } else {
                         // successful response
                         console.log(
@@ -430,7 +526,9 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js > resetLogInCount : ',
                             err
                         );
-                        reject(new Exception(err.statusCode, err.message, err));
+                        reject(
+                            new CognitoError(err.message, err.statusCode, err)
+                        );
                     } else {
                         // successful response
                         console.log(
@@ -459,7 +557,9 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  getUserInfoByAdmin : ',
                             err
                         );
-                        reject(new Exception(err.statusCode, err.message, err));
+                        reject(
+                            new CognitoError(err.message, err.statusCode, err)
+                        );
                     } else {
                         // successful response
                         console.log(
@@ -502,7 +602,9 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  setRetryCount : ',
                             err
                         );
-                        reject(new Exception(err.statusCode, err.message, err));
+                        reject(
+                            new CognitoError(err.message, err.statusCode, err)
+                        );
                     } else {
                         // successful response
                         console.log(
@@ -541,7 +643,9 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  verifyUserByPassword : ',
                             err
                         );
-                        reject(new Exception(err.statusCode, err.message, err));
+                        reject(
+                            new CognitoError(err.message, err.statusCode, err)
+                        );
                     } else {
                         // successful response
                         console.log(
@@ -573,7 +677,9 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  changePassword : ',
                             err
                         );
-                        reject(new Exception(err.statusCode, err.message, err));
+                        reject(
+                            new CognitoError(err.message, err.statusCode, err)
+                        );
                     } else {
                         // successful response
                         console.log(
@@ -614,7 +720,9 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  changeAttribute : ',
                             err
                         );
-                        reject(new Exception(err.statusCode, err.message, err));
+                        reject(
+                            new CognitoError(err.message, err.statusCode, err)
+                        );
                     } else {
                         // successful response
                         console.log(
@@ -650,7 +758,11 @@ module.exports = class {
                                 err
                             );
                             reject(
-                                new Exception(err.statusCode, err.message, err)
+                                new CognitoError(
+                                    err.message,
+                                    err.statusCode,
+                                    err
+                                )
                             );
                         } else {
                             // successful response
@@ -675,7 +787,7 @@ module.exports = class {
         );
         const params = {
             ClientId: clientId,
-            ConfirmationCode: code,
+            ConfirmationCode: `${code}`,
             Password: password,
             Username: email,
         };
@@ -689,7 +801,9 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  confirmForgotPassword : ',
                             err
                         );
-                        reject(new Exception(err.statusCode, err.message, err));
+                        reject(
+                            new CognitoError(err.message, err.statusCode, err)
+                        );
                     } else {
                         // successful response
                         console.log(
@@ -711,7 +825,9 @@ module.exports = class {
                 params,
                 function (err, data) {
                     if (err)
-                        reject(new Exception(err.statusCode, err.message, err));
+                        reject(
+                            new CognitoError(err.message, err.statusCode, err)
+                        );
                     else resolve(data);
                 }
             );
@@ -772,7 +888,9 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js > delteUserByAdmin : ',
                             err
                         );
-                        reject(new Exception(err.statusCode, err.message, err));
+                        reject(
+                            new CognitoError(err.message, err.statusCode, err)
+                        );
                     } else {
                         console.log(
                             '응답 > Infrastructure > webService > authService > awsCognito.js > delteUserByAdmin : ',
@@ -800,7 +918,9 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js > disableUserByAdmin : ',
                             err
                         );
-                        reject(new Exception(err.statusCode, err.message, err));
+                        reject(
+                            new CognitoError(err.message, err.statusCode, err)
+                        );
                     } else {
                         // successful response
                         console.log(
@@ -829,7 +949,9 @@ module.exports = class {
                             '에러 응답 > Infrastructure > webService > authService > awsCognito.js > enableUserByAdmin : ',
                             err
                         );
-                        reject(new Exception(err.statusCode, err.message, err));
+                        reject(
+                            new CognitoError(err.message, err.statusCode, err)
+                        );
                     } else {
                         // successful response
                         console.log(

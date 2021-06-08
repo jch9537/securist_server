@@ -1,9 +1,8 @@
-const { Auth, Repository, SendMail } = require('../outbound');
+const { repository } = require('../outbound');
 const {
     CreateConsultantProfileTemp,
     CreateConsultingCompanyProfileTemp,
     GetProfileTemp,
-    UpdateProfileTemp,
     DeleteProfileTemp,
 } = require('../../domain/usecase/profile');
 
@@ -18,7 +17,7 @@ module.exports = {
         );
         try {
             let createConsultantProfileTemp = new CreateConsultantProfileTemp(
-                Repository
+                repository
             );
             let result = await createConsultantProfileTemp.excute(
                 userData,
@@ -30,12 +29,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > profileAdapter > createConsultantProfileTemp - err : ',
-                err
+                '에러 응답 > adapters > inbound > profileAdapter > createConsultantProfileTemp - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 기업 - 프로필 임시정보 생성 : 임시저장
@@ -48,7 +47,7 @@ module.exports = {
         );
         try {
             let createConsultingCompanyProfileTemp = new CreateConsultingCompanyProfileTemp(
-                Repository
+                repository
             );
             let result = await createConsultingCompanyProfileTemp.excute(
                 userData,
@@ -60,12 +59,12 @@ module.exports = {
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > profileAdapter > createConsultingCompanyProfileTemp - err : ',
-                err
+                '에러 응답 > adapters > inbound > profileAdapter > createConsultingCompanyProfileTemp - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 프로필 임시저장 가져오기 : 컨설턴트 (개인/기업) 공통
@@ -75,19 +74,19 @@ module.exports = {
             userData
         );
         try {
-            let getProfileTemp = new GetProfileTemp(Repository);
+            let getProfileTemp = new GetProfileTemp(repository);
             let result = await getProfileTemp.excute(userData);
             console.log(
                 '응답 > adapters > inbound > profileAdapter > getProfileTemp - result : ',
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > profileAdapter > getProfileTemp - err : ',
-                err
+                '에러 응답 > adapters > inbound > profileAdapter > getProfileTemp - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
     // 프로필 임시저장 정보 삭제 : 컨설턴트 (개인/기업) 공통
@@ -97,19 +96,19 @@ module.exports = {
             userData
         );
         try {
-            let deleteProfileTemp = new DeleteProfileTemp(Repository);
+            let deleteProfileTemp = new DeleteProfileTemp(repository);
             let result = await deleteProfileTemp.excute(userData);
             console.log(
                 '응답 > adapters > inbound > profileAdapter > deleteProfileTemp - result : ',
                 result
             );
             return result;
-        } catch (err) {
+        } catch (error) {
             console.log(
-                '에러 응답 > adapters > inbound > profileAdapter > deleteProfileTemp - err : ',
-                err
+                '에러 응답 > adapters > inbound > profileAdapter > deleteProfileTemp - error : ',
+                error
             );
-            throw err;
+            throw error;
         }
     },
 };

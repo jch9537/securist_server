@@ -1,17 +1,15 @@
 const { UserEntity } = require('../../entities');
 const { CompanyEntity } = require('../../entities');
 module.exports = class {
-    constructor(Auth, Repository) {
-        this.Auth = Auth;
-        this.Repository = Repository;
+    constructor({ userRepository }) {
+        this.userRepository = userRepository;
     }
     async excute(signUpData) {
         let result;
-
-        let signUpEntity = new UserEntity(signUpData);
-        let userType = signUpEntity.userType;
-        //userType - 1: 개인 컨설턴트 2: 컨설팅업체 3: 클라이언트 기업
         try {
+            let signUpEntity = new UserEntity(signUpData);
+            let userType = signUpEntity.userType;
+            //userType - 1: 개인 컨설턴트 2: 컨설팅업체 3: 클라이언트 기업
             if (userType === 2 || userType === 3) {
                 let companyData = {
                     businessLicenseNum: signUpData.businessLicenseNum,
@@ -26,10 +24,10 @@ module.exports = class {
                 signUpEntity.companyName = companyEntity.companyName;
                 signUpEntity.presidentName = companyEntity.presidentName;
             }
-            result = await this.Repository.signUp(signUpEntity);
+            result = await this.userRepository.signUp(signUpEntity);
+            return result;
         } catch (error) {
             throw error;
         }
-        return result;
     }
 };
