@@ -2,6 +2,7 @@ const { repository } = require('../outbound');
 const {
     CreateConsultantProfileTemp,
     CreateConsultingCompanyProfileTemp,
+    CheckProfileTempExist,
     GetProfileTemp,
     DeleteProfileTemp,
 } = require('../../domain/usecase/profile');
@@ -62,6 +63,28 @@ module.exports = {
         } catch (error) {
             console.log(
                 '에러 응답 > adapters > inbound > profileAdapter > createConsultingCompanyProfileTemp - error : ',
+                error
+            );
+            throw error;
+        }
+    },
+    // 임시저장 데이터 존재유무 확인
+    async checkProfileTempExist(userData) {
+        console.log(
+            '요청 > adapters > inbound > profileAdapter > checkProfileTempExist - result : ',
+            userData
+        );
+        try {
+            let checkProfileTempExist = new CheckProfileTempExist(repository);
+            let result = await checkProfileTempExist.excute(userData);
+            console.log(
+                '응답 > adapters > inbound > profileAdapter > checkProfileTempExist - result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 응답 > adapters > inbound > profileAdapter > checkProfileTempExist - error : ',
                 error
             );
             throw error;

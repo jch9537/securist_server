@@ -1,6 +1,5 @@
 const pool = require('./index');
 const { DatabaseError } = require('../../error');
-const { Exception } = require('../../../adapters/exceptions');
 const { authService } = require('../../../adapters/outbound/auth'); // 같은 layer - 의존성에 문제 없는지 확인
 
 module.exports = class {
@@ -846,19 +845,6 @@ module.exports = class {
     ) {
         // email = 'mg.sun@aegisecu.com'; // 테스트용
         let result, sql, arg;
-        console.log(
-            '요청 > DB > Query >  CreateConsultantProfileTemp  : parameter',
-            // email,
-            // abilityCertifications[0],
-            // abilityIndustries,
-            // abilityIndustries[0],
-            // academicBackground,
-            // career[0],
-            // license[0],
-            // projectHistory[0],
-            // etc},
-            uploadData
-        );
         const conn = await pool.getConnection();
         try {
             await conn.beginTransaction();
@@ -914,8 +900,6 @@ module.exports = class {
                 academicBackground.schoolName,
                 academicBackground.majorName,
                 academicBackground.graduationClassificationType,
-                // academicBackground.academicCertificationFile,
-                // academicBackground.academicCertificationFilePath,
                 academicBackground.admissionDate,
                 academicBackground.graduateDate,
             ];
@@ -928,8 +912,6 @@ module.exports = class {
                     career[i].companyName,
                     career[i].position,
                     career[i].assignedWork,
-                    // career[i].careerCertificationFile,
-                    // career[i].careerCertificationFilePath,
                     career[i].joiningDate,
                     career[i].resignationDate,
                 ];
@@ -1078,7 +1060,44 @@ module.exports = class {
             );
         }
     }
+    // 임시저장 데이터 존재유무 확인
+    async checkProfileTempExist({ email, userType }) {
+        let result, sql, arg, companyId;
+        let tableName, idColumn;
+        let self = this;
 
+        let conn = await pool.getConnection();
+        try {
+            if (userType === 2) {
+                let companyInfoResults = await self.getUserBelongingCompanyInfo(
+                    { email, userType }
+                );
+                companyId = companyInfoResults['consulting_company_id'];
+            }
+            if (userType === 1) {
+                tableName = 'consultant_profile_temp';
+                idColumn = 'consultant_user_id';
+                arg = [email];
+            } else {
+                // userType === 1
+                tableName = 'consulting_company_profile_temp';
+                idColumn = 'consulting_company_id';
+                arg = [companyId];
+            }
+            sql = `SELECT * FROM ${tableName} WHERE ${idColumn} = ?`;
+            result = await conn.query(sql, arg);
+            // console.log('#####################', result);
+            return result[0];
+        } catch (error) {
+            throw new DatabaseError(
+                error.code,
+                error.errno,
+                error.message,
+                error.stack,
+                error.sql
+            );
+        }
+    }
     // 컨설턴트 임시저장 정보 가져오기
     async getConsultantProfileTemp({ email }) {
         let result, sql, arg;
