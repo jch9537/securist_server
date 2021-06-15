@@ -217,7 +217,7 @@ module.exports = class {
                 );
             }
         } catch (error) {
-            new DatabaseError(
+            throw new DatabaseError(
                 error.code,
                 error.errno,
                 error.message,
@@ -270,6 +270,7 @@ module.exports = class {
             console.log('사용자 소속기업정보 가져오기 result', companyId);
 
             result = await this.getCompanyInfo({ userType, companyId });
+            console.log('$$$$$$$$$$$$$$$$$$ : ', result);
             return result;
         } catch (error) {
             console.log('사용자 소속 기업정보 가져오기 err: ', error);
@@ -281,8 +282,8 @@ module.exports = class {
         let result, sql, arg;
         let tableName, userIdColumn;
         console.log('요청 > DB > Query >  getRelationInfo : ', email, userType);
+        const conn = await pool.getConnection();
         try {
-            const conn = await pool.getConnection();
             if (userType === 3) {
                 tableName = 'client_user_and_company';
                 userIdColumn = 'client_user_id';
@@ -332,7 +333,7 @@ module.exports = class {
             result = await conn.query(sql, arg);
             return result[0][0];
         } catch (error) {
-            new DatabaseError(
+            throw new DatabaseError(
                 error.code,
                 error.errno,
                 error.message,
@@ -447,7 +448,7 @@ module.exports = class {
             console.log('응답 > DB > updateCompanyBankInfo > 결과 : ', result);
             return result[0][0];
         } catch (error) {
-            new DatabaseError(
+            throw new DatabaseError(
                 error.code,
                 error.errno,
                 error.message,
