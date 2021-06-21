@@ -1,9 +1,11 @@
+const qs = require('querystring');
 const { authAdapter } = require('../../../adapters/inbound');
 const Response = require('../modules/Response');
 const extractToken = require('../modules/extractToken');
 // const decryptAccessToken = require('../modules/decryptAccessToken');
 const getUserInfoByAccessToken = require('../modules/getUserInfoByAccessToken');
 const niceModule = require('../modules/nice_module/niceModule');
+let niceRedirectUrl;
 
 module.exports = (router) => {
     router.post('/api/auth/checkemail', async (req, res) => {
@@ -177,9 +179,10 @@ module.exports = (router) => {
         let result, response;
         try {
             console.log('진입성공');
+            niceRedirectUrl = req.query.redirectUrl;
             result = await niceModule.main();
             console.log('모듈시작 결과 : ', result);
-            response = new Response(200, '본인 인증 모듈 시작 완료');
+            response = new Response(200, '본인 인증 모듈 시작 완료', result);
             res.send(response);
         } catch (err) {
             res.send(err);
@@ -190,12 +193,11 @@ module.exports = (router) => {
         let result, response;
         try {
             let encodeData = req.param('EncodeData');
-
             console.log('success 진입성공');
             result = await niceModule.successGet(encodeData);
             console.log('모듈성공 결과 : ', result);
             response = new Response(200, '본인 인증 완료', result);
-            res.send(response);
+            res.redirect(`${niceRedirectUrlqs}?${qs.stringify(response)}`);
         } catch (err) {
             res.send(err);
         }

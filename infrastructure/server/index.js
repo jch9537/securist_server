@@ -13,7 +13,11 @@ const app = express();
 const port = process.env.SERVER_PORT || 3000;
 
 const corsOptions = {
-    origin: 'http://localhost',
+    // origin: 'http://localhost',
+    origin: function (origin, callback) {
+        callback(null, true);
+    },
+    Credential: true,
     optionsSuccessStatus: 200,
 };
 
