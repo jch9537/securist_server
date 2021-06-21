@@ -98,6 +98,21 @@ module.exports = (router) => {
             }
         }
     );
+    // 임시저장 데이터 존재유무 확인
+    router.get('/api/profile/temp/exist', async (req, res) => {
+        let result, response;
+        try {
+            let userData = req.userDataByIdToken;
+            result = await profileAdapter.checkProfileTempExist(userData);
+            let existTemp = !!result.length ? true : false;
+            response = new Response(200, '임시데이터 확인 성공', {
+                existTemp: existTemp,
+            });
+            res.send(response);
+        } catch (err) {
+            res.send(err);
+        }
+    });
     // 사용자 프로필 임시정보 가져오기 : 임시저장 데이터 가져오기
     router.get('/api/user/profile/temp', async (req, res) => {
         let result, response;

@@ -60,6 +60,27 @@ module.exports = class {
         }
     }
     // GET
+    async checkProfileTempExist(userData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > checkProfileTempExist > userData: ',
+            userData
+        );
+        let result;
+        try {
+            result = await this.db.checkProfileTempExist(userData);
+            console.log(
+                '응답 > Adapter > outBound > repository > checkProfileTempExist > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 > Adapter > outBound > repository > checkProfileTempExist > result : ',
+                error
+            );
+            throw error;
+        }
+    }
     async getConsultantProfileTemp(userData) {
         console.log(
             '요청 > Adapter > outBound > repository > getConsultantProfileTemp > userData: ',

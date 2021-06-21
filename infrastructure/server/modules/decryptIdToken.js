@@ -6,11 +6,16 @@ const authService = new AuthService();
 module.exports = async (req, res, next) => {
     try {
         if (!req.token) {
-            throw new Exception('ID 토큰이 없습니다.');
+            // query 와 path 파라미터 모두 없는 경우 : 둘 중 하나가 있는 경우는 next()로 넘김
+            if (!req.query && !req.params) {
+                throw new Exception('ID 토큰이 없습니다.');
+            }
+        } else {
+            let idToken = req.token;
+            let userData = await authService.getUserByIdToken(idToken);
+            req.userDataByIdToken = userData;
+            console.log('아이디 토큰 복호화 토큰 : ', req.userDataByIdToken);
         }
-        let idToken = req.token;
-        let userData = await authService.getUserByIdToken(idToken);
-        req.userDataByIdToken = userData;
         next();
     } catch (error) {
         //에러메세지
