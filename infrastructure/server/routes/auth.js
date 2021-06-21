@@ -180,6 +180,7 @@ module.exports = (router) => {
         try {
             console.log('진입성공');
             niceRedirectUrl = req.query.redirectUrl;
+
             result = await niceModule.main();
             console.log('모듈시작 결과 : ', result);
             response = new Response(200, '본인 인증 모듈 시작 완료', result);
@@ -197,7 +198,7 @@ module.exports = (router) => {
             result = await niceModule.successGet(encodeData);
             console.log('모듈성공 결과 : ', result);
             response = new Response(200, '본인 인증 완료', result);
-            res.redirect(`${niceRedirectUrlqs}?${qs.stringify(response)}`);
+            res.redirect(`${niceRedirectUrl}?${qs.stringify(response)}`);
         } catch (err) {
             res.send(err);
         }
@@ -212,7 +213,7 @@ module.exports = (router) => {
             result = await niceModule.successPost(encodeData);
             console.log('모듈성공 결과 : ', result);
             response = new Response(200, '본인 인증 완료', result);
-            res.send(response);
+            res.redirect(`${niceRedirectUrl}?${qs.stringify(response)}`);
         } catch (err) {
             res.send(err);
         }
@@ -227,7 +228,7 @@ module.exports = (router) => {
             result = await niceModule.failGet(encodeData);
             console.log('모듈실패 결과 : ', result);
             response = new Response(400, '본인 인증 실패', result);
-            res.send(response);
+            res.redirect(`${niceRedirectUrl}?${qs.stringify(response)}`);
         } catch (err) {
             res.send(err);
         }
@@ -242,7 +243,7 @@ module.exports = (router) => {
             result = await niceModule.failPost(encodeData);
             console.log('모듈실패 결과 : ', result);
             response = new Response(400, '본인 인증 실패', result);
-            res.send(response);
+            res.redirect(`${niceRedirectUrl}?${qs.stringify(response)}`);
         } catch (err) {
             res.send(err);
         }
