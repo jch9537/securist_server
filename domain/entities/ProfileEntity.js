@@ -28,6 +28,7 @@ module.exports = class UserEntity {
     "etc":{"etcCertifications":"iso27001","etcIndustries":"병원"}}
      */
     constructor({
+        phoneNum = null,
         introduce = '',
         abilityCertifications = [],
         abilityIndustries = [],
@@ -38,6 +39,7 @@ module.exports = class UserEntity {
         projectHistory = [],
         etc = {},
     }) {
+        this.phoneNum = phoneNum;
         this.introduce = introduce;
         this.abilityCertifications = abilityCertifications;
         this.abilityIndustries = abilityIndustries;
@@ -47,6 +49,24 @@ module.exports = class UserEntity {
         this.license = license;
         this.projectHistory = projectHistory;
         this.etc = etc;
+    }
+    // phoneNum
+    get phoneNum() {
+        return this._phoneNum;
+    }
+    set phoneNum(phoneNum) {
+        if (phoneNum !== null) {
+            let regPhoneNum = /^(01[016789]{1}|02|0[3-9]{1}[0-9]{1})-?[0-9]{3,4}-?[0-9]{4}$/;
+            //특수문자 / 문자 / 숫자 포함 형태의 8~20자리 이내의 암호 정규식
+
+            if (!regPhoneNum.test(phoneNum)) {
+                throw new ParameterException('연락처');
+            } else {
+                this._phoneNum = phoneNum;
+            }
+        } else {
+            this._phoneNum = phoneNum;
+        }
     }
     // introduce
     // "introduce":"자기소개 시작",

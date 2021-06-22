@@ -4,20 +4,17 @@ module.exports = class {
     constructor({ profileRepository }) {
         this.profileRepository = profileRepository;
     }
-    async excute(userData, tempData, uploadData) {
-        console.log('임시저장 데이터 확인', tempData);
-        let result;
+    async excute(userData, profileData, uploadData) {
         try {
-            // userData.userType = 1; // 테스트용
-            if (userData.userType !== 1) {
+            if (userData.userType !== 2) {
                 throw new UserTypeException('사용자 타입');
             }
-            let profileEntity = new ProfileEntity(tempData);
-            // let createProfileTempEntity = tempData; // 유효성 확인 추가!!!
+            let profileEntity = new ProfileEntity(profileData);
+            // let createProfileTempEntity = profileData; // 유효성 확인 추가!!!
             profileEntity.email = userData.email;
             profileEntity.userType = userData.userType;
 
-            result = await this.profileRepository.createConsultantProfileTemp(
+            let result = await this.profileRepository.createConsultingCompanyProfile(
                 profileEntity,
                 uploadData
             );
