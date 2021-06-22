@@ -5,5 +5,6 @@ module.exports = {
     CreateConsultingCompanyProfile: require('./CreateConsultingCompanyProfile'),
     CheckProfileTempExist: require('./CheckProfileTempExist'),
     GetProfileTemp: require('./GetProfileTemp'),
+    RequestClientAuth: require('./RequestClientAuth'),
     DeleteProfileTemp: require('./DeleteProfileTemp'),
 };

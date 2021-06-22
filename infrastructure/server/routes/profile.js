@@ -8,10 +8,11 @@ const decryptIdToken = require('../modules/decryptIdToken');
 // const decryptAccessToken = require('../modules/decryptAccessToken');
 // const getUserInfoByAccessToken = require('../modules/getUserInfoByAccessToken');
 const {
-    uploadConsultantProfileTemp,
+    uploadClientProfile,
     uploadConsultantProfile,
-    uploadConsultingCompanyBusinessLicenseTemp,
     uploadConsultingCompanyBusinessLicense,
+    uploadConsultantProfileTemp,
+    uploadConsultingCompanyBusinessLicenseTemp,
 } = require('../../webService/storageService');
 
 module.exports = (router) => {
@@ -51,37 +52,7 @@ module.exports = (router) => {
                 );
                 res.send(response);
             } catch (err) {
-                console.log('/api/company/profile/temp 에러 응답 : ', err);
-                res.send(err);
-            }
-        }
-    );
-    // 사용자 - 프로필 임시정보 생성 : 임시저장
-    router.post(
-        '/api/user/profile/temp',
-        uploadConsultantProfileTemp.any(),
-        sanitizer,
-        async (req, res) => {
-            let result, response;
-            try {
-                let userData = req.userDataByIdToken;
-                let reqData = req.filteredData;
-                let uploadFiles = req.files;
-
-                result = await profileAdapter.createConsultantProfileTemp(
-                    userData,
-                    reqData,
-                    uploadFiles
-                );
-                console.log('POST - /api/user/profile/temp 응답 : ', result);
-                response = new Response(
-                    200,
-                    '컨설턴트 프로필 임시 저장 완료',
-                    result
-                );
-                res.send(response);
-            } catch (err) {
-                console.log('/api/user/profile/temp 에러 응답 : ', err);
+                console.log('/api/user/profile 에러 응답 : ', err);
                 res.send(err);
             }
         }
@@ -112,6 +83,36 @@ module.exports = (router) => {
                 res.send(response);
             } catch (err) {
                 console.log('/api/company/profile 에러 응답 : ', err);
+                res.send(err);
+            }
+        }
+    );
+    // 사용자 - 프로필 임시정보 생성 : 임시저장
+    router.post(
+        '/api/user/profile/temp',
+        uploadConsultantProfileTemp.any(),
+        sanitizer,
+        async (req, res) => {
+            let result, response;
+            try {
+                let userData = req.userDataByIdToken;
+                let reqData = req.filteredData;
+                let uploadFiles = req.files;
+
+                result = await profileAdapter.createConsultantProfileTemp(
+                    userData,
+                    reqData,
+                    uploadFiles
+                );
+                console.log('POST - /api/user/profile/temp 응답 : ', result);
+                response = new Response(
+                    200,
+                    '컨설턴트 프로필 임시 저장 완료',
+                    result
+                );
+                res.send(response);
+            } catch (err) {
+                console.log('/api/user/profile/temp 에러 응답 : ', err);
                 res.send(err);
             }
         }
@@ -204,6 +205,43 @@ module.exports = (router) => {
             res.send(err);
         }
     });
+    // 클라이언트 인증 요청
+    router.put(
+        '/api/client/auth',
+        uploadClientProfile.any(),
+        sanitizer,
+        async (req, res) => {
+            let result, response;
+            try {
+                console.log('PUT - /api/client/auth 요청 : ', req.body);
+                let userData = req.userDataByIdToken;
+                let reqData = req.filteredData;
+                let uploadFiles = req.files;
+                console.log(
+                    'PUT - /api/company/profile/temp 요청 : ',
+                    userData,
+                    reqData,
+                    uploadFiles
+                );
+
+                result = await profileAdapter.requestClientAuth(
+                    userData,
+                    reqData,
+                    uploadFiles
+                );
+                console.log('PUT - /api/client/auth 응답 : ', result);
+                response = new Response(
+                    200,
+                    '개인 컨설턴트 프로필 생성 완료',
+                    result
+                );
+                res.send(response);
+            } catch (err) {
+                console.log('/api/client/auth 에러 응답 : ', err);
+                res.send(err);
+            }
+        }
+    );
     // 임시저장 프로필 정보 삭제 : 공통
     router.delete('/api/profile/temp', async (req, res) => {
         let result, response;

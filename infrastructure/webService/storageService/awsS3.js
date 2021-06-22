@@ -27,7 +27,27 @@ module.exports = class {
         let upload = multer({ storage: storage });
         return upload;
     }
-    // 개인 프로필 정보 업로드 데이터 저장
+    // 클라이언트 프로필 인증 정보 업로드 데이터 저장
+    uploadClientProfile(req, res, next) {
+        let storage = multerS3({
+            s3: this.s3,
+            bucket: 'securist-user',
+            acl: 'public-read-write',
+            key: function (req, file, cb) {
+                console.log('44444444444444444444444444444477', file);
+                cb(
+                    null,
+                    `client-company/${file.fieldname}/${Date.now()}_${
+                        file.originalname
+                    }`
+                );
+            },
+        });
+        console.log('s3 리퀘스트', req);
+        let upload = multer({ storage: storage });
+        return upload;
+    }
+    // 개인 컨설턴트 프로필 정보 업로드 데이터 저장
     uploadConsultantProfile(req, res, next) {
         let storage = multerS3({
             s3: this.s3,

@@ -1,21 +1,21 @@
-const { ProfileEntity } = require('../../entities');
+const { UserEntity } = require('../../entities');
 const { UserTypeException } = require('../../exceptions');
 module.exports = class {
     constructor({ profileRepository }) {
         this.profileRepository = profileRepository;
     }
-    async excute(userData, profileData, uploadData) {
+    async excute(userData, clientData, uploadData) {
         try {
-            if (userData.userType !== 2) {
+            if (userData.userType !== 3) {
                 throw new UserTypeException('사용자 타입');
             }
-            let profileEntity = new ProfileEntity(profileData);
-            // let createProfileTempEntity = profileData; // 유효성 확인 추가!!!
-            profileEntity.email = userData.email;
-            profileEntity.userType = userData.userType;
+            let userEntity = new UserEntity(clientData);
+            // let createProfileTempEntity = clientData; // 유효성 확인 추가!!!
+            userEntity.email = userData.email;
+            userEntity.userType = userData.userType;
 
-            let result = await this.profileRepository.createConsultingCompanyProfile(
-                profileEntity,
+            let result = await this.profileRepository.requestClientAuth(
+                userEntity,
                 uploadData
             );
             // console.log('결과----------------', result);

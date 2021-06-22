@@ -2,8 +2,9 @@ const awsS3 = require('./awsS3');
 const s3 = new awsS3();
 
 module.exports = {
-    uploadConsultantProfileTemp: s3.uploadConsultantProfileTemp(),
+    uploadClientProfile: s3.uploadClientProfile(),
     uploadConsultantProfile: s3.uploadConsultantProfile(),
-    uploadConsultingCompanyBusinessLicenseTemp: s3.uploadConsultingCompanyBusinessLicenseTemp(),
+    uploadConsultantProfileTemp: s3.uploadConsultantProfileTemp(),
     uploadConsultingCompanyBusinessLicense: s3.uploadConsultingCompanyBusinessLicense(),
+    uploadConsultingCompanyBusinessLicenseTemp: s3.uploadConsultingCompanyBusinessLicenseTemp(),
 };

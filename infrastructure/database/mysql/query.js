@@ -1349,6 +1349,54 @@ module.exports = class {
             );
         }
     }
+    // 클라이언트 인증 요청 : 인증 휴대폰 & 사업자 등록증 정보 수정
+    async requestClientAuth({ email, userType, phoneNum }, uploadData) {
+        let result, sql, arg;
+        let self = this;
+        console.log(
+            '요청 > DB > Query >  requestClientAuth  : parameter',
+            { email, userType, phoneNum },
+            uploadData
+        );
+        const conn = await pool.getConnection();
+        try {
+            await conn.beginTransaction();
+            // 인증된 휴대폰 번호 & 승인요청상태 사용자 정보 업데이트
+            sql = `UPDATE client_users SET phone_num=?, profile_state = ? WHERE client_user_id = ?`;
+            arg = [phoneNum, 0, email];
+            await conn.query(sql, arg);
+
+            // 소속 기업 정보(id) 가져오기
+            let companyInfoResults = await self.getUserBelongingCompanyInfo({
+                email,
+                userType,
+            });
+            let companyId = companyInfoResults['client_company_id'];
+            // 기업 데이터 저장
+            sql = `UPDATE client_companies SET approval_state = ?, business_license_file = ?, business_license_file_path = ? WHERE client_company_id = ?`;
+            arg = [
+                1,
+                uploadData[0]['originalname'],
+                uploadData[0]['location'],
+                companyId,
+            ];
+            await conn.query(sql, arg);
+
+            console.log('클라이언트 인증요청 성공!!');
+            await conn.commit();
+            await conn.release();
+        } catch (error) {
+            console.log('fail!!');
+            await conn.rollback();
+            throw new DatabaseError(
+                error.code,
+                error.errno,
+                error.message,
+                error.stack,
+                error.sql
+            );
+        }
+    }
     // 임시저장 데이터 존재유무 확인
     async checkProfileTempExist({ email, userType }) {
         let result, sql, arg, companyId;

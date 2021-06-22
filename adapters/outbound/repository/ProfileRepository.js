@@ -177,6 +177,29 @@ module.exports = class {
         }
     }
     // UPDATE
+    async requestClientAuth(userEntity, uploadData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > requestClientAuth > userEntity : ',
+            uploadData,
+            userEntity,
+            uploadData
+        );
+        let result;
+        try {
+            result = await this.db.requestClientAuth(userEntity, uploadData);
+            console.log(
+                '응답 > Adapter > outBound > repository > requestClientAuth > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '응답 > Adapter > outBound > repository > requestClientAuth > result : ',
+                error
+            );
+            throw error;
+        }
+    }
     async updateProfileTemp(deleteData) {
         console.log(
             '요청 > Adapter > outBound > repository > updateProfileTemp > deleteData: ',
