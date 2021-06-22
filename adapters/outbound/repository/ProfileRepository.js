@@ -4,7 +4,33 @@ module.exports = class {
     }
     // 프로필 --------------------------------------------------------------------
     // CREATE
-    // 사용자
+    // 사용자 프로필 생성
+    async createConsultantProfile(createProfileTempEntity, uploadData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > createConsultantProfile > createProfileTempEntity: ',
+            createProfileTempEntity,
+            uploadData
+        );
+        let result;
+        try {
+            result = await this.db.createConsultantProfile(
+                createProfileTempEntity,
+                uploadData
+            );
+            console.log(
+                '응답 > Adapter > outBound > repository > createConsultantProfile > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '응답 > Adapter > outBound > repository > createConsultantProfile > result : ',
+                error
+            );
+            throw error;
+        }
+    }
+    // 사용자 프로필  임시저장 정보 생성
     async createConsultantProfileTemp(createProfileTempEntity, uploadData) {
         console.log(
             '요청 > Adapter > outBound > repository > createConsultantProfileTemp > createProfileTempEntity: ',
@@ -30,7 +56,34 @@ module.exports = class {
             throw error;
         }
     }
-    //기업
+
+    //기업 프로필 정보 생성
+    async createConsultingCompanyProfile(createProfileTempEntity, uploadData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > createConsultingCompanyProfile > deleteData: ',
+            createProfileTempEntity,
+            uploadData
+        );
+        let result;
+        try {
+            result = await this.db.createConsultingCompanyProfile(
+                createProfileTempEntity,
+                uploadData
+            );
+            console.log(
+                '응답 > Adapter > outBound > repository > createConsultingCompanyProfile > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '응답 > Adapter > outBound > repository > createConsultingCompanyProfile > result : ',
+                error
+            );
+            throw error;
+        }
+    }
+    //기업 프로필 임시저장 정보 생성
     async createConsultingCompanyProfileTemp(
         createProfileTempEntity,
         uploadData

@@ -1,6 +1,8 @@
 const { repository } = require('../outbound');
 const {
+    CreateConsultantProfile,
     CreateConsultantProfileTemp,
+    CreateConsultingCompanyProfile,
     CreateConsultingCompanyProfileTemp,
     CheckProfileTempExist,
     GetProfileTemp,
@@ -8,6 +10,36 @@ const {
 } = require('../../domain/usecase/profile');
 
 module.exports = {
+    // 사용자 - 프로필 정보 생성 : 프로필 생성/확인요청
+    async createConsultantProfile(userData, tempData, uploadData) {
+        console.log(
+            '요청 > adapters > inbound > profileAdapter > createConsultantProfile - result : ',
+            userData,
+            tempData,
+            uploadData
+        );
+        try {
+            let createConsultantProfile = new CreateConsultantProfile(
+                repository
+            );
+            let result = await createConsultantProfile.excute(
+                userData,
+                tempData,
+                uploadData
+            );
+            console.log(
+                '응답 > adapters > inbound > profileAdapter > createConsultantProfile - result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 응답 > adapters > inbound > profileAdapter > createConsultantProfile - error : ',
+                error
+            );
+            throw error;
+        }
+    },
     // 사용자 - 프로필 임시정보 생성 : 임시저장
     async createConsultantProfileTemp(userData, tempData, uploadData) {
         console.log(
@@ -33,6 +65,36 @@ module.exports = {
         } catch (error) {
             console.log(
                 '에러 응답 > adapters > inbound > profileAdapter > createConsultantProfileTemp - error : ',
+                error
+            );
+            throw error;
+        }
+    },
+    // 기업 - 프로필 정보 생성 : 프로필 생성/확인요청
+    async createConsultingCompanyProfile(userData, tempData, uploadData) {
+        console.log(
+            '요청 > adapters > inbound > profileAdapter > createConsultingCompanyProfile - result : ',
+            userData,
+            tempData,
+            uploadData
+        );
+        try {
+            let createConsultingCompanyProfile = new CreateConsultingCompanyProfile(
+                repository
+            );
+            let result = await createConsultingCompanyProfile.excute(
+                userData,
+                tempData,
+                uploadData
+            );
+            console.log(
+                '응답 > adapters > inbound > profileAdapter > createConsultingCompanyProfile - result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 응답 > adapters > inbound > profileAdapter > createConsultingCompanyProfile - error : ',
                 error
             );
             throw error;
@@ -68,6 +130,7 @@ module.exports = {
             throw error;
         }
     },
+
     // 임시저장 데이터 존재유무 확인
     async checkProfileTempExist(userData) {
         console.log(

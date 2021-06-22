@@ -9,12 +9,53 @@ const decryptIdToken = require('../modules/decryptIdToken');
 // const getUserInfoByAccessToken = require('../modules/getUserInfoByAccessToken');
 const {
     uploadConsultantProfileTemp,
+    uploadConsultantProfile,
     uploadConsultingCompanyBusinessLicenseTemp,
+    uploadConsultingCompanyBusinessLicense,
 } = require('../../webService/storageService');
 
 module.exports = (router) => {
     router.use(extractToken);
     router.use(decryptIdToken);
+
+    // 개인 컨설턴트 프로필 등록/요청
+    router.post(
+        '/api/user/profile',
+        uploadConsultantProfile.any(),
+        sanitizer,
+        async (req, res) => {
+            let result, response;
+            try {
+                console.log('POST - /api/user/profile 요청 : ', req.body);
+                let userData = req.userDataByIdToken;
+                let reqData = req.filteredData;
+                let uploadFiles = req.files;
+                // console.log(
+                //     'POST - /api/company/profile/temp 요청 : ',
+                //     userData,
+                //     reqData,
+                //     uploadFiles
+                // );
+                console.log(reqData);
+
+                result = await profileAdapter.createConsultantProfile(
+                    userData,
+                    reqData,
+                    uploadFiles
+                );
+                console.log('POST - /api/user/profile 응답 : ', result);
+                response = new Response(
+                    200,
+                    '개인 컨설턴트 프로필 생성 완료',
+                    result
+                );
+                res.send(response);
+            } catch (err) {
+                console.log('/api/company/profile/temp 에러 응답 : ', err);
+                res.send(err);
+            }
+        }
+    );
     // 사용자 - 프로필 임시정보 생성 : 임시저장
     router.post(
         '/api/user/profile/temp',
@@ -27,18 +68,6 @@ module.exports = (router) => {
                 let reqData = req.filteredData;
                 let uploadFiles = req.files;
 
-                console.log(
-                    'POST - /api/user/profile/temp 요청 :  userData : ',
-                    userData
-                );
-                console.log(
-                    'POST - /api/user/profile/temp 요청 :  reqData : ',
-                    reqData
-                );
-                console.log(
-                    'POST - /api/user/profile/temp 요청 : uploadFiles : ',
-                    uploadFiles
-                );
                 result = await profileAdapter.createConsultantProfileTemp(
                     userData,
                     reqData,
@@ -57,6 +86,36 @@ module.exports = (router) => {
             }
         }
     );
+    // 기업 프로필 등록/요청
+    router.post(
+        '/api/company/profile',
+        uploadConsultingCompanyBusinessLicense.any(),
+        sanitizer,
+        async (req, res) => {
+            let result, response;
+            try {
+                let userData = req.userDataByIdToken;
+                let reqData = req.filteredData;
+                let uploadFiles = req.files;
+
+                result = await profileAdapter.createConsultingCompanyProfile(
+                    userData,
+                    reqData,
+                    uploadFiles
+                );
+                console.log('POST - /api/company/profile 응답 : ', result);
+                response = new Response(
+                    200,
+                    '컨설팅 업체 프로필 생성 완료',
+                    result
+                );
+                res.send(response);
+            } catch (err) {
+                console.log('/api/company/profile 에러 응답 : ', err);
+                res.send(err);
+            }
+        }
+    );
     // 기업 - 프로필 임시정보 생성 : 임시저장
     router.post(
         '/api/company/profile/temp',
@@ -65,20 +124,9 @@ module.exports = (router) => {
         async (req, res) => {
             let result, response;
             try {
-                console.log(
-                    'POST - /api/company/profile/temp 요청 : ',
-                    req.body
-                );
                 let userData = req.userDataByIdToken;
                 let reqData = req.filteredData;
                 let uploadFiles = req.files;
-                console.log(
-                    'POST - /api/company/profile/temp 요청 : ',
-                    userData,
-                    reqData,
-                    uploadFiles
-                );
-                console.log(reqData);
 
                 result = await profileAdapter.createConsultingCompanyProfileTemp(
                     userData,
@@ -98,6 +146,7 @@ module.exports = (router) => {
             }
         }
     );
+
     // 임시저장 데이터 존재유무 확인
     router.get('/api/profile/temp/exist', async (req, res) => {
         let result, response;
