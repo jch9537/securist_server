@@ -1,14 +1,106 @@
 const { repository } = require('../outbound');
 const {
+    CreateConsultantProfile,
     CreateConsultantProfileTemp,
+    CreateConsultingCompanyProfile,
     CreateConsultingCompanyProfileTemp,
     CheckProfileTempExist,
     GetProfileTemp,
+    RequestClientAuth,
     DeleteProfileTemp,
 } = require('../../domain/usecase/profile');
 
 module.exports = {
-    // 사용자 - 프로필 임시정보 생성 : 임시저장
+    // 개인 컨설턴트 프로필 인증 요청 : 프로필 정보 생성
+    async createConsultantProfile(userData, profileData, uploadData) {
+        console.log(
+            '요청 > adapters > inbound > profileAdapter > createConsultantProfile - result : ',
+            userData,
+            profileData,
+            uploadData
+        );
+        try {
+            let createConsultantProfile = new CreateConsultantProfile(
+                repository
+            );
+            let result = await createConsultantProfile.excute(
+                userData,
+                profileData,
+                uploadData
+            );
+            console.log(
+                '응답 > adapters > inbound > profileAdapter > createConsultantProfile - result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 응답 > adapters > inbound > profileAdapter > createConsultantProfile - error : ',
+                error
+            );
+            throw error;
+        }
+    },
+    // 컨설팅 업체 프로필 인증 요청 : 프로필 정보 생성
+    async createConsultingCompanyProfile(userData, profileData, uploadData) {
+        console.log(
+            '요청 > adapters > inbound > profileAdapter > createConsultingCompanyProfile - result : ',
+            userData,
+            profileData,
+            uploadData
+        );
+        try {
+            let createConsultingCompanyProfile = new CreateConsultingCompanyProfile(
+                repository
+            );
+            let result = await createConsultingCompanyProfile.excute(
+                userData,
+                profileData,
+                uploadData
+            );
+            console.log(
+                '응답 > adapters > inbound > profileAdapter > createConsultingCompanyProfile - result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 응답 > adapters > inbound > profileAdapter > createConsultingCompanyProfile - error : ',
+                error
+            );
+            throw error;
+        }
+    },
+    // 클라이언트 프로필 인증 요청 : 사용자/기업 정보 수정
+    async requestClientAuth(userData, clientData, uploadData) {
+        console.log(
+            '요청 > adapters > inbound > profileAdapter > requestClientAuth - result : ',
+            userData,
+            clientData,
+            uploadData
+        );
+        try {
+            let requestClientAuth = new RequestClientAuth(repository);
+            let result = await requestClientAuth.excute(
+                userData,
+                clientData,
+                uploadData
+            );
+            console.log(
+                '응답 > adapters > inbound > profileAdapter > requestClientAuth - result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 응답 > adapters > inbound > profileAdapter > requestClientAuth - error : ',
+                error
+            );
+            throw error;
+        }
+    },
+
+    // 개인 컨설턴트 프로필 임시저장 : 프로필 임시정보 생성
     async createConsultantProfileTemp(userData, tempData, uploadData) {
         console.log(
             '요청 > adapters > inbound > profileAdapter > createConsultantProfileTemp - result : ',
@@ -38,7 +130,7 @@ module.exports = {
             throw error;
         }
     },
-    // 기업 - 프로필 임시정보 생성 : 임시저장
+    // 기업 프로필 임시저장 : 프로필 임시정보 생성
     async createConsultingCompanyProfileTemp(userData, tempData, uploadData) {
         console.log(
             '요청 > adapters > inbound > profileAdapter > createConsultingCompanyProfileTemp - result : ',
@@ -68,7 +160,8 @@ module.exports = {
             throw error;
         }
     },
-    // 임시저장 데이터 존재유무 확인
+
+    // 프로필 임시저장 데이터 유뮤 확인
     async checkProfileTempExist(userData) {
         console.log(
             '요청 > adapters > inbound > profileAdapter > checkProfileTempExist - result : ',
