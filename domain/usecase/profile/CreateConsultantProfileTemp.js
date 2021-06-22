@@ -15,6 +15,7 @@ module.exports = class {
             let profileEntity = new ProfileEntity(tempData);
             // let createProfileTempEntity = tempData; // 유효성 확인 추가!!!
             profileEntity.email = userData.email;
+            profileEntity.userType = userData.userType;
 
             result = await this.profileRepository.createConsultantProfileTemp(
                 profileEntity,

@@ -1,4 +1,4 @@
-//API 사용자 별로 이동 처리
+// TODO : 임시저장 데이터 삭제 시 S3에서도 삭제 처리!!
 const { profileAdapter } = require('../../../adapters/inbound');
 const Response = require('../modules/Response');
 
@@ -19,7 +19,7 @@ module.exports = (router) => {
     router.use(extractToken);
     router.use(decryptIdToken);
 
-    // 개인 컨설턴트 프로필 등록/요청
+    // 개인 컨설턴트 프로필 인증 요청 : 프로필 정보 생성
     router.post(
         '/api/user/profile',
         uploadConsultantProfile.any(),
@@ -57,7 +57,7 @@ module.exports = (router) => {
             }
         }
     );
-    // 기업 프로필 등록/요청
+    // 컨설팅 업체 프로필 인증 요청 : 프로필 정보 생성
     router.post(
         '/api/company/profile',
         uploadConsultingCompanyBusinessLicense.any(),
@@ -87,7 +87,7 @@ module.exports = (router) => {
             }
         }
     );
-    // 사용자 - 프로필 임시정보 생성 : 임시저장
+    // 개인 컨설턴트 프로필 임시저장 : 프로필 임시정보 생성
     router.post(
         '/api/user/profile/temp',
         uploadConsultantProfileTemp.any(),
@@ -117,7 +117,7 @@ module.exports = (router) => {
             }
         }
     );
-    // 기업 - 프로필 임시정보 생성 : 임시저장
+    // 기업 프로필 임시저장 : 프로필 임시정보 생성
     router.post(
         '/api/company/profile/temp',
         uploadConsultingCompanyBusinessLicenseTemp.any(),
@@ -148,7 +148,7 @@ module.exports = (router) => {
         }
     );
 
-    // 임시저장 데이터 존재유무 확인
+    // 프로필 임시저장 데이터 유뮤 확인
     router.get('/api/profile/temp/exist', async (req, res) => {
         let result, response;
         try {
@@ -163,7 +163,7 @@ module.exports = (router) => {
             res.send(err);
         }
     });
-    // 사용자 프로필 임시정보 가져오기 : 임시저장 데이터 가져오기
+    // 개인 컨설턴트 프로필 임시저장 정보 가져오기
     router.get('/api/user/profile/temp', async (req, res) => {
         let result, response;
         try {
@@ -184,7 +184,7 @@ module.exports = (router) => {
             res.send(err);
         }
     });
-    // 기업 프로필 임시정보 가져오기 : 임시저장 데이터 가져오기
+    // 컨설팅 기업 프로필 임시저장 정보 가져오기
     router.get('/api/company/profile/temp', async (req, res) => {
         let result, response;
         try {
@@ -205,7 +205,7 @@ module.exports = (router) => {
             res.send(err);
         }
     });
-    // 클라이언트 인증 요청
+    // 클라이언트 프로필 인증 요청 : 사용자/기업 정보 수정
     router.put(
         '/api/client/auth',
         uploadClientProfile.any(),
@@ -242,7 +242,7 @@ module.exports = (router) => {
             }
         }
     );
-    // 임시저장 프로필 정보 삭제 : 공통
+    // 프로필 임시저장 정보 삭제 : 컨설턴트 (개인/기업) 공통
     router.delete('/api/profile/temp', async (req, res) => {
         let result, response;
         try {

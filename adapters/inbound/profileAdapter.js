@@ -11,7 +11,7 @@ const {
 } = require('../../domain/usecase/profile');
 
 module.exports = {
-    // 개인 컨설턴트 - 프로필 정보 생성 : 프로필 생성/확인요청
+    // 개인 컨설턴트 프로필 인증 요청 : 프로필 정보 생성
     async createConsultantProfile(userData, profileData, uploadData) {
         console.log(
             '요청 > adapters > inbound > profileAdapter > createConsultantProfile - result : ',
@@ -41,37 +41,7 @@ module.exports = {
             throw error;
         }
     },
-    // 개인 컨설턴트 - 프로필 임시정보 생성 : 임시저장
-    async createConsultantProfileTemp(userData, tempData, uploadData) {
-        console.log(
-            '요청 > adapters > inbound > profileAdapter > createConsultantProfileTemp - result : ',
-            userData,
-            tempData,
-            uploadData
-        );
-        try {
-            let createConsultantProfileTemp = new CreateConsultantProfileTemp(
-                repository
-            );
-            let result = await createConsultantProfileTemp.excute(
-                userData,
-                tempData,
-                uploadData
-            );
-            console.log(
-                '응답 > adapters > inbound > profileAdapter > createConsultantProfileTemp - result : ',
-                result
-            );
-            return result;
-        } catch (error) {
-            console.log(
-                '에러 응답 > adapters > inbound > profileAdapter > createConsultantProfileTemp - error : ',
-                error
-            );
-            throw error;
-        }
-    },
-    // 기업 - 프로필 정보 생성 : 프로필 생성/확인요청
+    // 컨설팅 업체 프로필 인증 요청 : 프로필 정보 생성
     async createConsultingCompanyProfile(userData, profileData, uploadData) {
         console.log(
             '요청 > adapters > inbound > profileAdapter > createConsultingCompanyProfile - result : ',
@@ -101,7 +71,66 @@ module.exports = {
             throw error;
         }
     },
-    // 기업 - 프로필 임시정보 생성 : 임시저장
+    // 클라이언트 프로필 인증 요청 : 사용자/기업 정보 수정
+    async requestClientAuth(userData, clientData, uploadData) {
+        console.log(
+            '요청 > adapters > inbound > profileAdapter > requestClientAuth - result : ',
+            userData,
+            clientData,
+            uploadData
+        );
+        try {
+            let requestClientAuth = new RequestClientAuth(repository);
+            let result = await requestClientAuth.excute(
+                userData,
+                clientData,
+                uploadData
+            );
+            console.log(
+                '응답 > adapters > inbound > profileAdapter > requestClientAuth - result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 응답 > adapters > inbound > profileAdapter > requestClientAuth - error : ',
+                error
+            );
+            throw error;
+        }
+    },
+
+    // 개인 컨설턴트 프로필 임시저장 : 프로필 임시정보 생성
+    async createConsultantProfileTemp(userData, tempData, uploadData) {
+        console.log(
+            '요청 > adapters > inbound > profileAdapter > createConsultantProfileTemp - result : ',
+            userData,
+            tempData,
+            uploadData
+        );
+        try {
+            let createConsultantProfileTemp = new CreateConsultantProfileTemp(
+                repository
+            );
+            let result = await createConsultantProfileTemp.excute(
+                userData,
+                tempData,
+                uploadData
+            );
+            console.log(
+                '응답 > adapters > inbound > profileAdapter > createConsultantProfileTemp - result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 응답 > adapters > inbound > profileAdapter > createConsultantProfileTemp - error : ',
+                error
+            );
+            throw error;
+        }
+    },
+    // 기업 프로필 임시저장 : 프로필 임시정보 생성
     async createConsultingCompanyProfileTemp(userData, tempData, uploadData) {
         console.log(
             '요청 > adapters > inbound > profileAdapter > createConsultingCompanyProfileTemp - result : ',
@@ -132,36 +161,7 @@ module.exports = {
         }
     },
 
-    // 클라이언트 - 기업인증 요청
-    async requestClientAuth(userData, clientData, uploadData) {
-        console.log(
-            '요청 > adapters > inbound > profileAdapter > requestClientAuth - result : ',
-            userData,
-            clientData,
-            uploadData
-        );
-        try {
-            let requestClientAuth = new RequestClientAuth(repository);
-            let result = await requestClientAuth.excute(
-                userData,
-                clientData,
-                uploadData
-            );
-            console.log(
-                '응답 > adapters > inbound > profileAdapter > requestClientAuth - result : ',
-                result
-            );
-            return result;
-        } catch (error) {
-            console.log(
-                '에러 응답 > adapters > inbound > profileAdapter > requestClientAuth - error : ',
-                error
-            );
-            throw error;
-        }
-    },
-
-    // 임시저장 데이터 존재유무 확인
+    // 프로필 임시저장 데이터 유뮤 확인
     async checkProfileTempExist(userData) {
         console.log(
             '요청 > adapters > inbound > profileAdapter > checkProfileTempExist - result : ',

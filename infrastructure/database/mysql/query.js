@@ -6,6 +6,7 @@ module.exports = class {
     constructor() {}
     // 사용자--------------------------------------------------------------------
     // CREATE
+    // 공통 : 회원가입
     async signUp({
         email,
         password,
@@ -807,10 +808,11 @@ module.exports = class {
 
     // 프로필 -------------------------------------------------------------------------------------
     // CREATE
-    // 개인 컨설턴트 프로필 정보 생성 - 휴대폰 입력 추가
+    // 개인 컨설턴트 프로필 인증 요청 : 프로필 정보 생성
     async createConsultantProfile(
         {
             email,
+            userType,
             phoneNum,
             introduce,
             abilityCertifications, // 수행가능 인증들 데이터 - 여러개이므로 배열형태로 받기
@@ -855,6 +857,7 @@ module.exports = class {
     ) {
         // email = 'mg.sun@aegisecu.com'; // 테스트용
         let result, sql, arg;
+        let self = this;
         const conn = await pool.getConnection();
         try {
             await conn.beginTransaction();
@@ -976,18 +979,10 @@ module.exports = class {
                 ];
                 await conn.query(sql, arg);
             }
-            // 프로필 임시저장 데이터 있는지 여부 확인
-            sql = `SELECT * FROM consultant_profile_temp WHERE consultant_user_id= ?`;
-            arg = [email];
-            let profileTempResults = await conn.query(sql, arg);
-            //임시저장 데이터 삭제
-            if (profileTempResults[0].length !== 0) {
-                let profileTempId =
-                    profileTempResults[0][0]['consultant_profile_temp_id'];
-                sql = `DELETE FROM consultant_profile_temp WHERE consultant_profile_temp_id =? `;
-                arg = [profileTempId];
-                await conn.query(sql, arg);
-            }
+
+            // 기존 프로필 임시데이터 삭제
+            await self.deleteProfileTemp({ email, userType });
+
             await conn.commit();
             console.log('개인 컨설턴트 프로필 등록 성공!!');
             conn.release();
@@ -1003,57 +998,156 @@ module.exports = class {
             );
         }
     }
-    // 개인 컨설턴트 프로필 임시저장 정보 생성
+    // 컨설팅 업체 프로필 인증 요청 : 프로필 정보 생성
+    async createConsultingCompanyProfile(
+        { email, userType, phoneNum, introduce, projectHistory },
+        uploadData
+    ) {
+        let result, sql, arg;
+        let self = this;
+        console.log(
+            '요청 > DB > Query >  createConsultingCompanyProfile  : parameter',
+            { email, userType, introduce, projectHistory },
+            uploadData
+        );
+        const conn = await pool.getConnection();
+        try {
+            await conn.beginTransaction();
+
+            // 인증된 휴대폰 번호 & 승인요청상태 사용자 정보 업데이트
+            sql = `UPDATE consultant_users SET phone_num=?, profile_state = ? WHERE consultant_user_id = ?`;
+            arg = [phoneNum, 0, email];
+            await conn.query(sql, arg);
+
+            // 소속 기업 정보(id) 가져오기
+            let companyInfoResults = await self.getUserBelongingCompanyInfo({
+                email,
+                userType,
+            });
+            let companyId = companyInfoResults['consulting_company_id'];
+            // 기업 데이터 저장
+            sql = `UPDATE consulting_companies SET company_introduce = ?, business_license_file = ?, business_license_file_path = ? WHERE consulting_company_id = ?`;
+            arg = [
+                introduce,
+                uploadData[0]['originalname'],
+                uploadData[0]['location'],
+                companyId,
+            ];
+            await conn.query(sql, arg);
+
+            // 기업 프로필 수행이력 정보 저장
+            sql = `INSERT INTO profile_consulting_company_project_history (consulting_company_id, project_name, assigned_task, industry_category_id, industry_category_name, project_start_date, project_end_date) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
+            for (let i = 0; i < projectHistory.length; i++) {
+                console.log('-------------------------', projectHistory[i]);
+                arg = [
+                    companyId,
+                    projectHistory[i].projectName,
+                    projectHistory[i].assignedTask,
+                    projectHistory[i].industryCategoryId,
+                    projectHistory[i].industryCategoryName,
+                    projectHistory[i].projectStartDate,
+                    projectHistory[i].projectEndDate,
+                ];
+                await conn.query(sql, arg);
+            }
+
+            // 기존 프로필 임시데이터 삭제
+            await self.deleteProfileTemp({ email, userType });
+
+            console.log('기업 프로필 저장 성공!!');
+            await conn.commit();
+            await conn.release();
+        } catch (error) {
+            console.log('fail!!');
+            await conn.rollback();
+            throw new DatabaseError(
+                error.code,
+                error.errno,
+                error.message,
+                error.stack,
+                error.sql
+            );
+        }
+    }
+    // 클라이언트 인증 요청 : 인증 휴대폰 & 사업자 등록증 정보 수정
+    async requestClientAuth({ email, userType, phoneNum }, uploadData) {
+        let result, sql, arg;
+        let self = this;
+        console.log(
+            '요청 > DB > Query >  requestClientAuth  : parameter',
+            { email, userType, phoneNum },
+            uploadData
+        );
+        const conn = await pool.getConnection();
+        try {
+            await conn.beginTransaction();
+            // 인증된 휴대폰 번호 & 승인요청상태 사용자 정보 업데이트
+            sql = `UPDATE client_users SET phone_num=?, profile_state = ? WHERE client_user_id = ?`;
+            arg = [phoneNum, 0, email];
+            await conn.query(sql, arg);
+
+            // 소속 기업 정보(id) 가져오기
+            let companyInfoResults = await self.getUserBelongingCompanyInfo({
+                email,
+                userType,
+            });
+            let companyId = companyInfoResults['client_company_id'];
+            // 기업 데이터 저장
+            sql = `UPDATE client_companies SET approval_state = ?, business_license_file = ?, business_license_file_path = ? WHERE client_company_id = ?`;
+            arg = [
+                1,
+                uploadData[0]['originalname'],
+                uploadData[0]['location'],
+                companyId,
+            ];
+            await conn.query(sql, arg);
+
+            // 기존 프로필 임시데이터 삭제
+            await self.deleteProfileTemp({ email, userType });
+
+            console.log('클라이언트 인증요청 성공!!');
+            await conn.commit();
+            await conn.release();
+        } catch (error) {
+            console.log('fail!!');
+            await conn.rollback();
+            throw new DatabaseError(
+                error.code,
+                error.errno,
+                error.message,
+                error.stack,
+                error.sql
+            );
+        }
+    }
+    // 개인 컨설턴트 프로필 임시저장 : 프로필 임시정보 생성
     async createConsultantProfileTemp(
         {
             email,
+            userType,
             phoneNum,
             introduce,
-            abilityCertifications, // 수행가능 인증들 데이터 - 여러개이므로 배열형태로 받기
-            // certificationId,
-            // certificationName,
-            abilityTasks, // 수행가능 세부과제들 데이터 - 여러개이므로 배열형태로 받기
-            // taskId,
-            // taskName,
-            // taskGroupType
-            abilityIndustries, // 수행가능 업종들 데이터 - 여러개이므로 배열형태로 받기
-            // industryId,
-            // industryName,
-            academicBackground, // 학력정보들 - 여러개이므로 배열형태로 받기 // 파일 업로드 처리
-            // finalAcademicType,
-            // schoolName,
-            // majorName,
-            // graduationClassificationType,
-            // admissionDate,
-            // graduateDate,
-            career, // 경력 정보들 - 여러개이므로 배열형태로 받기  // 파일 업로드 처리
-            // companyName,
-            // position,
-            // assignedWork,
-            // joiningDate,
-            // resignationDate = null,
-            license, // 자격증 정보들 - 여러개이므로 배열형태로 받기 // 파일 업로드 처리
-            // licenseName,
-            // license_num,
-            // issueInstitution,
-            // issuedDate,
+            abilityCertifications,
+            abilityTasks,
+            abilityIndustries,
+            academicBackground,
+            career,
+            license,
             projectHistory,
-            // projectName,
-            // assignedTask,
-            // projectIndustryName,
-            // projectStartDate,
-            // projectEndDate,
             etc,
-            // etcCertifications = null,
-            // etcIndustries = null,
         },
         uploadData
     ) {
         // email = 'mg.sun@aegisecu.com'; // 테스트용
         let result, sql, arg;
+        let self = this;
         const conn = await pool.getConnection();
         try {
             await conn.beginTransaction();
+
+            // 기존 프로필 임시데이터 삭제
+            await self.deleteProfileTemp({ email, userType });
 
             // 임시저장 정보 생성 (자기소개)
             sql = `INSERT INTO consultant_profile_temp (consultant_user_id, phone_num, consultant_introduce) VALUES (?, ?, ?)`;
@@ -1197,90 +1291,7 @@ module.exports = class {
         }
     }
 
-    // 컨설팅 기업 프로필 정보 생성
-    async createConsultingCompanyProfile(
-        { email, userType, phoneNum, introduce, projectHistory },
-        uploadData
-    ) {
-        let result, sql, arg;
-        let self = this;
-        console.log(
-            '요청 > DB > Query >  createConsultingCompanyProfile  : parameter',
-            { email, userType, introduce, projectHistory },
-            uploadData
-        );
-        const conn = await pool.getConnection();
-        try {
-            await conn.beginTransaction();
-            // 인증된 휴대폰 번호 & 승인요청상태 사용자 정보 업데이트
-            sql = `UPDATE consultant_users SET phone_num=? approval_state = ? WHERE consultant_user_id = ?`;
-            arg = [phoneNum, 1, email];
-            await conn.query(sql, arg);
-
-            // 소속 기업 정보(id) 가져오기
-            let companyInfoResults = await self.getUserBelongingCompanyInfo({
-                email,
-                userType,
-            });
-            let companyId = companyInfoResults['consulting_company_id'];
-            // 기업 데이터 저장
-            sql = `UPDATE consulting_companies SET company_introduce = ?, business_license_file = ?, business_license_file_path = ? WHERE consulting_company_id = ?`;
-            arg = [
-                introduce,
-                uploadData[0]['originalname'],
-                uploadData[0]['location'],
-                companyId,
-            ];
-            await conn.query(sql, arg);
-
-            // 기업 프로필 수행이력 정보 저장
-            sql = `INSERT INTO profile_consulting_company_project_history (consulting_company_id, project_name, assigned_task, industry_category_id, industry_category_name, project_start_date, project_end_date) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-
-            for (let i = 0; i < projectHistory.length; i++) {
-                console.log('-------------------------', projectHistory[i]);
-                arg = [
-                    companyId,
-                    projectHistory[i].projectName,
-                    projectHistory[i].assignedTask,
-                    projectHistory[i].industryCategoryId,
-                    projectHistory[i].industryCategoryName,
-                    projectHistory[i].projectStartDate,
-                    projectHistory[i].projectEndDate,
-                ];
-                await conn.query(sql, arg);
-            }
-
-            // 기업 프로필 임시저장 데이터 있는지 여부 확인
-            sql = `SELECT * FROM consulting_company_profile_temp WHERE consulting_company_id= ?`;
-            arg = [companyId];
-            let companyProfileTempResults = await conn.query(sql, arg);
-            // 임시저장 데이터 삭제
-            if (companyProfileTempResults[0].length !== 0) {
-                let companyProfileTempId =
-                    companyProfileTempResults[0][0][
-                        'consulting_company_profile_temp_id'
-                    ];
-                sql = `DELETE FROM consulting_company_profile_temp WHERE consulting_company_profile_temp_id =? `;
-                arg = [companyProfileTempId];
-                await conn.query(sql, arg);
-            }
-            console.log('기업 프로필 저장 성공!!');
-            await conn.commit();
-            await conn.release();
-        } catch (error) {
-            console.log('fail!!');
-            await conn.rollback();
-            throw new DatabaseError(
-                error.code,
-                error.errno,
-                error.message,
-                error.stack,
-                error.sql
-            );
-        }
-    }
-
-    // 컨설팅 기업 임시저장 정보 생성
+    // 기업 프로필 임시저장 : 프로필 임시정보 생성
     async createConsultingCompanyProfileTemp(
         { email, userType, introduce, projectHistory },
         uploadData
@@ -1301,6 +1312,9 @@ module.exports = class {
                 userType,
             });
             let companyId = companyInfoResults['consulting_company_id'];
+            // 기존 프로필 임시데이터 삭제
+            await self.deleteProfileTemp({ email, userType });
+
             // 기업 프로필 임시저장 데이터 저장
             sql = `INSERT INTO consulting_company_profile_temp (consulting_company_id, company_introduce, business_license_file, business_license_file_path) VALUES (?, ?, ?, ?)`;
             arg = [
@@ -1349,55 +1363,8 @@ module.exports = class {
             );
         }
     }
-    // 클라이언트 인증 요청 : 인증 휴대폰 & 사업자 등록증 정보 수정
-    async requestClientAuth({ email, userType, phoneNum }, uploadData) {
-        let result, sql, arg;
-        let self = this;
-        console.log(
-            '요청 > DB > Query >  requestClientAuth  : parameter',
-            { email, userType, phoneNum },
-            uploadData
-        );
-        const conn = await pool.getConnection();
-        try {
-            await conn.beginTransaction();
-            // 인증된 휴대폰 번호 & 승인요청상태 사용자 정보 업데이트
-            sql = `UPDATE client_users SET phone_num=?, profile_state = ? WHERE client_user_id = ?`;
-            arg = [phoneNum, 0, email];
-            await conn.query(sql, arg);
 
-            // 소속 기업 정보(id) 가져오기
-            let companyInfoResults = await self.getUserBelongingCompanyInfo({
-                email,
-                userType,
-            });
-            let companyId = companyInfoResults['client_company_id'];
-            // 기업 데이터 저장
-            sql = `UPDATE client_companies SET approval_state = ?, business_license_file = ?, business_license_file_path = ? WHERE client_company_id = ?`;
-            arg = [
-                1,
-                uploadData[0]['originalname'],
-                uploadData[0]['location'],
-                companyId,
-            ];
-            await conn.query(sql, arg);
-
-            console.log('클라이언트 인증요청 성공!!');
-            await conn.commit();
-            await conn.release();
-        } catch (error) {
-            console.log('fail!!');
-            await conn.rollback();
-            throw new DatabaseError(
-                error.code,
-                error.errno,
-                error.message,
-                error.stack,
-                error.sql
-            );
-        }
-    }
-    // 임시저장 데이터 존재유무 확인
+    // 프로필 임시저장 데이터 유뮤 확인
     async checkProfileTempExist({ email, userType }) {
         let result, sql, arg, companyId;
         let tableName, idColumn;
@@ -1435,7 +1402,7 @@ module.exports = class {
             );
         }
     }
-    // 컨설턴트 임시저장 정보 가져오기
+    // 개인 컨설턴트 프로필 임시저장 정보 가져오기
     async getConsultantProfileTemp({ email }) {
         let result, sql, arg;
         console.log(
@@ -1675,7 +1642,7 @@ module.exports = class {
         }
     }
 
-    // 컨설팅 기업 임시저장 정보 가져오기
+    // 컨설팅 기업 프로필 임시저장 정보 가져오기
     async getConsultingCompanyProfileTemp({ email, userType }) {
         let result, sql, arg;
         let self = this;
@@ -1745,7 +1712,7 @@ module.exports = class {
         }
     }
 
-    // 프로필 임시저장 정보 삭제
+    // 프로필 임시저장 정보 삭제 : 다른 함수에 참조될 때는 트랜잭션이 걸리지 않음!!
     async deleteProfileTemp({ email, userType }) {
         let sql, arg;
         console.log('--------------', userType);
@@ -1753,39 +1720,50 @@ module.exports = class {
         try {
             await conn.beginTransaction();
             if (userType === 1) {
-                sql = `DELETE FROM a, b, c, d, e, f, g, h, i, j
-                    USING consultant_profile_temp AS a
-                    LEFT JOIN temp_profile_ability_certifications AS b
-                    ON a.consultant_profile_temp_id = b.consultant_profile_temp_id
-                    LEFT JOIN temp_profile_ability_tasks AS c
-                    ON a.consultant_profile_temp_id = c.consultant_profile_temp_id
-                    LEFT JOIN temp_profile_ability_industries AS d
-                    ON a.consultant_profile_temp_id = d.consultant_profile_temp_id
-                    LEFT JOIN temp_profile_academic_background AS e
-                    ON a.consultant_profile_temp_id = e.consultant_profile_temp_id
-                    LEFT JOIN temp_profile_career AS f
-                    ON a.consultant_profile_temp_id = f.consultant_profile_temp_id
-                    LEFT JOIN temp_profile_license AS g
-                    ON a.consultant_profile_temp_id = g.consultant_profile_temp_id
-                    LEFT JOIN temp_profile_project_history AS h
-                    ON a.consultant_profile_temp_id = h.consultant_profile_temp_id
-                    LEFT JOIN temp_profile_ability_etc AS i
-                    ON a.consultant_profile_temp_id = i.consultant_profile_temp_id
-                    LEFT JOIN temp_upload_files AS j
-                    ON a.consultant_profile_temp_id = j.consultant_profile_temp_id
-                    WHERE a.consultant_user_id = ?`;
+                sql = `SELECT EXISTS (SELECT * FROM consultant_profile_temp WHERE consultant_user_id = ?) AS profileTempExist`;
             } else {
-                // userType === 2
-                sql = `DELETE FROM a, b
-                    USING consulting_company_profile_temp AS a LEFT JOIN temp_consulting_company_profile_project_history AS b
-                    ON a.consulting_company_profile_temp_id = b.consulting_company_profile_temp_id
-                    WHERE a.consulting_company_id = (SELECT consulting_company_id FROM consultant_user_and_company WHERE consultant_user_id = ?)`;
+                sql = `SELECT EXISTS (SELECT * FROM consulting_company_profile_temp WHERE consulting_company_id = (SELECT consulting_company_id FROM consultant_user_and_company WHERE consultant_user_id = ?)) AS profileTempExist`;
             }
             arg = [email];
-            await conn.query(sql, arg);
-            console.log('success!!');
-            await conn.commit();
-            await conn.release();
+            let profileTempResults = await conn.query(sql, arg);
+            let profileTempExist = profileTempResults[0][0].profileTempExist;
+            console.log('-------------존재여부 결과 확인', profileTempExist);
+            if (profileTempExist === 1) {
+                if (userType === 1) {
+                    sql = `DELETE FROM a, b, c, d, e, f, g, h, i, j
+                        USING consultant_profile_temp AS a
+                        LEFT JOIN temp_profile_ability_certifications AS b
+                        ON a.consultant_profile_temp_id = b.consultant_profile_temp_id
+                        LEFT JOIN temp_profile_ability_tasks AS c
+                        ON a.consultant_profile_temp_id = c.consultant_profile_temp_id
+                        LEFT JOIN temp_profile_ability_industries AS d
+                        ON a.consultant_profile_temp_id = d.consultant_profile_temp_id
+                        LEFT JOIN temp_profile_academic_background AS e
+                        ON a.consultant_profile_temp_id = e.consultant_profile_temp_id
+                        LEFT JOIN temp_profile_career AS f
+                        ON a.consultant_profile_temp_id = f.consultant_profile_temp_id
+                        LEFT JOIN temp_profile_license AS g
+                        ON a.consultant_profile_temp_id = g.consultant_profile_temp_id
+                        LEFT JOIN temp_profile_project_history AS h
+                        ON a.consultant_profile_temp_id = h.consultant_profile_temp_id
+                        LEFT JOIN temp_profile_ability_etc AS i
+                        ON a.consultant_profile_temp_id = i.consultant_profile_temp_id
+                        LEFT JOIN temp_upload_files AS j
+                        ON a.consultant_profile_temp_id = j.consultant_profile_temp_id
+                        WHERE a.consultant_user_id = ?`;
+                } else {
+                    // userType === 2
+                    sql = `DELETE FROM a, b
+                        USING consulting_company_profile_temp AS a LEFT JOIN temp_consulting_company_profile_project_history AS b
+                        ON a.consulting_company_profile_temp_id = b.consulting_company_profile_temp_id
+                        WHERE a.consulting_company_id = (SELECT consulting_company_id FROM consultant_user_and_company WHERE consultant_user_id = ?)`;
+                }
+                arg = [email];
+                await conn.query(sql, arg);
+                console.log('success!!');
+                await conn.commit();
+                await conn.release();
+            }
         } catch (error) {
             console.log('fail!!');
             await conn.rollback();
