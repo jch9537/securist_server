@@ -155,6 +155,51 @@ module.exports = class {
             throw error;
         }
     }
+
+    // 개인 컨설턴트 프로필 정보 가져오기
+    async getConsultantProfile(userData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > getConsultantProfile > userData: ',
+            userData
+        );
+        let result;
+        try {
+            result = await this.db.getConsultantProfile(userData);
+            console.log(
+                '응답 > Adapter > outBound > repository > getConsultantProfile > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 > Adapter > outBound > repository > getConsultantProfile > result : ',
+                error
+            );
+            throw error;
+        }
+    }
+    // 컨설팅 기업 프로필 정보 가져오기
+    async getConsultingCompanyProfile(userData) {
+        console.log(
+            '요청 > Adapter > outBound > repository > getConsultingCompanyProfile > userData: ',
+            userData
+        );
+        let result;
+        try {
+            result = await this.db.getConsultingCompanyProfile(userData);
+            console.log(
+                '응답 > Adapter > outBound > repository > getConsultingCompanyProfile > result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 > Adapter > outBound > repository > getConsultingCompanyProfile > result : ',
+                error
+            );
+            throw error;
+        }
+    }
     // 개인 컨설턴트 프로필 임시저장 정보 가져오기
     async getConsultantProfileTemp(userData) {
         console.log(

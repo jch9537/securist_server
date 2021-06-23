@@ -1,4 +1,5 @@
 // TODO : 임시저장 데이터 삭제 시 S3에서도 삭제 처리!!
+// TODP : /api/company/profile/temp -> /api/profile/company/temp 이런식으로 모든 API 주소 변경!!
 const { profileAdapter } = require('../../../adapters/inbound');
 const Response = require('../modules/Response');
 
@@ -119,7 +120,7 @@ module.exports = (router) => {
     );
     // 기업 프로필 임시저장 : 프로필 임시정보 생성
     router.post(
-        '/api/company/profile/temp',
+        '/api/company/profile/temp', //
         uploadConsultingCompanyBusinessLicenseTemp.any(),
         sanitizer,
         async (req, res) => {
@@ -160,6 +161,48 @@ module.exports = (router) => {
             });
             res.send(response);
         } catch (err) {
+            res.send(err);
+        }
+    });
+    // 개인 컨설턴트 프로필 정보 가져오기
+    router.get('/api/user/profile', async (req, res) => {
+        let result, response;
+        try {
+            let userData = req.userDataByIdToken;
+            console.log('GET - /api/user/profile 요청 : ', userData);
+
+            result = await profileAdapter.getProfile(userData);
+            console.log('GET - /api/user/profile 응답 : ', result);
+
+            response = new Response(
+                200,
+                '개인 컨설턴트 프로필 정보가져오기 완료 - idToken',
+                result
+            );
+            res.send(response);
+        } catch (err) {
+            console.log('/api/user/profile 에러 응답 : ', result);
+            res.send(err);
+        }
+    });
+    // 컨설팅 기업 프로필 정보 가져오기
+    router.get('/api/company/profile', async (req, res) => {
+        let result, response;
+        try {
+            let userData = req.userDataByIdToken;
+            console.log('GET - /api/company/profile 요청 : ', userData);
+
+            result = await profileAdapter.getProfile(userData);
+            console.log('GET - /api/company/profile 응답 : ', result);
+
+            response = new Response(
+                200,
+                '컨설팅업체 프로필 정보가져오기 완료 - idToken',
+                result
+            );
+            res.send(response);
+        } catch (err) {
+            console.log('/api/company/profile 에러 응답 : ', result);
             res.send(err);
         }
     });
