@@ -1,11 +1,4 @@
-/*
-확인사항 : 소속 될 기업 검색 시 : 기업리스트 가져오기 1, 2, 3번중 선택 : 1,2번 혼합으로 진행함
-1. 기업의 정보(기업명, 대표자명, 소속컨설턴트 수)를 DB에서 가져온 후 클라이언트에서 onChange에 따라 필터링
-2. 기업의 이름만 가져온 후 select에서 선택 시 기업의 이름으로 필터링해서 DB검색 후 가져오기 
-3. onChange마다 DB에서 업체명 검색해서 가져오기 - 리소스 많이 들 것 같음
-*/
 const { companyAdapter } = require('../../../adapters/inbound');
-
 const Response = require('../modules/Response');
 const extractToken = require('../modules/extractToken');
 const decryptIdToken = require('../modules/decryptIdToken');
@@ -15,13 +8,13 @@ module.exports = (router) => {
     router.use(decryptIdToken);
 
     // 기업정보 가져오기
-    router.get('/api/company/:companyId', async (req, res) => {
+    router.get('/api/company/:companyId/info', async (req, res) => {
         let result, response;
         try {
             let userData = req.userDataByIdToken;
             let reqParamsData = req.params;
             console.log(
-                '요청 > /api/company/:companyId : ',
+                '요청 > /api/company/:companyId/info : ',
                 userData,
                 reqParamsData
             );
@@ -30,16 +23,16 @@ module.exports = (router) => {
                 userData,
                 reqParamsData
             );
-            console.log('응답 > /api/company/:companyId : ', result);
+            console.log('응답 > /api/company/:companyId/info : ', result);
 
             response = new Response(200, '기업정보 가져오기 완료', result);
             res.send(response);
         } catch (err) {
-            console.log('에러 > /api/company/:companyId : ', err);
+            console.log('에러 > /api/company/:companyId/info : ', err);
             res.send(err);
         }
     });
-    // 등록된 기업정보 가져오기 : 업체 검색   - 등록된 기업만 필터링
+    // 등록된 기업들 가져오기 : 업체 검색   - 등록된 기업만 필터링
     router.get('/api/company/list/registration', async (req, res) => {
         let result, response;
         try {

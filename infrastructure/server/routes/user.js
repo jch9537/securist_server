@@ -40,14 +40,14 @@ module.exports = (router) => {
         }
     });
     // 사용자 DB 정보가져오기
-    router.get('/api/user/userinfo', decryptIdToken, async (req, res) => {
+    router.get('/api/user/info', decryptIdToken, async (req, res) => {
         let result, response;
         try {
             let userData = req.userDataByIdToken;
-            console.log('GET - /api/userinfo 요청 : ', userData);
+            console.log('GET - /api/user/info 요청 : ', userData);
 
             result = await userAdapter.getUserInfo(userData);
-            console.log('GET - /api/userinfo 응답 : ', result);
+            console.log('GET - /api/user/info 응답 : ', result);
 
             response = new Response(
                 200,
@@ -56,7 +56,7 @@ module.exports = (router) => {
             );
             res.send(response);
         } catch (err) {
-            console.log('/api/user 에러 응답 : ', err);
+            console.log('/api/user/info 에러 응답 : ', err);
             res.send(err);
         }
     });
