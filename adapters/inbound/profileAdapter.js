@@ -5,6 +5,7 @@ const {
     CreateConsultingCompanyProfile,
     CreateConsultingCompanyProfileTemp,
     CheckProfileTempExist,
+    GetProfile,
     GetProfileTemp,
     RequestClientAuth,
     DeleteProfileTemp,
@@ -99,7 +100,6 @@ module.exports = {
             throw error;
         }
     },
-
     // 개인 컨설턴트 프로필 임시저장 : 프로필 임시정보 생성
     async createConsultantProfileTemp(userData, tempData, uploadData) {
         console.log(
@@ -178,6 +178,29 @@ module.exports = {
         } catch (error) {
             console.log(
                 '에러 응답 > adapters > inbound > profileAdapter > checkProfileTempExist - error : ',
+                error
+            );
+            throw error;
+        }
+    },
+
+    // 프로필 정보 가져오기 : 컨설턴트 (개인/기업) 공통
+    async getProfile(userData) {
+        console.log(
+            '요청 > adapters > inbound > profileAdapter > getProfile - result : ',
+            userData
+        );
+        try {
+            let getProfile = new GetProfile(repository);
+            let result = await getProfile.excute(userData);
+            console.log(
+                '응답 > adapters > inbound > profileAdapter > getProfile - result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 응답 > adapters > inbound > profileAdapter > getProfile - error : ',
                 error
             );
             throw error;

@@ -660,7 +660,7 @@ module.exports = class {
                 tableName = 'consulting_companies';
                 idColumn = 'consulting_company_id';
             }
-            sql = `SELECT ${idColumn}, company_name, president_name from ${tableName} WHERE approval_state IN (2, 3);`;
+            sql = `SELECT ${idColumn}, company_name, president_name from ${tableName} WHERE approval_state = 2`;
             result = await conn.query(sql);
             console.log('요청 > DB > getCompanyList 결과: ', result);
             return result[0];
@@ -1402,6 +1402,315 @@ module.exports = class {
             );
         }
     }
+    // 개인 컨설턴트 프로필 정보 가져오기
+    async getConsultantProfile({ email }) {
+        let result, sql, arg;
+        console.log(
+            '요청 > DB > Query >  createConsultantProfileTemp  : parameter',
+            email
+        );
+        const conn = await pool.getConnection();
+        try {
+            // 사용자 기본 정보
+            sql = `SELECT consultant_user_id, name, phone_num, user_introduce FROM consultant_users WHERE consultant_user_id=?`;
+            arg = [email];
+            let userInfoResults = await conn.query(sql, arg);
+
+            let consultantProfileInfo = {
+                consultantId: email,
+                consultantName: userInfoResults[0][0]['name'],
+                phoneNum: userInfoResults[0][0]['phone_num'],
+                userIntroduce: userInfoResults[0][0]['user_introduce'],
+            };
+            // let consultantProfileTempId =
+            //     tempResults[0][0]['consultant_profile_temp_id'];
+            // console.log(
+            //     'DB > Query > getConsultantProfile > result1 : consultantProfileTempInfo 1',
+            //     consultantProfileTempInfo,
+            //     consultantProfileTempId
+            // );
+
+            // 인증;
+            sql = `SELECT * FROM profile_ability_certifications WHERE consultant_user_id = ?`;
+            arg = [email];
+            let certificationResults = await conn.query(sql, arg);
+
+            let abilityCertifications = [];
+            for (let i = 0; i < certificationResults[0].length; i++) {
+                let abilityCertificationItems = {
+                    certificationId:
+                        certificationResults[0][i]['certification_id'],
+                    certificationName:
+                        certificationResults[0][i]['certification_name'],
+                };
+                abilityCertifications.push(abilityCertificationItems);
+            }
+            consultantProfileInfo.abilityCertifications = abilityCertifications;
+            console.log(
+                'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 2',
+                consultantProfileInfo
+                // results
+            );
+
+            // 세부과제
+            sql = `SELECT * FROM profile_ability_tasks WHERE consultant_user_id = ?`;
+            arg = [email];
+            let taskResults = await conn.query(sql, arg);
+
+            let abilityTasks = [];
+            for (let i = 0; i < taskResults[0].length; i++) {
+                let abilityTaskItems = {
+                    taskId: taskResults[0][i]['task_id'],
+                    taskName: taskResults[0][i]['task_name'],
+                    taskGroupType: taskResults[0][i]['task_group_type'],
+                };
+                abilityTasks.push(abilityTaskItems);
+            }
+            consultantProfileInfo.abilityTasks = abilityTasks;
+            console.log(
+                'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 3',
+                consultantProfileInfo
+                // results
+            );
+
+            // 업종
+            sql = `SELECT * FROM profile_ability_industries WHERE consultant_user_id = ?`;
+            arg = [email];
+            let industryResults = await conn.query(sql, arg);
+
+            let abilityIndustries = [];
+            for (let i = 0; i < industryResults[0].length; i++) {
+                let abilityIndustryItems = {
+                    industryId: industryResults[0][i]['industry_id'],
+                    industryName: industryResults[0][i]['industry_name'],
+                };
+                abilityIndustries.push(abilityIndustryItems);
+            }
+            consultantProfileInfo.abilityIndustries = abilityIndustries;
+            console.log(
+                'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 4',
+                consultantProfileInfo
+            );
+
+            // 학력
+            sql = `SELECT * FROM profile_academic_background WHERE consultant_user_id = ?`;
+            arg = [email];
+            let academicResults = await conn.query(sql, arg);
+
+            consultantProfileInfo.academicBackground = {
+                finalAcademicType: academicResults[0][0]['final_academic_type'],
+                schoolName: academicResults[0][0]['school_name'],
+                majorName: academicResults[0][0]['major_name'],
+                graduationClassificationType:
+                    academicResults[0][0]['graduation_classification_type'],
+                admissionDate: academicResults[0][0]['admission_date'],
+                graduateDate: academicResults[0][0]['graduate_date'],
+            };
+            console.log(
+                'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 5',
+                consultantProfileInfo
+            );
+
+            // 경력
+            sql = `SELECT * FROM profile_career WHERE consultant_user_id = ?`;
+            arg = [email];
+            let careerResults = await conn.query(sql, arg);
+
+            let career = [];
+            for (let i = 0; i < careerResults[0].length; i++) {
+                let careerItem = {
+                    companyName: careerResults[0][i]['company_name'],
+                    position: careerResults[0][i]['position'],
+                    assignedWork: careerResults[0][i]['assigned_work'],
+                    joiningDate: careerResults[0][i]['joining_date'],
+                    resignationDate: careerResults[0][i]['resignation_date'],
+                };
+                career.push(careerItem);
+            }
+            consultantProfileInfo.career = career;
+            console.log(
+                'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 6',
+                consultantProfileInfo
+            );
+
+            // 자격증
+            sql = `SELECT * FROM profile_license WHERE consultant_user_id = ?`;
+            arg = [email];
+            let licenseResults = await conn.query(sql, arg);
+
+            let licenses = [];
+            for (let i = 0; i < licenseResults[0].length; i++) {
+                let licenseItems = {
+                    licenseName: licenseResults[0][i]['license_name'],
+                    licenseNum: licenseResults[0][i]['license_num'],
+                    issueInstitution: licenseResults[0][i]['issue_institution'],
+                    issuedDate: licenseResults[0][i]['issued_date'],
+                };
+                licenses.push(licenseItems);
+            }
+            consultantProfileInfo.license = licenses;
+            console.log(
+                'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 7',
+                consultantProfileInfo
+            );
+
+            // 수행이력
+            sql = `SELECT * FROM profile_project_history WHERE consultant_user_id = ?`;
+            arg = [email];
+            let historyResults = await conn.query(sql, arg);
+
+            let projectHistories = [];
+            for (let i = 0; i < historyResults[0].length; i++) {
+                let projectHistoryItems = {
+                    projectName: historyResults[0][i]['project_name'],
+                    assignedTask: historyResults[0][i]['assigned_task'],
+                    industryCategoryId:
+                        historyResults[0][i]['industry_category_id'],
+                    industryCategoryName:
+                        historyResults[0][i]['industry_category_name'],
+                    projectStartDate:
+                        historyResults[0][i]['project_start_date'],
+                    projectEndDate: historyResults[0][i]['project_end_date'],
+                };
+                projectHistories.push(projectHistoryItems);
+            }
+            consultantProfileInfo.projectHistory = projectHistories;
+            console.log(
+                'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 8',
+                consultantProfileInfo
+            );
+
+            // 기타
+            sql = `SELECT * FROM profile_ability_etc WHERE consultant_user_id = ?`;
+            arg = [email];
+            let etcResults = await conn.query(sql, arg);
+
+            let etc = {
+                etcCertifications: etcResults[0][0]['etc_certifications'],
+                etcIndustries: etcResults[0][0]['etc_industries'],
+            };
+            consultantProfileInfo.etc = etc;
+            console.log(
+                'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 9',
+                consultantProfileInfo
+            );
+
+            // 업로드 파일
+            sql = `SELECT * FROM profile_upload_files WHERE consultant_user_id = ?`;
+            arg = [email];
+            let uploadFilesResults = await conn.query(sql, arg);
+
+            let uploadFiles = {
+                academic: [],
+                career: [],
+                license: [],
+            };
+            for (let i = 0; i < uploadFilesResults[0].length; i++) {
+                let uploadFileItems = {
+                    fileCategoryType:
+                        uploadFilesResults[0][i]['file_category_type'],
+                    fileName: uploadFilesResults[0][i]['file_name'],
+                    filePath: uploadFilesResults[0][i]['file_path'],
+                };
+
+                if (uploadFileItems.fileCategoryType === 0) {
+                    uploadFiles.academic.push(uploadFileItems);
+                } else if (uploadFileItems.fileCategoryType === 1) {
+                    uploadFiles.career.push(uploadFileItems);
+                } else if (uploadFileItems.fileCategoryType === 2) {
+                    uploadFiles.license.push(uploadFileItems);
+                }
+            }
+            consultantProfileInfo.uploadFiles = uploadFiles;
+            console.log(
+                'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 10',
+                consultantProfileInfo
+            );
+            result = consultantProfileInfo;
+            return result;
+        } catch (error) {
+            throw new DatabaseError(
+                error.code,
+                error.errno,
+                error.message,
+                error.stack,
+                error.sql
+            );
+        }
+    }
+
+    // 컨설팅 기업 프로필 정보 가져오기
+    async getConsultingCompanyProfile({ email, userType }) {
+        let result, sql, arg;
+        let self = this;
+        let conn = await pool.getConnection();
+        try {
+            // 기업 정보 가져오기
+            let consultingCompanyInfo = await self.getUserBelongingCompanyInfo({
+                email,
+                userType,
+            });
+            let consultingCompanyId =
+                consultingCompanyInfo['consulting_company_id'];
+            let consultingCompanyProfileInfo = {
+                consultingCompanyId: consultingCompanyId,
+            };
+            // 컨설팅 기업 사용자 정보 가져오기 : 담당자명/연락처
+            sql = `SELECT name, phone_num FROM consultant_users WHERE consultant_user_id = ?`;
+            arg = [email];
+            let userInfoResults = await conn.query(sql, arg);
+            consultingCompanyProfileInfo.name = userInfoResults[0][0]['name'];
+            consultingCompanyProfileInfo.phoneNum =
+                userInfoResults[0][0]['phone_num'];
+
+            // 기업 기본 정보 가져오기 : 회사소개
+            sql = `SELECT company_introduce, business_license_file, business_license_file_path FROM consulting_companies WHERE consulting_company_id = ?`;
+            arg = [consultingCompanyId];
+            let companyResults = await conn.query(sql, arg);
+            consultingCompanyProfileInfo.companyIntroduce =
+                companyResults[0][0]['company_introduce'];
+            consultingCompanyProfileInfo.businessLicenseFile =
+                companyResults[0][0]['business_license_file'];
+            consultingCompanyProfileInfo.businessLicenseFilePath =
+                companyResults[0][0]['business_license_file_path'];
+
+            // 회사 수행이력 정보 가져오기
+            sql = `SELECT * FROM profile_consulting_company_project_history WHERE consulting_company_id = ?`;
+            arg = [consultingCompanyId];
+            let companyHistoryResults = await conn.query(sql, arg);
+            let consultingCompanyProjectHistories = [];
+            for (let i = 0; i < companyHistoryResults[0].length; i++) {
+                let consultingCompanyProjectHistoryItems = {
+                    projectName: companyHistoryResults[0][i]['project_name'],
+                    assignedTask: companyHistoryResults[0][i]['assigned_task'],
+                    industryCategoryId:
+                        companyHistoryResults[0][i]['industry_category_id'],
+                    industryCategoryName:
+                        companyHistoryResults[0][i]['industry_category_name'],
+                    projectStartDate:
+                        companyHistoryResults[0][i]['project_start_date'],
+                    projectEndDate:
+                        companyHistoryResults[0][i]['project_end_date'],
+                };
+                consultingCompanyProjectHistories.push(
+                    consultingCompanyProjectHistoryItems
+                );
+            }
+            consultingCompanyProfileInfo.projectHistoty = consultingCompanyProjectHistories;
+
+            result = consultingCompanyProfileInfo;
+            return result;
+        } catch (error) {
+            throw new DatabaseError(
+                error.code,
+                error.errno,
+                error.message,
+                error.stack,
+                error.sql
+            );
+        }
+    }
+
     // 개인 컨설턴트 프로필 임시저장 정보 가져오기
     async getConsultantProfileTemp({ email }) {
         let result, sql, arg;
@@ -1485,7 +1794,7 @@ module.exports = class {
                 };
                 abilityIndustriesTemp.push(abilityIndustriesTempItems);
             }
-            consultantProfileTempInfo.abilityIndustries = abilityIndustriesTemp;
+            consultantProfileTempInfo.abilityIndustriesTemp = abilityIndustriesTemp;
             console.log(
                 'DB > Query > getConsultantProfileTemp > result1 : consultantProfileTempInfo 4',
                 consultantProfileTempInfo
