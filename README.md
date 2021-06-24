@@ -1,1 +1,4 @@
-# SECURIST USER BACKEND
+# SECURIST BACKEND
+
+## Securist User Service
+
