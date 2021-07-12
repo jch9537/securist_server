@@ -12,16 +12,23 @@ const routes = require('./routes');
 const app = express();
 const port = process.env.SERVER_PORT || 3000;
 
-const corsOptions = {
-    // origin: 'http://localhost',
-    origin: function (origin, callback) {
-        callback(null, true);
-    },
-    Credential: true,
-    optionsSuccessStatus: 200,
-};
+// const corsOptions = {
+//     // origin: 'http://localhost',
+//     origin: function (origin, callback) {
+//         callback(null, true);
+//     },
+//     Credential: true,
+//     optionsSuccessStatus: 200,
+// };
 
-app.options('*', cors(corsOptions));
+app.use(
+    cors({
+        origin(origin, callback) {
+            callback(null, true);
+        },
+        credentials: true,
+    })
+);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(sanitizer); // 태그제거 : XSS 방어

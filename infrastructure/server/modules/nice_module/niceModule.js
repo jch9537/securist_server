@@ -7,7 +7,8 @@ const sSitePW = process.env.NICE_SITE_PW;
 //모듈의 절대 경로(권한:755 , FTP업로드방식 : binary)
 // ex) sModulePath = "C:\\module\\CPClient.exe";
 //     sModulePath = "/root/modile/CPClient";
-const sModulePath ='C:\\Users\\chjun\\mywork\\dev\\securist_server\\infrastructure\\server\\modules\\nice_module\\CPClient.exe' // 테스트 및 개발 시 변경 필요
+const sModulePath =
+    'C:\\Users\\chjun\\mywork\\dev\\securist_server\\infrastructure\\server\\modules\\nice_module\\CPClient.exe'; // 테스트 및 개발 시 변경 필요
 // const sModulePath = 'C:\\CheckPlusSafe_JS_1\\sample\\CPClient.exe';
 
 const sAuthType = ''; //없으면 기본 선택화면, X: 공인인증서, M: 핸드폰, C: 카드
