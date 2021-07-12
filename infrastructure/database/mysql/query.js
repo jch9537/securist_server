@@ -258,6 +258,8 @@ module.exports = class {
             sql = `SELECT * FROM ${tableName} WHERE ${idColumn}=?`;
             arg = [email];
             result = await conn.query(sql, arg);
+
+            conn.release();
             return result[0][0];
         } catch (error) {
             throw new DatabaseError(error.message, error.code, error.stack);
