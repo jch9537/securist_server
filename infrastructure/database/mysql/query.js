@@ -164,7 +164,6 @@ module.exports = class {
             }
             console.log('****************', successMessage);
             await conn.commit();
-            conn.release();
             return result;
         } catch (error) {
             await conn.rollback();
@@ -175,6 +174,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
 
@@ -183,8 +184,10 @@ module.exports = class {
         let result, sql, arg;
         let tableName, userIdColumn, companyIdColumn, belongingType;
 
+        const conn = await pool.getConnection();
         try {
-            const conn = await pool.getConnection();
+            conn.beginTransaction();
+
             if (userType === 3) {
                 tableName = 'client_user_and_company';
                 userIdColumn = 'client_user_id';
@@ -218,6 +221,7 @@ module.exports = class {
                     belongingType: belongingType,
                 };
                 result = await this.updateUserBelongingStatus(updateData);
+                conn.commit();
                 return result[0][0];
             } else {
                 // if ( checkBelongingCompany[companyIdColumn] !==Number(companyId) // 이미 타기업에 소속된 사용자의 경우)
@@ -226,6 +230,7 @@ module.exports = class {
                 );
             }
         } catch (error) {
+            conn.rollback();
             throw new DatabaseError(
                 error.code,
                 error.errno,
@@ -233,6 +238,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
     // GET
@@ -244,8 +251,8 @@ module.exports = class {
         });
         let result, sql, arg;
         let tableName, idColumn;
+        const conn = await pool.getConnection();
         try {
-            const conn = await pool.getConnection();
             // 사용자 정보 가져오기
             if (userType === 3) {
                 tableName = 'client_users';
@@ -259,10 +266,17 @@ module.exports = class {
             arg = [email];
             result = await conn.query(sql, arg);
 
-            conn.release();
             return result[0][0];
         } catch (error) {
-            throw new DatabaseError(error.message, error.code, error.stack);
+            throw new DatabaseError(
+                error.code,
+                error.errno,
+                error.message,
+                error.stack,
+                error.sql
+            );
+        } finally {
+            conn.release();
         }
     }
     // 사용자 소속 기업정보 가져오기
@@ -285,7 +299,13 @@ module.exports = class {
             return result;
         } catch (error) {
             console.log('사용자 소속 기업정보 가져오기 err: ', error);
-            throw error;
+            throw new DatabaseError(
+                error.code,
+                error.errno,
+                error.message,
+                error.stack,
+                error.sql
+            );
         }
     }
     // 사용자-기업 연결정보 가져오기
@@ -307,7 +327,8 @@ module.exports = class {
             sql = `SELECT * FROM ${tableName} WHERE ${userIdColumn} = ?`;
             arg = [email];
             result = await conn.query(sql, arg);
-            console.log(result);
+
+            // console.log(result);
             return result[0][0];
         } catch (error) {
             throw new DatabaseError(
@@ -317,6 +338,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
     // UPDATE
@@ -324,8 +347,8 @@ module.exports = class {
     async updatePhoneNum({ email, userType, phoneNum }) {
         let result;
         let sql, arg, tableName, idColumn;
+        const conn = await pool.getConnection();
         try {
-            const conn = await pool.getConnection();
             if (userType === 3) {
                 tableName = 'client_users';
                 idColumn = 'client_user_id';
@@ -342,6 +365,7 @@ module.exports = class {
             sql = `SELECT phone_num FROM ${tableName} WHERE ${idColumn} = ?`;
             arg = [email];
             result = await conn.query(sql, arg);
+
             return result[0][0];
         } catch (error) {
             throw new DatabaseError(
@@ -351,6 +375,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
     // 사용자 정보 변경 - 컨설턴트 입금정보 : 사용자 타입별 분할
@@ -398,8 +424,8 @@ module.exports = class {
             bankAccountNum,
             bankAccountOwner,
         });
+        const conn = await pool.getConnection();
         try {
-            const conn = await pool.getConnection();
             // 사용자 입금정보 업데이트
             sql = `UPDATE consultant_users SET bank_name = ?, bank_account_num = ?, bank_account_owner = ? WHERE consultant_user_id = ?`;
             arg = [bankName, bankAccountNum, bankAccountOwner, email];
@@ -409,6 +435,7 @@ module.exports = class {
             arg = [email];
             result = await conn.query(sql, arg);
             console.log('응답 > DB > updateUserBankInfo > 결과 : ', result);
+
             return result[0][0];
         } catch (error) {
             throw new DatabaseError(
@@ -418,6 +445,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
     // 사용자 정보 변경 - 컨설팅 업체 입금정보
@@ -435,8 +464,8 @@ module.exports = class {
             bankAccountNum,
             bankAccountOwner,
         });
+        const conn = await pool.getConnection();
         try {
-            const conn = await pool.getConnection();
             // 컨설팅 기업 아이디 가져오기
             sql = `SELECT consulting_company_id FROM consultant_user_and_company where consultant_user_id = ?`;
             arg = [email];
@@ -457,6 +486,7 @@ module.exports = class {
             arg = [consultingCompanyId];
             result = await conn.query(sql, arg);
             console.log('응답 > DB > updateCompanyBankInfo > 결과 : ', result);
+
             return result[0][0];
         } catch (error) {
             throw new DatabaseError(
@@ -466,6 +496,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
     // 사용자 - 소속 상태변경(취소, 해제)처리
@@ -483,8 +515,8 @@ module.exports = class {
             userType,
             companyId
         );
+        const conn = await pool.getConnection();
         try {
-            const conn = await pool.getConnection();
             // 추가 사용자 있을 시 사용자 타입확인 필요 - ex) 클라이언트 사용자(userType: 4) 구분 시(현재 구분않음)
             // if (userType === 1) {
             //     tableName = 'consultant_user_and_company';
@@ -510,6 +542,7 @@ module.exports = class {
             if (result[0][0].length === 0) {
                 throw new Error('소속 기업이 없는 사용자 입니다.');
             }
+
             return result[0][0];
         } catch (error) {
             throw new DatabaseError(
@@ -519,6 +552,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
     //DELETE
@@ -550,8 +585,9 @@ module.exports = class {
             userIdColumn,
             companyId,
             isManager;
+
+        const conn = await pool.getConnection();
         try {
-            const conn = await pool.getConnection();
             await conn.beginTransaction();
             // 탈퇴 정보 생성
             sql = `INSERT INTO withdrawal_info (user_type, withdrawal_type) VALUES (?, ?)`;
@@ -577,31 +613,22 @@ module.exports = class {
                 // 사용자-정보 삭제
                 // cognito 사용자 정보 삭제
             }
-            await connection.commit(function (error) {
-                if (error)
-                    throw new DatabaseError(
-                        error.code,
-                        error.errno,
-                        error.message,
-                        error.stack,
-                        error.sql
-                    );
-            });
+            await connection.commit();
             console.log('success! 회원탈퇴처리완료!!');
+
+            return result;
         } catch (error) {
             console.log('fail!');
-            return connection.rollback(function () {
-                throw new DatabaseError(
-                    error.code,
-                    error.errno,
-                    error.message,
-                    error.stack,
-                    error.sql
-                );
-            });
+            connection.rollback();
+            throw new DatabaseError(
+                error.code,
+                error.errno,
+                error.message,
+                error.stack,
+                error.sql
+            );
         } finally {
-            connection.release();
-            return result;
+            conn.release();
         }
     }
     // DELETE
@@ -618,8 +645,8 @@ module.exports = class {
                 companyId,
             }
         );
+        const conn = pool.getConnection();
         try {
-            const conn = pool.getConnection();
             if (userType === 3) {
                 tableName = 'client_user_and_company';
                 userIdColumn = 'client_user_id';
@@ -633,6 +660,7 @@ module.exports = class {
             sql = `DELETE FROM ${tableName} WHERE ${userIdColumn} = ? AND ${companyIdColumn} = ?`;
             arg = [email, companyId];
             result = await conn.query(sql, arg);
+
             return result[0][0];
         } catch (error) {
             throw new DatabaseError(
@@ -642,6 +670,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
     // 기업--------------------------------------------------------------------
@@ -652,8 +682,8 @@ module.exports = class {
     async getCompanyList({ userType }) {
         let result, sql;
         let tableName, idColumn;
+        const conn = await pool.getConnection();
         try {
-            const conn = await pool.getConnection();
             if (userType === 3) {
                 tableName = 'client_companies';
                 idColumn = 'client_company_id';
@@ -665,6 +695,7 @@ module.exports = class {
             sql = `SELECT ${idColumn}, company_name, president_name from ${tableName} WHERE approval_state = 2`;
             result = await conn.query(sql);
             console.log('요청 > DB > getCompanyList 결과: ', result);
+
             return result[0];
         } catch (error) {
             throw new DatabaseError(
@@ -674,6 +705,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
     // 기업 정보 가져오기
@@ -684,8 +717,8 @@ module.exports = class {
             ' 요청 > DB > getCompanyInfo > 기업 정보 가져오기 -------------------!! : ',
             { userType, companyId }
         );
+        const conn = await pool.getConnection();
         try {
-            const conn = await pool.getConnection();
             if (userType === 3) {
                 tableName = 'client_companies';
                 idColumn = 'client_company_id';
@@ -698,6 +731,7 @@ module.exports = class {
             arg = [companyId];
             result = await conn.query(sql, arg);
             console.log('응답 > DB > getCompanyInfo : ', result);
+
             return result[0][0];
         } catch (error) {
             throw new DatabaseError(
@@ -707,6 +741,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
     // 기업 소속 사용자들 정보 가져오기 : 기업 (클라이언트/컨설턴트) 공통
@@ -715,8 +751,8 @@ module.exports = class {
         let result = [];
         let sql, arg;
         let tableName, userIdColumn, companyIdColumn, userTypeForGetInfo;
+        const conn = await pool.getConnection();
         try {
-            const conn = await pool.getConnection();
             if (userType === 2) {
                 tableName = 'consultant_user_and_company';
                 companyIdColumn = 'consulting_company_id';
@@ -744,6 +780,7 @@ module.exports = class {
                 let userInfo = await this.getUserInfo(userData);
                 result.push(userInfo);
             }
+
             return result;
         } catch (error) {
             throw new DatabaseError(
@@ -753,6 +790,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
     // UPDATE
@@ -771,8 +810,8 @@ module.exports = class {
             userType,
             companyId
         );
+        const conn = await pool.getConnection();
         try {
-            const conn = await pool.getConnection();
             if (userType === 3) {
                 tableName = 'client_user_and_company';
                 userIdColumn = 'client_user_id';
@@ -795,6 +834,7 @@ module.exports = class {
             //     throw new Error('소속 기업이 없는 사용자 입니다.');
             // } // usecase에서 예외처리
             console.log('응답 > DB > updateRegistrationStatus : ', result);
+
             return result[0][0];
         } catch (error) {
             throw new DatabaseError(
@@ -804,6 +844,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
     // DELETE
@@ -987,7 +1029,6 @@ module.exports = class {
 
             await conn.commit();
             console.log('개인 컨설턴트 프로필 등록 성공!!');
-            conn.release();
         } catch (error) {
             console.log('fail!', error);
             await conn.rollback();
@@ -998,6 +1039,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
     // 컨설팅 업체 프로필 인증 요청 : 프로필 정보 생성
@@ -1059,7 +1102,6 @@ module.exports = class {
 
             console.log('기업 프로필 저장 성공!!');
             await conn.commit();
-            await conn.release();
         } catch (error) {
             console.log('fail!!');
             await conn.rollback();
@@ -1070,6 +1112,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
     // 클라이언트 인증 요청 : 인증 휴대폰 & 사업자 등록증 정보 수정
@@ -1110,7 +1154,6 @@ module.exports = class {
 
             console.log('클라이언트 인증요청 성공!!');
             await conn.commit();
-            await conn.release();
         } catch (error) {
             console.log('fail!!');
             await conn.rollback();
@@ -1121,6 +1164,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
     // 개인 컨설턴트 프로필 임시저장 : 프로필 임시정보 생성
@@ -1279,7 +1324,6 @@ module.exports = class {
             }
             await conn.commit();
             console.log('임시저장 데이터 생성 성공!!');
-            conn.release();
         } catch (error) {
             console.log('fail!', error);
             await conn.rollback();
@@ -1290,6 +1334,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
 
@@ -1352,7 +1398,6 @@ module.exports = class {
             }
             console.log('기업 임시저장 성공!!');
             await conn.commit();
-            await conn.release();
         } catch (error) {
             console.log('fail!!');
             await conn.rollback();
@@ -1363,6 +1408,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
 
@@ -1402,6 +1449,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
     // 개인 컨설턴트 프로필 정보 가져오기
@@ -1638,6 +1687,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
 
@@ -1701,6 +1752,7 @@ module.exports = class {
             consultingCompanyProfileInfo.projectHistoty = consultingCompanyProjectHistories;
 
             result = consultingCompanyProfileInfo;
+
             return result;
         } catch (error) {
             throw new DatabaseError(
@@ -1710,6 +1762,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
 
@@ -1941,6 +1995,7 @@ module.exports = class {
                 consultantProfileTempInfo
             );
             result = consultantProfileTempInfo;
+
             return result;
         } catch (error) {
             throw new DatabaseError(
@@ -1950,6 +2005,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
 
@@ -2009,8 +2066,8 @@ module.exports = class {
                 );
             }
             consultingCompanyProfileTempInfo.projectHistoty = consultingCompanyProjectHistoryTemp;
-
             result = consultingCompanyProfileTempInfo;
+
             return result;
         } catch (error) {
             throw new DatabaseError(
@@ -2020,6 +2077,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
 
@@ -2073,7 +2132,6 @@ module.exports = class {
                 await conn.query(sql, arg);
                 console.log('success!!');
                 await conn.commit();
-                await conn.release();
             }
         } catch (error) {
             console.log('fail!!');
@@ -2085,6 +2143,8 @@ module.exports = class {
                 error.stack,
                 error.sql
             );
+        } finally {
+            conn.release();
         }
     }
 };
