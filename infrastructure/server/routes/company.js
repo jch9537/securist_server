@@ -88,16 +88,16 @@ module.exports = (router) => {
         let result, response;
         try {
             let userData = req.userDataByIdToken;
-            let reqData = req.filteredData;
+            let reqBodyData = req.filteredBody;
             console.log(
                 '요청 > /api/company/relation/status : ',
                 userData,
-                reqData
+                reqBodyData
             );
 
             result = await companyAdapter.updateRegistrationStatus(
                 userData,
-                reqData
+                reqBodyData
             );
             console.log('응답 > /api/company/relation/status : ', result);
             let belongingType = result['belonging_type'];

@@ -78,7 +78,7 @@ module.exports = class {
             await conn.beginTransaction();
 
             //사용자 정보 생성 - 휴대폰 번호 삭제
-            sql = `INSERT INTO ${usersTableName} (${userIdColumn}, name, user_type, profile_state) VALUES (?, ?, ?, ?, ?)`;
+            sql = `INSERT INTO ${usersTableName} (${userIdColumn}, name, user_type, profile_state) VALUES (?, ?, ?, ?)`;
             arg = [email, name, userType, profileState];
             let a = await conn.query(sql, arg);
             successMessage = 'success! 개인 컨설턴트!!';
