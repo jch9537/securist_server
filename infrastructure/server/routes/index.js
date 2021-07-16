@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 
+require('./serviceAuth')(router);
 require('./auth')(router);
 require('./user')(router);
 require('./company')(router);
