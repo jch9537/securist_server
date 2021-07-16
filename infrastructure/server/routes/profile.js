@@ -28,21 +28,21 @@ module.exports = (router) => {
         async (req, res) => {
             let result, response;
             try {
-                console.log('POST - /api/user/profile 요청 : ', req.body);
+                // console.log('POST - /api/user/profile 요청 : ', req.body);
                 let userData = req.userDataByIdToken;
-                let reqData = req.filteredData;
+                let reqBodyData = req.filteredBody;
                 let uploadFiles = req.files;
                 // console.log(
                 //     'POST - /api/company/profile/temp 요청 : ',
                 //     userData,
-                //     reqData,
+                //     reqBodyData,
                 //     uploadFiles
                 // );
-                console.log(reqData);
+                console.log(reqBodyData);
 
                 result = await profileAdapter.createConsultantProfile(
                     userData,
-                    reqData,
+                    reqBodyData,
                     uploadFiles
                 );
                 console.log('POST - /api/user/profile 응답 : ', result);
@@ -67,12 +67,12 @@ module.exports = (router) => {
             let result, response;
             try {
                 let userData = req.userDataByIdToken;
-                let reqData = req.filteredData;
+                let reqBodyData = req.filteredBody;
                 let uploadFiles = req.files;
 
                 result = await profileAdapter.createConsultingCompanyProfile(
                     userData,
-                    reqData,
+                    reqBodyData,
                     uploadFiles
                 );
                 console.log('POST - /api/company/profile 응답 : ', result);
@@ -97,12 +97,12 @@ module.exports = (router) => {
             let result, response;
             try {
                 let userData = req.userDataByIdToken;
-                let reqData = req.filteredData;
+                let reqBodyData = req.filteredBody;
                 let uploadFiles = req.files;
 
                 result = await profileAdapter.createConsultantProfileTemp(
                     userData,
-                    reqData,
+                    reqBodyData,
                     uploadFiles
                 );
                 console.log('POST - /api/user/profile/temp 응답 : ', result);
@@ -127,12 +127,12 @@ module.exports = (router) => {
             let result, response;
             try {
                 let userData = req.userDataByIdToken;
-                let reqData = req.filteredData;
+                let reqBodyData = req.filteredBody;
                 let uploadFiles = req.files;
 
                 result = await profileAdapter.createConsultingCompanyProfileTemp(
                     userData,
-                    reqData,
+                    reqBodyData,
                     uploadFiles
                 );
                 console.log('POST - /api/company/profile/temp 응답 : ', result);
@@ -258,18 +258,18 @@ module.exports = (router) => {
             try {
                 console.log('PUT - /api/client/auth 요청 : ', req.body);
                 let userData = req.userDataByIdToken;
-                let reqData = req.filteredData;
+                let reqBodyData = req.filteredBody;
                 let uploadFiles = req.files;
                 console.log(
                     'PUT - /api/company/profile/temp 요청 : ',
                     userData,
-                    reqData,
+                    reqBodyData,
                     uploadFiles
                 );
 
                 result = await profileAdapter.requestClientAuth(
                     userData,
-                    reqData,
+                    reqBodyData,
                     uploadFiles
                 );
                 console.log('PUT - /api/client/auth 응답 : ', result);
