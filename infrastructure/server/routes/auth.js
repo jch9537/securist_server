@@ -11,10 +11,10 @@ module.exports = (router) => {
     router.post('/api/auth/checkemail', async (req, res) => {
         let result, response;
         try {
-            let reqBodyData = req.filteredBody;
-            console.log('/api/auth/checkemail 요청 : ', reqBodyData);
+            let reqData = req.filteredData;
+            console.log('/api/auth/checkemail 요청 : ', reqData);
 
-            result = await authAdapter.checkDuplicateEmail(reqBodyData);
+            result = await authAdapter.checkDuplicateEmail(reqData);
             console.log('/api/auth/checkemail 응답 : ', result);
 
             response;
@@ -41,10 +41,10 @@ module.exports = (router) => {
     router.post('/api/auth/signup', async (req, res) => {
         let result, response;
         try {
-            let reqBodyData = req.filteredBody;
-            console.log('/api/auth/signup 요청 : ', reqBodyData);
+            let reqData = req.filteredData;
+            console.log('/api/auth/signup 요청 : ', reqData);
 
-            result = await authAdapter.signUp(reqBodyData);
+            result = await authAdapter.signUp(reqData);
             console.log('/api/auth/signup 응답 : ', result);
 
             response = new Response(201, '회원가입 완료 (Accepted)');
@@ -58,8 +58,8 @@ module.exports = (router) => {
     router.post('/api/auth/resendemail', async (req, res) => {
         let result, response;
         try {
-            let reqBodyData = req.filteredBody;
-            result = await authAdapter.resendComfirmEmail(reqBodyData);
+            let reqData = req.filteredData;
+            result = await authAdapter.resendComfirmEmail(reqData);
             console.log('결과 ------------------', result);
             response = new Response(200, '가입 메일 전송 완료');
             res.send(response);
@@ -73,10 +73,10 @@ module.exports = (router) => {
     router.post('/api/auth/login', async (req, res) => {
         let result, response;
         try {
-            let reqBodyData = req.filteredBody;
-            console.log('/api/auth/login 요청 : ', reqBodyData);
+            let reqData = req.filteredData;
+            console.log('/api/auth/login 요청 : ', reqData);
 
-            result = await authAdapter.logIn(reqBodyData);
+            result = await authAdapter.logIn(reqData);
             console.log('/api/auth/login 응답 : ', result);
 
             response = new Response(200, '로그인 성공 (OK)', result);
@@ -95,16 +95,16 @@ module.exports = (router) => {
             let result, response;
             try {
                 let userData = req.userDataByAccessToken;
-                let reqBodyData = req.filteredBody;
+                let reqData = req.filteredData;
                 console.log(
                     '/api/auth/verifyuser 요청 : ',
-                    reqBodyData,
+                    reqData,
                     '사용자 데이터 : ',
                     userData
                 );
                 let verifyData = {
                     email: userData.email,
-                    password: reqBodyData.password,
+                    password: reqData.password,
                 };
 
                 result = await authAdapter.verifyUserByPassword(verifyData);
@@ -123,10 +123,10 @@ module.exports = (router) => {
     router.post('/api/auth/forgotpassword', async (req, res) => {
         let result, response;
         try {
-            let reqBodyData = req.filteredBody;
-            console.log('/api/auth/forgotpassword 요청 : ', reqBodyData);
+            let reqData = req.filteredData;
+            console.log('/api/auth/forgotpassword 요청 : ', reqData);
 
-            result = await authAdapter.forgotPassword(reqBodyData);
+            result = await authAdapter.forgotPassword(reqData);
             console.log('/api/auth/forgotpassword 요청 : ', result);
             if (!result) {
                 response = new Response(400, '가입되지 않은 메일 주소입니다.');
@@ -144,10 +144,10 @@ module.exports = (router) => {
     router.post('/api/auth/confirmforgotpassword', async (req, res) => {
         let result, response;
         try {
-            let reqBodyData = req.filteredBody;
-            console.log('/api/auth/confirmforgotpassword 요청 : ', reqBodyData);
+            let reqData = req.filteredData;
+            console.log('/api/auth/confirmforgotpassword 요청 : ', reqData);
 
-            result = await authAdapter.confirmForgotPassword(reqBodyData);
+            result = await authAdapter.confirmForgotPassword(reqData);
             console.log('/api/auth/confirmforgotpassword 응답 : ', result);
 
             response = new Response(200, '비밀번호 변경완료', result);
@@ -287,9 +287,9 @@ module.exports = (router) => {
     router.post('/api/auth/deleteUserByAdmin', (req, res) => {
         let result, response;
 
-        let reqBodyData = req.filteredBody;
-        console.log('deleteUserByAdmin 요청 : ', reqBodyData);
-        response = authAdapter.deleteUserByAdmin(reqBodyData);
+        let reqData = req.filteredData;
+        console.log('deleteUserByAdmin 요청 : ', reqData);
+        response = authAdapter.deleteUserByAdmin(reqData);
         response.then((resData) => {
             console.log('deleteUserByAdmin 응답 : ', resData);
             if (resData.code === 'UserNotFoundException') {
@@ -305,15 +305,15 @@ module.exports = (router) => {
     router.post('/api/auth/disableUserByAdmin', (req, res) => {
         let result, response;
 
-        let reqBodyData = req.filteredBody;
-        console.log('disableUserByAdmin 요청 : ', reqBodyData);
-        response = authAdapter.disableUserByAdmin(reqBodyData);
+        let reqData = req.filteredData;
+        console.log('disableUserByAdmin 요청 : ', reqData);
+        response = authAdapter.disableUserByAdmin(reqData);
         response.then((resData) => res.send(resData));
     });
     router.post('/api/auth/enableUserByAdmin', (req, res) => {
-        let reqBodyData = req.filteredBody;
-        console.log('disableUserByAdmin 요청 : ', reqBodyData);
-        response = authAdapter.enableUserByAdmin(reqBodyData);
+        let reqData = req.filteredData;
+        console.log('disableUserByAdmin 요청 : ', reqData);
+        response = authAdapter.enableUserByAdmin(reqData);
         response.then((resData) => res.send(resData));
     });
 };
