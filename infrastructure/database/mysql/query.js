@@ -287,7 +287,7 @@ module.exports = class {
             if (userType === 3) {
                 idColumn = 'client_company_id';
             } else {
-                // userType === 2
+                // userType === 2 || userType === 1
                 idColumn = 'consulting_company_id';
             }
             let companyInfo = await this.getRelationInfo({ email, userType });
