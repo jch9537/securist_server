@@ -11,21 +11,22 @@ module.exports = {
         let result;
         try {
             let reqBodyData = req.filteredBody;
-            console.log('타 서비스 토큰 요청 데이터 ', reqData);
+            console.log('타 서비스 토큰 요청 데이터 ', reqBodyData);
             // 서비스 종류 확인
-            if (reqData.serviceType === process.env.ADMIN_SERVICE_TYPE) {
+            if (reqBodyData.serviceType === process.env.ADMIN_SERVICE_TYPE) {
                 // 서비스 이름/비번 확인
                 if (
-                    reqData.serviceName === process.env.ADMIN_SERVICE_NAME &&
-                    reqData.servicePassword ===
+                    reqBodyData.serviceName ===
+                        process.env.ADMIN_SERVICE_NAME &&
+                    reqBodyData.servicePassword ===
                         process.env.ADMIN_SERVICE_PASSWORD
                 ) {
                     console.log('도착');
                     // 토큰 생성
                     var token = jwt.sign(
                         {
-                            serviceName: reqData.serviceName,
-                            serviceType: reqData.serviceType,
+                            serviceName: reqBodyData.serviceName,
+                            serviceType: reqBodyData.serviceType,
                         },
                         process.env.USER_SECRET_KEY,
                         {
@@ -48,17 +49,18 @@ module.exports = {
                     throw new ServiceAuthenticationError();
                 }
             } else if (
-                reqData.serviceType === process.env.PROJECT_SERVICE_TYPE
+                reqBodyData.serviceType === process.env.PROJECT_SERVICE_TYPE
             ) {
                 if (
-                    reqData.serviceName === process.env.PROJECT_SERVICE_NAME &&
-                    reqData.servicePassword ===
+                    reqBodyData.serviceName ===
+                        process.env.PROJECT_SERVICE_NAME &&
+                    reqBodyData.servicePassword ===
                         process.env.PROJECT_SERVICE_PASSWORD
                 ) {
                     var token = jwt.sign(
                         {
-                            serviceName: reqData.serviceName,
-                            serviceType: reqData.serviceType,
+                            serviceName: reqBodyData.serviceName,
+                            serviceType: reqBodyData.serviceType,
                         },
                         process.env.USER_SECRET_KEY,
                         {

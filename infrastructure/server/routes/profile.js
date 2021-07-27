@@ -35,14 +35,14 @@ module.exports = (router) => {
                 // console.log(
                 //     'POST - /api/company/profile/temp 요청 : ',
                 //     userData,
-                //     reqData,
+                //     reqBodyData,
                 //     uploadFiles
                 // );
-                console.log(reqData);
+                console.log(reqBodyData);
 
                 result = await profileAdapter.createConsultantProfile(
                     userData,
-                    reqData,
+                    reqBodyData,
                     uploadFiles
                 );
                 console.log('POST - /api/user/profile 응답 : ', result);
@@ -72,7 +72,7 @@ module.exports = (router) => {
 
                 result = await profileAdapter.createConsultingCompanyProfile(
                     userData,
-                    reqData,
+                    reqBodyData,
                     uploadFiles
                 );
                 console.log('POST - /api/company/profile 응답 : ', result);
@@ -102,7 +102,7 @@ module.exports = (router) => {
 
                 result = await profileAdapter.createConsultantProfileTemp(
                     userData,
-                    reqData,
+                    reqBodyData,
                     uploadFiles
                 );
                 console.log('POST - /api/user/profile/temp 응답 : ', result);
@@ -132,7 +132,7 @@ module.exports = (router) => {
 
                 result = await profileAdapter.createConsultingCompanyProfileTemp(
                     userData,
-                    reqData,
+                    reqBodyData,
                     uploadFiles
                 );
                 console.log('POST - /api/company/profile/temp 응답 : ', result);
@@ -263,13 +263,13 @@ module.exports = (router) => {
                 console.log(
                     'PUT - /api/company/profile/temp 요청 : ',
                     userData,
-                    reqData,
+                    reqBodyData,
                     uploadFiles
                 );
 
                 result = await profileAdapter.requestClientAuth(
                     userData,
-                    reqData,
+                    reqBodyData,
                     uploadFiles
                 );
                 console.log('PUT - /api/client/auth 응답 : ', result);
