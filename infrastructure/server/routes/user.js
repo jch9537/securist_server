@@ -19,12 +19,12 @@ module.exports = (router) => {
             console.log(
                 '요청 > GET > /api/user/relation/join: ',
                 userData,
-                reqData
+                reqBodyData
             );
 
             result = await userAdapter.createUserAndCompanyRelation(
                 userData,
-                reqData
+                reqBodyData
             );
             console.log('응담 > GET > /api/user/relation/join : ', result);
 
@@ -120,9 +120,9 @@ module.exports = (router) => {
         try {
             let accessToken = req.token;
             let reqBodyData = req.filteredBody;
-            console.log('changepassword 요청 : ', reqData);
+            console.log('changepassword 요청 : ', reqBodyData);
 
-            result = await authAdapter.changePassword(accessToken, reqData);
+            result = await authAdapter.changePassword(accessToken, reqBodyData);
             console.log('changepassword 응답 : ', result);
 
             response = new Response(200, '비밀번호 변경완료', result);
@@ -142,10 +142,10 @@ module.exports = (router) => {
             console.log(
                 'PUT - /api/user/info/phonenum 요청 : ',
                 userData,
-                reqData
+                reqBodyData
             );
 
-            result = await userAdapter.updatePhoneNum(userData, reqData);
+            result = await userAdapter.updatePhoneNum(userData, reqBodyData);
             console.log('PUT - /api/user/info/phonenum 응답 : ', result);
 
             response = new Response(
@@ -168,10 +168,10 @@ module.exports = (router) => {
             console.log(
                 'PUT - /api/user/info/bankinfo 요청 : ',
                 userData,
-                reqData
+                reqBodyData
             );
 
-            result = await userAdapter.updateBankInfo(userData, reqData);
+            result = await userAdapter.updateBankInfo(userData, reqBodyData);
             console.log('PUT - /api/user/info/bankinfo 응답 : ', result);
 
             response = new Response(
@@ -199,12 +199,12 @@ module.exports = (router) => {
                 console.log(
                     '요청 > /api/user/relation/unregister : ',
                     userData,
-                    reqData
+                    reqBodyData
                 );
 
                 result = await userAdapter.updateUserBelongingStatus(
                     userData,
-                    reqData
+                    reqBodyData
                 );
                 console.log('응답 > /api/user/relation/unregister : ', result);
 
@@ -222,9 +222,9 @@ module.exports = (router) => {
         try {
             let accessToken = req.token;
             let reqBodyData = req.filteredBody;
-            console.log('DELETE - /api/user 요청 : ', accessToken, reqData);
+            console.log('DELETE - /api/user 요청 : ', accessToken, reqBodyData);
 
-            result = await userAdapter.deleteUser(accessToken, reqData);
+            result = await userAdapter.deleteUser(accessToken, reqBodyData);
             console.log('DELETE - /api/user 응답 : ', result);
 
             response = new Response(200, '회원탈퇴완료 - accessToken', result);
