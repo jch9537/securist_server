@@ -3,11 +3,39 @@ const { Exception } = require('../../../adapters/exceptions');
 // html 태그 제거 모듈 : XSS 공격방어 미들웨어 => 허용 태그, 속성들은 sanitizeHtml의 옵션에서 처리가능
 const sanitizeHtml = require('sanitize-html');
 
+// 객체와 배열을 스캔하면서 XSS공격 문자 소독하는 함수
+function sanitizeBody(body) {
+    let result;
+    if (typeof body !== 'object') {
+        // console.log(body)
+        if (typeof body === 'number') {
+            return Number(sanitizeHtml(body));
+        } else {
+            // 문자열
+            return sanitizeHtml(body);
+        }
+    } else {
+        // console.log(body)
+        if (Array.isArray(body)) {
+            let innerArray = [];
+            for (let i = 0; i < body.length; i++) {
+                innerArray.push(sanitizeBody(body[i]));
+            }
+            result = innerArray;
+        } else {
+            let innerObj = {};
+            for (let key in body) {
+                innerObj[key] = sanitizeBody(body[key]);
+            }
+            result = innerObj;
+        }
+    }
+    return result;
+}
+
 module.exports = (req, res, next) => {
     //console.log('리퀘스트 :', req.body);
     try {
-        let filteredData = {};
-        let filteredQuery = {};
         if (
             req.method === 'POST' ||
             req.method === 'PUT' ||
@@ -18,66 +46,15 @@ module.exports = (req, res, next) => {
                 req.body = JSON.parse(req.body.formData);
                 //console.log('~~~~~', req.body);
             }
-            for (let key in req.body) {
-                let category = req.body[key];
-                // console.log('key: ', key, '// value :', category);
-                if (typeof category === 'object') {
-                    if (Array.isArray(category)) {
-                        let array = [];
-                        // console.log('배열 ~~~~~~ : ', category);
-                        for (let i = 0; i < category.length; i++) {
-                            let innerObject = {};
-                            for (let innerKey in category[i]) {
-                                if (typeof category[i][innerKey] === 'number') {
-                                    innerObject[innerKey] = Number(
-                                        sanitizeHtml(category[i][innerKey])
-                                    );
-                                } else {
-                                    innerObject[innerKey] = sanitizeHtml(
-                                        category[i][innerKey]
-                                    );
-                                }
-                            }
-                            array.push(innerObject);
-                        }
-                        filteredData[key] = array;
-                    } else {
-                        let object = {};
-                        // console.log('객체 ~~~~~~ : ', category);
-                        for (let innerKey in category) {
-                            if (typeof category[innerKey] === 'number') {
-                                object[innerKey] = Number(
-                                    sanitizeHtml(category[innerKey])
-                                );
-                            } else {
-                                object[innerKey] = sanitizeHtml(
-                                    category[innerKey]
-                                );
-                            }
-                        }
-                        filteredData[key] = object;
-                    }
-                } else if (typeof req.body[key] === 'number') {
-                    filteredData[key] = Number(sanitizeHtml(req.body[key]));
-                } else {
-                    filteredData[key] = sanitizeHtml(req.body[key]);
-                }
-            }
-            //console.log('body소독 : ', filteredData);
-            req.filteredData = filteredData;
-            console.log('바디데이터 : ', req.filteredData);
+            req.filteredBody = sanitizeBody(req.body);
+            console.log('바디데이터 : ', req.filteredBody);
         } else if (req.method === 'GET') {
             // route에서 :id를 받기 전 request를 받으므로 req.params는 없음
             if (req.query) {
                 if (Object.keys(req.query).length !== 0) {
-                    //console.log('req.query : ', req.query);
-                    for (let key in req.query) {
-                        //console.log('key: ', key, 'value :', req.query[key]);
-                        filteredQuery[key] = sanitizeHtml(req.query[key]);
-                    }
-                    //console.log('query 소독 : ', filteredQuery);
+                    req.filteredQuery = sanitizeBody(req.query);
+                    console.log('query 소독 : ', req.filteredQuery);
                 }
-                req.filteredQuery = filteredQuery;
             }
         }
         if (req.headers.authorization) {
