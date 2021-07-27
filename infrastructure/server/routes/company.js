@@ -88,7 +88,7 @@ module.exports = (router) => {
         let result, response;
         try {
             let userData = req.userDataByIdToken;
-            let reqData = req.filteredData;
+            let reqBodyData = req.filteredBody;
             console.log(
                 '요청 > /api/company/relation/status : ',
                 userData,

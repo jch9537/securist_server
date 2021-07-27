@@ -30,7 +30,7 @@ module.exports = (router) => {
             try {
                 // console.log('POST - /api/user/profile 요청 : ', req.body);
                 let userData = req.userDataByIdToken;
-                let reqData = req.filteredData;
+                let reqBodyData = req.filteredBody;
                 let uploadFiles = req.files;
                 // console.log(
                 //     'POST - /api/company/profile/temp 요청 : ',
@@ -67,7 +67,7 @@ module.exports = (router) => {
             let result, response;
             try {
                 let userData = req.userDataByIdToken;
-                let reqData = req.filteredData;
+                let reqBodyData = req.filteredBody;
                 let uploadFiles = req.files;
 
                 result = await profileAdapter.createConsultingCompanyProfile(
@@ -97,7 +97,7 @@ module.exports = (router) => {
             let result, response;
             try {
                 let userData = req.userDataByIdToken;
-                let reqData = req.filteredData;
+                let reqBodyData = req.filteredBody;
                 let uploadFiles = req.files;
 
                 result = await profileAdapter.createConsultantProfileTemp(
@@ -127,7 +127,7 @@ module.exports = (router) => {
             let result, response;
             try {
                 let userData = req.userDataByIdToken;
-                let reqData = req.filteredData;
+                let reqBodyData = req.filteredBody;
                 let uploadFiles = req.files;
 
                 result = await profileAdapter.createConsultingCompanyProfileTemp(
@@ -258,7 +258,7 @@ module.exports = (router) => {
             try {
                 console.log('PUT - /api/client/auth 요청 : ', req.body);
                 let userData = req.userDataByIdToken;
-                let reqData = req.filteredData;
+                let reqBodyData = req.filteredBody;
                 let uploadFiles = req.files;
                 console.log(
                     'PUT - /api/company/profile/temp 요청 : ',
