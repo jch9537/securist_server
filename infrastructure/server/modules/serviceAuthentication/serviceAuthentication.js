@@ -10,7 +10,7 @@ module.exports = {
     async issueToken(req, res, next) {
         let result;
         try {
-            let reqData = req.filteredData;
+            let reqBodyData = req.filteredBody;
             console.log('타 서비스 토큰 요청 데이터 ', reqData);
             // 서비스 종류 확인
             if (reqData.serviceType === process.env.ADMIN_SERVICE_TYPE) {

@@ -15,7 +15,7 @@ module.exports = (router) => {
         let result, response;
         try {
             let userData = req.userDataByIdToken;
-            let reqData = req.filteredData;
+            let reqBodyData = req.filteredBody;
             console.log(
                 '요청 > GET > /api/user/relation/join: ',
                 userData,
@@ -119,7 +119,7 @@ module.exports = (router) => {
         let result, response;
         try {
             let accessToken = req.token;
-            let reqData = req.filteredData;
+            let reqBodyData = req.filteredBody;
             console.log('changepassword 요청 : ', reqData);
 
             result = await authAdapter.changePassword(accessToken, reqData);
@@ -138,7 +138,7 @@ module.exports = (router) => {
         result;
         try {
             let userData = req.userDataByIdToken;
-            let reqData = req.filteredData;
+            let reqBodyData = req.filteredBody;
             console.log(
                 'PUT - /api/user/info/phonenum 요청 : ',
                 userData,
@@ -164,7 +164,7 @@ module.exports = (router) => {
         let result, response;
         try {
             let userData = req.userDataByIdToken;
-            let reqData = req.filteredData;
+            let reqBodyData = req.filteredBody;
             console.log(
                 'PUT - /api/user/info/bankinfo 요청 : ',
                 userData,
@@ -195,7 +195,7 @@ module.exports = (router) => {
             let result, response;
             try {
                 let userData = req.userDataByIdToken;
-                let reqData = req.filteredData;
+                let reqBodyData = req.filteredBody;
                 console.log(
                     '요청 > /api/user/relation/unregister : ',
                     userData,
@@ -221,7 +221,7 @@ module.exports = (router) => {
         let result, response;
         try {
             let accessToken = req.token;
-            let reqData = req.filteredData;
+            let reqBodyData = req.filteredBody;
             console.log('DELETE - /api/user 요청 : ', accessToken, reqData);
 
             result = await userAdapter.deleteUser(accessToken, reqData);
