@@ -12,9 +12,9 @@ module.exports = (router) => {
         let result, response;
         try {
             let reqBodyData = req.filteredBody;
-            console.log('/api/auth/checkemail 요청 : ', reqData);
+            console.log('/api/auth/checkemail 요청 : ', reqBodyData);
 
-            result = await authAdapter.checkDuplicateEmail(reqData);
+            result = await authAdapter.checkDuplicateEmail(reqBodyData);
             console.log('/api/auth/checkemail 응답 : ', result);
 
             response;
@@ -42,9 +42,9 @@ module.exports = (router) => {
         let result, response;
         try {
             let reqBodyData = req.filteredBody;
-            console.log('/api/auth/signup 요청 : ', reqData);
+            console.log('/api/auth/signup 요청 : ', reqBodyData);
 
-            result = await authAdapter.signUp(reqData);
+            result = await authAdapter.signUp(reqBodyData);
             console.log('/api/auth/signup 응답 : ', result);
 
             response = new Response(201, '회원가입 완료 (Accepted)');
@@ -59,7 +59,7 @@ module.exports = (router) => {
         let result, response;
         try {
             let reqBodyData = req.filteredBody;
-            result = await authAdapter.resendComfirmEmail(reqData);
+            result = await authAdapter.resendComfirmEmail(reqBodyData);
             console.log('결과 ------------------', result);
             response = new Response(200, '가입 메일 전송 완료');
             res.send(response);
@@ -74,9 +74,9 @@ module.exports = (router) => {
         let result, response;
         try {
             let reqBodyData = req.filteredBody;
-            console.log('/api/auth/login 요청 : ', reqData);
+            console.log('/api/auth/login 요청 : ', reqBodyData);
 
-            result = await authAdapter.logIn(reqData);
+            result = await authAdapter.logIn(reqBodyData);
             console.log('/api/auth/login 응답 : ', result);
 
             response = new Response(200, '로그인 성공 (OK)', result);
@@ -98,13 +98,13 @@ module.exports = (router) => {
                 let reqBodyData = req.filteredBody;
                 console.log(
                     '/api/auth/verifyuser 요청 : ',
-                    reqData,
+                    reqBodyData,
                     '사용자 데이터 : ',
                     userData
                 );
                 let verifyData = {
                     email: userData.email,
-                    password: reqData.password,
+                    password: reqBodyData.password,
                 };
 
                 result = await authAdapter.verifyUserByPassword(verifyData);
@@ -124,9 +124,9 @@ module.exports = (router) => {
         let result, response;
         try {
             let reqBodyData = req.filteredBody;
-            console.log('/api/auth/forgotpassword 요청 : ', reqData);
+            console.log('/api/auth/forgotpassword 요청 : ', reqBodyData);
 
-            result = await authAdapter.forgotPassword(reqData);
+            result = await authAdapter.forgotPassword(reqBodyData);
             console.log('/api/auth/forgotpassword 요청 : ', result);
             if (!result) {
                 response = new Response(400, '가입되지 않은 메일 주소입니다.');
@@ -145,9 +145,9 @@ module.exports = (router) => {
         let result, response;
         try {
             let reqBodyData = req.filteredBody;
-            console.log('/api/auth/confirmforgotpassword 요청 : ', reqData);
+            console.log('/api/auth/confirmforgotpassword 요청 : ', reqBodyData);
 
-            result = await authAdapter.confirmForgotPassword(reqData);
+            result = await authAdapter.confirmForgotPassword(reqBodyData);
             console.log('/api/auth/confirmforgotpassword 응답 : ', result);
 
             response = new Response(200, '비밀번호 변경완료', result);
@@ -288,8 +288,8 @@ module.exports = (router) => {
         let result, response;
 
         let reqBodyData = req.filteredBody;
-        console.log('deleteUserByAdmin 요청 : ', reqData);
-        response = authAdapter.deleteUserByAdmin(reqData);
+        console.log('deleteUserByAdmin 요청 : ', reqBodyData);
+        response = authAdapter.deleteUserByAdmin(reqBodyData);
         response.then((resData) => {
             console.log('deleteUserByAdmin 응답 : ', resData);
             if (resData.code === 'UserNotFoundException') {
@@ -306,14 +306,14 @@ module.exports = (router) => {
         let result, response;
 
         let reqBodyData = req.filteredBody;
-        console.log('disableUserByAdmin 요청 : ', reqData);
-        response = authAdapter.disableUserByAdmin(reqData);
+        console.log('disableUserByAdmin 요청 : ', reqBodyData);
+        response = authAdapter.disableUserByAdmin(reqBodyData);
         response.then((resData) => res.send(resData));
     });
     router.post('/api/auth/enableUserByAdmin', (req, res) => {
         let reqBodyData = req.filteredBody;
-        console.log('disableUserByAdmin 요청 : ', reqData);
-        response = authAdapter.enableUserByAdmin(reqData);
+        console.log('disableUserByAdmin 요청 : ', reqBodyData);
+        response = authAdapter.enableUserByAdmin(reqBodyData);
         response.then((resData) => res.send(resData));
     });
 };
