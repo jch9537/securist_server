@@ -4,12 +4,8 @@
 
 // 서비스별 데이터 env 파일에 저장 : 서비스 타입, 서비스 id, 서비스 비밀번호 - 처리!!
 
-// 토큰 저장은 storage 라는 라이브러리 사용
+// 토큰 저장은 redis 사용
 
-// 토큰생성(로그인)/ 토큰 갱신 api 생성
-// const jwt = require('jsonwebtoken');
-// const axios = require('axios');
-const extractToken = require('../modules/extractToken');
 const { ServiceAuthenticationError, TokenError } = require('../../error');
 const {
     issueToken,
@@ -21,32 +17,28 @@ const {
 } = require('../modules/serviceAuthentication/serviceAuthentication');
 
 module.exports = (router) => {
-    // router.use(extractToken);
     // 각 서비스 확인 (서비스별 로그인) > 토큰 발급
     router.post('/service/issuetoken', issueToken, async (req, res) => {
+        let result;
         try {
-            let result = req.serviceToken;
-            console.log('미들웨어 확인 : ', result);
+            result = req.serviceAuth;
+            console.log('서비스 요청 인증 결과 : ', result);
+
             res.send(result);
         } catch (error) {
             res.send(error);
         }
     });
     // 토큰 확인
-    router.get(
-        '/service/verify',
-        // extractToken,
-        verifyToken,
-        async (req, res) => {
-            try {
-                let result = req.serviceData;
-                res.send(result);
-            } catch (error) {
-                response = new TokenError(error);
-                res.send(error);
-            }
+    router.get('/service/verify', verifyToken, async (req, res) => {
+        try {
+            let result = req.serviceInfo;
+            res.send(result);
+        } catch (error) {
+            response = new TokenError(error);
+            res.send(response);
         }
-    );
+    });
     // access token이 만료되었을 때 refresh token으로 갱신 처리
     router.post('/service/renewtoken', async (req, res) => {});
 
@@ -67,11 +59,10 @@ module.exports = (router) => {
     );
     router.get(
         '/service/admin/verify',
-        extractToken,
         verifyTokenByAdminService,
         async (req, res) => {
             try {
-                let result = req.userTokenDecryptData;
+                let result = req.userDataDecryptToken;
                 res.send(result);
             } catch (error) {
                 console.log('에러 : ', error);
@@ -94,11 +85,10 @@ module.exports = (router) => {
     );
     router.get(
         '/service/project/verify',
-        extractToken,
         verifyTokenByProjectService,
         async (req, res) => {
             try {
-                let result = req.userTokenDecryptData;
+                let result = req.userDataDecryptToken;
                 res.send(result);
             } catch (error) {
                 console.log('에러 : ', error);
