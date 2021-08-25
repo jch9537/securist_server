@@ -19,7 +19,7 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyList - error : ',
                 error
             );
@@ -36,7 +36,7 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyInfo - error : ',
                 error
             );
@@ -59,7 +59,7 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > companyAdaptor.js > getCompanyBelongedUsersInfo - error : ',
                 error
             );
@@ -117,7 +117,7 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 > adapters > inbound > userAdaptor > updateRegistrationStatus- erroror : ',
                 error
             );

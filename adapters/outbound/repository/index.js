@@ -1,7 +1,6 @@
 const Database = require('../../../infrastructure/database');
 const db = new Database();
-const Redis = require('../../../infrastructure/database/redis/redis');
-const storage = new Redis();
+const storage = require('../../../infrastructure/database/redis');
 
 const ServiceRepository = require('./ServiceRepository');
 const UserRepository = require('./UserRepository');

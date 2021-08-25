@@ -35,7 +35,7 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > createConsultantProfile - error : ',
                 error
             );
@@ -65,7 +65,7 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > createConsultingCompanyProfile - error : ',
                 error
             );
@@ -93,7 +93,7 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > requestClientAuth - error : ',
                 error
             );
@@ -123,7 +123,7 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > createConsultantProfileTemp - error : ',
                 error
             );
@@ -153,7 +153,7 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > createConsultingCompanyProfileTemp - error : ',
                 error
             );
@@ -176,7 +176,7 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > checkProfileTempExist - error : ',
                 error
             );
@@ -199,7 +199,7 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > getProfile - error : ',
                 error
             );
@@ -221,7 +221,7 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > getProfileTemp - error : ',
                 error
             );
@@ -243,7 +243,7 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > deleteProfileTemp - error : ',
                 error
             );

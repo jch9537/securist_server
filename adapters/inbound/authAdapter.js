@@ -31,10 +31,7 @@ module.exports = {
                 result
             );
 
-            let data = {
-                userExist: result,
-            };
-            return data;
+            return result;
         } catch (error) {
             console.log(
                 '에러 응답 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - error : ',
@@ -125,29 +122,6 @@ module.exports = {
             throw error;
         }
     },
-    // 사용자 인증 : 비밀번호
-    async verifyUserByPassword(verifyData) {
-        console.log(
-            '요청 > adapters > inbound > authAdaptor.js > verifyUserByPassword - userParam : ',
-            verifyData
-        );
-        try {
-            let verifyUserByPassword = new VerifyUserByPassword(auth);
-            let result = await verifyUserByPassword.excute(verifyData);
-            console.log(
-                '응답 > adapters > inbound > authAdaptor.js > verifyUserByPassword - result : ',
-                result
-            );
-            return result;
-        } catch (error) {
-            console.log(
-                '에러 응답 > adapters > inbound > authAdaptor.js > verifyUserByPassword - result : ',
-                error
-            );
-            throw error;
-        }
-    },
-
     // 사용자 비밀번호 수정
     async changePassword(accessToken, updatePasswordData) {
         console.log(
@@ -174,6 +148,29 @@ module.exports = {
             throw error;
         }
     },
+    // 사용자 인증 : 비밀번호
+    async verifyUserByPassword(verifyData) {
+        console.log(
+            '요청 > adapters > inbound > authAdaptor.js > verifyUserByPassword - userParam : ',
+            verifyData
+        );
+        try {
+            let verifyUserByPassword = new VerifyUserByPassword(auth);
+            let result = await verifyUserByPassword.excute(verifyData);
+            console.log(
+                '응답 > adapters > inbound > authAdaptor.js > verifyUserByPassword - result : ',
+                result
+            );
+            return result;
+        } catch (error) {
+            console.log(
+                '에러 응답 > adapters > inbound > authAdaptor.js > verifyUserByPassword - result : ',
+                error
+            );
+            throw error;
+        }
+    },
+
     // 비밀번호 찾기 확인코드 전송
     async forgotPassword(forgotPasswordData) {
         console.log(

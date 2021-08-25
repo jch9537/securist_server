@@ -4,17 +4,23 @@ module.exports = class {
         this.companyRepository = companyRepository;
     }
     async excute(userData, companyData) {
+        let result, response;
         try {
             let companyEntity = new CompanyEntity(companyData);
             companyEntity.userType = userData.userType;
 
-            let result = await this.companyRepository.getCompanyInfo(
+            response = await this.companyRepository.getCompanyInfo(
                 companyEntity
             );
-            console.log(' 기업 리스트 결과----------------', result);
+
+            result = {
+                message: '선택 기업 정보 가져오기 완료',
+                data: response,
+            };
             return result;
         } catch (error) {
-            console.log('에러 ----------------', error);
+            console.error(error);
+            error.message = '선택 기업 정보 가져오기 실패';
             throw error;
         }
     }

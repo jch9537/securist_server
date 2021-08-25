@@ -1,5 +1,5 @@
 const pool = require('./index');
-const { DatabaseError } = require('../../error');
+const { DatabaseError } = require('../../response');
 const { authService } = require('../../../adapters/outbound/auth'); // 같은 layer - 의존성에 문제 없는지 확인
 
 module.exports = class {
@@ -80,7 +80,7 @@ module.exports = class {
             //사용자 정보 생성 - 휴대폰 번호 삭제
             sql = `INSERT INTO ${usersTableName} (${userIdColumn}, name, user_type, profile_state) VALUES (?, ?, ?, ?)`;
             arg = [email, name, userType, profileState];
-            let a = await conn.query(sql, arg);
+            await conn.query(sql, arg);
             successMessage = 'success! 개인 컨설턴트!!';
 
             // 기업사용자 처리 : 개인컨설턴트(userType === 1)는 다 처리했으므로 마지막에 공통처리
@@ -88,10 +88,10 @@ module.exports = class {
                 // 기업 사용자 (userType === 2 || userType === 3) 회원 가입 처리
 
                 // 등록 기업 사업자 유무
-                sql = `SELECT EXISTS (SELECT * FROM ${companiesTableName} WHERE business_license_num = ?) AS companyExist`;
+                sql = `SELECT EXISTS (SELECT * FROM ${companiesTableName} WHERE business_license_num = ?) AS isExist`;
                 arg = [businessLicenseNum];
                 let companyExist = await conn.query(sql, arg);
-                let isCompanyExist = companyExist[0][0]['companyExist'];
+                let isCompanyExist = companyExist[0][0].isExist;
 
                 // 등록된 기업 없음
                 if (!isCompanyExist) {
@@ -129,11 +129,10 @@ module.exports = class {
                     companyId = regiCompanyInfo[0][0][companyIdColumn];
 
                     // 등록된 사업자 & 관리자인 사용자 유무 확인 ? 있으면 관리자 처리 : 없다면 요청상태로 처리
-                    sql = `SELECT EXISTS (SELECT * FROM ${relationTableName} WHERE ${companyIdColumn} = ? AND belonging_type = 2 AND manager_type = 1) AS managerExist`;
+                    sql = `SELECT EXISTS (SELECT * FROM ${relationTableName} WHERE ${companyIdColumn} = ? AND belonging_type = 2 AND manager_type = 1) AS isExist`;
                     arg = [companyId];
                     let managerExistInCompany = await conn.query(sql, arg);
-                    let managerExist =
-                        managerExistInCompany[0][0]['managerExist'];
+                    let managerExist = managerExistInCompany[0][0].isExist;
 
                     // 관리자 유무에 따라 가입자 소속/관리자 상태 달리 등록
                     if (!managerExist) {
@@ -158,21 +157,25 @@ module.exports = class {
                     console.log('!!!!!!!!!!!!!!!!!!!6', connectUserAndCompany);
                 }
             }
-            result = await authService.signUp(userEntity);
+            await authService.signUp(userEntity);
             if (!successMessage) {
                 successMessage = 'success! 개인 컨설턴트!!';
             }
             console.log('****************', successMessage);
             await conn.commit();
-            return result;
+            return;
         } catch (error) {
             await conn.rollback();
+            if (error.authServiceErrorName) {
+                console.error('cognito 에러 : ', error);
+                // 코그니토 signUp 에러인 경우
+                throw error;
+            }
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -208,8 +211,8 @@ module.exports = class {
                 // 기업에 처음 소속요청을 하는 경우
                 sql = `INSERT INTO ${tableName} (${userIdColumn}, ${companyIdColumn}, belonging_type) VALUES (?, ?, ?);`;
                 arg = [email, companyId, belongingType];
-                result = await conn.query(sql, arg);
-                return result[0][0];
+                await conn.query(sql, arg);
+                return;
             } else if (
                 checkBelongingCompany[companyIdColumn] === Number(companyId)
             ) {
@@ -220,23 +223,26 @@ module.exports = class {
                     email: email,
                     belongingType: belongingType,
                 };
-                result = await this.updateUserBelongingStatus(updateData);
+                await this.updateUserBelongingStatus(updateData);
                 conn.commit();
-                return result[0][0];
+                return;
             } else {
                 // if ( checkBelongingCompany[companyIdColumn] !==Number(companyId) // 이미 타기업에 소속된 사용자의 경우)
-                throw new Error(
-                    '타 기업에 소속된 사용자는 중복 소속요청을 할 수 없습니다.'
-                );
+                // throw new Error(
+                //     '타 기업에 소속된 사용자는 중복 소속요청을 할 수 없습니다.'
+                // );
+                result = {
+                    isAlreadyBelongingUser: true,
+                };
+                return result;
             }
         } catch (error) {
             conn.rollback();
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -264,16 +270,16 @@ module.exports = class {
             }
             sql = `SELECT * FROM ${tableName} WHERE ${idColumn}=?`;
             arg = [email];
-            result = await conn.query(sql, arg);
+            let userInfoResults = await conn.query(sql, arg);
 
-            return result[0][0];
+            result = userInfoResults[0][0];
+            return result;
         } catch (error) {
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -291,20 +297,23 @@ module.exports = class {
                 idColumn = 'consulting_company_id';
             }
             let companyInfo = await this.getRelationInfo({ email, userType });
+            console.log('회사정보 ', companyInfo);
             let companyId = companyInfo[`${idColumn}`];
             console.log('사용자 소속기업정보 가져오기 result', companyId);
 
-            result = await this.getCompanyInfo({ userType, companyId });
-            console.log('$$$$$$$$$$$$$$$$$$ : ', result);
+            let companyInfoResult = await this.getCompanyInfo({
+                userType,
+                companyId,
+            });
+
+            result = companyInfoResult;
             return result;
         } catch (error) {
-            console.log('사용자 소속 기업정보 가져오기 err: ', error);
+            console.error('DB에러 (사용자 소속 기업정보 가져오기): ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         }
     }
@@ -326,17 +335,16 @@ module.exports = class {
 
             sql = `SELECT * FROM ${tableName} WHERE ${userIdColumn} = ?`;
             arg = [email];
-            result = await conn.query(sql, arg);
+            let relationInfoResult = await conn.query(sql, arg);
 
-            // console.log(result);
-            return result[0][0];
+            result = relationInfoResult[0][0];
+            return result;
         } catch (error) {
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -364,52 +372,58 @@ module.exports = class {
             // 업데이트한 휴대폰 번호 가져오기
             sql = `SELECT phone_num FROM ${tableName} WHERE ${idColumn} = ?`;
             arg = [email];
-            result = await conn.query(sql, arg);
+            let updatePhoneNumResult = await conn.query(sql, arg);
 
-            return result[0][0];
+            result = updatePhoneNumResult[0][0];
+            return result;
         } catch (error) {
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
         }
     }
-    // 사용자 정보 변경 - 컨설턴트 입금정보 : 사용자 타입별 분할
-    async updateBankInfo({
-        email,
-        userType,
-        bankName,
-        bankAccountNum,
-        bankAccountOwner,
-    }) {
-        let result;
-        try {
-            if (userType === 1) {
-                result = await this.updateUserBankInfo({
-                    email,
-                    bankName,
-                    bankAccountNum,
-                    bankAccountOwner,
-                });
-            } else {
-                // userType === 2
-                result = await this.updateCompanyBankInfo({
-                    email,
-                    bankName,
-                    bankAccountNum,
-                    bankAccountOwner,
-                });
-            }
-            return result;
-        } catch (error) {
-            throw error;
-        }
-    }
+    // // 사용자 정보 변경 - 컨설턴트 입금정보 : 사용자 타입별 분할 - repository에서 분할
+    // async updateBankInfo({
+    //     email,
+    //     userType,
+    //     bankName,
+    //     bankAccountNum,
+    //     bankAccountOwner,
+    // }) {
+    //     let result;
+    //     try {
+    //         if (userType === 1) {
+    //             result = await this.updateUserBankInfo({
+    //                 email,
+    //                 bankName,
+    //                 bankAccountNum,
+    //                 bankAccountOwner,
+    //             });
+    //         } else {
+    //             // userType === 2
+    //             result = await this.updateCompanyBankInfo({
+    //                 email,
+    //                 bankName,
+    //                 bankAccountNum,
+    //                 bankAccountOwner,
+    //             });
+    //         }
+    //         return result;
+    //     } catch (error) {
+    //         console.error('DB에러 : ', error);
+    // throw new DatabaseError(
+    //     error.message,
+    //     error.errno,
+    //     error.sqlMessage
+    // );
+    //     }
+    // }
+
     // 사용자 정보 변경 - 개인컨설턴트 입금정보
     async updateUserBankInfo({
         email,
@@ -433,17 +447,17 @@ module.exports = class {
             //사용자 입금정보 가져오기
             sql = `SELECT bank_name, bank_account_num, bank_account_owner FROM consultant_users WHERE consultant_user_id = ?`;
             arg = [email];
-            result = await conn.query(sql, arg);
+            let userBankInfoResult = await conn.query(sql, arg);
             console.log('응답 > DB > updateUserBankInfo > 결과 : ', result);
 
-            return result[0][0];
+            result = userBankInfoResult[0][0];
+            return result;
         } catch (error) {
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -484,17 +498,17 @@ module.exports = class {
             // 컨설팅 기업 업데이트 된 입금정보 가져오기
             sql = `SELECT bank_name, bank_account_num, bank_account_owner FROM consulting_companies WHERE consulting_company_id = ?`;
             arg = [consultingCompanyId];
-            result = await conn.query(sql, arg);
+            let companyBankInfoResult = await conn.query(sql, arg);
             console.log('응답 > DB > updateCompanyBankInfo > 결과 : ', result);
 
-            return result[0][0];
+            result = companyBankInfoResult[0][0];
+            return result;
         } catch (error) {
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -517,17 +531,16 @@ module.exports = class {
         );
         const conn = await pool.getConnection();
         try {
-            // 추가 사용자 있을 시 사용자 타입확인 필요 - ex) 클라이언트 사용자(userType: 4) 구분 시(현재 구분않음)
+            // 추가 사용자 있을 시 사용자 타입확인 필요 - ex) 클라이언트 사용자 또는 관리자 (userType: 4) 구분 시(현재 구분않음)
             // if (userType === 1) {
             //     tableName = 'consultant_user_and_company';
             //     userIdColumn = 'consultant_user_id';
             //     companyIdColumn = 'consulting_company_id';
-            // } else if (userType === 4) {
+            // } else {
+            //     //userType === 4)
             //     tableName = 'client_user_and_company';
             //     userIdColumn = 'client_user_id';
             //     companyIdColumn = 'client_company_id';
-            // } else {
-            //     return new Exception('사용자 타입오류');
             // }
 
             // 사용자-기업 연결 상태 업데이트
@@ -537,20 +550,16 @@ module.exports = class {
             // 사용자-기업 연결 정보 가져오기
             sql = `SELECT consultant_user_id ,belonging_type FROM consultant_user_and_company WHERE consulting_company_id = ? AND consultant_user_id = ?`;
             arg = [companyId, email];
-            let result = await conn.query(sql, arg);
-            // console.log('11111 : ', result);
-            if (result[0][0].length === 0) {
-                throw new Error('소속 기업이 없는 사용자 입니다.');
-            }
+            let relataionInfoResult = await conn.query(sql, arg);
 
-            return result[0][0];
+            result = relataionInfoResult[0][0];
+            return result;
         } catch (error) {
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -616,16 +625,15 @@ module.exports = class {
             await connection.commit();
             console.log('success! 회원탈퇴처리완료!!');
 
-            return result;
+            return;
         } catch (error) {
             console.log('fail!');
             connection.rollback();
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -659,16 +667,15 @@ module.exports = class {
             }
             sql = `DELETE FROM ${tableName} WHERE ${userIdColumn} = ? AND ${companyIdColumn} = ?`;
             arg = [email, companyId];
-            result = await conn.query(sql, arg);
+            await conn.query(sql, arg);
 
-            return result[0][0];
+            return;
         } catch (error) {
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -698,12 +705,11 @@ module.exports = class {
 
             return result[0];
         } catch (error) {
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -711,7 +717,8 @@ module.exports = class {
     }
     // 기업 정보 가져오기
     async getCompanyInfo({ userType, companyId }) {
-        let result, sql, arg;
+        let result;
+        let sql, arg;
         let tableName, idColumn;
         console.log(
             ' 요청 > DB > getCompanyInfo > 기업 정보 가져오기 -------------------!! : ',
@@ -729,17 +736,17 @@ module.exports = class {
             }
             sql = `SELECT * FROM ${tableName} WHERE ${idColumn} = ?`;
             arg = [companyId];
-            result = await conn.query(sql, arg);
-            console.log('응답 > DB > getCompanyInfo : ', result);
+            let companyInfoResults = await conn.query(sql, arg);
+            console.log('응답 > DB > getCompanyInfo : ', companyInfoResults);
 
-            return result[0][0];
+            result = companyInfoResults[0][0];
+            return result;
         } catch (error) {
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -783,12 +790,11 @@ module.exports = class {
 
             return result;
         } catch (error) {
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -802,7 +808,8 @@ module.exports = class {
         email,
         belongingType,
     }) {
-        let result, sql, arg;
+        let result;
+        let sql, arg;
         let tableName, userIdColumn, companyIdColumn;
         console.log(
             '요청 > DB > Query >  updateBelongingStatus : ',
@@ -829,20 +836,22 @@ module.exports = class {
             // 사용자 정보 가져오기
             sql = `SELECT ${userIdColumn},belonging_type FROM ${tableName} WHERE ${companyIdColumn} = ? AND ${userIdColumn}= ?`;
             arg = [companyId, email];
-            result = await conn.query(sql, arg);
+            let belongingInfoResults = await conn.query(sql, arg);
             // if (result[0].length === 0) {
             //     throw new Error('소속 기업이 없는 사용자 입니다.');
             // } // usecase에서 예외처리
-            console.log('응답 > DB > updateRegistrationStatus : ', result);
-
-            return result[0][0];
+            console.log(
+                '응답 > DB > updateRegistrationStatus : ',
+                belongingInfoResults
+            );
+            result = belongingInfoResults[0];
+            return result;
         } catch (error) {
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -1029,15 +1038,15 @@ module.exports = class {
 
             await conn.commit();
             console.log('개인 컨설턴트 프로필 등록 성공!!');
+            return;
         } catch (error) {
             console.log('fail!', error);
             await conn.rollback();
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -1102,15 +1111,15 @@ module.exports = class {
 
             console.log('기업 프로필 저장 성공!!');
             await conn.commit();
+            return;
         } catch (error) {
             console.log('fail!!');
             await conn.rollback();
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -1154,15 +1163,15 @@ module.exports = class {
 
             console.log('클라이언트 인증요청 성공!!');
             await conn.commit();
+            return;
         } catch (error) {
             console.log('fail!!');
             await conn.rollback();
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -1324,15 +1333,15 @@ module.exports = class {
             }
             await conn.commit();
             console.log('임시저장 데이터 생성 성공!!');
+            return;
         } catch (error) {
             console.log('fail!', error);
             await conn.rollback();
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -1401,13 +1410,8 @@ module.exports = class {
         } catch (error) {
             console.log('fail!!');
             await conn.rollback();
-            throw new DatabaseError(
-                error.code,
-                error.errno,
-                error.message,
-                error.stack,
-                error.sql
-            );
+            console.log('DB에러 : ', error);
+            throw new DatabaseError('시험 정보 생성 실패');
         } finally {
             conn.release();
         }
@@ -1437,17 +1441,17 @@ module.exports = class {
                 idColumn = 'consulting_company_id';
                 arg = [companyId];
             }
-            sql = `SELECT * FROM ${tableName} WHERE ${idColumn} = ?`;
-            result = await conn.query(sql, arg);
-            // console.log('#####################', result);
-            return result[0];
+            sql = `SELECT EXISTS (SELECT * FROM ${tableName} WHERE ${idColumn} = ?) AS isExist`;
+            let profileTempExist = await conn.query(sql, arg);
+
+            result = profileTempExist[0][0].isExist;
+            return result;
         } catch (error) {
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -1680,12 +1684,11 @@ module.exports = class {
             result = consultantProfileInfo;
             return result;
         } catch (error) {
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -1755,12 +1758,11 @@ module.exports = class {
 
             return result;
         } catch (error) {
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -1998,12 +2000,11 @@ module.exports = class {
 
             return result;
         } catch (error) {
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -2066,16 +2067,16 @@ module.exports = class {
                 );
             }
             consultingCompanyProfileTempInfo.projectHistoty = consultingCompanyProjectHistoryTemp;
+
             result = consultingCompanyProfileTempInfo;
 
             return result;
         } catch (error) {
+            console.error('DB에러 : ', error);
             throw new DatabaseError(
-                error.code,
-                error.errno,
                 error.message,
-                error.stack,
-                error.sql
+                error.errno,
+                error.sqlMessage
             );
         } finally {
             conn.release();
@@ -2084,23 +2085,28 @@ module.exports = class {
 
     // 프로필 임시저장 정보 삭제 : 다른 함수에 참조될 때는 트랜잭션이 걸리지 않음!!
     async deleteProfileTemp({ email, userType }) {
+        let result;
         let sql, arg;
         console.log('--------------', userType);
         const conn = await pool.getConnection();
         try {
             await conn.beginTransaction();
             if (userType === 1) {
-                sql = `SELECT EXISTS (SELECT * FROM consultant_profile_temp WHERE consultant_user_id = ?) AS profileTempExist`;
+                sql = `SELECT EXISTS (SELECT * FROM consultant_profile_temp WHERE consultant_user_id = ?) AS isExist`;
             } else {
-                sql = `SELECT EXISTS (SELECT * FROM consulting_company_profile_temp WHERE consulting_company_id = (SELECT consulting_company_id FROM consultant_user_and_company WHERE consultant_user_id = ?)) AS profileTempExist`;
+                sql = `SELECT EXISTS (SELECT * FROM consulting_company_profile_temp WHERE consulting_company_id = (SELECT consulting_company_id FROM consultant_user_and_company WHERE consultant_user_id = ?)) AS isExist`;
             }
             arg = [email];
             let profileTempResults = await conn.query(sql, arg);
-            let profileTempExist = profileTempResults[0][0].profileTempExist;
+            let profileTempExist = profileTempResults[0][0].isExist;
             console.log('-------------존재여부 결과 확인', profileTempExist);
-            if (profileTempExist === 1) {
-                if (userType === 1) {
-                    sql = `DELETE FROM a, b, c, d, e, f, g, h, i, j
+            if (profileTempExist === 0) {
+                result = profileTempExist;
+                return result;
+            }
+            // profileTempExist === 1
+            if (userType === 1) {
+                sql = `DELETE FROM a, b, c, d, e, f, g, h, i, j
                         USING consultant_profile_temp AS a
                         LEFT JOIN temp_profile_ability_certifications AS b
                         ON a.consultant_profile_temp_id = b.consultant_profile_temp_id
@@ -2121,28 +2127,23 @@ module.exports = class {
                         LEFT JOIN temp_upload_files AS j
                         ON a.consultant_profile_temp_id = j.consultant_profile_temp_id
                         WHERE a.consultant_user_id = ?`;
-                } else {
-                    // userType === 2
-                    sql = `DELETE FROM a, b
+            } else {
+                // userType === 2
+                sql = `DELETE FROM a, b
                         USING consulting_company_profile_temp AS a LEFT JOIN temp_consulting_company_profile_project_history AS b
                         ON a.consulting_company_profile_temp_id = b.consulting_company_profile_temp_id
                         WHERE a.consulting_company_id = (SELECT consulting_company_id FROM consultant_user_and_company WHERE consultant_user_id = ?)`;
-                }
-                arg = [email];
-                await conn.query(sql, arg);
-                console.log('success!!');
-                await conn.commit();
             }
+            arg = [email];
+            await conn.query(sql, arg);
+            console.log('success!!');
+            await conn.commit();
+            return;
         } catch (error) {
             console.log('fail!!');
             await conn.rollback();
-            throw new DatabaseError(
-                error.code,
-                error.errno,
-                error.message,
-                error.stack,
-                error.sql
-            );
+            console.log('DB에러 : ', error);
+            throw new DatabaseError('시험 정보 생성 실패');
         } finally {
             conn.release();
         }

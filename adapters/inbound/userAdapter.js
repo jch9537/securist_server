@@ -16,7 +16,6 @@ const {
 
 const { repository } = require('../outbound');
 const authAdapter = require('./authAdapter');
-const { Exception } = require('../exceptions');
 
 module.exports = {
     // 사용자-기업 연결 정보 생성
@@ -115,31 +114,31 @@ module.exports = {
             throw error;
         }
     },
-    // 사용자 비밀번호 수정
-    async changePassword(token, updatePasswordData) {
-        console.log(
-            '요청 > adapters > inbound > userAdaptor > changePassword - userParam : ',
-            token,
-            updatePasswordData
-        );
-        try {
-            let result = await authAdapter.changePassword(
-                token,
-                updatePasswordData
-            );
-            console.log(
-                '응답 > adapters > inbound > userAdaptor > changePassword - result : ',
-                result
-            );
-            return result;
-        } catch (error) {
-            console.log(
-                '에러 응답 > adapters > inbound > userAdaptor > changePassword - result : ',
-                error
-            );
-            throw error;
-        }
-    },
+    // // 사용자 비밀번호 수정
+    // async changePassword(token, updatePasswordData) {
+    //     console.log(
+    //         '요청 > adapters > inbound > userAdaptor > changePassword - userParam : ',
+    //         token,
+    //         updatePasswordData
+    //     );
+    //     try {
+    //         let result = await authAdapter.changePassword(
+    //             token,
+    //             updatePasswordData
+    //         );
+    //         console.log(
+    //             '응답 > adapters > inbound > userAdaptor > changePassword - result : ',
+    //             result
+    //         );
+    //         return result;
+    //     } catch (error) {
+    //         console.log(
+    //             '에러 응답 > adapters > inbound > userAdaptor > changePassword - result : ',
+    //             error
+    //         );
+    //         throw error;
+    //     }
+    // },
     // 사용자 정보 변경 - 공통 : 연락처
     async updatePhoneNum(userData, updateData) {
         console.log(
@@ -195,33 +194,34 @@ module.exports = {
             updateData
         );
         try {
-            // userData.userType = 1; //테스트용
-            if (userData.userType === 1) {
-                updateStatusData = {
-                    userType: userData.userType,
-                    companyId: updateData.companyId,
-                    email: userData.email,
-                    // email: 'mg.sun@aegisecu.com', //테스트용
-                    belongingType: updateData.belongingType,
-                };
-            } else {
-                // if (userData.userType === 3) {
-                //     companyIdColumn = 'client_company_id';
-                // } else if (userData.userType === 2) {
-                //     companyIdColumn = 'consulting_company_id';
-                // }
-                // let companyInfo = await userAdapter.getUserBelongingCompanyInfo(
-                //     userData
-                // );
-                // let companyId = companyInfo[companyIdColumn];
-                // updateStatusData = {
-                //     userType: userData.userType,
-                //     companyId: companyId,
-                //     email: updateData.userId,
-                //     belongingType: updateData.belongingType,
-                // };
-                throw new Exception('사용자 타입 오류');
-            }
+            // -------------주석 코드 usecase로 이동--------------------------
+            //    // userData.userType = 1; //테스트용
+            //    if (userData.userType === 1) {
+            //     updateStatusData = {
+            //         userType: userData.userType,
+            //         companyId: updateData.companyId,
+            //         email: userData.email,
+            //         // email: 'mg.sun@aegisecu.com', //테스트용
+            //         belongingType: updateData.belongingType,
+            //     };
+            // } else {
+            //     // if (userData.userType === 3) {
+            //     //     companyIdColumn = 'client_company_id';
+            //     // } else if (userData.userType === 2) {
+            //     //     companyIdColumn = 'consulting_company_id';
+            //     // }
+            //     // let companyInfo = await userAdapter.getUserBelongingCompanyInfo(
+            //     //     userData
+            //     // );
+            //     // let companyId = companyInfo[companyIdColumn];
+            //     // updateStatusData = {
+            //     //     userType: userData.userType,
+            //     //     companyId: companyId,
+            //     //     email: updateData.userId,
+            //     //     belongingType: updateData.belongingType,
+            //     // };
+            //     throw new UserTypeException('사용자');
+            // }
 
             let updateBelongingStatus = new UpdateUserBelongingStatus(
                 repository

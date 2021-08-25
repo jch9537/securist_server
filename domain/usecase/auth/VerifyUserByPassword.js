@@ -2,19 +2,25 @@
 const { UserEntity } = require('../../entities');
 
 module.exports = class {
-    constructor(Auth) {
-        this.Auth = Auth;
+    constructor(auth) {
+        this.auth = auth;
     }
     async excute(verifyData) {
-        let result;
+        let result, response;
         try {
             let userEntity = new UserEntity(verifyData);
-            console.log('사용자 비번인증---------- : ', userEntity);
-            // userEntity.email = email;
-            result = await this.Auth.verifyUserByPassword(userEntity);
-            // console.log('결과----------------', result);
+            response = await this.auth.verifyUserByPassword(userEntity);
+
+            result = {
+                message: '비밀번호 확인 완료',
+                data: response,
+            };
         } catch (error) {
-            // console.log('에러 ----------------', error);
+            console.error(error);
+            // if (!error.authServiceErrorName) {
+            //     error.message = '비밀번호 확인 실패';
+            // }
+            error.message = '비밀번호 확인 실패';
             throw error;
         }
         return result;

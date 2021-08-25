@@ -6,23 +6,28 @@ module.exports = class {
         this.profileRepository = profileRepository;
     }
     async excute(userData, tempData, uploadData) {
+        let result, response;
         try {
             if (userData.userType !== 2) {
                 throw new UserTypeException('사용자 타입');
             }
             let profileEntity = new ProfileEntity(tempData);
-            // let createProfileTempEntity = tempData; // 유효성 확인 추가!!!
             profileEntity.email = userData.email;
             profileEntity.userType = userData.userType;
 
-            let result = await this.profileRepository.createConsultingCompanyProfileTemp(
+            await this.profileRepository.createConsultingCompanyProfileTemp(
                 profileEntity,
                 uploadData
             );
+
+            result = {
+                message: '기업 프로필 임시 저장 완료',
+            };
             // console.log('결과----------------', result);
             return result;
         } catch (error) {
-            // console.log('에러 ----------------', error);
+            console.error(error);
+            error.message = '기업 프로필 임시 저장 실패';
             throw error;
         }
     }

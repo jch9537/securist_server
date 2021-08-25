@@ -5,23 +5,28 @@ module.exports = class {
         this.profileRepository = profileRepository;
     }
     async excute(userData, profileData, uploadData) {
+        let result, response;
         try {
             if (userData.userType !== 2) {
                 throw new UserTypeException('사용자 타입');
             }
             let profileEntity = new ProfileEntity(profileData);
-            // let createProfileTempEntity = profileData; // 유효성 확인 추가!!!
             profileEntity.email = userData.email;
             profileEntity.userType = userData.userType;
 
-            let result = await this.profileRepository.createConsultingCompanyProfile(
+            await this.profileRepository.createConsultingCompanyProfile(
                 profileEntity,
                 uploadData
             );
+
+            result = {
+                message: '기업 프로필 등록 완료',
+            };
             // console.log('결과----------------', result);
             return result;
         } catch (error) {
-            // console.log('에러 ----------------', error);
+            console.error(error);
+            error.message = '기업 프로필 등록 실패';
             throw error;
         }
     }

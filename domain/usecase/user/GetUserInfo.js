@@ -4,14 +4,22 @@ module.exports = class {
         this.userRepository = userRepository;
     }
     async excute(userData) {
+        let result, response;
         try {
-            let result = await this.userRepository.getUserInfo(userData);
+            response = await this.userRepository.getUserInfo(userData);
 
-            if (result === undefined) {
-                throw new NoContent('사용자 정보가');
+            if (response === undefined) {
+                throw new NoContent('사용자 정보');
             }
+
+            result = {
+                message: '사용자 정보 가져오기 완료',
+                data: response,
+            };
             return result;
         } catch (error) {
+            console.error(error);
+            error.message = '사용자 정보 가져오기 실패';
             throw error;
         }
     }
