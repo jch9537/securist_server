@@ -22,10 +22,11 @@ const { verifyToken } = require('../modules/serviceAuthentication');
 
 // --------------- 각 서버 cognito publice 키 제공 API ------------------------
 
-router.get('/publickey/:serviceType', verifyToken, async (req, res, next) => {
+router.get('/publickey', async (req, res, next) => {
     let result, response;
     try {
         result = await processingToken.getPublicKeys();
+        console.log('결과 ', result);
 
         response = new SuccessResponse('퍼블릭 키 발급 완료', result);
         res.status(200).send(response);
@@ -54,16 +55,16 @@ router.post('/issuetoken', async (req, res, next) => {
     }
 });
 // 각 서비스 인증 : 토큰 확인
-router.get('/verify/:serviceType', async (req, res, next) => {
+router.get('/verify', async (req, res, next) => {
     let result, response;
     try {
-        // let reqToken = req.token; // 테스트 후 미들웨어와 함께 삭제
-        let reqParamData = req.params;
         let reqToken = req.filteredToken; // 테스트 후 살리기
-        reqParamData.serviceToken = reqToken;
-        console.log('reqParamData', req.params, 'reqToken', req.filteredToken);
+        // let reqToken = req.token; // 테스트 후 미들웨어와 함께 삭제
+        // let reqParamData = req.params;
+        // reqParamData.serviceToken = reqToken;
+        // console.log('reqParamData', req.params, 'reqToken', req.filteredToken);
 
-        result = await serviceAuthAdapter.verifyToken(reqParamData);
+        result = await serviceAuthAdapter.verifyToken(reqToken);
 
         // result = req.verifyToken;
         response = new SuccessResponse(result.message, result.data);

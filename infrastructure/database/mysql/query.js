@@ -737,7 +737,7 @@ module.exports = class {
             sql = `SELECT * FROM ${tableName} WHERE ${idColumn} = ?`;
             arg = [companyId];
             let companyInfoResults = await conn.query(sql, arg);
-            console.log('응답 > DB > getCompanyInfo : ', companyInfoResults);
+            // console.log('응답 > DB > getCompanyInfo : ', companyInfoResults);
 
             result = companyInfoResults[0][0];
             return result;

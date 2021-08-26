@@ -11,20 +11,20 @@ const getRedis = promisify(redisClient.get).bind(redisClient);
 const setRedis = promisify(redisClient.set).bind(redisClient);
 
 module.exports = {
-    async getToken(tokenKey) {
+    async getToken(key) {
         try {
             // 토큰 가져오기
-            let token = await getRedis(tokenKey);
+            let token = await getRedis(key);
             return token;
         } catch (error) {
             throw error;
             // throw new ServiceAuthenticationError(error.message, error.name);
         }
     },
-    async setToken({ tokenKey, token }) {
+    async setToken({ key, value }) {
         try {
             // 토큰 저장
-            await setRedis(tokenKey, token);
+            await setRedis(key, value);
             return;
         } catch (error) {
             throw error;
