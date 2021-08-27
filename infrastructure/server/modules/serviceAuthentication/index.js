@@ -1,6 +1,3 @@
-const projectServiceUrl = 'http://localhost:5000/api';
-const adminServiceUrl = 'http://localhost:5500/api';
-
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
 
@@ -13,24 +10,144 @@ const {
 } = require('../../../../domain/exceptions');
 
 module.exports = {
+    //   //---------------------- 각 서비스에서 받은 요청 처리 ----------------------------
+
+    // // 각 서비스 확인 (서비스별 로그인) > 토큰 발급
+    async issueToken(req, res, next) {
+        let result;
+        let reqBodyData = req.filteredBody;
+        let storeTokenData = {};
+        console.log('토큰 요청정보', reqBodyData);
+        let { serviceType, serviceName, servicePassword } = reqBodyData;
+        try {
+            // 서비스 종류 및 인증 확인
+            if (
+                serviceType === process.env.ADMIN_SERVICE_TYPE &&
+                serviceName === process.env.ADMIN_SERVICE_NAME &&
+                servicePassword === process.env.ADMIN_SERVICE_PASSWORD
+            ) {
+                storeTokenData.key = process.env.USER_TOKEN_KEY_ADMIN;
+            } else if (
+                serviceType === process.env.PROJECT_SERVICE_TYPE &&
+                serviceName === process.env.PROJECT_SERVICE_NAME &&
+                servicePassword === process.env.PROJECT_SERVICE_PASSWORD
+            ) {
+                storeTokenData.key = process.env.USER_TOKEN_KEY_PROJECT;
+            } else {
+                throw new AuthorizationException('서비스');
+            }
+            // 토큰 생성
+            let token = jwt.sign(
+                {
+                    serviceName: serviceName,
+                    serviceType: serviceType,
+                },
+                process.env.USER_SECRET_KEY,
+                {
+                    subject: 'jwtUserToken',
+                    expiresIn: '5000ms',
+                    issuer: 'user_service',
+                }
+            );
+            storeTokenData.value = token;
+
+            // 토큰 저장
+            await setToken(storeTokenData);
+
+            if (serviceType === 'admin') {
+                console.log('어드민 서비스 요청 > 유저 서비스 토큰 발급 완료');
+            } else {
+                //serviceType === 'project'
+                console.log(
+                    '프로젝트 서비스 요청 > 유저 서비스 토큰 발급 완료'
+                );
+            }
+
+            result = {
+                message: '토큰 발급 완료',
+                data: { token: token },
+            };
+            req.serviceAuth = result;
+
+            next();
+        } catch (error) {
+            console.error(error);
+            next(error);
+        }
+    },
+    // // 토큰 확인
+    async verifyToken(req, res, next) {
+        let result;
+        // let tokenKey, currentToken;
+        // // console.log('요청', req);
+        // let reqParamData = req.params;
+        // let { serviceType } = reqParamData;
+        let serviceToken = req.token;
+        console.log('서비스 토큰 도착 ', serviceToken);
+
+        try {
+            //     if (serviceType === 'admin') {
+            //         // 어드민 서비스 요청
+            //         tokenKey = process.env.USER_TOKEN_KEY_ADMIN;
+            //         currentToken = await getToken(tokenKey);
+            //     } else if (serviceType === 'project') {
+            //         // 프로젝트 서비스 요청
+            //         tokenKey = process.env.USER_TOKEN_KEY_PROJECT;
+            //         currentToken = await getToken(tokenKey);
+            //     } else {
+            //         throw new TypeException('서비스 타입');
+            //     }
+            //     // 토큰 확인
+            //     console.log('서비스 토큰 ', serviceToken);
+            //     console.log('현재 토큰 ', currentToken);
+            //     if (serviceToken !== currentToken) {
+            //         throw new AuthorizationException('서비스');
+            //     }
+            //     console.log('토큰 확인 완료');
+
+            //     result = {
+            //         message: '토큰 확인 완료',
+            //         data: jwt.verify(serviceToken, process.env.USER_SECRET_KEY),
+            //     };
+            let mySecretKey = process.env.USER_SECRET_KEY;
+            let verifyDataByServiceToken = jwt.verify(
+                serviceToken,
+                mySecretKey
+            );
+            console.log('토큰 확인 디코드 후 정보: ', verifyDataByServiceToken);
+
+            result = {
+                message: '토큰 확인 완료',
+                data: verifyDataByServiceToken,
+            };
+
+            req.verifyToken = result;
+            next();
+        } catch (error) {
+            console.error(error);
+            next(error);
+        }
+    },
+    // access token이 만료되었을 때 refresh token으로 갱신 처리
+    async renewToken() {},
+
     //------------------------ 프로젝트 서비스 요청/확인 ---------------------------
 
-    async issueTokenByProjectService(req, res, next) {
+    async issueTokenFromProjectService(req, res, next) {
         let result, response;
         let serviceType = process.env.USER_SERVICE_TYPE;
         let serviceName = process.env.USER_SERVICE_NAME;
         let servicePassword = process.env.USER_SERVICE_PASSWORD;
 
         try {
-            response = await axios({
-                url: `${projectServiceUrl}/service/issuetoken`,
-                method: 'post',
-                data: {
+            response = await axios.post(
+                `${process.env.PROJECT_SERVICE_URL}/service/issuetoken`,
+                {
                     serviceName: serviceName,
                     serviceType: serviceType,
                     servicePassword: servicePassword,
-                },
-            });
+                }
+            );
             console.log(
                 '유저 서비스 : 프로젝트 서비스 토큰 받음 : ',
                 response.data
@@ -55,7 +172,7 @@ module.exports = {
             next(err);
         }
     },
-    async verifyTokenByProjectService(req, res, next) {
+    async verifyProjectServiceToken(req, res, next) {
         let result, response;
         try {
             // 토큰 가져오기
@@ -65,7 +182,7 @@ module.exports = {
 
             // // 프로젝트 서버요청
             // response = await axios({
-            //     url: `${projectServiceUrl}/service/verify/user`,
+            //     url: `${process.env.PROJECT_SERVICE_URL}/service/verify/user`,
             //     method: 'get',
             //     headers: { Authorization: myToken },
             // });
@@ -106,9 +223,8 @@ module.exports = {
 
             if (error.message === 'jwt expired') {
                 // err.errData = {isAuthorization: false} // 필요하면 추가
-                await serviceAuthAdapter.issueTokenByProjectService();
-                await serviceAuthAdapter.verifyTokenByProjectService();
-                console.log('프로젝트 서비스 유저 토큰 재인증 완료 : ');
+                await serviceAuthAdapter.issueTokenFromProjectService();
+                console.log('프로젝트 서비스 유저 토큰 재발급 완료 : ');
 
                 next();
             } else {
@@ -119,7 +235,7 @@ module.exports = {
 
     //------------------------ 어드민 서비스 인증 요청/확인 --------------------------
 
-    async issueTokenByAdminService(req, res, next) {
+    async issueTokenFromAdminService(req, res, next) {
         let result, response;
         let serviceType = process.env.USER_SERVICE_TYPE;
         let serviceName = process.env.USER_SERVICE_NAME;
@@ -127,7 +243,7 @@ module.exports = {
 
         try {
             response = await axios.post(
-                `${adminServiceUrl}/service/issuetoken`,
+                `${process.env.ADMIN_SERVICE_URL}/service/issuetoken`,
                 {
                     serviceName: serviceName,
                     serviceType: serviceType,
@@ -158,7 +274,7 @@ module.exports = {
             next(err);
         }
     },
-    async verifyTokenByAdminService(req, res, next) {
+    async verifyAdminServiceToken(req, res, next) {
         let result, response;
         try {
             // 토큰 가져오기
@@ -168,7 +284,7 @@ module.exports = {
 
             // // 어드민 서버요청
             // response = await axios({
-            //     url: `${adminServiceUrl}/service/verify/project`,
+            //     url: `${process.env.ADMIN_SERVICE_URL}/service/verify/project`,
             //     method: 'get',
             //     headers: { Authorization: myToken },
             // });
@@ -209,9 +325,8 @@ module.exports = {
 
             if (error.message === 'jwt expired') {
                 // err.errData = {isAuthorization: false} // 필요하면 추가
-                await serviceAuthAdapter.issueTokenByAdminService();
-                await serviceAuthAdapter.verifyTokenByAdminService();
-                console.log('어드민 서비스 유저 토큰 재인증 완료 : ');
+                await serviceAuthAdapter.issueTokenFromAdminService();
+                console.log('어드민 서비스 유저 토큰 재발급 완료 : ');
 
                 next();
             } else {

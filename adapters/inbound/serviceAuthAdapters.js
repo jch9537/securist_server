@@ -1,6 +1,3 @@
-const adminServiceUrl = 'http://localhost:5500/api/service';
-const projectServiceUrl = 'http://localhost:5000/api/service';
-
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
 
@@ -122,7 +119,7 @@ module.exports = {
 
     //-------------------------------요청보냄-----------------------------------
 
-    async issueTokenByAdminService() {
+    async issueTokenFromAdminService() {
         let result, response;
 
         let serviceType = process.env.USER_SERVICE_TYPE;
@@ -130,11 +127,14 @@ module.exports = {
         let servicePassword = process.env.USER_SERVICE_PASSWORD;
 
         try {
-            response = await axios.post(`${adminServiceUrl}/issuetoken`, {
-                serviceName: serviceName,
-                serviceType: serviceType,
-                servicePassword: servicePassword,
-            });
+            response = await axios.post(
+                `${process.env.ADMIN_SERVICE_URL}/issuetoken`,
+                {
+                    serviceName: serviceName,
+                    serviceType: serviceType,
+                    servicePassword: servicePassword,
+                }
+            );
             console.log(
                 '유저 서비스 : 어드민 서비스 토큰 받음 : ',
                 response.data
@@ -158,7 +158,7 @@ module.exports = {
             throw err;
         }
     },
-    async verifyTokenByAdminService() {
+    async verifyAdminServiceToken() {
         let result, response;
         try {
             // 토큰 가져오기
@@ -168,7 +168,7 @@ module.exports = {
 
             // // 어드민 서버요청
             // response = await axios({
-            //     url: `${adminServiceUrl}/verify/user`,
+            //     url: `${process.env.ADMIN_SERVICE_URL}/verify/user`,
             //     method: 'get',
             //     headers: { Authorization: myToken },
             // });
@@ -213,26 +213,29 @@ module.exports = {
 
             if (error.message === 'jwt expired') {
                 // err.errData = {isAuthorization: false} // 필요하면 추가
-                await this.issueTokenByAdminService();
-                await this.verifyTokenByAdminService();
+                await this.issueTokenFromAdminService();
+                await this.verifyAdminServiceToken();
                 console.log('어드민 서비스 프로젝트 토큰 재인증 완료 : ');
             } else {
                 throw error;
             }
         }
     },
-    async issueTokenByProjectService() {
+    async issueTokenFromProjectService() {
         let result, response;
         let serviceType = process.env.USER_SERVICE_TYPE;
         let serviceName = process.env.USER_SERVICE_NAME;
         let servicePassword = process.env.USER_SERVICE_PASSWORD;
 
         try {
-            response = await axios.post(`${projectServiceUrl}/issuetoken`, {
-                serviceName: serviceName,
-                serviceType: serviceType,
-                servicePassword: servicePassword,
-            });
+            response = await axios.post(
+                `${process.env.PROJECT_SERVICE_URL}/issuetoken`,
+                {
+                    serviceName: serviceName,
+                    serviceType: serviceType,
+                    servicePassword: servicePassword,
+                }
+            );
             console.log(
                 '유저 서비스 : 프로젝트 서비스 토큰 받음 ',
                 response.data
@@ -256,7 +259,7 @@ module.exports = {
             throw err;
         }
     },
-    async verifyTokenByProjectService() {
+    async verifyProjectServiceToken() {
         let result, response;
         try {
             // 토큰 가져오기
@@ -267,7 +270,7 @@ module.exports = {
 
             // // 프로젝트 서버 요청
             // response = await axios({
-            //     url: `${projectServiceUrl}/verify/user`,
+            //     url: `${process.env.PROJECT_SERVICE_URL}/verify/user`,
             //     method: 'get',
             //     headers: { Authorization: myToken },
             // });
@@ -312,8 +315,8 @@ module.exports = {
 
             if (error.message === 'jwt expired') {
                 // err.errData = {isAuthorization: false} // 필요하면 추가
-                await this.issueTokenByProjectService();
-                await this.verifyTokenByProjectService();
+                await this.issueTokenFromProjectService();
+                await this.verifyProjectServiceToken();
                 console.log('프로젝트 서비스 프로젝트 토큰 재인증 완료 : ');
             } else {
                 throw error;
@@ -323,7 +326,7 @@ module.exports = {
     // -------------------------프로젝트 요청----------------------------------
 
     //-------------------------------------------------------------------------
-    // async issueTokenByAdminService() {
+    // async issueTokenFromAdminService() {
     //     let result;
     //     try {
     //         let currentServiceData = {
@@ -331,7 +334,7 @@ module.exports = {
     //             serviceName: process.env.USER_SERVICE_NAME,
     //             servicePassword: process.env.USER_SERVICE_PASSWORD,
     //         };
-    //         result = await serviceRepository.issueTokenByAdminService(
+    //         result = await serviceRepository.issueTokenFromAdminService(
     //             currentServiceData
     //         );
     //         return result;
@@ -339,17 +342,17 @@ module.exports = {
     //         throw error;
     //     }
     // },
-    // async verifyTokenByAdminService() {
+    // async verifyAdminServiceToken() {
     //     let result;
     //     try {
-    //         result = await serviceRepository.verifyTokenByAdminService();
+    //         result = await serviceRepository.verifyAdminServiceToken();
     //         return result;
     //     } catch (error) {
     //         console.log('에러~~~~~~~~~~ : ', error);
     //         throw error;
     //     }
     // },
-    // async issueTokenByProjectService() {
+    // async issueTokenFromProjectService() {
     //     let result;
     //     try {
     //         let currentServiceData = {
@@ -357,7 +360,7 @@ module.exports = {
     //             serviceName: process.env.USER_SERVICE_NAME,
     //             servicePassword: process.env.USER_SERVICE_PASSWORD,
     //         };
-    //         result = await serviceRepository.issueTokenByProjectService(
+    //         result = await serviceRepository.issueTokenFromProjectService(
     //             currentServiceData
     //         );
     //         return result;
@@ -365,10 +368,10 @@ module.exports = {
     //         throw error;
     //     }
     // },
-    // async verifyTokenByProjectService() {
+    // async verifyProjectServiceToken() {
     //     let result;
     //     try {
-    //         result = await serviceRepository.verifyTokenByProjectService();
+    //         result = await serviceRepository.verifyProjectServiceToken();
     //         return result;
     //     } catch (error) {
     //         throw error;

@@ -2,7 +2,7 @@
 const { TokenError } = require('../../response');
 
 module.exports = (req, res, next) => {
-    // console.log('-------------------headers', req.filteredToken);
+    console.log('-------------------headers', req.filteredToken);
     try {
         if (!req.filteredToken) {
             // query 와 path 파라미터 모두 없는 경우 : 둘 중 하나가 있는 경우는 next()로 넘김
