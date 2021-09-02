@@ -8,7 +8,7 @@ const app = express();
 const port = process.env.SERVER_PORT || 3000;
 
 const cors = require('cors');
-const sanitizer = require('../server/modules/sanitizer');
+const { sanitizer } = require('../server/middlewares');
 const routes = require('./routes');
 
 const { ErrorResponse } = require('../response');

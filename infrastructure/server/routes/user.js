@@ -5,8 +5,7 @@ const router = express.Router();
 const { userAdapter } = require('../../../adapters/inbound');
 const { SuccessResponse, ErrorResponse } = require('../../response');
 
-const extractToken = require('../modules/extractToken');
-const decryptIdToken = require('../modules/decryptIdToken');
+const { extractToken, decryptIdToken } = require('../middlewares');
 
 router.use(extractToken);
 

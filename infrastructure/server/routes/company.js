@@ -4,8 +4,7 @@ const router = express.Router();
 const { companyAdapter } = require('../../../adapters/inbound');
 const { SuccessResponse, ErrorResponse } = require('../../response');
 
-const extractToken = require('../modules/extractToken');
-const decryptIdToken = require('../modules/decryptIdToken');
+const { extractToken, decryptIdToken } = require('../middlewares');
 
 router.use(extractToken);
 router.use(decryptIdToken);

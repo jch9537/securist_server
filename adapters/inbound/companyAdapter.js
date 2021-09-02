@@ -1,5 +1,5 @@
 const { repository } = require('../outbound');
-const userAdapter = require('./userAdapter');
+const userAdapter = require('./UserAdapter');
 const {
     GetCompanyInfo,
     GetCompanyList,
@@ -7,7 +7,11 @@ const {
     UpdateRegistrationStatus,
 } = require('../../domain/usecase/company');
 
-module.exports = {
+module.exports = class CompanyAdapter {
+    constructor(projectService, adminService) {
+        this.projectService = projectService;
+        this.adminService = adminService;
+    }
     // 기업 리스트 가져오기 : 기업(클/컨) 공통
     async getCompanyList(userData) {
         try {
@@ -25,7 +29,7 @@ module.exports = {
             );
             throw error;
         }
-    },
+    }
     async getCompanyInfo(userData, companyData) {
         try {
             let getCompanyInfo = new GetCompanyInfo(repository);
@@ -42,7 +46,7 @@ module.exports = {
             );
             throw error;
         }
-    },
+    }
     // 기업 내 소속 사용자 정보 가져오기 : 기업(클/컨) 공통
     async getCompanyBelongedUsersInfo(userData, companyData) {
         try {
@@ -65,7 +69,7 @@ module.exports = {
             );
             throw error;
         }
-    },
+    }
     // 기업-사용자 소속상태 변경 처리 : 기업, 사용자 공통
     async updateRegistrationStatus(userData, updateData) {
         let result, updateStatusData, companyIdColumn;
@@ -123,5 +127,5 @@ module.exports = {
             );
             throw error;
         }
-    },
+    }
 };

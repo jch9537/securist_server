@@ -15,9 +15,13 @@ const {
 } = require('../../domain/usecase/user');
 
 const { repository } = require('../outbound');
-const authAdapter = require('./authAdapter');
+const authAdapter = require('./AuthAdapter');
 
-module.exports = {
+module.exports = class UserAdapter {
+    constructor(projectService, adminService) {
+        this.projectService = projectService;
+        this.adminService = adminService;
+    }
     // 사용자-기업 연결 정보 생성
     async createUserAndCompanyRelation(userData, companyData) {
         console.log(
@@ -45,7 +49,7 @@ module.exports = {
             );
             throw error;
         }
-    },
+    }
     // 사용자 DB 정보 가져오기
     async getUserInfo(userData) {
         console.log(
@@ -67,7 +71,7 @@ module.exports = {
             );
             throw error;
         }
-    },
+    }
     // 사용자-기업 연결정보 가져오기
     async getRelationInfo(userData) {
         console.log(
@@ -89,7 +93,7 @@ module.exports = {
             );
             throw error;
         }
-    },
+    }
     // 사용자 소속기업 정보 가져오기
     async getUserBelongingCompanyInfo(userData) {
         console.log(
@@ -113,7 +117,7 @@ module.exports = {
             );
             throw error;
         }
-    },
+    }
     // // 사용자 비밀번호 수정
     // async changePassword(token, updatePasswordData) {
     //     console.log(
@@ -138,7 +142,7 @@ module.exports = {
     //         );
     //         throw error;
     //     }
-    // },
+    // }
     // 사용자 정보 변경 - 공통 : 연락처
     async updatePhoneNum(userData, updateData) {
         console.log(
@@ -161,7 +165,7 @@ module.exports = {
             );
             throw error;
         }
-    },
+    }
     // 사용자 정보 변경 - 컨설턴트 공통 : 입금정보
     async updateBankInfo(userData, updateData) {
         console.log(
@@ -184,7 +188,7 @@ module.exports = {
             );
             throw error;
         }
-    },
+    }
     // 기업-사용자 소속상태 변경 처리 : 기업, 사용자 공통
     async updateUserBelongingStatus(userData, updateData) {
         let result, updateStatusData, companyIdColumn;
@@ -242,7 +246,7 @@ module.exports = {
             );
             throw error;
         }
-    },
+    }
     // 회원탈퇴
     async deleteUser(accessToken, deleteData) {
         // 기업삭제를 할꺼면 email과 userType을 가져와야하고 / 사용자만 삭제할 꺼면 현재대로 처리해도 됨
@@ -289,7 +293,7 @@ module.exports = {
             );
             throw error;
         }
-    },
+    }
     // DELETE
     async deleteUserAndCompanyRelation(deleteData) {
         console.log(
@@ -307,5 +311,5 @@ module.exports = {
         } catch (error) {
             throw error;
         }
-    },
+    }
 };

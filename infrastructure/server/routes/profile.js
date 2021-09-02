@@ -6,9 +6,7 @@ const router = express.Router();
 const { profileAdapter } = require('../../../adapters/inbound');
 const { SuccessResponse, ErrorResponse } = require('../../response');
 
-const sanitizer = require('../../server/modules/sanitizer');
-const extractToken = require('../modules/extractToken');
-const decryptIdToken = require('../modules/decryptIdToken');
+const { sanitizer, extractToken, decryptIdToken } = require('../middlewares');
 const {
     uploadClientProfile,
     uploadConsultantProfile,

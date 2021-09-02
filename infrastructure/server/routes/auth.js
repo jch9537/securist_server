@@ -6,8 +6,7 @@ const qs = require('querystring');
 const { authAdapter } = require('../../../adapters/inbound');
 const { SuccessResponse, ErrorResponse } = require('../../response');
 
-const extractToken = require('../modules/extractToken');
-const decryptIdToken = require('../modules/decryptIdToken');
+const { extractToken, decryptIdToken } = require('../middlewares');
 const niceModule = require('../modules/nice_module/niceModule');
 
 let niceRedirectUrl;
