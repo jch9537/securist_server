@@ -4,7 +4,7 @@ const projectServiceTokenKey = process.env.PROJECT_TOKEN_KEY_USER;
 
 const axios = require('axios');
 
-const { GetUserDto, GetCompanyDto } = require('../../adapters/dtos');
+const { GetUserDto, GetCompanyDto } = require('../../adapters/dtos/requestDto');
 const { getToken, setToken } = require('../database/redis');
 
 module.exports = class ProjectService {

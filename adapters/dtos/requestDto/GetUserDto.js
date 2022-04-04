@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const { TypeException } = require('../../domain/exceptions');
+const { TypeException } = require('../../../domain/exceptions');
 
 const idSchema = Joi.number().positive().required();
 const approvalStateSchema = Joi.number().min(0).max(2).required();
@@ -9,7 +9,7 @@ const presidentName = Joi.string();
 const dateSchema = Joi.date();
 const stringSchema = Joi.string();
 
-module.exports = class GetCompanyDto {
+module.exports = class GetUserDto {
     constructor({
         client_company_id,
         business_license_num,

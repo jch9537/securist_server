@@ -6,7 +6,13 @@ module.exports = class {
     async excute(userData) {
         let result, response;
         try {
+            let { userType } = userData;
             response = await this.userRepository.getUserInfo(userData);
+
+            if (userType === 3) {
+            } else {
+                userType == 2;
+            }
 
             if (response === undefined) {
                 throw new NoContent('사용자 정보');

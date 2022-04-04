@@ -313,8 +313,6 @@ router.post('/deleteUserByAdmin', async (req, res, next) => {
         } else {
             result.message = '회원 삭제 성공';
         }
-
-        ㅍ;
     } catch (error) {
         console.log('deleteUserByAdmin 에러 응답 : ', error);
         next(error);

@@ -18,7 +18,6 @@ const processingToken = require('../../webService/authService/awsMiddleware/proc
 
 // 각 서비스 확인/토큰 발급
 router.post('/issuetoken', async (req, res, next) => {
-    console.log('도착???');
     let result, response;
     try {
         let reqBodyData = req.filteredBody;
