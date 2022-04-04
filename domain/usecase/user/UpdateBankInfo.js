@@ -8,6 +8,7 @@ module.exports = class {
         this.userRepository = userRepository;
     }
     async excute(userData, updateData) {
+        let result, response;
         try {
             if (!(userData.userType === 1 || userData.userType === 2)) {
                 throw new UserTypeException('사용자 타입');
@@ -37,9 +38,16 @@ module.exports = class {
                     throw new AuthorizationException('기업 정보 수정');
                 }
             }
-            let result = await this.userRepository.updateBankInfo(userEntity);
+            response = await this.userRepository.updateBankInfo(userEntity);
+
+            result = {
+                message: '입금 정보 변경 완료',
+                data: response,
+            };
             return result;
         } catch (error) {
+            console.error(error);
+            error.message = '입금 정보 변경 실패';
             throw error;
         }
     }

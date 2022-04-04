@@ -5,7 +5,7 @@ module.exports = class {
         this.userRepository = userRepository;
     }
     async excute(signUpData) {
-        let result;
+        let result, response;
         try {
             let signUpEntity = new UserEntity(signUpData);
             let userType = signUpEntity.userType;
@@ -24,9 +24,27 @@ module.exports = class {
                 signUpEntity.companyName = companyEntity.companyName;
                 signUpEntity.presidentName = companyEntity.presidentName;
             }
-            result = await this.userRepository.signUp(signUpEntity);
+            response = await this.userRepository.signUp(signUpEntity);
+
+            result = {
+                message: '회원 가입 완료',
+            };
             return result;
         } catch (error) {
+            console.error(error);
+            if (error.authServiceErrorName === 'UsernameExistsException') {
+                error.message = '이미 가입된 사용자 입니다.';
+            } else if (
+                error.authServiceErrorName === 'InvalidPasswordException'
+            ) {
+                error.message = '잘못된 암호입니다.'; // 아이디나 비번 틀릴 때 나오는 것 확인
+                // } else if (
+                //     error.authServiceErrorName === 'InvalidParameterException'
+                // ) {
+                //     error.message = '유효하지 않은 인자입니다.';
+            } else {
+                error.message = '회원가입 실패';
+            }
             throw error;
         }
     }

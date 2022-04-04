@@ -5,6 +5,7 @@ module.exports = class {
         this.profileRepository = profileRepository;
     }
     async excute(userData, clientData, uploadData) {
+        let result, response;
         try {
             if (userData.userType !== 3) {
                 throw new UserTypeException('사용자 타입');
@@ -14,14 +15,19 @@ module.exports = class {
             userEntity.email = userData.email;
             userEntity.userType = userData.userType;
 
-            let result = await this.profileRepository.requestClientAuth(
+            await this.profileRepository.requestClientAuth(
                 userEntity,
                 uploadData
             );
+
+            result = {
+                message: '사업자 인증 요청 완료',
+            };
             // console.log('결과----------------', result);
             return result;
         } catch (error) {
-            // console.log('에러 ----------------', error);
+            console.error(error);
+            error.message = '사업자 인증 요청 실패';
             throw error;
         }
     }

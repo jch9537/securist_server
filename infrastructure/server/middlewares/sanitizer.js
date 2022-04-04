@@ -1,5 +1,3 @@
-//TODO : UPDATE, PATCH, DELETE 관련 태그제거 추가
-const { Exception } = require('../../../adapters/exceptions');
 // html 태그 제거 모듈 : XSS 공격방어 미들웨어 => 허용 태그, 속성들은 sanitizeHtml의 옵션에서 처리가능
 const sanitizeHtml = require('sanitize-html');
 
@@ -34,11 +32,12 @@ function sanitizeBody(body) {
 }
 
 module.exports = (req, res, next) => {
-    //console.log('리퀘스트 :', req.body);
+    console.log('리퀘스트 헤더 :', req.headers);
     try {
         if (
             req.method === 'POST' ||
             req.method === 'PUT' ||
+            req.method === 'PATCH' ||
             req.method === 'DELETE'
         ) {
             //console.log('body : ', req.body);
@@ -58,13 +57,17 @@ module.exports = (req, res, next) => {
             }
         }
         if (req.headers.authorization) {
+            console.log('autorization headers :', req.headers);
             let token = req.headers.authorization;
             let filteredToken = sanitizeHtml(token);
-            //console.log('autorization headers 소독 :', req.headers.authorization);
+            console.log(
+                'autorization headers 소독 :',
+                req.headers.authorization
+            );
             req.filteredToken = filteredToken;
         }
         next();
     } catch (error) {
-        next(new Exception('sanitize 에러'));
+        next(error);
     }
 };

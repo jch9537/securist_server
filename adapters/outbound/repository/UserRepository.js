@@ -85,7 +85,12 @@ module.exports = class {
         );
         let result;
         try {
-            result = await this.db.updateBankInfo(userEntity);
+            if (userEntity.userType === 1) {
+                result = await this.db.updateUserBankInfo(userEntity);
+            } else {
+                // userEntity.userType === 2;
+                result = await this.db.updateCompanyBankInfo(userEntity);
+            }
             console.log(
                 '응답 > Adapter > outBound > repository > updateBankInfo > result : ',
                 result

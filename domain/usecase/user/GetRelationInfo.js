@@ -5,17 +5,22 @@ module.exports = class {
         this.userRepository = userRepository;
     }
     async excute(userData) {
+        let result, response;
         try {
             let userType = userData.userType;
-            console.log('1111111111111111111111111111111', userType);
             if (!(userType === 2 || userType === 3)) {
                 throw new UserTypeException('사용자 타입');
             }
-            let result = await this.userRepository.getRelationInfo(userData);
-            console.log('relation info결과----------------', result);
+            response = await this.userRepository.getRelationInfo(userData);
+
+            result = {
+                message: '사용자-기업 연결 정보 가져오기 완료',
+                data: response,
+            };
             return result;
         } catch (error) {
-            console.log('relation info 에러 ----------------', error);
+            console.error(error);
+            error.message = '사용자-기업 연결 정보 가져오기 실패';
             throw error;
         }
     }

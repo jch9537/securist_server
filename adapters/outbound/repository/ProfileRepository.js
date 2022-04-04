@@ -21,8 +21,8 @@ module.exports = class {
             );
             return result;
         } catch (error) {
-            console.log(
-                '응답 > Adapter > outBound > repository > createConsultantProfile > result : ',
+            console.error(
+                '에러 > Adapter > outBound > repository > createConsultantProfile > result : ',
                 error
             );
             throw error;
@@ -47,8 +47,8 @@ module.exports = class {
             );
             return result;
         } catch (error) {
-            console.log(
-                '응답 > Adapter > outBound > repository > createConsultingCompanyProfile > result : ',
+            console.error(
+                '에러 > Adapter > outBound > repository > createConsultingCompanyProfile > result : ',
                 error
             );
             throw error;
@@ -71,8 +71,8 @@ module.exports = class {
             );
             return result;
         } catch (error) {
-            console.log(
-                '응답 > Adapter > outBound > repository > requestClientAuth > result : ',
+            console.error(
+                '에러 > Adapter > outBound > repository > requestClientAuth > result : ',
                 error
             );
             throw error;
@@ -97,8 +97,8 @@ module.exports = class {
             );
             return result;
         } catch (error) {
-            console.log(
-                '응답 > Adapter > outBound > repository > createConsultantProfileTemp > result : ',
+            console.error(
+                '에러 > Adapter > outBound > repository > createConsultantProfileTemp > result : ',
                 error
             );
             throw error;
@@ -126,8 +126,8 @@ module.exports = class {
             );
             return result;
         } catch (error) {
-            console.log(
-                '응답 > Adapter > outBound > repository > createConsultingCompanyProfileTemp > result : ',
+            console.error(
+                '에러 > Adapter > outBound > repository > createConsultingCompanyProfileTemp > result : ',
                 error
             );
             throw error;
@@ -148,7 +148,7 @@ module.exports = class {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 > Adapter > outBound > repository > checkProfileTempExist > result : ',
                 error
             );
@@ -171,7 +171,7 @@ module.exports = class {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 > Adapter > outBound > repository > getConsultantProfile > result : ',
                 error
             );
@@ -193,7 +193,7 @@ module.exports = class {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 > Adapter > outBound > repository > getConsultingCompanyProfile > result : ',
                 error
             );
@@ -215,7 +215,7 @@ module.exports = class {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 > Adapter > outBound > repository > getConsultantProfileTemp > result : ',
                 error
             );
@@ -237,7 +237,7 @@ module.exports = class {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 > Adapter > outBound > repository > getConsultingCompanyProfileTemp > result : ',
                 error
             );
@@ -262,8 +262,8 @@ module.exports = class {
             );
             return result;
         } catch (error) {
-            console.log(
-                '응답 > Adapter > outBound > repository > deleteProfileTemp > result : ',
+            console.error(
+                '에러 > Adapter > outBound > repository > deleteProfileTemp > result : ',
                 error
             );
             throw error;

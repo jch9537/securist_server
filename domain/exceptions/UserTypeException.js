@@ -1,6 +1,6 @@
 module.exports = class {
-    constructor(paramType) {
-        this.code = 403;
+    constructor(paramType, code = 403) {
+        this.code = code;
         this.message = `${paramType} 에러.`;
     }
 };

@@ -2,7 +2,7 @@
 
 const { ParameterException } = require('../exceptions');
 
-module.exports = class {
+module.exports = class CompanyEntity {
     constructor({
         companyId = null,
         businessLicenseNum = null,
@@ -25,10 +25,10 @@ module.exports = class {
             if (!regCompanyId.test(companyId)) {
                 throw new ParameterException('기업 아이디');
             } else {
-                this._companyId = companyId;
+                this._companyId = Number(companyId);
             }
         } else {
-            this._companyId = companyId;
+            this._companyId = Number(companyId);
         }
     }
 

@@ -6,7 +6,7 @@ module.exports = class {
         this.userRepository = userRepository;
     }
     async excute(userData, companyData) {
-        let result;
+        let result, response;
         try {
             let companyEntity = new CompanyEntity(companyData);
             companyEntity.userType = userData.userType;
@@ -25,13 +25,18 @@ module.exports = class {
             if (companyBelongingType !== 2 || companyManagerType !== 1) {
                 throw new AuthorizationException('소속 컨설턴트 정보 가져오기');
             }
-            result = await this.companyRepository.getCompanyBelongedUsersInfo(
+            response = await this.companyRepository.getCompanyBelongedUsersInfo(
                 companyEntity
             );
+            result = {
+                message: '기업 소속 사용자 정보 리스트 가져오기 완료',
+                data: response,
+            };
             console.log('클라이언트 기업 결과----------------', result);
             return result;
         } catch (error) {
-            console.log('에러 ----------------', error);
+            console.error(error);
+            error.message = '기업 소속 사용자 정보 리스트 가져오기 실패';
             throw error;
         }
     }

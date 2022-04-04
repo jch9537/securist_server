@@ -1,13 +1,32 @@
 // 로그아웃
 module.exports = class {
-    constructor(Auth) {
-        this.Auth = Auth;
+    constructor(auth) {
+        this.auth = auth;
     }
     async excute(AccessToken) {
+        let result, response;
         try {
-            let result = await this.Auth.logOut(AccessToken);
+            response = await this.auth.logOut(AccessToken);
+            result = {
+                message: '로그아웃 완료',
+            };
             return result;
         } catch (error) {
+            console.error(error);
+            if (error.authServiceErrorName === 'NotAuthorizedException') {
+                // if (error.message === 'Access Token has expired') {
+                //     // 토큰 만료 : 리프레시 토큰 필요
+                // } else if (
+                //     // 토큰 취소 : 로그인 필요
+                //     error.message === 'Access Token has been revoked'
+                // ) {
+                // } else if (error.message === 'Invalid Access Token') {
+                //     // 유효하지 않은 토큰 : 로그인 필요
+                // }
+                error.message = '로그인 후 이용 가능합니다.';
+            } else {
+                error.message = '로그아웃 실패';
+            }
             throw error;
         }
     }

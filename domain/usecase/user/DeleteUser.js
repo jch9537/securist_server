@@ -5,6 +5,7 @@ module.exports = class {
         this.userRepository = userRepository;
     }
     async excute(accessToken, withdrawalData) {
+        let result, response;
         try {
             let userEntity = new UserEntity(withdrawalData);
             // let withdrawalEntity = {
@@ -13,13 +14,15 @@ module.exports = class {
             //     withdrawalType: deleteUserEntity.withdrawalType,
             // };
             // console.log('-------------------------', withdrawalEntity);
-            let result = this.userRepository.deleteUser(
-                accessToken,
-                userEntity
-            );
+            response = this.userRepository.deleteUser(accessToken, userEntity);
+
+            result = {
+                message: '회원 탈퇴 완료',
+            };
             return result;
         } catch (error) {
-            console.log('에러 ----------------', error);
+            console.error(error);
+            error.message = '회원 탈퇴 실패';
             throw error;
         }
     }
