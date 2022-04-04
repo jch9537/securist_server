@@ -51,18 +51,6 @@ module.exports = class {
         );
         return result;
     }
-    async verifyUserByPassword(userEntity) {
-        console.log(
-            '요청 > Adapter > outBound > auth > authentication >  - verifyUserByPassword : '
-            // userEntity
-        );
-        let result = await this.authService.verifyUserByPassword(userEntity);
-        console.log(
-            '응답 > Adapter > outBound > auth > authentication >  - verifyUserByPassword : ',
-            result
-        );
-        return result;
-    }
     async changePassword(userEntity) {
         console.log(
             '요청 > Adapter > outBound > auth > authentication >  - changePassword : '
@@ -71,6 +59,18 @@ module.exports = class {
         let result = await this.authService.changePassword(userEntity);
         console.log(
             '응답 > Adapter > outBound > auth > authentication >  - changePassword : ',
+            result
+        );
+        return result;
+    }
+    async verifyUserByPassword(userEntity) {
+        console.log(
+            '요청 > Adapter > outBound > auth > authentication >  - verifyUserByPassword : '
+            // userEntity
+        );
+        let result = await this.authService.verifyUserByPassword(userEntity);
+        console.log(
+            '응답 > Adapter > outBound > auth > authentication >  - verifyUserByPassword : ',
             result
         );
         return result;

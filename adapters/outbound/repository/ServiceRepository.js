@@ -2,124 +2,40 @@ module.exports = class {
     constructor(storage) {
         this.storage = storage;
     }
-    async issueToken(serviceData) {
+    async getToken(tokenKey) {
         console.log(
-            '요청 > Adapter > outBound > repository > issueToken - parameter: '
+            '요청 > Adapter > outBound > repository > getToken - parameter: '
         );
         try {
-            let result = await this.storage.issueToken(serviceData);
+            let result = await this.storage.getToken(tokenKey);
             console.log(
-                '응답 > Adapter > outBound > repository > issueToken > result : ',
+                '응답 > Adapter > outBound > repository > getToken > result : ',
                 result
             );
             return result;
         } catch (error) {
             console.log(
-                '에러 > Adapter > outBound > repository > issueToken > error : ',
+                '에러 > Adapter > outBound > repository > getToken > error : ',
                 error
             );
             throw error;
         }
     }
-    async verifyToken(serviceData) {
+    async setToken(serviceData) {
         console.log(
-            '요청 > Adapter > outBound > repository > verifyToken - parameter: '
+            '요청 > Adapter > outBound > repository > setToken - parameter: ',
+            serviceData
         );
         try {
-            let result = await this.storage.verifyToken(serviceData);
+            let result = await this.storage.setToken(serviceData);
             console.log(
-                '응답 > Adapter > outBound > repository > verifyToken > result : ',
+                '응답 > Adapter > outBound > repository > setToken > result : ',
                 result
             );
             return result;
         } catch (error) {
             console.log(
-                '에러 > Adapter > outBound > repository > verifyToken > error : ',
-                error
-            );
-            throw error;
-        }
-    }
-
-    async issueTokenByAdminService(currentServiceData) {
-        console.log(
-            '요청 > Adapter > outBound > repository > issueTokenByAdminService - parameter: '
-        );
-        try {
-            let result = await this.storage.issueTokenByAdminService(
-                currentServiceData
-            );
-            console.log(
-                '응답 > Adapter > outBound > repository > issueTokenByAdminService > result : ',
-                result
-            );
-            return result;
-        } catch (error) {
-            console.log(
-                '에러 > Adapter > outBound > repository > issueTokenByAdminService > error : ',
-                error
-            );
-            throw error;
-        }
-    }
-    async verifyTokenByAdminService(currentServiceData) {
-        console.log(
-            '요청 > Adapter > outBound > repository > verifyTokenByAdminService - parameter: '
-        );
-        try {
-            let result = await this.storage.verifyTokenByAdminService(
-                currentServiceData
-            );
-            console.log(
-                '응답 > Adapter > outBound > repository > verifyTokenByAdminService > result : ',
-                result
-            );
-            return result;
-        } catch (error) {
-            console.log(
-                '에러 > Adapter > outBound > repository > verifyTokenByAdminService > error : ',
-                error
-            );
-            throw error;
-        }
-    }
-    async issueTokenByProjectService(currentServiceData) {
-        console.log(
-            '요청 > Adapter > outBound > repository > issueTokenByProjectService - parameter: '
-        );
-        try {
-            let result = await this.storage.issueTokenByProjectService(
-                currentServiceData
-            );
-            console.log(
-                '응답 > Adapter > outBound > repository > issueTokenByProjectService > result : ',
-                result
-            );
-            return result;
-        } catch (error) {
-            console.log(
-                '에러 > Adapter > outBound > repository > issueTokenByProjectService > error : ',
-                error
-            );
-            throw error;
-        }
-    }
-    async verifyTokenByProjectService(currentServiceData) {
-        console.log(
-            '요청 > Adapter > outBound > repository > verifyTokenByProjectService - parameter: '
-        );
-        try {
-            let result = await this.storage.verifyTokenByProjectService(
-                currentServiceData
-            );
-            console.log(
-                '응답 > Adapter > outBound > repository > verifyTokenByProjectService > result : ',
-                result
-            );
-            return result;
-        } catch (error) {
-            console.log(
-                '에러 > Adapter > outBound > repository > verifyTokenByProjectService > error : ',
+                '에러 > Adapter > outBound > repository > setToken > error : ',
                 error
             );
             throw error;

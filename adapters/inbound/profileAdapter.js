@@ -11,7 +11,12 @@ const {
     DeleteProfileTemp,
 } = require('../../domain/usecase/profile');
 
-module.exports = {
+module.exports = class ProfileAdapter {
+    constructor(projectService, adminService) {
+        this.projectService = projectService;
+        this.adminService = adminService;
+    }
+
     // 개인 컨설턴트 프로필 인증 요청 : 프로필 정보 생성
     async createConsultantProfile(userData, profileData, uploadData) {
         console.log(
@@ -35,13 +40,13 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > createConsultantProfile - error : ',
                 error
             );
             throw error;
         }
-    },
+    }
     // 컨설팅 업체 프로필 인증 요청 : 프로필 정보 생성
     async createConsultingCompanyProfile(userData, profileData, uploadData) {
         console.log(
@@ -65,13 +70,13 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > createConsultingCompanyProfile - error : ',
                 error
             );
             throw error;
         }
-    },
+    }
     // 클라이언트 프로필 인증 요청 : 사용자/기업 정보 수정
     async requestClientAuth(userData, clientData, uploadData) {
         console.log(
@@ -93,13 +98,13 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > requestClientAuth - error : ',
                 error
             );
             throw error;
         }
-    },
+    }
     // 개인 컨설턴트 프로필 임시저장 : 프로필 임시정보 생성
     async createConsultantProfileTemp(userData, tempData, uploadData) {
         console.log(
@@ -123,13 +128,13 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > createConsultantProfileTemp - error : ',
                 error
             );
             throw error;
         }
-    },
+    }
     // 기업 프로필 임시저장 : 프로필 임시정보 생성
     async createConsultingCompanyProfileTemp(userData, tempData, uploadData) {
         console.log(
@@ -153,13 +158,13 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > createConsultingCompanyProfileTemp - error : ',
                 error
             );
             throw error;
         }
-    },
+    }
 
     // 프로필 임시저장 데이터 유뮤 확인
     async checkProfileTempExist(userData) {
@@ -176,13 +181,13 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > checkProfileTempExist - error : ',
                 error
             );
             throw error;
         }
-    },
+    }
 
     // 프로필 정보 가져오기 : 컨설턴트 (개인/기업) 공통
     async getProfile(userData) {
@@ -199,13 +204,13 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > getProfile - error : ',
                 error
             );
             throw error;
         }
-    },
+    }
     // 프로필 임시저장 가져오기 : 컨설턴트 (개인/기업) 공통
     async getProfileTemp(userData) {
         console.log(
@@ -221,13 +226,13 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > getProfileTemp - error : ',
                 error
             );
             throw error;
         }
-    },
+    }
     // 프로필 임시저장 정보 삭제 : 컨설턴트 (개인/기업) 공통
     async deleteProfileTemp(userData) {
         console.log(
@@ -243,11 +248,11 @@ module.exports = {
             );
             return result;
         } catch (error) {
-            console.log(
+            console.error(
                 '에러 응답 > adapters > inbound > profileAdapter > deleteProfileTemp - error : ',
                 error
             );
             throw error;
         }
-    },
+    }
 };

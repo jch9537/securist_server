@@ -1,5 +1,9 @@
 module.exports = class {
-    constructor(message, code = 400, error) {
+    constructor(
+        message = 'ID 토큰 사용자 정보 가져오기 오류',
+        code = 401,
+        error
+    ) {
         this.message = message;
         this.code = code;
         this.error = error;

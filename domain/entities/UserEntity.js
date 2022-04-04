@@ -10,6 +10,26 @@ const { ParameterException } = require('../exceptions');
 //     }
 // }
 // */
+
+// 추후 헬퍼함수 모듈로 변경
+const idReg = /^[0-9]+$/;
+const stateReg = /^[0-1]$/;
+const examTypeReg = /^[12]$/; // 시험 타입 유효성 체크 : 1, 2 만 사용
+const nameReg = /^[a-zA-Z가-힣]{0,20}$/;
+const nameAndNumReg = /^[0-9a-zA-Z가-힣]{0,20}$/;
+const NameAndSpecialStringReg = /^[0-9a-zA-Z가-힣!@#$%^&=_\+\-\(\)]+$/;
+// const NameAndSpecialStringReg = /^[\w\W]{0,20}$/;
+const passwordReg = /^.*(?=^.{8,20}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/;
+//특수문자 / 문자 / 숫자 포함 형태의 8~20자리 이내의 암호 정규식
+const textReg = /[^<>]+$/;
+const dateReg = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/;
+// const dateReg = /^([0-9]{4})[-/]?([0-9]{2})[-/]?([0-9]{2})$/;
+// ex. 20210725, 2021-07-25, 2021/07/25 등
+const timeReg = /^([0-2]{1})([0-9]{1}):?([0-5]{1})([0-9]{1})$/;
+const phoneNumReg = /^(01[016789]{1}|02|0[3-9]{1}[0-9]{1})-?[0-9]{3,4}-?[0-9]{4}$/;
+//특수문자 / 문자 / 숫자 포함 형태의 8~20자리 이내의 암호 정규식
+const emailReg = /([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/; // 유효성 체크 확인 : 영문, 숫자, 사용 가능한 특수문자(@.-_)외 입력, 30자 이하 체크!!
+
 module.exports = class UserEntity {
     constructor({
         email = null,
@@ -40,10 +60,8 @@ module.exports = class UserEntity {
     }
     set email(email) {
         if (email !== null) {
-            let regEmail = /([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/; // 유효성 체크 확인 : 영문, 숫자, 사용 가능한 특수문자(@.-_)외 입력, 30자 이하 체크!!
-
             if (
-                !(email !== '' && email !== undefined && regEmail.test(email))
+                !(email !== '' && email !== undefined && emailReg.test(email))
             ) {
                 console.log('----------------------------', email);
                 throw new ParameterException('이메일');
@@ -60,10 +78,7 @@ module.exports = class UserEntity {
     }
     set password(password) {
         if (password !== null) {
-            let regPwd = /^.*(?=^.{8,20}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/;
-            //특수문자 / 문자 / 숫자 포함 형태의 8~20자리 이내의 암호 정규식
-
-            if (!regPwd.test(password)) {
+            if (!passwordReg.test(password)) {
                 throw new ParameterException('비밀번호');
             } else {
                 this._password = password;
@@ -78,9 +93,7 @@ module.exports = class UserEntity {
     }
     set name(name) {
         if (name !== null) {
-            let regName = /^[a-zA-Z가-힣]{2,50}$/; // 이름 유효성 체크 : 한글, 영문 50자 이내
-
-            if (!regName.test(name)) {
+            if (!nameReg.test(name)) {
                 throw new ParameterException('이름');
             } else {
                 this._name = name;
@@ -95,15 +108,15 @@ module.exports = class UserEntity {
     }
     set userType(userType) {
         if (userType !== null) {
-            let regUserType = /^[123]$/; // 사용자 타입 유효성 체크 : 1, 2, 3 만 사용
+            let userTypeReg = /^[123]$/; // 사용자 타입 유효성 체크 : 1, 2, 3 만 사용
 
-            if (!regUserType.test(userType)) {
+            if (!userTypeReg.test(userType)) {
                 throw new ParameterException('사용자 타입');
             } else {
-                this._userType = userType;
+                this._userType = Number(userType);
             }
         } else {
-            this._userType = userType;
+            this._userType = Number(userType);
         }
     }
     // phoneNum
@@ -112,10 +125,7 @@ module.exports = class UserEntity {
     }
     set phoneNum(phoneNum) {
         if (phoneNum !== null) {
-            let regPhoneNum = /^(01[016789]{1}|02|0[3-9]{1}[0-9]{1})-?[0-9]{3,4}-?[0-9]{4}$/;
-            //특수문자 / 문자 / 숫자 포함 형태의 8~20자리 이내의 암호 정규식
-
-            if (!regPhoneNum.test(phoneNum)) {
+            if (!phoneNumReg.test(phoneNum)) {
                 throw new ParameterException('연락처');
             } else {
                 this._phoneNum = phoneNum;
@@ -130,9 +140,7 @@ module.exports = class UserEntity {
     }
     set bankName(bankName) {
         if (bankName !== null) {
-            let regBankName = /^[a-zA-Z가-힣]{2,50}$/; // 은행명 유효성 체크 : 한글, 영문 50자 이내
-
-            if (!regBankName.test(bankName)) {
+            if (!nameReg.test(bankName)) {
                 throw new ParameterException('은행명');
             } else {
                 this._bankName = bankName;
@@ -147,9 +155,9 @@ module.exports = class UserEntity {
     }
     set bankAccountNum(bankAccountNum) {
         if (bankAccountNum !== null) {
-            let regBankAccountNum = /^[0-9]{2,30}$/; // 계좌번호 유효성 체크 : 수정해야함!!!!!!!!!!!!!
+            let bankAccountNumReg = /^[0-9]{2,10}$/; // 계좌번호 유효성 체크 : 수정해야함!!!!!!!!!!!!!
 
-            if (!regBankAccountNum.test(bankAccountNum)) {
+            if (!bankAccountNumReg.test(bankAccountNum)) {
                 throw new ParameterException('계좌번호');
             } else {
                 this._bankAccountNum = bankAccountNum;
@@ -164,9 +172,7 @@ module.exports = class UserEntity {
     }
     set bankAccountOwner(bankAccountOwner) {
         if (bankAccountOwner !== null) {
-            let regBankAccountOwner = /^[a-zA-Z가-힣]{2,50}$/; // 계좌주 유효성 체크 : 한글, 영문 50자 이내
-
-            if (!regBankAccountOwner.test(bankAccountOwner)) {
+            if (!nameReg.test(bankAccountOwner)) {
                 throw new ParameterException('계좌주');
             } else {
                 this._bankAccountOwner = bankAccountOwner;
@@ -180,10 +186,10 @@ module.exports = class UserEntity {
     }
     set code(code) {
         if (code !== null) {
-            let regCode = /^(?=[0-9]{6}$)/;
+            let codeReg = /^(?=[0-9]{6}$)/;
             //특수문자 / 문자 / 숫자 포함 형태의 8~20자리 이내의 암호 정규식  : 유효성 코드 필요한지 확인?!
 
-            if (!regCode.test(code)) {
+            if (!codeReg.test(code)) {
                 throw new ParameterException('code');
             } else {
                 this._code = code;
@@ -198,15 +204,15 @@ module.exports = class UserEntity {
     }
     set withdrawalType(withdrawalType) {
         if (withdrawalType !== null) {
-            let regWithdrawalType = /^[0123]$/; // 탈퇴사유 타입 유효성 체크 : 0, 1, 2, 3 만 사용
+            let withdrawalTypeReg = /^[0123]$/; // 탈퇴사유 타입 유효성 체크 : 0, 1, 2, 3 만 사용
 
-            if (!regWithdrawalType.test(withdrawalType)) {
+            if (!withdrawalTypeReg.test(withdrawalType)) {
                 throw new ParameterException('사용자 타입');
             } else {
-                this._withdrawalType = withdrawalType;
+                this._withdrawalType = Number(withdrawalType);
             }
         } else {
-            this._withdrawalType = withdrawalType;
+            this._withdrawalType = Number(withdrawalType);
         }
     }
 };

@@ -4,6 +4,7 @@ module.exports = class {
         this.userRepository = userRepository;
     }
     async excute(userData, joinData) {
+        let result, response;
         try {
             let companyEntity = new CompanyEntity(joinData);
             companyEntity.userType = userData.userType;
@@ -11,13 +12,26 @@ module.exports = class {
             // companyEntity.email = 'mg.kim@aegisecu.com', // 테스트
             // companyEntity.email = 'mg.sun@aegisecu.com'
             // companyEntity.email = 'ej.lim@aegisecu.com'
-            let result = await this.userRepository.createUserAndCompanyRelation(
+            response = await this.userRepository.createUserAndCompanyRelation(
                 companyEntity
             );
-            // console.log('결과----------------', result);
+            if (response !== undefined) {
+                if (response.isAlreadyBelongingUser) {
+                    result = {
+                        message:
+                            '타 기업에 소속된 사용자는 중복 소속요청을 할 수 없습니다.',
+                        data: response.isAlreadyBelongingUser,
+                    };
+                }
+            } else {
+                result = {
+                    message: '사용자-기업 정보 연결 완료',
+                };
+            }
             return result;
         } catch (error) {
-            // console.log('에러 ----------------', error);
+            console.error(error);
+            error.message = '사용자-기업 정보 연결 실패';
             throw error;
         }
     }

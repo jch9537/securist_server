@@ -6,12 +6,13 @@ module.exports = class {
         this.userRepository = userRepository;
     }
     async excute(userData, updateData) {
+        let result, response;
+
         let updateUserData = {
             email: userData.email,
             userType: userData.userType,
             phoneNum: updateData.phoneNum,
         };
-        console.log('업데이트 데이터 : ', updateUserData);
         try {
             let result;
             let userEntity = new UserEntity(updateUserData);
@@ -32,11 +33,18 @@ module.exports = class {
                     throw new AuthorizationException('기업 정보 수정');
                 }
             }
-            result = await this.userRepository.updatePhoneNum(userEntity);
-            console.log('결과----------------', result);
+            response = await this.userRepository.updatePhoneNum(userEntity);
+
+            result = {
+                message: '연락처 변경 완료',
+                data: {
+                    phoneNum: response,
+                },
+            };
             return result;
         } catch (error) {
-            console.log('에러 ----------------', error);
+            console.error(error);
+            error.message = '연락처 변경 실패';
             throw error;
         }
     }

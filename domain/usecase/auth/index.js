@@ -7,7 +7,7 @@ module.exports = {
     ForgotPassword: require('./ForgotPassword'),
     ChangePassword: require('./ChangePassword'),
     ConfirmForgotPassword: require('./ConfirmForgotPassword'),
-    CheckAccessToken: require('./CheckAccessToken'),
+    // CheckAccessToken: require('./CheckAccessToken'), // 미들웨어 처리
     IssueNewToken: require('./IssueNewToken'),
     VerifyUserByPassword: require('./VerifyUserByPassword'),
 };
