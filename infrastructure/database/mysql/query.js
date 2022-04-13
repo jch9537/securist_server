@@ -1,253 +1,523 @@
-const pool = require('./index');
-const { DatabaseError } = require('../../response');
+const mysql = require('mysql2/promise');
+const dbConfig = require('./dbConfig');
+
 const { authService } = require('../../../adapters/outbound/auth'); // 같은 layer - 의존성에 문제 없는지 확인
+const { DatabaseError } = require('../../../adapters/error');
 
-module.exports = class {
-    constructor() {}
-    // 사용자--------------------------------------------------------------------
-    // CREATE
-    // 공통 : 회원가입
-    async signUp({
-        email,
-        password,
-        name,
-        userType,
-        // phoneNum,
-        businessLicenseNum,
-        companyName,
-        presidentName,
+module.exports = class Mysql {
+    constructor() {
+        this.pool = mysql.createPool(dbConfig);
+    }
+    // // 기업 공통 처리 =============================
+    // async checkExistCompany({ userType, businessLicenseNum }) {
+    //     let sql, arg;
+    //     let companiesTableName;
+    //     const conn = await this.pool.getConnection();
+    //     try {
+    //         // 기업 테이블 변수명 지정
+    //         if (userType === 3) {
+    //             companiesTableName = 'client_companies';
+    //         } else {
+    //             // userType === 2
+    //             companiesTableName = 'consulting_companies';
+    //         }
+
+    //         // // 등록 기업 사업자 유무
+    //         // sql = `SELECT EXISTS (SELECT * FROM ${companiesTableName} WHERE businessLicenseNum = ?) AS isExist`;
+    //         // arg = [businessLicenseNum];
+    //         // let companyExist = await conn.query(sql, arg);
+    //         // let isCompanyExist = companyExist[0][0].isExist;
+    //         // return isCompanyExist;
+    //     } catch (error) {
+    //         console.error('DB에러 : ', error);
+    //         await conn.rollback();
+    //         throw new DatabaseError(error.message, error.errno);
+    //     } finally {
+    //         conn.release();
+    //     }
+    // }
+    // 클라이언트 ==============================================================================
+    // 개인 --------------------------------------------------------------------------------
+    async createClientUser(
+        authEntity,
+        { clientUserId, name, userType, profileStatus }, // clientUserEntity
+        clientCompaniesEntity, // { businessLicenseNum, companyName, presidentName }
+        clientUserAndCompanyEntity
+    ) {
+        console.log(' =====', clientUserId, name, userType, profileStatus);
+        let sql, arg;
+        let clientCompanyId;
+        let {
+            businessLicenseNum,
+            companyName,
+            presidentName,
+        } = clientCompaniesEntity;
+        let { belongingStatus, managerType } = clientUserAndCompanyEntity;
+
+        const conn = await this.pool.getConnection();
+        try {
+            await conn.beginTransaction();
+
+            //사용자 정보 생성
+            sql = `INSERT INTO client_users (clientUserId, name, userType, profileStatus) VALUES (?, ?, ?, ?)`;
+            arg = [clientUserId, name, userType, profileStatus];
+            await conn.query(sql, arg);
+
+            // 기업 정보 생성
+            if (clientCompaniesEntity.clientCompanyId === undefined) {
+                console.log('도착 : ', clientCompaniesEntity);
+                sql = `INSERT INTO client_companies (businessLicenseNum, companyName, presidentName) VALUES (?, ?, ?)`;
+                arg = [businessLicenseNum, companyName, presidentName];
+                const companyCreateResult = await conn.query(sql, arg);
+
+                clientCompanyId = companyCreateResult[0].insertId;
+            } else {
+                clientCompanyId = clientCompaniesEntity.clientCompanyId;
+            }
+
+            // 기업-사용자 연결 정보 생성
+            sql = `INSERT INTO client_user_and_company (clientUserId, clientCompanyId, belongingStatus,managerType ) VALUES (?, ?, ?, ?)`;
+            arg = [clientUserId, clientCompanyId, belongingStatus, managerType];
+            await conn.query(sql, arg);
+
+            // cognito 사용자 등록
+            await authService.signUp(authEntity);
+
+            await conn.commit();
+            return;
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            if (error.location === 'AuthService') {
+                throw error;
+            } else {
+                throw new DatabaseError(error.message, error.errno);
+            }
+        } finally {
+            conn.release();
+        }
+    }
+    // 클라이언트 기업 ---------------------------------------------------------------------
+    async getClientCompany({ businessLicenseNum }) {
+        let sql, arg;
+
+        const conn = await this.pool.getConnection();
+        try {
+            await conn.beginTransaction();
+            //기업 정보 생성
+            console.log('DB > Query : createClientCompany!!');
+
+            sql = `SELECT * from client_companies WHERE businessLicenseNum = ?`;
+            arg = [businessLicenseNum];
+            const companyInfoResult = await conn.query(sql, arg);
+
+            await conn.commit();
+            return companyInfoResult[0][0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+    // 클라이언트 기업-사용자 ----------------------------------------------------------------------
+    async checkExistClientCompanyManager({
+        clientCompanyId,
+        belongingStatus,
+        managerType,
     }) {
-        let result, sql, arg;
-        let usersTableName,
-            companiesTableName,
-            relationTableName,
-            userIdColumn,
-            companyIdColumn,
-            profileState,
-            companyInfo,
-            companyId,
-            belongingType,
-            isManager,
-            successMessage;
+        let sql, arg;
+        const conn = await this.pool.getConnection();
+        try {
+            await conn.beginTransaction();
+            sql = `SELECT EXISTS (SELECT * FROM client_user_and_company WHERE clientCompanyId = ? AND belongingStatus = ? AND managerType = ?) AS isExistManager`;
+            arg = [clientCompanyId, belongingStatus, managerType];
+            let managerExistInCompanyResult = await conn.query(sql, arg);
+            let isExistManager =
+                managerExistInCompanyResult[0][0].isExistManager;
 
-        let userEntity = {
-            email: email,
-            password: password,
-            name: name,
-            userType: userType,
-        };
-        // 사용자 테이블 변수명 지정
-        if (userType === 3) {
-            usersTableName = 'client_users';
-            userIdColumn = 'client_user_id';
-        } else {
-            // userType === 2 || userType === 1
-            usersTableName = 'consultant_users';
-            userIdColumn = 'consultant_user_id';
+            return isExistManager;
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
         }
-        // 기업 테이블 변수명 지정
-        if (userType === 3) {
-            companiesTableName = 'client_companies';
-            userIdColumn = 'client_company_id';
-        } else {
-            // userType === 2
-            companiesTableName = 'consulting_companies';
-            userIdColumn = 'consulting_company_id';
-        }
-        // 사용자-기업 연결 테이블 변수명 지정
-        if (userType === 3) {
-            relationTableName = 'client_user_and_company';
-            companyIdColumn = 'client_company_id';
-            userIdColumn = 'client_user_id';
-        } else {
-            // userType === 2 || userType === 1
-            relationTableName = 'consultant_user_and_company';
-            companyIdColumn = 'consulting_company_id';
-            userIdColumn = 'consultant_user_id';
-        }
-        // 사용자 프로필 인증 변수명 지정
-        if (userType === 1) {
-            profileState = 1;
-        } else {
-            // 클라이언트와 컨설팅 기업의 경우 기업인증상태로 처리
-            profileState = 0;
-        }
+    }
+    // 컨설턴트 ========================
+    // 개인 ---------------------------------------
 
-        const conn = await pool.getConnection();
+    async createConsultantUser(
+        authEntity,
+        { consultantUserId, name, userType, profileStatus }, // consultantUserEntity
+        consultingCompaniesEntity,
+        consultantUserAndCompanyEntity
+    ) {
+        let sql, arg;
+
+        const conn = await this.pool.getConnection();
         try {
             await conn.beginTransaction();
 
             //사용자 정보 생성 - 휴대폰 번호 삭제
-            sql = `INSERT INTO ${usersTableName} (${userIdColumn}, name, user_type, profile_state) VALUES (?, ?, ?, ?)`;
-            arg = [email, name, userType, profileState];
+            sql = `INSERT INTO consultant_users (consultantUserId, name, userType, profileStatus) VALUES (?, ?, ?, ?)`;
+            arg = [consultantUserId, name, userType, profileStatus];
             await conn.query(sql, arg);
-            successMessage = 'success! 개인 컨설턴트!!';
 
-            // 기업사용자 처리 : 개인컨설턴트(userType === 1)는 다 처리했으므로 마지막에 공통처리
-            if (userType === 2 || userType === 3) {
-                // 기업 사용자 (userType === 2 || userType === 3) 회원 가입 처리
+            // 컨설팅 업체인 경우 처리
+            if (
+                userType === 2 || // 컨설팅 업체인 경우
+                (userType === 1 && // 컨설팅 업체 소속 요청 개인 컨설턴트인 경우
+                    consultantUserAndCompanyEntity.belongingStatus === 1)
+            ) {
+                let consultingCompanyId;
+                let {
+                    businessLicenseNum,
+                    companyName,
+                    presidentName,
+                } = consultingCompaniesEntity;
+                let {
+                    belongingStatus,
+                    managerType,
+                } = consultantUserAndCompanyEntity;
 
-                // 등록 기업 사업자 유무
-                sql = `SELECT EXISTS (SELECT * FROM ${companiesTableName} WHERE business_license_num = ?) AS isExist`;
-                arg = [businessLicenseNum];
-                let companyExist = await conn.query(sql, arg);
-                let isCompanyExist = companyExist[0][0].isExist;
+                // 기업 정보 생성
+                if (
+                    consultingCompaniesEntity.consultingCompanyId === undefined
+                ) {
+                    console.log('도착 : ', consultingCompaniesEntity);
+                    sql = `INSERT INTO consulting_companies (businessLicenseNum, companyName, presidentName) VALUES (?, ?, ?)`;
+                    arg = [businessLicenseNum, companyName, presidentName];
+                    const companyCreateResult = await conn.query(sql, arg);
 
-                // 등록된 기업 없음
-                if (!isCompanyExist) {
-                    //기업 정보 생성
-                    console.log('DB > Query : createClientCompany!!');
-
-                    sql = `INSERT INTO ${companiesTableName} (business_license_num, company_name, president_name, approval_state) VALUES (?, ?, ?, ?)`;
-                    arg = [businessLicenseNum, companyName, presidentName, 0];
-                    const createCompany = await conn.query(sql, arg);
-                    console.log('!!!!!!!!!!!!!!!!!!!2', createCompany);
-
-                    // 생성한 기업id 가져오기
-                    sql = `SELECT ${companyIdColumn} FROM ${companiesTableName} WHERE business_license_num =?`;
-                    arg = [businessLicenseNum];
-                    companyInfo = await conn.query(sql, arg);
-                    console.log('!!!!!!!!!!!!!!!!!!!2', companyInfo);
-                    companyId = companyInfo[0][0][companyIdColumn];
-                    belongingType = 2;
-                    isManager = 1; // 처음 등록된 기업이므로 관리자 처리
-
-                    // 생성한 기업과 사용자 연결
-                    sql = `INSERT INTO ${relationTableName} (${companyIdColumn}, ${userIdColumn}, belonging_type, manager_type) VALUES (?, ?, ?, ?)`;
-                    arg = [companyId, email, belongingType, isManager];
-                    let connectUserAndCompany = await conn.query(sql, arg);
-                    console.log('!!!!!!!!!!!!!!!!!!!3', connectUserAndCompany);
-                    successMessage = 'success! 최초 등록 기업!!';
-
-                    //등록된 기업 있음
+                    consultingCompanyId = companyCreateResult[0].insertId;
                 } else {
-                    //기업id 가져오기
-                    sql = `SELECT ${companyIdColumn} FROM ${companiesTableName} WHERE business_license_num =?`;
-                    arg = [businessLicenseNum];
-                    const regiCompanyInfo = await conn.query(sql, arg);
-                    console.log('!!!!!!!!!!!!!!!!!!!5', regiCompanyInfo);
-                    companyId = regiCompanyInfo[0][0][companyIdColumn];
-
-                    // 등록된 사업자 & 관리자인 사용자 유무 확인 ? 있으면 관리자 처리 : 없다면 요청상태로 처리
-                    sql = `SELECT EXISTS (SELECT * FROM ${relationTableName} WHERE ${companyIdColumn} = ? AND belonging_type = 2 AND manager_type = 1) AS isExist`;
-                    arg = [companyId];
-                    let managerExistInCompany = await conn.query(sql, arg);
-                    let managerExist = managerExistInCompany[0][0].isExist;
-
-                    // 관리자 유무에 따라 가입자 소속/관리자 상태 달리 등록
-                    if (!managerExist) {
-                        belongingType = 2; // 관리자가 없으므로 자동 소속 등록
-                        isManager = 1; // 관리자가 없으므로 관리자로 등록
-                        // 아랫 줄 테스트용 : 삭제
-                        successMessage =
-                            'success! 이미 등록된 기업!! > 관리자 없음';
-                    } else {
-                        userEntity.userType = 1; // 관리자가 있으므로 가입자 사용자 타입을 2 > 1로 변경
-                        belongingType = 1; // 관리자가 없으므로 소속 요청 중으로 처리
-                        isManager = 0; // 관리자가 있으므로 관리자 아님
-                        // 아랫 줄 테스트용 : 삭제
-                        successMessage =
-                            'success! 이미 등록된 기업!! > 관리자 있음';
-                    }
-
-                    // 등록된 기업과 사용자 연결
-                    sql = `INSERT INTO ${relationTableName} (${companyIdColumn}, ${userIdColumn}, belonging_type, manager_type) VALUES (?, ?, ?, ?)`;
-                    arg = [companyId, email, belongingType, isManager];
-                    let connectUserAndCompany = await conn.query(sql, arg);
-                    console.log('!!!!!!!!!!!!!!!!!!!6', connectUserAndCompany);
+                    consultingCompanyId =
+                        consultingCompaniesEntity.consultingCompanyId;
                 }
+
+                // 기업-사용자 연결 정보 생성
+                sql = `INSERT INTO consultant_user_and_company (consultantUserId, consultingCompanyId, belongingStatus,managerType ) VALUES (?, ?, ?, ?)`;
+                arg = [
+                    consultantUserId,
+                    consultingCompanyId,
+                    belongingStatus,
+                    managerType,
+                ];
+                await conn.query(sql, arg);
             }
-            await authService.signUp(userEntity);
-            if (!successMessage) {
-                successMessage = 'success! 개인 컨설턴트!!';
-            }
-            console.log('****************', successMessage);
+
+            // // cognito 사용자 등록
+            // await authService.signUp(authEntity);
+
             await conn.commit();
             return;
         } catch (error) {
+            console.error('DB에러 : ', error);
             await conn.rollback();
-            if (error.authServiceErrorName) {
-                console.error('cognito 에러 : ', error);
-                // 코그니토 signUp 에러인 경우
+            if (error.location === 'AuthService') {
                 throw error;
+            } else {
+                throw new DatabaseError(error.message, error.errno);
             }
-            console.error('DB에러 : ', error);
-            throw new DatabaseError(
-                error.message,
-                error.errno,
-                error.sqlMessage
-            );
         } finally {
             conn.release();
         }
     }
+    // 컨설턴트 기업 -----------------------------
+    async getConsultingCompany({ businessLicenseNum }) {
+        let sql, arg;
 
-    //사용자-기업 관계 데이터 생성
-    async createUserAndCompanyRelation({ userType, email, companyId }) {
-        let result, sql, arg;
-        let tableName, userIdColumn, companyIdColumn, belongingType;
-
-        const conn = await pool.getConnection();
+        const conn = await this.pool.getConnection();
         try {
-            conn.beginTransaction();
+            await conn.beginTransaction();
+            //기업 정보 생성
+            sql = `SELECT * from consulting_companies WHERE businessLicenseNum = ?`;
+            arg = [businessLicenseNum];
+            const companyInfoResult = await conn.query(sql, arg);
 
-            if (userType === 3) {
-                tableName = 'client_user_and_company';
-                userIdColumn = 'client_user_id';
-                companyIdColumn = 'client_company_id';
-                belongingType = 2; // 클라이언트 사용자는 바로 소속처리 : 상황변경에 따라 기본값 변경
-            } else {
-                // userType === 2 || userType === 1
-                tableName = 'consultant_user_and_company';
-                userIdColumn = 'consultant_user_id';
-                companyIdColumn = 'consulting_company_id';
-                belongingType = 1; // 컨설턴트 사용자는 소속요청 중 처리
-            }
-            let checkBelongingCompany = await this.getRelationInfo({
-                email,
-                userType,
-            });
-            if (checkBelongingCompany === undefined) {
-                // 기업에 처음 소속요청을 하는 경우
-                sql = `INSERT INTO ${tableName} (${userIdColumn}, ${companyIdColumn}, belonging_type) VALUES (?, ?, ?);`;
-                arg = [email, companyId, belongingType];
-                await conn.query(sql, arg);
-                return;
-            } else if (
-                checkBelongingCompany[companyIdColumn] === Number(companyId)
-            ) {
-                // 현재 기업에 소속된 적 있었던 사용자의 경우
-                let updateData = {
-                    userType: userType,
-                    companyId: companyId,
-                    email: email,
-                    belongingType: belongingType,
-                };
-                await this.updateUserBelongingStatus(updateData);
-                conn.commit();
-                return;
-            } else {
-                // if ( checkBelongingCompany[companyIdColumn] !==Number(companyId) // 이미 타기업에 소속된 사용자의 경우)
-                // throw new Error(
-                //     '타 기업에 소속된 사용자는 중복 소속요청을 할 수 없습니다.'
-                // );
-                result = {
-                    isAlreadyBelongingUser: true,
-                };
-                return result;
-            }
+            await conn.commit();
+            return companyInfoResult[0][0];
         } catch (error) {
-            conn.rollback();
             console.error('DB에러 : ', error);
-            throw new DatabaseError(
-                error.message,
-                error.errno,
-                error.sqlMessage
-            );
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
         }
     }
+    // 컨설턴트 기업-사용자
+    async checkExistConsultantCompanyManager({
+        consultingCompanyId,
+        belongingStatus,
+        managerType,
+    }) {
+        let sql, arg;
+        const conn = await this.pool.getConnection();
+        try {
+            await conn.beginTransaction();
+            sql = `SELECT EXISTS (SELECT * FROM consultant_user_and_company WHERE consultingCompanyId = ? AND belongingStatus = ? AND managerType = ?) AS isExistManager`;
+            arg = [consultingCompanyId, belongingStatus, managerType];
+            let managerExistInCompanyResult = await conn.query(sql, arg);
+            let isExistManager =
+                managerExistInCompanyResult[0][0].isExistManager;
+
+            return isExistManager;
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+
+    // 사용자--------------------------------------------------------------------
+    // CREATE
+    // 공통 : 회원가입
+    // async signUp({
+    //     email,
+    //     password,
+    //     name,
+    //     userType,
+    //     // phoneNum,
+    //     businessLicenseNum,
+    //     companyName,
+    //     presidentName,
+    // }) {
+    //     let result, sql, arg;
+    //     let usersTableName,
+    //         companiesTableName,
+    //         relationTableName,
+    //         userIdColumn,
+    //         companyIdColumn,
+    //         profileState,
+    //         companyInfo,
+    //         companyId,
+    //         belongingStatus,
+    //         managerType,
+    //         successMessage;
+
+    //     let userEntity = {
+    //         email: email,
+    //         password: password,
+    //         name: name,
+    //         userType: userType,
+    //     };
+    //     // 사용자 테이블 변수명 지정
+    //     if (userType === 3) {
+    //         usersTableName = 'client_users';
+    //         userIdColumn = 'client_user_id';
+    //     } else {
+    //         // userType === 2 || userType === 1
+    //         usersTableName = 'consultant_users';
+    //         userIdColumn = 'consultant_user_id';
+    //     }
+    //     // 기업 테이블 변수명 지정
+    //     if (userType === 3) {
+    //         companiesTableName = 'client_companies';
+    //         userIdColumn = 'client_company_id';
+    //     } else {
+    //         // userType === 2
+    //         companiesTableName = 'consulting_companies';
+    //         userIdColumn = 'consulting_company_id';
+    //     }
+    //     // 사용자-기업 연결 테이블 변수명 지정
+    //     if (userType === 3) {
+    //         relationTableName = 'client_user_and_company';
+    //         companyIdColumn = 'client_company_id';
+    //         userIdColumn = 'client_user_id';
+    //     } else {
+    //         // userType === 2 || userType === 1
+    //         relationTableName = 'consultant_user_and_company';
+    //         companyIdColumn = 'consulting_company_id';
+    //         userIdColumn = 'consultant_user_id';
+    //     }
+    //     // 사용자 프로필 인증 변수명 지정
+    //     if (userType === 1) {
+    //         profileState = 1;
+    //     } else {
+    //         // 클라이언트와 컨설팅 기업의 경우 기업인증상태로 처리
+    //         profileState = 0;
+    //     }
+
+    //     const conn = await pool.getConnection();
+    //     try {
+    //         await conn.beginTransaction();
+
+    //         //사용자 정보 생성 - 휴대폰 번호 삭제
+    //         sql = `INSERT INTO ${usersTableName} (${userIdColumn}, name, userType, profileStatus) VALUES (?, ?, ?, ?)`;
+    //         arg = [email, name, userType, profileState];
+    //         await conn.query(sql, arg);
+    //         successMessage = 'success! 개인 컨설턴트!!';
+
+    //         // 기업사용자 처리 : 개인컨설턴트(userType === 1)는 다 처리했으므로 마지막에 공통처리
+    //         if (userType === 2 || userType === 3) {
+    //             // 기업 사용자 (userType === 2 || userType === 3) 회원 가입 처리
+
+    //             // 등록 기업 사업자 유무
+    //             sql = `SELECT EXISTS (SELECT * FROM ${companiesTableName} WHERE businessLicenseNum = ?) AS isExist`;
+    //             arg = [businessLicenseNum];
+    //             let companyExist = await conn.query(sql, arg);
+    //             let isCompanyExist = companyExist[0][0].isExist;
+
+    //             // 등록된 기업 없음
+    //             if (!isCompanyExist) {
+    //                 //기업 정보 생성
+    //                 console.log('DB > Query : createClientCompany!!');
+
+    //                 sql = `INSERT INTO ${companiesTableName} (businessLicenseNum, company_name, president_name, approval_state) VALUES (?, ?, ?, ?)`;
+    //                 arg = [businessLicenseNum, companyName, presidentName, 0];
+    //                 const createCompany = await conn.query(sql, arg);
+    //                 console.log('!!!!!!!!!!!!!!!!!!!2', createCompany);
+
+    //                 // 생성한 기업id 가져오기
+    //                 sql = `SELECT ${companyIdColumn} FROM ${companiesTableName} WHERE businessLicenseNum =?`;
+    //                 arg = [businessLicenseNum];
+    //                 companyInfo = await conn.query(sql, arg);
+    //                 console.log('!!!!!!!!!!!!!!!!!!!2', companyInfo);
+    //                 companyId = companyInfo[0][0][companyIdColumn];
+    //                 belongingStatus = 2;
+    //                 managerType = 1; // 처음 등록된 기업이므로 관리자 처리
+
+    //                 // 생성한 기업과 사용자 연결
+    //                 sql = `INSERT INTO ${relationTableName} (${companyIdColumn}, ${userIdColumn}, belonging_type, manager_type) VALUES (?, ?, ?, ?)`;
+    //                 arg = [companyId, email, belongingStatus, managerType];
+    //                 let connectUserAndCompany = await conn.query(sql, arg);
+    //                 console.log('!!!!!!!!!!!!!!!!!!!3', connectUserAndCompany);
+    //                 successMessage = 'success! 최초 등록 기업!!';
+
+    //                 //등록된 기업 있음
+    //             } else {
+    //                 //기업id 가져오기
+    //                 sql = `SELECT ${companyIdColumn} FROM ${companiesTableName} WHERE businessLicenseNum =?`;
+    //                 arg = [businessLicenseNum];
+    //                 const regiCompanyInfo = await conn.query(sql, arg);
+    //                 console.log('!!!!!!!!!!!!!!!!!!!5', regiCompanyInfo);
+    //                 companyId = regiCompanyInfo[0][0][companyIdColumn];
+
+    //                 // 등록된 사업자 & 관리자인 사용자 유무 확인 ? 있으면 관리자 처리 : 없다면 요청상태로 처리
+    //                 sql = `SELECT EXISTS (SELECT * FROM ${relationTableName} WHERE ${companyIdColumn} = ? AND belonging_type = 2 AND manager_type = 1) AS isExist`;
+    //                 arg = [companyId];
+    //                 let managerExistInCompany = await conn.query(sql, arg);
+    //                 let managerExist = managerExistInCompany[0][0].isExist;
+
+    //                 // 관리자 유무에 따라 가입자 소속/관리자 상태 달리 등록
+    //                 if (!managerExist) {
+    //                     belongingStatus = 2; // 관리자가 없으므로 자동 소속 등록
+    //                     managerType = 1; // 관리자가 없으므로 관리자로 등록
+    //                     // 아랫 줄 테스트용 : 삭제
+    //                     successMessage =
+    //                         'success! 이미 등록된 기업!! > 관리자 없음';
+    //                 } else {
+    //                     userEntity.userType = 1; // 관리자가 있으므로 가입자 사용자 타입을 2 > 1로 변경
+    //                     belongingStatus = 1; // 관리자가 없으므로 소속 요청 중으로 처리
+    //                     managerType = 0; // 관리자가 있으므로 관리자 아님
+    //                     // 아랫 줄 테스트용 : 삭제
+    //                     successMessage =
+    //                         'success! 이미 등록된 기업!! > 관리자 있음';
+    //                 }
+
+    //                 // 등록된 기업과 사용자 연결
+    //                 sql = `INSERT INTO ${relationTableName} (${companyIdColumn}, ${userIdColumn}, belonging_type, manager_type) VALUES (?, ?, ?, ?)`;
+    //                 arg = [companyId, email, belongingStatus, managerType];
+    //                 let connectUserAndCompany = await conn.query(sql, arg);
+    //                 console.log('!!!!!!!!!!!!!!!!!!!6', connectUserAndCompany);
+    //             }
+    //         }
+    //         await authService.signUp(userEntity);
+    //         if (!successMessage) {
+    //             successMessage = 'success! 개인 컨설턴트!!';
+    //         }
+    //         console.log('****************', successMessage);
+    //         await conn.commit();
+    //         return;
+    //     } catch (error) {
+    //         await conn.rollback();
+    //         if (error.authServiceErrorName) {
+    //             console.error('cognito 에러 : ', error);
+    //             // 코그니토 signUp 에러인 경우
+    //             throw error;
+    //         }
+    //         console.error('DB에러 : ', error);
+    //         throw new DatabaseError(
+    //             error.message,
+    //             error.errno,
+    //             error.sqlMessage
+    //         );
+    //     } finally {
+    //         conn.release();
+    //     }
+    // }
+
+    // //사용자-기업 관계 데이터 생성
+    // async createUserAndCompanyRelation({ userType, email, companyId }) {
+    //     let result, sql, arg;
+    //     let tableName, userIdColumn, companyIdColumn, belongingStatus;
+
+    //     const conn = await pool.getConnection();
+    //     try {
+    //         conn.beginTransaction();
+
+    //         if (userType === 3) {
+    //             tableName = 'client_user_and_company';
+    //             userIdColumn = 'client_user_id';
+    //             companyIdColumn = 'client_company_id';
+    //             belongingStatus = 2; // 클라이언트 사용자는 바로 소속처리 : 상황변경에 따라 기본값 변경
+    //         } else {
+    //             // userType === 2 || userType === 1
+    //             tableName = 'consultant_user_and_company';
+    //             userIdColumn = 'consultant_user_id';
+    //             companyIdColumn = 'consulting_company_id';
+    //             belongingStatus = 1; // 컨설턴트 사용자는 소속요청 중 처리
+    //         }
+    //         let checkBelongingCompany = await this.getRelationInfo({
+    //             email,
+    //             userType,
+    //         });
+    //         if (checkBelongingCompany === undefined) {
+    //             // 기업에 처음 소속요청을 하는 경우
+    //             sql = `INSERT INTO ${tableName} (${userIdColumn}, ${companyIdColumn}, belonging_type) VALUES (?, ?, ?);`;
+    //             arg = [email, companyId, belongingStatus];
+    //             await conn.query(sql, arg);
+    //             return;
+    //         } else if (
+    //             checkBelongingCompany[companyIdColumn] === Number(companyId)
+    //         ) {
+    //             // 현재 기업에 소속된 적 있었던 사용자의 경우
+    //             let updateData = {
+    //                 userType: userType,
+    //                 companyId: companyId,
+    //                 email: email,
+    //                 belongingStatus: belongingStatus,
+    //             };
+    //             await this.updateUserBelongingStatus(updateData);
+    //             conn.commit();
+    //             return;
+    //         } else {
+    //             // if ( checkBelongingCompany[companyIdColumn] !==Number(companyId) // 이미 타기업에 소속된 사용자의 경우)
+    //             // throw new Error(
+    //             //     '타 기업에 소속된 사용자는 중복 소속요청을 할 수 없습니다.'
+    //             // );
+    //             result = {
+    //                 isAlreadyBelongingUser: true,
+    //             };
+    //             return result;
+    //         }
+    //     } catch (error) {
+    //         conn.rollback();
+    //         console.error('DB에러 : ', error);
+    //         throw new DatabaseError(
+    //             error.message,
+    //             error.errno,
+    //             error.sqlMessage
+    //         );
+    //     } finally {
+    //         conn.release();
+    //     }
+    // }
     // GET
     // 사용자 가져오기 : 클라이언트 / 컨설턴트 공통
     async getUserInfo({ email, userType }) {
@@ -519,7 +789,7 @@ module.exports = class {
         userType,
         companyId,
         email,
-        belongingType,
+        belongingStatus,
     }) {
         let sql, arg;
         let tableName, userIdColumn, companyIdColumn;
@@ -545,7 +815,7 @@ module.exports = class {
 
             // 사용자-기업 연결 상태 업데이트
             sql = `UPDATE consultant_user_and_company SET belonging_type = ? WHERE consulting_company_id = ? AND consultant_user_id = ?;`;
-            arg = [belongingType, companyId, email];
+            arg = [belongingStatus, companyId, email];
             await conn.query(sql, arg);
             // 사용자-기업 연결 정보 가져오기
             sql = `SELECT consultant_user_id ,belonging_type FROM consultant_user_and_company WHERE consulting_company_id = ? AND consultant_user_id = ?`;
@@ -593,13 +863,13 @@ module.exports = class {
             companyIdColumn,
             userIdColumn,
             companyId,
-            isManager;
+            managerType;
 
         const conn = await pool.getConnection();
         try {
             await conn.beginTransaction();
             // 탈퇴 정보 생성
-            sql = `INSERT INTO withdrawal_info (user_type, withdrawal_type) VALUES (?, ?)`;
+            sql = `INSERT INTO withdrawal_info (userType, withdrawal_type) VALUES (?, ?)`;
             arg = [userType, withdrawalType];
             await conn.query(sql, arg);
 
@@ -806,7 +1076,7 @@ module.exports = class {
         userType,
         companyId,
         email,
-        belongingType,
+        belongingStatus,
     }) {
         let result;
         let sql, arg;
@@ -831,7 +1101,7 @@ module.exports = class {
             }
             // 사용자 상태 업데이트
             sql = `UPDATE ${tableName} SET belonging_type = ? WHERE ${companyIdColumn} = ? AND ${userIdColumn}= ?;`;
-            arg = [belongingType, companyId, email];
+            arg = [belongingStatus, companyId, email];
             await conn.query(sql, arg);
             // 사용자 정보 가져오기
             sql = `SELECT ${userIdColumn},belonging_type FROM ${tableName} WHERE ${companyIdColumn} = ? AND ${userIdColumn}= ?`;
@@ -919,7 +1189,7 @@ module.exports = class {
             arg = [phoneNum, email];
             await conn.query(sql, arg);
             // 프로필 정보 생성 (자기소개)
-            sql = `UPDATE consultant_users SET profile_state = ?, user_introduce=? WHERE consultant_user_id = ?`;
+            sql = `UPDATE consultant_users SET profileStatus = ?, user_introduce=? WHERE consultant_user_id = ?`;
             arg = [1, introduce, email];
             await conn.query(sql, arg);
 
@@ -1069,7 +1339,7 @@ module.exports = class {
             await conn.beginTransaction();
 
             // 인증된 휴대폰 번호 & 승인요청상태 사용자 정보 업데이트
-            sql = `UPDATE consultant_users SET phone_num=?, profile_state = ? WHERE consultant_user_id = ?`;
+            sql = `UPDATE consultant_users SET phone_num=?, profileStatus = ? WHERE consultant_user_id = ?`;
             arg = [phoneNum, 0, email];
             await conn.query(sql, arg);
 
@@ -1138,7 +1408,7 @@ module.exports = class {
         try {
             await conn.beginTransaction();
             // 인증된 휴대폰 번호 & 승인요청상태 사용자 정보 업데이트
-            sql = `UPDATE client_users SET phone_num=?, profile_state = ? WHERE client_user_id = ?`;
+            sql = `UPDATE client_users SET phone_num=?, profileStatus = ? WHERE client_user_id = ?`;
             arg = [phoneNum, 0, email];
             await conn.query(sql, arg);
 

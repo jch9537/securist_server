@@ -4,16 +4,16 @@ const awsCognito = require('../../infrastructure/webService/authService/awsCogni
 const { auth, repository } = require('../outbound');
 const {
     CheckDuplicateEmail,
-    ResendComfirmEmail,
+    // ResendComfirmEmail,
     SignUp,
-    LogIn,
-    LogOut,
-    ForgotPassword,
-    ConfirmForgotPassword,
-    ChangePassword,
-    IssueNewToken,
-    CheckAccessToken,
-    VerifyUserByPassword,
+    Login,
+    // LogOut,
+    // ForgotPassword,
+    // ConfirmForgotPassword,
+    // ChangePassword,
+    // IssueNewToken,
+    // CheckAccessToken,
+    // VerifyUserByPassword,
 } = require('../../domain/usecase/auth');
 
 module.exports = class AuthAdapter {
@@ -23,24 +23,24 @@ module.exports = class AuthAdapter {
     }
     //Email 중복체크, 사용자 중복확인
     async checkDuplicateEmail(checkData) {
-        console.log(
-            '요청 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - checkData : ',
-            checkData
-        );
+        // console.log(
+        //     '요청 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - checkData : ',
+        //     checkData
+        // );
         try {
             let checkDuplicateEmail = new CheckDuplicateEmail(auth);
             let result = await checkDuplicateEmail.excute(checkData);
-            console.log(
-                '응답 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - result : ',
-                result
-            );
+            // console.log(
+            //     '응답 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - result : ',
+            //     result
+            // );
 
             return result;
         } catch (error) {
-            console.log(
-                '에러 응답 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - error : ',
-                error
-            );
+            // console.log(
+            //     '에러 응답 > adapters > inbound > authAdaptor.js > checkDuplicateEmail - error : ',
+            //     error
+            // );
             throw error;
         }
     }
@@ -87,24 +87,12 @@ module.exports = class AuthAdapter {
        5회이상 로그인 실패  ?  비밀번호찾기안내 : '계정이 잠금상태입니다. 관리자에게 문의해주세요' - 처리완료
     6. 비밀번호 유효기간 초과 ? 비밀번호 변경 모달 노출 :  로그인 화면 리다이렉션              - 프런트 처리
     */
-    async logIn(logInData) {
-        console.log(
-            '요청 > adapters > inbound > authAdaptor.js > logIn - logInData : ',
-            logInData
-        );
+    async login(logInData) {
         try {
-            let logIn = new LogIn(auth);
-            let result = await logIn.excute(logInData);
-            console.log(
-                '응답 > adapters > inbound > authAdaptor.js > logIn - result : ',
-                result
-            );
+            let login = new Login(auth);
+            let result = await login.excute(logInData);
             return result;
         } catch (error) {
-            console.log(
-                '에러 응답 > adapters > inbound > authAdaptor.js > logIn - error : ',
-                error
-            );
             throw error;
         }
     }

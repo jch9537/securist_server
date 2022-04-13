@@ -1,6 +1,3 @@
-const mysql = require('mysql2/promise');
-const dbConfig = require('./dbConfig');
+const Mysql = require('./query');
 
-const pool = mysql.createPool(dbConfig);
-
-module.exports = pool;
+module.exports = new Mysql();
