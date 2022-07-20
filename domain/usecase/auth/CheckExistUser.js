@@ -1,14 +1,14 @@
 const { AuthEntity } = require('../../entities');
-module.exports = class {
+module.exports = class CheckExistUser {
     constructor(auth) {
         this.auth = auth;
     }
     async excute(authData) {
         try {
             let authEntity = new AuthEntity(authData);
-            let existEmail = await this.auth.checkDuplicateEmail(authEntity);
+            let existEmail = await this.auth.checkExistUser(authEntity);
 
-            if (!existEmail.length) {
+            if (!existEmail) {
                 return;
                 // result = {
                 //     message: '사용 가능한 email 입니다.',

@@ -3,63 +3,46 @@ module.exports = class {
     constructor(authService) {
         this.authService = authService;
     }
-    async checkDuplicateEmail(userEntity) {
+    async checkExistUser(userEntity) {
         console.log(
-            '요청 > Adapter > outBound > auth > authentication >  - checkDuplicateEmail > userEntity : ',
+            '요청 > Adapter > outBound > auth > authentication >  - checkExistUser > userEntity : ',
             userEntity
         );
-        let result = await this.authService.checkExistEmail(userEntity);
+        let result = await this.authService.checkExistUser(userEntity);
         console.log(
-            '응답 > Adapter > outBound > auth > authentication >  - checkDuplicateEmail > result : ',
+            '응답 > Adapter > outBound > auth > authentication >  - checkExistUser > result : ',
             result
         );
         return result;
     }
-    async resendComfirmEmail(userEntity) {
+    async resendSignUpEmail(userEntity) {
         console.log(
-            '요청 > Adapter > outBound > auth > authentication >  - resendComfirmEmail > userEntity : ',
+            '요청 > Adapter > outBound > auth > authentication >  - resendSignUpEmail > userEntity : ',
             userEntity
         );
-        let result = await this.authService.resendComfirmEmail(userEntity);
+        let result = await this.authService.resendSignUpEmail(userEntity);
         console.log(
-            '응답 > Adapter > outBound > auth > authentication >  - resendComfirmEmail > result : ',
+            '응답 > Adapter > outBound > auth > authentication >  - resendSignUpEmail > result : ',
             result
         );
         return result;
     }
-    async logIn(userEntity) {
-        console.log(
-            '요청 > Adapter > outBound > auth > authentication >  - logIn : ',
-            userEntity
-        );
-        let result = await this.authService.logIn(userEntity);
-        console.log(
-            '응답 > Adapter > outBound > auth > authentication >  - logIn : ',
-            result
-        );
-        return result;
+    async logIn(authEntity) {
+        try {
+            let result = await this.authService.logIn(authEntity);
+            return result;
+        } catch (error) {
+            throw error;
+        }
     }
     async logOut(accessToken) {
-        console.log(
-            '요청 > Adapter > outBound > auth > authentication >  - logOut : '
-            // accessToken
-        );
         let result = await this.authService.logOut(accessToken);
-        console.log(
-            '응답 > Adapter > outBound > auth > authentication >  - logOut : ',
-            result
-        );
         return result;
     }
-    async changePassword(userEntity) {
-        console.log(
-            '요청 > Adapter > outBound > auth > authentication >  - changePassword : '
-            // userEntity
-        );
-        let result = await this.authService.changePassword(userEntity);
-        console.log(
-            '응답 > Adapter > outBound > auth > authentication >  - changePassword : ',
-            result
+    async changePassword(authEntity, accessToken) {
+        let result = await this.authService.changePassword(
+            authEntity,
+            accessToken
         );
         return result;
     }
@@ -75,27 +58,27 @@ module.exports = class {
         );
         return result;
     }
-    async forgotPassword(userEntity) {
+    async findPassword(userEntity) {
         console.log(
-            '요청 > Adapter > outBound > auth > authentication >  - forgotPassword : '
+            '요청 > Adapter > outBound > auth > authentication >  - findPassword : '
             // userEntity
         );
-        let result = await this.authService.forgotPassword(userEntity);
+        let result = await this.authService.findPassword(userEntity);
         console.log(
-            '응답 > Adapter > outBound > auth > authentication >  - forgotPassword : ',
+            '응답 > Adapter > outBound > auth > authentication >  - findPassword : ',
             result
         );
         return result;
     }
 
-    async confirmForgotPassword(userEntity) {
+    async updateForgotPassword(userEntity) {
         console.log(
-            '요청 > Adapter > outBound > auth > authentication >  - confirmForgotPassword : '
+            '요청 > Adapter > outBound > auth > authentication >  - updateForgotPassword : '
             // {email, code, password}
         );
-        let result = await this.authService.confirmForgotPassword(userEntity);
+        let result = await this.authService.updateForgotPassword(userEntity);
         console.log(
-            '응답 > Adapter > outBound > auth > authentication >  - confirmForgotPassword : ',
+            '응답 > Adapter > outBound > auth > authentication >  - updateForgotPassword : ',
             result
         );
         return result;
@@ -153,14 +136,14 @@ module.exports = class {
         );
         return result;
     }
-    async issueNewToken(refreshToken) {
+    async reissueToken(refreshToken) {
         console.log(
-            '요청 > Adapter > outBound > auth > authentication >  - issueNewToken : ',
+            '요청 > Adapter > outBound > auth > authentication >  - reissueToken : ',
             refreshToken
         );
-        let result = await this.authService.issueNewToken(refreshToken);
+        let result = await this.authService.reissueToken(refreshToken);
         console.log(
-            '응답 > Adapter > outBound > auth > authentication >  - issueNewToken : ',
+            '응답 > Adapter > outBound > auth > authentication >  - reissueToken : ',
             result
         );
         return result;

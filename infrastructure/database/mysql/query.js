@@ -170,7 +170,7 @@ module.exports = class Mysql {
             if (
                 userType === 2 || // 컨설팅 업체인 경우
                 (userType === 1 && // 컨설팅 업체 소속 요청 개인 컨설턴트인 경우
-                    consultantUserAndCompanyEntity.belongingStatus === 1)
+                    consultantUserAndCompanyEntity !== undefined)
             ) {
                 let consultingCompanyId;
                 let {
@@ -209,8 +209,8 @@ module.exports = class Mysql {
                 await conn.query(sql, arg);
             }
 
-            // // cognito 사용자 등록
-            // await authService.signUp(authEntity);
+            // cognito 사용자 등록
+            await authService.signUp(authEntity);
 
             await conn.commit();
             return;

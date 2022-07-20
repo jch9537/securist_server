@@ -1,13 +1,13 @@
 module.exports = {
-    CheckDuplicateEmail: require('./CheckDuplicateEmail'),
-    // ResendComfirmEmail: require('./ResendComfirmEmail'),
+    CheckExistUser: require('./CheckExistUser'),
+    ResendSignUpEmail: require('./ResendSignUpEmail'),
     SignUp: require('./SignUp'),
-    Login: require('./Login'),
-    // LogOut: require('./LogOut'),
-    // ForgotPassword: require('./ForgotPassword'),
-    // ChangePassword: require('./ChangePassword'),
-    // ConfirmForgotPassword: require('./ConfirmForgotPassword'),
-    // // CheckAccessToken: require('./CheckAccessToken'), // 미들웨어 처리
-    // IssueNewToken: require('./IssueNewToken'),
-    // VerifyUserByPassword: require('./VerifyUserByPassword'),
+    LogIn: require('./LogIn'),
+    LogOut: require('./LogOut'),
+    FindPassword: require('./FindPassword'),
+    ChangePassword: require('./ChangePassword'),
+    UpdateForgotPassword: require('./UpdateForgotPassword'),
+    ReissueToken: require('./ReissueToken'),
+    // CheckAccessToken: require('./CheckAccessToken'), // 미들웨어 처리
+    VerifyUserByPassword: require('./VerifyUserByPassword'),
 };
