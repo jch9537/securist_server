@@ -10,5 +10,5 @@ node_modules/
 .prettierrc
 
 # dev files
-infrastructure/server/middlewares/niceModule/CPClient.exe
+adapters/module/niceModule/CPClient.exe
 adapters/module/logger/logs/

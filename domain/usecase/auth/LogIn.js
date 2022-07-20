@@ -1,6 +1,6 @@
 const { AuthEntity } = require('../../entities');
 //로그인
-module.exports = class Login {
+module.exports = class LogIn {
     constructor(auth) {
         this.auth = auth;
     }
@@ -8,8 +8,8 @@ module.exports = class Login {
         try {
             let authEntity = new AuthEntity(logInData);
 
-            let loginData = await this.auth.login(authEntity);
-            return loginData;
+            let loginInfo = await this.auth.logIn(authEntity);
+            return loginInfo;
         } catch (error) {
             throw error;
         }

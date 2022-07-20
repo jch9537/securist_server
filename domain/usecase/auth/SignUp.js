@@ -16,7 +16,7 @@ const {
     ConsultantUserAndCompanyEntity,
 } = require('../../entities');
 const { CompanyEntity } = require('../../entities');
-module.exports = class {
+module.exports = class SignUp {
     constructor(repository) {
         this.repository = repository;
     }
@@ -207,7 +207,7 @@ module.exports = class {
                 );
             }
 
-            // return;
+            return;
         } catch (error) {
             console.error(error);
             throw error;
