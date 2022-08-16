@@ -6,7 +6,9 @@ const { logger } = require('../../../adapters/module');
 const { authAdapter } = require('../../../adapters/inbound');
 const { SuccessResponse } = require('../../../adapters/response');
 const {
+    CheckEmailRequestDto,
     LoginRequestDto,
+    SignupRequestDto,
     ChangePasswordRequestDto,
     FindPasswordRequestDto,
     FindPasswordSettingRequestDto,
@@ -17,14 +19,14 @@ const { extractToken, decryptIdToken } = require('../middlewares');
 // 본인 인증 모듈
 router.use('/nice', niceRouter);
 
-// 중복 확인 : get으로 변경 처리필요
+// email 중복 확인
 router.get('/check', async (req, res, next) => {
     let result, response;
     try {
-        let reqQueryData = req.filteredQuery; // dto 추가
-        console.log('POST /api/user/auth/check 요청 : ', reqQueryData);
+        let { authData } = new CheckEmailRequestDto(req.filteredQuery);
+        console.log('POST /api/user/auth/check 요청 : ', authData);
 
-        result = await authAdapter.checkExistUser(reqQueryData);
+        result = await authAdapter.checkExistUser(authData);
         console.log('POST /api/user/auth/check 응답 : ', result);
 
         response = new SuccessResponse(204, result);
@@ -41,10 +43,10 @@ router.get('/check', async (req, res, next) => {
 router.post('/signup', async (req, res, next) => {
     let result, response;
     try {
-        let reqBodyData = req.filteredBody; // dto 추가
-        console.log('POST /api/user/auth/signup 요청 : ', reqBodyData);
+        let { authData } = new SignupRequestDto(req.filteredBody);
+        console.log('POST /api/user/auth/signup 요청 : ', authData);
 
-        result = await authAdapter.signUp(reqBodyData);
+        result = await authAdapter.signUp(authData);
         console.log('POST /api/user/auth/signup 응답 : ', result);
 
         response = new SuccessResponse(201, result);
@@ -61,8 +63,8 @@ router.post('/signup', async (req, res, next) => {
 router.post('/signup/resend', async (req, res, next) => {
     let result, response;
     try {
-        let reqBodyData = req.filteredBody; // dto 추가
-        result = await authAdapter.resendSignUpEmail(reqBodyData);
+        let { authData } = new CheckEmailRequestDto(req.filteredBody);
+        result = await authAdapter.resendSignUpEmail(authData);
         console.log('/signup/resend 응답 : ', result);
 
         response = new SuccessResponse(202, result);
@@ -147,12 +149,12 @@ router.put('/password/loss', async (req, res, next) => {
 });
 
 //관리자 권한 처리 API : 테스트 용 API ------------------------
-router.post('/deleteUserByAdmin', async (req, res, next) => {
+router.delete('/:email', async (req, res, next) => {
     let result, response;
     try {
-        let reqBodyData = req.filteredBody;
-        console.log('deleteUserByAdmin 요청 : ', reqBodyData);
-        result = await authAdapter.deleteUserByAdmin(reqBodyData);
+        let { authData } = new CheckEmailRequestDto(req.params);
+        console.log('deleteUserByAdmin 요청 : ', authData);
+        result = await authAdapter.deleteUserByAdmin(authData);
 
         response = new SuccessResponse(204, result);
         logger.log(

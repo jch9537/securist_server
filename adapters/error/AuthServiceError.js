@@ -30,10 +30,16 @@ module.exports = class AuthServiceError extends Error {
             case 'User does not exist.':
                 statusCode = 404;
                 break;
+            case 'Already Exist':
+                statusCode = 409;
+                break;
             case 'An account with the given email already exists.':
                 statusCode = 409;
                 break;
             case 'Invalid verification code provided, please try again.':
+                statusCode = 401;
+                break;
+            case 'Invalid code provided, please request a code again.':
                 statusCode = 401;
                 break;
             case 'Access Token has expired':
@@ -46,6 +52,9 @@ module.exports = class AuthServiceError extends Error {
                 statusCode = 401;
                 break;
             case 'Could not verify signature for Access Token':
+                statusCode = 401;
+                break;
+            case 'Refresh Token has expired':
                 statusCode = 401;
                 break;
             case 'Invalid Refresh Token':
@@ -61,6 +70,9 @@ module.exports = class AuthServiceError extends Error {
                 statusCode = 401;
                 break;
             case 'claim use is not access':
+                statusCode = 401;
+                break;
+            case 'Unexpected token':
                 statusCode = 401;
                 break;
             default:
@@ -87,11 +99,17 @@ module.exports = class AuthServiceError extends Error {
             case 'User does not exist.': // 존재하지 않은 사용자
                 errMessage = 'User does not exist.';
                 break;
-            case 'An account with the given email already exists.': // 등록되지 않은 email
+            case 'Already Exist': // 이미 가입된 계정
+                errMessage = 'Already exist';
+                break;
+            case 'An account with the given email already exists.': // 이미 가입된 계정
                 errMessage = 'Already exist';
                 break;
             case 'Invalid verification code provided, please try again.': // 잘못된 확인코드
-                errMessage = 'Invalid verification code ';
+                errMessage = 'Invalid verification code';
+                break;
+            case 'Invalid code provided, please request a code again.': // 확인 코드 만료 재시도 필요
+                errMessage = 'Invalid verification code';
                 break;
             case 'Access Token has expired': // access token 만료
                 errMessage = 'Token expired';
@@ -108,6 +126,9 @@ module.exports = class AuthServiceError extends Error {
             case 'Invalid Refresh Token': // 잘못된 referesh token
                 errMessage = 'Not authentication';
                 break;
+            case 'Refresh Token has expired':
+                errMessage = 'Not authentication';
+                break;
             case 'requested token is invalid': // 잘못된 token
                 errMessage = 'Not authentication';
                 break;
@@ -118,6 +139,9 @@ module.exports = class AuthServiceError extends Error {
                 errMessage = 'Not authentication';
                 break;
             case 'claim use is not access': // token 확인 오류 : 엑세스 권한 없음
+                errMessage = 'Not authentication';
+                break;
+            case 'Unexpected token':
                 errMessage = 'Not authentication';
                 break;
             default:

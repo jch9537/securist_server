@@ -5,4 +5,5 @@ module.exports = {
     TypeException: require('./TypeException'),
     NoContent: require('./NoContent'),
     UnexpectedException: require('./UnexpectedException'),
+    ValidationException: require('./ValidationException'),
 };

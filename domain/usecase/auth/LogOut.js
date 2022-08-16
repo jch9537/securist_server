@@ -3,9 +3,9 @@ module.exports = class LogOut {
     constructor(auth) {
         this.auth = auth;
     }
-    async excute(AccessToken) {
+    async excute(accessToken) {
         try {
-            await this.auth.logOut(AccessToken);
+            await this.auth.logOut(accessToken);
             return;
         } catch (error) {
             console.error(error);

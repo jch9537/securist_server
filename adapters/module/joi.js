@@ -6,10 +6,24 @@ module.exports = {
     // ============================== 인증 처리 유효성 확인 ===================================
 
     // 사용자 토큰 APIs-------------------------------------------------
+    // 기가입 확인
+    checkEmailSchema: Joi.object({
+        email: Joi.string().email().required(),
+    }),
     // 로그인
     loginSchema: Joi.object({
         email: Joi.string().email().required(),
         password: Joi.string().pattern(passwordReg).required(),
+    }),
+    // 회원가입
+    signupSchema: Joi.object({
+        email: Joi.string().email().required(),
+        password: Joi.string().pattern(passwordReg).required(),
+        userType: Joi.number().min(1).max(3).required(),
+        name: Joi.string().max(20).required(),
+        businessLicenseNum: Joi.string().alphanum().length(10), // 패턴으로 수정
+        companyName: Joi.string().max(20),
+        presidentName: Joi.string().max(20),
     }),
     // 새 비밀번호 설정
     firstPasswordSettingSchema: Joi.object({
@@ -37,6 +51,20 @@ module.exports = {
         newPassword: Joi.string().pattern(passwordReg).required(),
     }),
 
+    // 내 정보 --------------------------------------------------
+    updateMyInfoSchema: Joi.object({
+        phoneNum: Joi.string()
+            .pattern(/^[0-9]+$/)
+            .min(10)
+            .max(12),
+        bankName: Joi.string().max(20),
+        bankAccountNum: Joi.string().pattern(/^[0-9]+$/),
+        bankAccountOwner: Joi.string().max(20),
+        profileStatus: Joi.number().min(1).max(4),
+        profileGrade: Joi.number().min(1).max(5),
+        userIntroduce: Joi.any(), // 자기소개 - 확인할 것
+        applicationState: Joi.number().min(0).max(1),
+    }),
     // ============================== 사용자 정보 유효성 확인 ===================================
     // 사용자 토큰 APIs-------------------------------------------------
     // id token 으로 가져온 사용자 정보 유효성 확인 : 유효성 보완하기!!

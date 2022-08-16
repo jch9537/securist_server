@@ -1,8 +1,8 @@
 'use strict';
 
 module.exports = class ClientUsersEntity {
-    constructor({ email, userType, name, phoneNum, profileStatus }) {
-        this.clientUserId = email;
+    constructor({ clientUserId, userType, name, phoneNum, profileStatus }) {
+        this.clientUserId = clientUserId;
         this.userType = userType;
         this.name = name;
         this.phoneNum = phoneNum;

@@ -6,6 +6,8 @@ module.exports = class ClientCompaniesEntity {
         businessLicenseNum,
         companyName,
         presidentName,
+        industry,
+        address,
         approvalStatus,
         businessLicenseFileName,
         businessLicenseFilePath,
@@ -16,6 +18,8 @@ module.exports = class ClientCompaniesEntity {
         this.businessLicenseNum = businessLicenseNum;
         this.companyName = companyName;
         this.presidentName = presidentName;
+        this.industry = industry;
+        this.address = address;
         this.approvalStatus = approvalStatus;
         this.businessLicenseFileName = businessLicenseFileName;
         this.businessLicenseFilePath = businessLicenseFilePath;

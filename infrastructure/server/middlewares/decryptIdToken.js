@@ -1,7 +1,7 @@
 const {
     processingToken,
 } = require('../../webService/authService/awsMiddleware');
-const { TokenError } = require('../../response');
+const { TokenError } = require('../../../adapters/error');
 // id token 복호화 : 사용자 cognito 가입정보 가져오기
 module.exports = async (req, res, next) => {
     try {
@@ -11,14 +11,32 @@ module.exports = async (req, res, next) => {
                 !Object.keys(req.query).length &&
                 !Object.keys(req.params).length
             ) {
-                throw new TokenError('ID 토큰이 없습니다.');
+                throw new TokenError();
             }
         } else {
             let idToken = req.token;
             let userData = await processingToken.getUserByIdToken(idToken);
             // let userData = await authService.getUserByIdToken(idToken);
-            req.userDataByIdToken = userData;
-            console.log('아이디 토큰 복호화 토큰 : ', req.userDataByIdToken);
+            // console.log('idToken데이터 확인', userData);
+            let { email, userType, name } = userData;
+
+            // 사용자 타입에 따라 이메일에 대한 키 값 변경
+            if (userType === 1) {
+                // 클라이언트인 경우
+                req.userDataByIdToken = {
+                    clientUserId: email,
+                    userType: userType,
+                    name: name,
+                };
+            } else {
+                // 개인 컨설턴트인 경우 - userType === 2
+                req.userDataByIdToken = {
+                    consultantUserId: email,
+                    userType: userType,
+                    name: name,
+                };
+            }
+            // console.log('아이디 토큰 복호화 토큰 : ', req.userDataByIdToken);
         }
         next();
     } catch (error) {
