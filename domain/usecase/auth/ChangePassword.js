@@ -1,35 +1,24 @@
-const { UserEntity } = require('../../entities');
+const { AuthEntity } = require('../../entities');
 
-module.exports = class {
+module.exports = class ChangePassword {
     constructor(auth) {
         this.auth = auth;
     }
-    async excute(accessToken, updatePasswordData) {
-        let result, response;
+    async excute(updatePasswordData, accessToken) {
         try {
-            let password;
-            password = updatePasswordData.prePassword;
-            let prePasswordEntity = new UserEntity({ password });
-            password = updatePasswordData.newPassword;
-            let newPasswordEntity = new UserEntity({ password });
+            let authEntity = updatePasswordData;
+            await this.auth.changePassword(authEntity, accessToken);
+            return;
 
-            let userEntity = {
-                accessToken: accessToken,
-                prePassword: prePasswordEntity.password,
-                newPassword: newPasswordEntity.password,
-            };
-            response = await this.auth.changePassword(userEntity);
-
-            result = {
-                message: '비밀 번호 변경 완료',
-            };
-            return result;
+            // result = {
+            //     message: '비밀 번호 변경 완료',
+            // };
         } catch (error) {
             console.error(error);
             // if (!error.authServiceErrorName) {
             //     error.message = '비밀번호 변경 실패';
             // }
-            error.message = '비밀번호 변경 실패';
+            // error.message = '비밀번호 변경 실패';
             throw error;
         }
     }

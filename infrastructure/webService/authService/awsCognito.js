@@ -1,8 +1,10 @@
 //개별 클라우드 인증서비스의 실행클래스 - cognito
 const AWS = require('../awsConfig');
-const { processingToken, checkExpiredPassword } = require('./awsMiddleware');
-// const { Exception } = require('../../../adapters/exceptions');
-const { AuthServiceError, TokenError } = require('../../response');
+// const { processingToken, checkExpiredPassword } = require('./awsMiddleware');
+const { AuthServiceError, TokenError } = require('../../../adapters/error');
+// const {
+//     TRANSACTION_TRANSPORT_CATEGORY,
+// } = require('@sentry/core/dist/transports/base');
 
 const userPoolId = process.env.AWS_COGNITO_USERPOOL_ID;
 const clientId = process.env.AWS_APP_CLIENT_ID;
@@ -11,591 +13,299 @@ module.exports = class {
         this.cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider();
     }
     // 이메일 존재여부 확인
-    async checkExistEmail({ email }) {
-        let result;
+    async checkExistUser({ email }) {
+        try {
+            const params = {
+                UserPoolId: userPoolId,
+                // AttributesToGet: ['emai'],
+                Filter: `email = \"${email}\"`,
+            };
+            let userListResult = await this.cognitoidentityserviceprovider
+                .listUsers(params)
+                .promise();
 
-        console.log(
-            '요청 > Infrastructure > webService > authService > awsCognito.js > checkExistEmail : ',
-            email
-        );
-        const params = {
-            UserPoolId: userPoolId,
-            // AttributesToGet: ['emai'],
-            Filter: `email = \"${email}\"`,
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.listUsers(
-                params,
-                function (error, data) {
-                    if (error) {
-                        console.error(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > checkExistEmail : ',
-                            error
-                        );
-                        // an error occurred
-                        reject(
-                            new AuthServiceError(
-                                error.message,
-                                error.statusCode,
-                                error.code,
-                                error
-                            )
-                        );
-                    } else {
-                        // successful response
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > checkExistEmail : data ',
-                            data
-                        );
-                        result = data.Users;
-                        resolve(result);
-                    }
-                }
-            );
-        });
+            if (!!userListResult.Users.length) {
+                // 이미 등록한 사용자가 있다면 에러 응답
+                throw Error('Already Exist');
+            } else {
+                // 없다면 회원가입 가능 : 응답값 없음
+                return;
+            }
+        } catch (error) {
+            // console.error(
+            //     '에러 응답 > Infrastructure > webService > authService > Cognito.js > checkExistUser : ',
+            //     error
+            // );
+            throw new AuthServiceError(error.message, error.data);
+        }
     }
     // 사용자 회원 가입
-    signUp({ email, password, name, userType }) {
-        let result;
-        console.log(
-            '요청 > Infrastructure > webService > authService > awsCognito.js > signup : ',
-            { email, password, name, userType }
-        );
-        let params = {
-            ClientId: clientId /* required */,
-            Password: password /* required */,
-            Username: email /* required */,
-            ValidationData: [
-                {
-                    Name: 'email' /* required */,
-                    Value: email,
-                },
-            ],
-            UserAttributes: [
-                {
-                    Name: 'email' /* required */,
-                    Value: email,
-                },
-                {
-                    Name: 'name',
-                    Value: name,
-                },
-                {
-                    Name: 'custom:userType',
-                    Value: `${userType}`,
-                },
-                {
-                    Name: 'custom:retryCount', // 로그인 실패횟수
-                    Value: '0',
-                },
-                {
-                    // Name: 'custom:passwordUpdatedAt', // 비밀번호변경시간
-                    Name: 'custom:passwordUpdateDate', // 비밀번호변경시간
-                    Value: `${Math.floor(new Date().valueOf() / 1000)}`,
-                },
-                // 아래 로그인 잠금상태/정보변경시간/회원가입날짜시간(변경불가) 의 경우 계정이 존재하면 기본적으로 cognito 응답 Users배열 내 Enabled / UserCreateDate / UserLastModifiedDate가 있어서 필요없음
-            ],
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.signUp(
-                params,
-                function (error, data) {
-                    if (error) {
-                        console.error(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > signup : ',
-                            error
-                        );
+    async signUp({ email, password, name, userType }) {
+        try {
+            let params = {
+                ClientId: clientId,
+                Password: password,
+                Username: email,
+                ValidationData: [
+                    {
+                        Name: 'email',
+                        Value: email,
+                    },
+                ],
+                UserAttributes: [
+                    {
+                        Name: 'email',
+                        Value: email,
+                    },
+                    {
+                        Name: 'name',
+                        Value: name,
+                    },
+                    {
+                        Name: 'custom:userType',
+                        Value: `${userType}`,
+                    },
+                    {
+                        Name: 'custom:retryCount', // 로그인 실패횟수
+                        Value: '0',
+                    },
+                    {
+                        // Name: 'custom:passwordUpdatedAt', // 비밀번호변경시간
+                        Name: 'custom:passwordUpdateDate', // 비밀번호변경시간
+                        Value: `${Math.floor(new Date().valueOf() / 1000)}`,
+                    },
+                    // 아래 로그인 잠금상태/정보변경시간/회원가입날짜시간(변경불가) 의 경우 계정이 존재하면 기본적으로 cognito 응답 Users배열 내 Enabled / UserCreateDate / UserLastModifiedDate가 있어서 필요없음
+                ],
+            };
 
-                        reject(
-                            new AuthServiceError(
-                                error.message,
-                                error.statusCode,
-                                error.code,
-                                error
-                            )
-                        );
-                    } else {
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > signup : ',
-                            data
-                        );
-                        result = data;
-                        resolve(result);
-                    }
-                }
-            );
-        });
+            let signUpResult = await this.cognitoidentityserviceprovider
+                .signUp(params)
+                .promise();
+            return;
+        } catch (error) {
+            console.error(error);
+            throw new AuthServiceError(error.message, error.data);
+        }
     }
     // 가입 확인 메일 재전송
-    resendComfirmEmail({ email }) {
+    async resendSignUpEmail({ email }) {
         const params = {
-            ClientId: clientId /* required */,
-            Username: email /* required */,
+            ClientId: clientId,
+            Username: email,
         };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.resendConfirmationCode(
-                params,
-                function (error, data) {
-                    if (error) {
-                        // an error occurred
-                        console.log(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > resendComfirmEmail : ',
-                            error
-                        );
-                        reject(
-                            new AuthServiceError(
-                                error.message,
-                                error.statusCode,
-                                error.code,
-                                error
-                            )
-                        );
-                    } else {
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > resendComfirmEmail : ',
-                            data
-                        ); // successful response
-                        resolve(data);
-                    }
-                }
-            );
-        });
+        try {
+            await this.cognitoidentityserviceprovider
+                .resendConfirmationCode(params)
+                .promise();
+        } catch (error) {
+            console.error(error);
+            throw new AuthServiceError(error.message, error.data);
+        }
     }
     // 로그인
-    logIn({ email, password }) {
+    async logIn({ email, password }) {
         let self = this;
-        console.log(
-            '요청 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
-            { email, password }
-        );
-        let params = {
-            AuthFlow: 'USER_PASSWORD_AUTH',
-            ClientId: clientId /* required */,
-            AuthParameters: {
-                USERNAME: `${email}`,
-                PASSWORD: `${password}`,
-            },
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.initiateAuth(
-                params,
-                async function (error, data) {
-                    if (error) {
-                        // an error occurred
-                        if (
-                            error.code === 'NotAuthorizedException' &&
-                            error.message === 'Incorrect username or password.'
-                        ) {
-                            try {
-                                let failCount = await self.getRetryCount(email);
-                                console.log('failCount', failCount);
-                                failCount += 1;
-                                await self.setRetryCount(email, failCount);
-                                error.failCount = failCount;
-                                reject(
-                                    new AuthServiceError(
-                                        error.message,
-                                        error.statusCode,
-                                        error.code,
-                                        error
-                                    )
-                                );
-                                console.error(
-                                    '에러 응답 > Infrastructure > webService > authService > awsCognito.js > logIn 1 : ',
-                                    error
-                                );
-                            } catch (error) {
-                                reject(
-                                    new AuthServiceError(
-                                        error.message,
-                                        error.statusCode,
-                                        error.code,
-                                        error
-                                    )
-                                );
-                            }
-                        } else {
-                            console.error(
-                                '에러 응답 > Infrastructure > webService > authService > awsCognito.js > logIn 2 : ',
-                                error
-                            );
-                            reject(
-                                new AuthServiceError(
-                                    error.message,
-                                    error.statusCode,
-                                    error.code,
-                                    error.retryCount
-                                )
-                            );
-                        }
-                    } else {
-                        // successful response
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
-                            data.AuthenticationResult
-                        );
-                        let result = data.AuthenticationResult;
-                        self.resetRetryCount(result.AccessToken); // 로그인 시도 리셋
+        try {
+            let params = {
+                AuthFlow: 'USER_PASSWORD_AUTH',
+                ClientId: clientId /* required */,
+                AuthParameters: {
+                    USERNAME: `${email}`,
+                    PASSWORD: `${password}`,
+                },
+            };
+            console.log('로그인 파라미터 ', params);
+            let loginResult = await this.cognitoidentityserviceprovider
+                .initiateAuth(params)
+                .promise();
 
-                        let userInfo = processingToken.decodeToken(
-                            result.IdToken
-                        );
-                        userInfo
-                            .then((res) => {
-                                let userType = res['custom:userType'];
-                                result.userType = userType; // 사용자 타입
-
-                                // let passwordUpdatedAt =
-                                //     res['custom:passwordUpdatedAt'];
-                                let passwordUpdateDate =
-                                    res['custom:passwordUpdateDate'];
-                                // result.isPasswordExpired = checkExpiredPassword(
-                                //     passwordUpdatedAt // 비밀번호 만료여부
-                                // );
-                                result.isPasswordExpired = checkExpiredPassword(
-                                    passwordUpdateDate // 비밀번호 만료여부
-                                );
-                                resolve(result);
-                            })
-                            .catch((error) => {
-                                console.error(
-                                    '에러 응답 > Infrastructure > webService > authService > awsCognito.js > logIn 3 : ',
-                                    error
-                                );
-                                reject(
-                                    new AuthServiceError(
-                                        error.message,
-                                        error.statusCode,
-                                        error.code,
-                                        error
-                                    )
-                                );
-                            });
-                    }
-                }
-            );
-        });
+            // 로그인
+            let loginData = loginResult.AuthenticationResult;
+            await self.resetRetryCount(loginData.AccessToken); // 로그인 시도 리셋
+            // }
+            return loginData;
+        } catch (error) {
+            console.error(error);
+            if (
+                error.message === 'Incorrect username or password.' ||
+                error.message === 'Password attempts exceeded'
+            ) {
+                let failCount = await self.getRetryCount(email); // 여기 확인하고 추가처리!!!
+                console.log('failCount', failCount);
+                // 로그인 시도 횟수 증가
+                failCount += 1;
+                await self.setRetryCount(email, failCount);
+                error.data = { tryCount: failCount };
+            }
+            throw new AuthServiceError(error.message, error.data);
+        }
     }
     //로그아웃
-    logOut(accessToken) {
-        let result;
-        console.log(
-            '요청 > Infrastructure > webService > authService > awsCognito.js > logOut : '
-            // accessToken
-        );
-        const params = {
-            AccessToken: `${accessToken}` /* required */,
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.globalSignOut(
-                params,
-                function (error, data) {
-                    if (error) {
-                        // an error occurred
-                        /*추가할 예외처리
-                        ResourceNotFoundException
-                        */
-                        console.error(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > logOut : ',
-                            error
-                        );
-                        reject(
-                            new AuthServiceError(
-                                error.message,
-                                error.statusCode,
-                                error.code,
-                                error
-                            )
-                        );
-                    } else {
-                        // successful response
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > logOut : ',
-                            data
-                        );
-                        result = data;
-                        resolve(result);
-                    }
-                }
-            );
-        });
-    }
+    async logOut(accessToken) {
+        try {
+            const params = {
+                AccessToken: `${accessToken}`,
+            };
 
+            // let result =
+            await this.cognitoidentityserviceprovider
+                .globalSignOut(params)
+                .promise();
+            return;
+        } catch (error) {
+            throw new AuthServiceError(error.message, error.data);
+        }
+    }
     // 새 access 토큰 발행
-    issueNewToken(refreshToken) {
-        let result;
-        const params = {
-            AuthFlow: 'REFRESH_TOKEN',
-            ClientId: clientId /* required */,
-            AuthParameters: {
-                REFRESH_TOKEN: `${refreshToken}`,
-            },
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.initiateAuth(
-                params,
-                function (error, data) {
-                    if (error) {
-                        // an error occurred
-                        console.error(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  issueNewToken : ',
-                            error
-                        );
-                        reject(
-                            new AuthServiceError(
-                                error.message,
-                                error.statusCode,
-                                error.code,
-                                error
-                            )
-                        );
-                    } else {
-                        // successful response
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > issueNewToken : ',
-                            data
-                        );
-                        result = data.AuthenticationResult;
-
-                        resolve(result);
-                    }
-                }
-            );
-        });
-    }
-
-    // 로그인 시도 횟수 리셋 : accessToken
-    resetRetryCount(accessToken) {
-        let result;
-        console.log(
-            '요청 > Infrastructure > webService > authService > awsCognito.js > resetLogInCount : ',
-            accessToken
-        );
-        const params = {
-            AccessToken: `${accessToken}` /* required */,
-            UserAttributes: [
-                {
-                    Name: 'custom:retryCount' /* required */,
-                    Value: '0',
+    async reissueToken(refreshToken) {
+        try {
+            const params = {
+                AuthFlow: 'REFRESH_TOKEN',
+                ClientId: clientId /* required */,
+                AuthParameters: {
+                    REFRESH_TOKEN: `${refreshToken}`,
                 },
-            ],
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.updateUserAttributes(
-                params,
-                function (error, data) {
-                    // an error occurred
-                    if (error) {
-                        console.error(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > resetLogInCount : ',
-                            error
-                        );
-                        reject(
-                            new AuthServiceError(
-                                error.message,
-                                error.statusCode,
-                                error.code,
-                                error
-                            )
-                        );
-                    } else {
-                        // successful response
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > resetLogInCount : ',
-                            data
-                        );
-                        result = data;
-                        resolve(result);
-                    }
-                }
-            );
-        });
+            };
+
+            let newTokenResult = await this.cognitoidentityserviceprovider
+                .initiateAuth(params)
+                .promise();
+
+            return newTokenResult.AuthenticationResult;
+        } catch (error) {
+            console.error(error);
+            throw new AuthServiceError(error.message, error.data);
+        }
+    }
+    // 로그인 시도 횟수 리셋 : accessToken
+    async resetRetryCount(accessToken) {
+        try {
+            const params = {
+                AccessToken: `${accessToken}` /* required */,
+                UserAttributes: [
+                    {
+                        Name: 'custom:retryCount' /* required */,
+                        Value: '0',
+                    },
+                ],
+            };
+            await this.cognitoidentityserviceprovider
+                .updateUserAttributes(params)
+                .promise();
+            return;
+        } catch (error) {
+            console.error(error);
+            throw new AuthServiceError(error.message, error.data);
+        }
     }
     // 로그인 시도 횟수 가져오기
-    getRetryCount(email) {
-        const params = {
-            UserPoolId: userPoolId /* required */,
-            Username: `${email}` /* required */,
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.adminGetUser(
-                params,
-                function (error, data) {
-                    if (error) {
-                        // an error occurred
-                        console.error(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  getUserInfoByAdmin : ',
-                            error
-                        );
-                        reject(
-                            new AuthServiceError(
-                                error.message,
-                                error.statusCode,
-                                error.code,
-                                error
-                            )
-                        );
-                    } else {
-                        // successful response
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > getUserInfoByAdmin : ',
-                            data
-                        );
-                        let count;
-                        let attributes = data.UserAttributes;
-                        for (let i = 0; i < attributes.length; i++) {
-                            if (attributes[i].Name === 'custom:retryCount') {
-                                count = Number(attributes[i].Value);
-                                break;
-                            }
-                        }
-                        resolve(count);
-                    }
+    async getRetryCount(email) {
+        try {
+            let count;
+            const params = {
+                UserPoolId: userPoolId,
+                Username: `${email}`,
+            };
+
+            let UserInfoResult = await this.cognitoidentityserviceprovider
+                .adminGetUser(params)
+                .promise();
+
+            let attributes = UserInfoResult.UserAttributes;
+            for (let i = 0; i < attributes.length; i++) {
+                if (attributes[i].Name === 'custom:retryCount') {
+                    count = Number(attributes[i].Value);
+                    break;
                 }
-            );
-        });
+            }
+            return count;
+        } catch (error) {
+            console.error(error);
+            throw new AuthServiceError(error.message, error.data);
+        }
     }
     // 로그인 시도 횟수 수정
-    setRetryCount(email, count) {
-        let result;
-        const params = {
-            UserAttributes: [
-                {
-                    Name: 'custom:retryCount',
-                    Value: `${count}`,
-                },
-            ],
-            UserPoolId: userPoolId,
-            Username: `${email}`,
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.adminUpdateUserAttributes(
-                params,
-                function (error, data) {
-                    if (error) {
-                        // an error occurred
-                        console.error(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  setRetryCount : ',
-                            error
-                        );
-                        reject(
-                            new AuthServiceError(
-                                error.message,
-                                error.statusCode,
-                                error.code,
-                                error
-                            )
-                        );
-                    } else {
-                        // successful response
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > setRetryCount : ',
-                            data
-                        );
-                        result = data;
-                        resolve(result);
-                    }
-                }
-            );
-        });
+    async setRetryCount(email, count) {
+        try {
+            const params = {
+                UserAttributes: [
+                    {
+                        Name: 'custom:retryCount',
+                        Value: `${count}`,
+                    },
+                ],
+                UserPoolId: userPoolId,
+                Username: `${email}`,
+            };
+            await this.cognitoidentityserviceprovider
+                .adminUpdateUserAttributes(params)
+                .promise();
+            return;
+        } catch (error) {
+            console.error(error);
+            throw new AuthServiceError(error.message, error.data);
+        }
     }
     // 사용자 인증 : 비밀번호
-    verifyUserByPassword({ email, password }) {
-        let result;
+    async verifyUserByPassword({ email, password }) {
         console.log('코그니토 : ', { email, password });
         console.log(
             '요청 > Infrastructure > webService > authService > awsCognito.js > logIn : ',
             { email, password }
         );
-        let params = {
-            AuthFlow: 'USER_PASSWORD_AUTH',
-            ClientId: clientId /* required */,
-            AuthParameters: {
-                USERNAME: `${email}`,
-                PASSWORD: `${password}`,
-            },
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.initiateAuth(
-                params,
-                function (error, data) {
-                    if (error) {
-                        // an error occurred
-                        console.error(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  verifyUserByPassword : ',
-                            error
-                        );
-                        reject(
-                            new AuthServiceError(
-                                error.message,
-                                error.statusCode,
-                                error.code,
-                                error
-                            )
-                        );
-                    } else {
-                        // successful response
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > verifyUserByPassword : ',
-                            data.AuthenticationResult
-                        );
-                        result = data.AuthenticationResult;
-                        resolve(result);
-                    }
-                }
-            );
-        });
+        try {
+            const params = {
+                AuthFlow: 'USER_PASSWORD_AUTH',
+                ClientId: clientId,
+                AuthParameters: {
+                    USERNAME: `${email}`,
+                    PASSWORD: `${password}`,
+                },
+            };
+
+            let verifyUserResults = await this.cognitoidentityserviceprovider
+                .initiateAuth(params)
+                .promise();
+
+            let verifyUserData = verifyUserResults.AuthenticationResult;
+            return verifyUserData;
+        } catch (error) {
+            console.error(error);
+            throw new AuthServiceError(error.message, error.data);
+        }
     }
     // 사용자 비밀번호 변경
-    changePassword({ accessToken, prePassword, newPassword }) {
-        let result;
+    async changePassword({ prePassword, newPassword }, accessToken) {
         let self = this;
-        let params = {
-            AccessToken: accessToken,
-            PreviousPassword: prePassword,
-            ProposedPassword: newPassword,
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.changePassword(
-                params,
-                async function (error, data) {
-                    if (error) {
-                        // an error occurred
-                        console.error(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  changePassword : ',
-                            error
-                        );
-                        reject(
-                            new AuthServiceError(
-                                error.message,
-                                error.statusCode,
-                                error.code,
-                                error
-                            )
-                        );
-                    } else {
-                        // successful response
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > changePassword : ',
-                            data
-                        );
-                        result = data;
-                        await self.changePassordUpdatedAt(accessToken);
-                        resolve(result);
-                    }
-                }
-            );
-        });
+        try {
+            let params = {
+                AccessToken: accessToken,
+                PreviousPassword: prePassword,
+                ProposedPassword: newPassword,
+            };
+
+            // let result1 =
+            await this.cognitoidentityserviceprovider
+                .changePassword(params)
+                .promise();
+
+            // let result2 =
+            await self.changePassordUpdatedAt(accessToken);
+
+            return;
+        } catch (error) {
+            console.error(error);
+            throw new AuthServiceError(error.message, error.data);
+        }
     }
     // 비밀번호 수정 날짜 변경
-    async changePassordUpdatedAt(token) {
+    async changePassordUpdatedAt(accessToken) {
         let self = this;
         try {
             const params = {
-                AccessToken: token,
+                AccessToken: accessToken,
                 UserAttributes: [
                     {
-                        // Name: 'custom:passwordUpdatedAt',
                         Name: 'custom:passwordUpdateDate',
                         Value: `${Math.floor(new Date().valueOf() / 1000)}`,
                     },
@@ -607,263 +317,130 @@ module.exports = class {
         }
     }
     // 사용자 속성값 변경
-    changeAttribute(params) {
-        let result;
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.updateUserAttributes(
-                params,
-                function (error, data) {
-                    if (error) {
-                        // an error occurred
-                        console.error(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  changeAttribute : ',
-                            error
-                        );
-                        reject(
-                            new AuthServiceError(
-                                error.message,
-                                error.statusCode,
-                                error.code,
-                                error
-                            )
-                        );
-                    } else {
-                        // successful response
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > changeAttribute : ',
-                            data
-                        );
-                        result = data;
-                        resolve(result);
-                    }
-                }
-            );
-        });
+    async changeAttribute(params) {
+        try {
+            let changeAttributeResult = await this.cognitoidentityserviceprovider
+                .updateUserAttributes(params)
+                .promise();
+            return changeAttributeResult;
+        } catch (error) {
+            console.error(error);
+            throw new AuthServiceError(error.message, error.data);
+        }
     }
     // 비밀번호 찾기 : 확인코드 보내기
-    async forgotPassword({ email }) {
-        let result;
-        let self = this;
-        let userExist = await self.checkExistEmail({ email });
-        console.log('--------------------------비밀번호 찾기', userExist);
-        if (!userExist.length) {
-            return false;
-        } else {
+    async findPassword({ email }) {
+        try {
             const params = {
                 ClientId: clientId,
                 Username: email,
             };
-            return new Promise((resolve, reject) => {
-                this.cognitoidentityserviceprovider.forgotPassword(
-                    params,
-                    function (error, data) {
-                        if (error) {
-                            // an error occurred
-                            console.error(
-                                '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  forgotPassword : ',
-                                error
-                            );
-                            reject(
-                                new AuthServiceError(
-                                    error.message,
-                                    error.statusCode,
-                                    error.code,
-                                    error
-                                )
-                            );
-                        } else {
-                            // successful response
-                            console.log(
-                                '응답 > Infrastructure > webService > authService > awsCognito.js > forgotPassword : ',
-                                data
-                            );
-                            result = data;
-                            resolve(result);
-                        }
-                    }
-                );
-            });
+
+            // let result =
+            await this.cognitoidentityserviceprovider
+                .forgotPassword(params)
+                .promise();
+        } catch (error) {
+            console.error(error);
+            throw new AuthServiceError(error.message, error.data);
         }
     }
     // 비밀번호 찾기 : 확인코드와 함께 비밀번호 수정
-    confirmForgotPassword({ email, code, password }) {
-        let result;
-        console.log(
-            '요청 > Infrastructure > webService > authService > awsCognito.js > confirmForgotPasword : ',
-            email,
-            code,
-            password
-        );
-        const params = {
-            ClientId: clientId,
-            ConfirmationCode: `${code}`,
-            Password: password,
-            Username: email,
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.confirmForgotPassword(
-                params,
-                function (error, data) {
-                    if (error) {
-                        // an error occurred
-                        console.error(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js >  confirmForgotPassword : ',
-                            error
-                        );
-                        reject(
-                            new AuthServiceError(
-                                error.message,
-                                error.statusCode,
-                                error.code,
-                                error
-                            )
-                        );
-                    } else {
-                        // successful response
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > confirmForgotPassword : ',
-                            data
-                        );
-                        result = data;
-                        resolve(result);
-                    }
-                }
-            );
-        });
+    async updateForgotPassword({ email, code, password }) {
+        try {
+            const params = {
+                ClientId: clientId,
+                ConfirmationCode: `${code}`,
+                Password: password,
+                Username: email,
+            };
+
+            let result = await this.cognitoidentityserviceprovider
+                .confirmForgotPassword(params)
+                .promise();
+            return;
+        } catch (error) {
+            console.error(error);
+            throw new AuthServiceError(error.message, error.data);
+        }
     }
-    deleteUser(token) {
-        const params = {
-            AccessToken: token /* required */,
-        };
-        return new Promise((resolve, reject) => {
-            cognitoidentityserviceprovider.deleteUser(
-                params,
-                function (error, data) {
-                    if (error) {
-                        console.error('deleteUser', error);
-                        reject(
-                            new AuthServiceError(
-                                error.message,
-                                error.statusCode,
-                                error.code,
-                                error
-                            )
-                        );
-                    } else {
-                        resolve(data);
-                    }
-                }
-            );
-        });
-    }
+    // deleteUser(accessToken) {
+    //     const params = {
+    //         AccessToken: accessToken,
+    //     };
+    //     return new Promise((resolve, reject) => {
+    //         cognitoidentityserviceprovider.deleteUser(
+    //             params,
+    //             function (error, data) {
+    //                 if (error) {
+    //                     console.error('deleteUser', error);
+    //                     reject(
+    //                         new AuthServiceError(
+    //                             error.message,
+    //                             error.statusCode,
+    //                             error.code,
+    //                             error
+    //                         )
+    //                     );
+    //                 } else {
+    //                     resolve(data);
+    //                 }
+    //             }
+    //         );
+    //     });
+    // }
 
     //테스트 관리자코드------------------------------------------------------------
 
     // 관리자 회원 삭제
-    deleteUserByAdmin(id) {
-        let params = {
-            UserPoolId: userPoolId /* required */,
-            Username: id /* required */,
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.adminDeleteUser(
-                params,
-                function (error, data) {
-                    if (error) {
-                        console.error(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > delteUserByAdmin : ',
-                            error
-                        );
-                        reject(
-                            new AuthServiceError(
-                                error.message,
-                                error.statusCode,
-                                error.code,
-                                error
-                            )
-                        );
-                    } else {
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > delteUserByAdmin : ',
-                            data
-                        );
-                        resolve(data);
-                    }
-                }
-            );
-        });
+    async deleteUserByAdmin({ email }) {
+        try {
+            const params = {
+                UserPoolId: userPoolId /* required */,
+                Username: email /* required */,
+            };
+
+            await this.cognitoidentityserviceprovider
+                .adminDeleteUser(params)
+                .promise();
+            return;
+        } catch (error) {
+            console.error(error);
+            throw new AuthServiceError(error.message, error.data);
+        }
     }
     //관리자 회원 비활성화
-    disableUserByAdmin(id) {
-        const params = {
-            UserPoolId: userPoolId /* required */,
-            Username: id /* required */,
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.adminDisableUser(
-                params,
-                function (error, data) {
-                    if (error) {
-                        // an error occurred
-                        console.error(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > disableUserByAdmin : ',
-                            error
-                        );
-                        reject(
-                            new AuthServiceError(
-                                error.message,
-                                error.statusCode,
-                                error.code,
-                                error
-                            )
-                        );
-                    } else {
-                        // successful response
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > disableUserByAdmin : ',
-                            data
-                        );
-                        resolve(data);
-                    }
-                }
-            );
-        });
+    async disableUserByAdmin(id) {
+        try {
+            const params = {
+                UserPoolId: userPoolId /* required */,
+                Username: id /* required */,
+            };
+
+            await this.cognitoidentityserviceprovider
+                .adminDisableUser(params)
+                .promise();
+            return;
+        } catch (error) {
+            console.error(error);
+            throw new AuthServiceError(error.message, error.data);
+        }
     }
     //관리자 회원 활성화
-    enableUserByAdmin(id) {
-        const params = {
-            UserPoolId: userPoolId /* required */,
-            Username: id /* required */,
-        };
-        return new Promise((resolve, reject) => {
-            this.cognitoidentityserviceprovider.adminEnableUser(
-                params,
-                function (error, data) {
-                    if (error) {
-                        // an error occurred
-                        console.error(
-                            '에러 응답 > Infrastructure > webService > authService > awsCognito.js > enableUserByAdmin : ',
-                            error
-                        );
-                        reject(
-                            new AuthServiceError(
-                                error.message,
-                                error.statusCode,
-                                error.code,
-                                error
-                            )
-                        );
-                    } else {
-                        // successful response
-                        console.log(
-                            '응답 > Infrastructure > webService > authService > awsCognito.js > enableUserByAdmin : ',
-                            data
-                        );
-                        resolve(data);
-                    }
-                }
-            );
-        });
+    async enableUserByAdmin(id) {
+        try {
+            const params = {
+                UserPoolId: userPoolId,
+                Username: id,
+            };
+
+            await this.cognitoidentityserviceprovider
+                .adminEnableUser(params)
+                .promise();
+        } catch (error) {
+            console.error(error);
+            throw new AuthServiceError(error.message, error.data);
+        }
     }
     // //관리자 회원 가입
     // async createUser(userData) {

@@ -3,7 +3,12 @@
 
 # Dependency directories
 node_modules/
+.vscode/
 
 # Eslint & Prettier 
 .eslintrc
 .prettierrc
+
+# dev files
+adapters/module/niceModule/CPClient.exe
+adapters/module/logger/logs/

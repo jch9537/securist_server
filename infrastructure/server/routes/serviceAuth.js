@@ -37,7 +37,7 @@ router.post('/issuetoken', async (req, res, next) => {
 router.use(extractToken);
 router.use(verifyServiceToken);
 
-// --------------- 각 서버 cognito publice 키 제공 API ------------------------
+// --------------- 각 서버 cognito public 키 제공 API ------------------------
 
 router.get('/publickey', async (req, res, next) => {
     let result, response;

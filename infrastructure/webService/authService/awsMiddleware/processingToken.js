@@ -1,3 +1,5 @@
+// TODO : 오류 응답 정리!!
+
 // cognito token 처리 모듈
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
@@ -7,8 +9,7 @@ const axios = require('axios');
 const region = process.env.AWS_REGION || '';
 const cognitoPoolId = process.env.AWS_COGNITO_USERPOOL_ID || '';
 
-const { TokenError, AuthServiceError } = require('../../../response');
-
+const { TokenError, AuthServiceError } = require('../../../../adapters/error');
 if (!cognitoPoolId) {
     throw new AuthServiceError('env var required for cognito pool');
 }
@@ -44,7 +45,8 @@ const processingToken = {
                 'aws middleware > processingToken > getPublicKeys',
                 error
             );
-            throw new AuthServiceError('AWS 토큰 처리 오류');
+            // throw new AuthServiceError('AWS 토큰 처리 오류');
+            throw new Error('AWS 토큰 처리 오류');
         }
     },
     // 토큰 복호화 함수 : 퍼블릭키와 일치여부 확인
@@ -53,7 +55,8 @@ const processingToken = {
             const tokenSections = (token || '').split('.');
             if (tokenSections.length < 2) {
                 console.log('유효하지 않은 요청 토큰 에러', error);
-                throw new TokenError('requested token is invalid');
+                // throw new TokenError('requested token is invalid');
+                throw new Error('requested token is invalid');
             }
             const headerJSON = Buffer.from(tokenSections[0], 'base64').toString(
                 'utf8'
@@ -62,7 +65,8 @@ const processingToken = {
             const keys = await processingToken.getPublicKeys();
             const key = keys[header.kid];
             if (key === undefined) {
-                throw new TokenError('claim made for unknown kid');
+                // throw new TokenError('claim made for unknown kid');
+                throw new Error('claim made for unknown kid');
             }
             let claim = await verifyPromised(token, key.pem);
             return claim;
@@ -71,7 +75,8 @@ const processingToken = {
                 'aws middleware > processingToken > decodeToken',
                 error
             );
-            throw new TokenError('token 처리 오류');
+            // throw error;
+            throw new AuthServiceError(error.message, error.data);
         }
     },
     // access token 확인 함수
@@ -84,13 +89,16 @@ const processingToken = {
                 currentSeconds > claim.exp ||
                 currentSeconds < claim.auth_time
             ) {
-                throw new TokenError('claim is expired or invalid');
+                // throw new TokenError('claim is expired or invalid');
+                throw new Error('claim is expired or invalid');
             }
             if (claim.iss !== cognitoIssuer) {
-                throw new TokenError('claim issuer is invalid');
+                // throw new TokenError('claim issuer is invalid');
+                throw new Error('claim issuer is invalid');
             }
             if (claim.token_use !== 'access') {
-                throw new TokenError('claim use is not access');
+                // throw new TokenError('claim use is not access');
+                throw new Error('claim use is not access');
             }
             console.log(`claim confirmed for ${claim.username}`);
             return claim;
@@ -99,7 +107,8 @@ const processingToken = {
                 'aws middleware > processingToken > checkAccessToken',
                 error
             );
-            throw new TokenError('Access token 오류 : 다시 로그인 해주세요');
+            // throw new TokenError('Access token 오류 : 다시 로그인 해주세요');
+            throw error;
         }
     },
     // id token 으로 사용자 정보 가져오기 함수
@@ -124,7 +133,7 @@ const processingToken = {
                 'aws middleware > processingToken > getUserByIdToken',
                 error
             );
-            throw new TokenError('ID token 오류 : 다시 로그인 해주세요');
+            throw new AuthServiceError(error.message, error.data);
         }
     },
 };
