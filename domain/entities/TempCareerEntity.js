@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = class TempProfileCareerEntity {
+module.exports = class TempCareerEntity {
     constructor({
         tempCareerId,
         companyName,
@@ -8,7 +8,7 @@ module.exports = class TempProfileCareerEntity {
         assignedWork,
         joiningDate,
         resignationDate,
-        consultantProfileTempId,
+        tempProfileId,
     }) {
         this.tempCareerId = tempCareerId;
         this.companyName = companyName;
@@ -16,6 +16,6 @@ module.exports = class TempProfileCareerEntity {
         this.assignedWork = assignedWork;
         this.joiningDate = joiningDate;
         this.resignationDate = resignationDate;
-        this.consultantProfileTempId = consultantProfileTempId;
+        this.tempProfileId = tempProfileId;
     }
 };

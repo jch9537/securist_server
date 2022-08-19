@@ -13,15 +13,16 @@ module.exports = {
     ConsultantUserAndCompanyEntity: require('./ConsultantUserAndCompanyEntity'),
 
     // 프로필 임시저장
-    TempProfileAbilityCertificationsEntity: require('./TempProfileAbilityCertificationsEntity'),
-    TempProfileAbilityEtcEntity: require('./TempProfileAbilityEtcEntity'),
-    TempProfileAbilityIndustriesEntity: require('./TempProfileAbilityIndustriesEntity'),
-    TempProfileAbilityTasksEntity: require('./TempProfileAbilityTasksEntity'),
-    TempProfileAcademicBackgroundEntity: require('./TempProfileAcademicBackgroundEntity'),
-    TempProfileCareerEntity: require('./TempProfileCareerEntity'),
-    TempProfileLicenseEntity: require('./TempProfileLicenseEntity'),
+    TempProfilesEntity: require('./TempProfilesEntity'),
+    TempAbilityCertificationsEntity: require('./TempAbilityCertificationsEntity'),
+    TempAbilityEtcEntity: require('./TempAbilityEtcEntity'),
+    TempAbilityIndustriesEntity: require('./TempAbilityIndustriesEntity'),
+    TempAbilityTasksEntity: require('./TempAbilityTasksEntity'),
+    TempAcademicBackgroundEntity: require('./TempAcademicBackgroundEntity'),
+    TempCareerEntity: require('./TempCareerEntity'),
+    TempLicenseEntity: require('./TempLicenseEntity'),
     // TempProfileProjectHistoryConsultingCompanyEntity: require('./ProfileProjectHistoryConsultingCompanyEntity'),
-    TempProfileProjectHistoryEntity: require('./TempProfileProjectHistoryEntity'),
+    TempProjectHistoryEntity: require('./TempProjectHistoryEntity'),
     TempUploadFilesEntity: require('./TempUploadFilesEntity'),
 
     // 프로필

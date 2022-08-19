@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = class TempProfileAcademicBackgroundEntity {
+module.exports = class TempAcademicBackgroundEntity {
     constructor({
         tempAcademicBackgroundId,
         finalAcademicType,
@@ -9,7 +9,7 @@ module.exports = class TempProfileAcademicBackgroundEntity {
         graduationClassificationType,
         admissionDate,
         graduateDate,
-        consultantProfileTempId,
+        tempProfileId,
     }) {
         this.tempAcademicBackgroundId = tempAcademicBackgroundId;
         this.finalAcademicType = finalAcademicType;
@@ -18,6 +18,6 @@ module.exports = class TempProfileAcademicBackgroundEntity {
         this.graduationClassificationType = graduationClassificationType;
         this.admissionDate = admissionDate;
         this.graduateDate = graduateDate;
-        this.consultantProfileTempId = consultantProfileTempId;
+        this.tempProfileId = tempProfileId;
     }
 };

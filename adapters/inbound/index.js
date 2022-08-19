@@ -1,13 +1,15 @@
-const ServiceAuthAdapter = require('./ServiceAuthAdapters');
+// const ServiceAuthAdapter = require('./ServiceAuthAdapters');
 const AuthAdapter = require('./AuthAdapter');
 const MyAdapter = require('./MyAdapter');
 const ClientUsersAdapter = require('./client/ClientUsersAdapter');
 const ClientCompaniesAdapter = require('./client/ClientCompaniesAdapter');
 const ConsultantUsersAdapter = require('./consultant/ConsultantUsersAdapter');
+const ProfilesAdapter = require('./ProfilesAdapter');
+const TempProfilesAdapter = require('./TempProfilesAdapter');
 // const ConsultantCompaniesAdapter = require('./consultant/ConsultantCompaniesAdapter');
 // const UserAdapter = require('./UserAdapter');
-const CompanyAdapter = require('./CompanyAdapter');
-const ProfileAdapter = require('./ProfileAdapter');
+// const CompanyAdapter = require('./CompanyAdapter');
+// const ProfileAdapter = require('./ProfileAdapter');
 
 const {
     projectService,
@@ -30,12 +32,16 @@ module.exports = {
         projectService,
         adminService
     ),
+    // 프로필
+    profilesAdapter: new ProfilesAdapter(projectService, adminService),
+    tempProfilesAdapter: new TempProfilesAdapter(projectService, adminService), // 프로필 임시저장
+
     // consultantCompaniesAdapter: new ConsultantCompaniesAdapter(
     //     projectService,
     //     adminService
     // ),
     // userAdapter: new UserAdapter(projectService, adminService),
-    companyAdapter: new CompanyAdapter(projectService, adminService),
-    profileAdapter: new ProfileAdapter(projectService, adminService),
-    serviceAuthAdapter: new ServiceAuthAdapter(projectService, adminService),
+    // companyAdapter: new CompanyAdapter(projectService, adminService),
+    // profileAdapter: new ProfileAdapter(projectService, adminService),
+    // serviceAuthAdapter: new ServiceAuthAdapter(projectService, adminService),
 };
