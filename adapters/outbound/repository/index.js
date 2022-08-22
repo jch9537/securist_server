@@ -7,12 +7,14 @@ const UserRepository = require('./UserRepository');
 const CompanyRepository = require('./CompanyRepository');
 const ProfileRepository = require('./ProfileRepository');
 
-const ClientUsersRepository = require('./user/ClientUsersRepository');
-const ClientCompaniesRepository = require('./company/ClientCompaniesRepository');
+// 클라이언트
+const ClientUsersRepository = require('./client/ClientUsersRepository');
+const ClientCompaniesRepository = require('./client/ClientCompaniesRepository');
 const ClientUserAndCompanyRepository = require('./relation/ClientUserAndCompanyRepository');
-const ConsultantUsersRepository = require('./user/ConsultantUsersRepository');
+// 컨설턴트
+const ConsultantUsersRepository = require('./consultant/ConsultantUsersRepository');
 const ConsultingCompaniesRepository = require('./company/ConsultingCompaniesRepository');
-const ConsultantUserAndCompanyReporitory = require('./relation/ConsultantUserAndCompanyReporitory');
+const ConsultantUserAndCompanyRepository = require('./relation/ConsultantUserAndCompanyRepository');
 
 module.exports = {
     serviceRepository: new ServiceRepository(storage),
@@ -25,7 +27,7 @@ module.exports = {
     clientUserAndCompanyRepository: new ClientUserAndCompanyRepository(db),
     consultantUsersRepository: new ConsultantUsersRepository(db),
     consultingCompaniesRepository: new ConsultingCompaniesRepository(db),
-    consultantUserAndCompanyReporitory: new ConsultantUserAndCompanyReporitory(
+    consultantUserAndCompanyRepository: new ConsultantUserAndCompanyRepository(
         db
     ),
 };

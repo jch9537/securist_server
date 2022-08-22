@@ -1,6 +1,6 @@
 'use strict';
 
-const { ParameterException } = require('../exceptions');
+const { ParameterException } = require('../../exceptions');
 
 module.exports = class CompanyEntity {
     constructor({

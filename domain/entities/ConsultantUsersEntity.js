@@ -2,7 +2,7 @@
 
 module.exports = class ConsultantUsersEntity {
     constructor({
-        email,
+        consultantUserId,
         userType,
         name,
         phoneNum,
@@ -14,7 +14,7 @@ module.exports = class ConsultantUsersEntity {
         userIntroduce,
         applicationState,
     }) {
-        this.consultantUserId = email;
+        this.consultantUserId = consultantUserId;
         this.userType = userType;
         this.name = name;
         this.phoneNum = phoneNum;

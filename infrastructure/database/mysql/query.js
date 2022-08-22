@@ -40,13 +40,19 @@ module.exports = class Mysql {
     // 개인 --------------------------------------------------------------------------------
     async createClientUser(
         authEntity,
-        { clientUserId, name, userType, profileStatus }, // clientUserEntity
+        clientUserEntity,
         clientCompaniesEntity, // { businessLicenseNum, companyName, presidentName }
         clientUserAndCompanyEntity
     ) {
-        console.log(' =====', clientUserId, name, userType, profileStatus);
+        console.log(
+            ' =====',
+            authEntity,
+            clientUserEntity,
+            clientCompaniesEntity,
+            clientUserAndCompanyEntity
+        );
         let sql, arg;
-        let clientCompanyId;
+        let { clientUserId, name, userType, profileStatus } = clientUserEntity;
         let {
             businessLicenseNum,
             companyName,
@@ -64,6 +70,7 @@ module.exports = class Mysql {
             await conn.query(sql, arg);
 
             // 기업 정보 생성
+            let clientCompanyId;
             if (clientCompaniesEntity.clientCompanyId === undefined) {
                 console.log('도착 : ', clientCompaniesEntity);
                 sql = `INSERT INTO client_companies (businessLicenseNum, companyName, presidentName) VALUES (?, ?, ?)`;
@@ -97,8 +104,114 @@ module.exports = class Mysql {
             conn.release();
         }
     }
+    // 클라이언트 사용자 리스트 가져오기
+    async getClientUsers() {
+        let sql;
+
+        const conn = await this.pool.getConnection();
+        try {
+            //기업 정보 생성
+            console.log('DB > Query : createClientCompany!!');
+
+            sql = `SELECT * from client_users`;
+            const clientUsersInfo = await conn.query(sql);
+
+            await conn.commit();
+            return clientUsersInfo[0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+    // 클라이언트 사용자 정보 가져오기
+    async getClientUser({ clientUserId }) {
+        let sql, arg;
+
+        const conn = await this.pool.getConnection();
+        try {
+            //기업 정보 생성
+            console.log('DB > Query : createClientCompany!!');
+
+            sql = `SELECT * from client_users WHERE clientUserId = ?`;
+            arg = [clientUserId];
+            const clientUserInfo = await conn.query(sql, arg);
+
+            await conn.commit();
+            return clientUserInfo[0][0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+    // 클라이언트 사용자 정보 수정하기
+    async updateClientUser({
+        clientUserId,
+        phoneNum,
+        profileStatus,
+        withdrawalDate,
+    }) {
+        console.log(
+            '수정하기 데이터 : ',
+            clientUserId,
+            phoneNum,
+            profileStatus,
+            withdrawalDate
+        );
+        let sql, arg;
+        let condition = '';
+
+        const conn = await this.pool.getConnection();
+        try {
+            arg = [];
+            //기업 정보 생성
+            console.log('DB > Query : createClientCompany!!');
+
+            if (phoneNum !== undefined) {
+                if (arg.length === 0) {
+                    condition += 'phoneNum = ?';
+                } else {
+                    condition += ', phoneNum = ?';
+                }
+                arg.push(phoneNum);
+            }
+            if (profileStatus !== undefined) {
+                if (arg.length === 0) {
+                    condition += 'profileStatus = ?';
+                } else {
+                    condition += ', profileStatus = ?';
+                }
+                arg.push(profileStatus);
+            }
+            if (withdrawalDate !== undefined) {
+                if (arg.length === 0) {
+                    condition += 'withdrawalDate = ?';
+                } else {
+                    condition += ', withdrawalDate = ?';
+                }
+                arg.push(withdrawalDate);
+            }
+
+            sql = `UPDATE client_users SET ${condition} WHERE clientUserId = ?`;
+
+            arg.push(clientUserId);
+
+            await conn.query(sql, arg);
+            return;
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
     // 클라이언트 기업 ---------------------------------------------------------------------
-    async getClientCompany({ businessLicenseNum }) {
+    async getClientCompanies() {
         let sql, arg;
 
         const conn = await this.pool.getConnection();
@@ -107,12 +220,100 @@ module.exports = class Mysql {
             //기업 정보 생성
             console.log('DB > Query : createClientCompany!!');
 
-            sql = `SELECT * from client_companies WHERE businessLicenseNum = ?`;
-            arg = [businessLicenseNum];
+            sql = `SELECT * from client_companies`;
+            const clientCompaniesResults = await conn.query(sql);
+
+            await conn.commit();
+            return clientCompaniesResults[0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+    async getClientCompany({ clientCompanyId }) {
+        let sql, arg;
+
+        const conn = await this.pool.getConnection();
+        try {
+            await conn.beginTransaction();
+            //기업 정보 생성
+            console.log('DB > Query : createClientCompany!!');
+
+            sql = `SELECT * from client_companies WHERE clientCompanyId = ?`;
+            arg = [clientCompanyId];
             const companyInfoResult = await conn.query(sql, arg);
 
             await conn.commit();
             return companyInfoResult[0][0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+    // 클라이언트 기업정보 수정
+    async updateClientCompany({
+        clientCompanyId,
+        industry,
+        address,
+        presidentName,
+        approvalStatus,
+    }) {
+        let sql, arg;
+        let condition = '';
+
+        const conn = await this.pool.getConnection();
+        try {
+            await conn.beginTransaction();
+            console.log('DB > Query : createClientCompany!!');
+            arg = [];
+
+            if (industry !== undefined) {
+                if (arg.length === 0) {
+                    condition += 'industry = ?';
+                } else {
+                    condition += ', industry = ?';
+                }
+                arg.push(industry);
+            }
+            if (address !== undefined) {
+                if (arg.length === 0) {
+                    condition += 'address = ?';
+                } else {
+                    condition += ', address = ?';
+                }
+                arg.push(address);
+            }
+            if (presidentName !== undefined) {
+                if (arg.length === 0) {
+                    condition += 'presidentName = ?';
+                } else {
+                    condition += ', presidentName = ?';
+                }
+                arg.push(presidentName);
+            }
+
+            if (approvalStatus !== undefined) {
+                if (arg.length === 0) {
+                    condition += 'approvalStatus = ?';
+                } else {
+                    condition += ', approvalStatus = ?';
+                }
+                arg.push(approvalStatus);
+            }
+
+            sql = `UPDATE client_companies SET ${condition} WHERE clientCompanyId = ?`;
+            arg.push(clientCompanyId);
+            console.log('sql, ', sql, ' arg ', arg);
+            await conn.query(sql, arg);
+
+            await conn.commit();
+            return;
         } catch (error) {
             console.error('DB에러 : ', error);
             await conn.rollback();
@@ -151,11 +352,25 @@ module.exports = class Mysql {
 
     async createConsultantUser(
         authEntity,
-        { consultantUserId, name, userType, profileStatus }, // consultantUserEntity
+        consultantUsersEntity,
         consultingCompaniesEntity,
         consultantUserAndCompanyEntity
     ) {
         let sql, arg;
+        let {
+            consultantUserId,
+            name,
+            userType,
+            profileStatus,
+        } = consultantUsersEntity;
+
+        console.log(
+            '요청데이터 ',
+            authEntity,
+            consultantUsersEntity,
+            consultingCompaniesEntity,
+            consultantUserAndCompanyEntity
+        );
 
         const conn = await this.pool.getConnection();
         try {
@@ -166,48 +381,48 @@ module.exports = class Mysql {
             arg = [consultantUserId, name, userType, profileStatus];
             await conn.query(sql, arg);
 
-            // 컨설팅 업체인 경우 처리
-            if (
-                userType === 2 || // 컨설팅 업체인 경우
-                (userType === 1 && // 컨설팅 업체 소속 요청 개인 컨설턴트인 경우
-                    consultantUserAndCompanyEntity !== undefined)
-            ) {
-                let consultingCompanyId;
-                let {
-                    businessLicenseNum,
-                    companyName,
-                    presidentName,
-                } = consultingCompaniesEntity;
-                let {
-                    belongingStatus,
-                    managerType,
-                } = consultantUserAndCompanyEntity;
+            // // 컨설팅 업체인 경우 처리 - 컨설팅 업체 우선 배제
+            // if (
+            //     userType === 3 || // 컨설팅 업체인 경우
+            //     (userType === 2 && // 컨설팅 업체 소속 요청 개인 컨설턴트인 경우
+            //         consultantUserAndCompanyEntity !== undefined)
+            // ) {
+            //     let consultingCompanyId;
+            //     let {
+            //         businessLicenseNum,
+            //         companyName,
+            //         presidentName,
+            //     } = consultingCompaniesEntity;
+            //     let {
+            //         belongingStatus,
+            //         managerType,
+            //     } = consultantUserAndCompanyEntity;
 
-                // 기업 정보 생성
-                if (
-                    consultingCompaniesEntity.consultingCompanyId === undefined
-                ) {
-                    console.log('도착 : ', consultingCompaniesEntity);
-                    sql = `INSERT INTO consulting_companies (businessLicenseNum, companyName, presidentName) VALUES (?, ?, ?)`;
-                    arg = [businessLicenseNum, companyName, presidentName];
-                    const companyCreateResult = await conn.query(sql, arg);
+            //     // 기업 정보 생성
+            //     if (
+            //         consultingCompaniesEntity.consultingCompanyId === undefined
+            //     ) {
+            //         console.log('도착 : ', consultingCompaniesEntity);
+            //         sql = `INSERT INTO consulting_companies (businessLicenseNum, companyName, presidentName) VALUES (?, ?, ?)`;
+            //         arg = [businessLicenseNum, companyName, presidentName];
+            //         const companyCreateResult = await conn.query(sql, arg);
 
-                    consultingCompanyId = companyCreateResult[0].insertId;
-                } else {
-                    consultingCompanyId =
-                        consultingCompaniesEntity.consultingCompanyId;
-                }
+            //         consultingCompanyId = companyCreateResult[0].insertId;
+            //     } else {
+            //         consultingCompanyId =
+            //             consultingCompaniesEntity.consultingCompanyId;
+            //     }
 
-                // 기업-사용자 연결 정보 생성
-                sql = `INSERT INTO consultant_user_and_company (consultantUserId, consultingCompanyId, belongingStatus,managerType ) VALUES (?, ?, ?, ?)`;
-                arg = [
-                    consultantUserId,
-                    consultingCompanyId,
-                    belongingStatus,
-                    managerType,
-                ];
-                await conn.query(sql, arg);
-            }
+            //     // 기업-사용자 연결 정보 생성
+            //     sql = `INSERT INTO consultant_user_and_company (consultantUserId, consultingCompanyId, belongingStatus,managerType ) VALUES (?, ?, ?, ?)`;
+            //     arg = [
+            //         consultantUserId,
+            //         consultingCompanyId,
+            //         belongingStatus,
+            //         managerType,
+            //     ];
+            //     await conn.query(sql, arg);
+            // }
 
             // cognito 사용자 등록
             await authService.signUp(authEntity);
@@ -222,6 +437,151 @@ module.exports = class Mysql {
             } else {
                 throw new DatabaseError(error.message, error.errno);
             }
+        } finally {
+            conn.release();
+        }
+    }
+    // 컨설턴트 사용자 리스트 가져오기
+    async getConsultantUsers() {
+        let sql;
+
+        const conn = await this.pool.getConnection();
+        try {
+            //기업 정보 생성
+            console.log('DB > Query : createConsultantCompany!!');
+
+            sql = `SELECT * from consultant_users`;
+            const consultantUsersInfo = await conn.query(sql);
+
+            await conn.commit();
+            return consultantUsersInfo[0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+    // 컨설턴트 사용자 정보 가져오기
+    async getConsultantUser({ consultantUserId }) {
+        let sql, arg;
+
+        const conn = await this.pool.getConnection();
+        try {
+            //기업 정보 생성
+            console.log('DB > Query : createConsultantCompany!!');
+
+            sql = `SELECT * from consultant_users WHERE consultantUserId = ?`;
+            arg = [consultantUserId];
+            const consultantUserInfo = await conn.query(sql, arg);
+
+            await conn.commit();
+            return consultantUserInfo[0][0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+    // 컨설턴트 사용자 정보 수정하기
+    async updateConsultantUser({
+        consultantUserId,
+        phoneNum,
+        profileStatus,
+        profileGrade,
+        bankName,
+        bankAccountNum,
+        bankAccountOwner,
+        userIntroduce,
+        applicationState,
+    }) {
+        let sql, arg;
+        let condition = '';
+
+        const conn = await this.pool.getConnection();
+        try {
+            arg = [];
+            //기업 정보 생성
+            console.log('DB > Query : createClientCompany!!');
+
+            if (phoneNum !== undefined) {
+                if (arg.length === 0) {
+                    condition += 'phoneNum = ?';
+                } else {
+                    condition += ', phoneNum = ?';
+                }
+                arg.push(phoneNum);
+            }
+            if (profileStatus !== undefined) {
+                if (arg.length === 0) {
+                    condition += 'profileStatus = ?';
+                } else {
+                    condition += ', profileStatus = ?';
+                }
+                arg.push(profileStatus);
+            }
+            if (profileGrade !== undefined) {
+                if (arg.length === 0) {
+                    condition += 'profileGrade = ?';
+                } else {
+                    condition += ', profileGrade = ?';
+                }
+                arg.push(profileGrade);
+            }
+            if (bankName !== undefined) {
+                if (arg.length === 0) {
+                    condition += 'bankName = ?';
+                } else {
+                    condition += ', bankName = ?';
+                }
+                arg.push(bankName);
+            }
+            if (bankAccountNum !== undefined) {
+                if (arg.length === 0) {
+                    condition += 'bankAccountNum = ?';
+                } else {
+                    condition += ', bankAccountNum = ?';
+                }
+                arg.push(bankAccountNum);
+            }
+            if (bankAccountOwner !== undefined) {
+                if (arg.length === 0) {
+                    condition += 'bankAccountOwner = ?';
+                } else {
+                    condition += ', bankAccountOwner = ?';
+                }
+                arg.push(bankAccountOwner);
+            }
+            if (userIntroduce !== undefined) {
+                if (arg.length === 0) {
+                    condition += 'userIntroduce = ?';
+                } else {
+                    condition += ', userIntroduce = ?';
+                }
+                arg.push(userIntroduce);
+            }
+            if (applicationState !== undefined) {
+                if (arg.length === 0) {
+                    condition += 'applicationState = ?';
+                } else {
+                    condition += ', applicationState = ?';
+                }
+                arg.push(applicationState);
+            }
+
+            sql = `UPDATE consultant_users SET ${condition} WHERE consultantUserId = ?`;
+
+            // !condition && arg.length === 0 (id값 말고 다른 parameter 없는 경우 파라미터 오류 처리)
+            arg.push(consultantUserId);
+
+            await conn.query(sql, arg);
+            return;
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
         }
@@ -248,6 +608,7 @@ module.exports = class Mysql {
             conn.release();
         }
     }
+
     // 컨설턴트 기업-사용자
     async checkExistConsultantCompanyManager({
         consultingCompanyId,

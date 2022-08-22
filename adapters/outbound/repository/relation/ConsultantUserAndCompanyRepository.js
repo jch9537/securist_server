@@ -1,5 +1,5 @@
 // 클라이언트 사용자-기업
-module.exports = class ConsultantUserAndCompanyReporitory {
+module.exports = class ConsultantUserAndCompanyRepository {
     constructor(db) {
         this.db = db;
     }

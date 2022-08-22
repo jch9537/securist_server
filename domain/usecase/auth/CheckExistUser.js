@@ -6,25 +6,10 @@ module.exports = class CheckExistUser {
     async excute(authData) {
         try {
             let authEntity = new AuthEntity(authData);
-            let existEmail = await this.auth.checkExistUser(authEntity);
-
-            if (!existEmail) {
-                return;
-                // result = {
-                //     message: '사용 가능한 email 입니다.',
-                // };
-            } else {
-                // result = {
-                //     message: '이미 가입된 email 입니다.',
-                // };
-                return { message: 'Already exist' };
-            }
+            await this.auth.checkExistUser(authEntity);
+            return;
         } catch (error) {
             console.error(error);
-            // if (!error.authServiceErrorName) {
-            //     error.message = '이메일 중복 확인 실패';
-            // }
-            error.message = '이메일 중복 확인 실패';
             throw error;
         }
     }

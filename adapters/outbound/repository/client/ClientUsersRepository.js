@@ -1,5 +1,5 @@
-// 컨설턴트 사용자
-module.exports = class ConsultantUsersRepository {
+// 클라이언트 사용자
+module.exports = class ClientUsersRepository {
     constructor(db) {
         this.db = db;
     }
@@ -11,39 +11,35 @@ module.exports = class ConsultantUsersRepository {
     //         throw error;
     //     }
     // }
-    async createConsultantUser(
+    async createClientUser(
         authEntity,
-        consultantUserEntity,
-        consultingCompaniesEntity,
-        consultantUserAndCompanyEntity
+        clientUserEntity,
+        clientCompaniesEntity,
+        clientUserAndCompanyEntity
     ) {
         try {
-            let result = await this.db.createConsultantUser(
+            let result = await this.db.createClientUser(
                 authEntity,
-                consultantUserEntity,
-                consultingCompaniesEntity,
-                consultantUserAndCompanyEntity
+                clientUserEntity,
+                clientCompaniesEntity,
+                clientUserAndCompanyEntity
             );
             return result;
         } catch (error) {
             throw error;
         }
     }
-    async getManagerList() {
+    async getClientUsers() {
         try {
-            let result = await this.db.getManagerList();
+            let result = await this.db.getClientUsers();
             return result;
         } catch (error) {
-            console.log(
-                '에러 > Adapter > outBound > ManagersRepositoty > getManagerList > error : ',
-                error
-            );
             throw error;
         }
     }
-    async getManager(managerEntity) {
+    async getClientUser(clientUsersEntity) {
         try {
-            let result = await this.db.getManager(managerEntity);
+            let result = await this.db.getClientUser(clientUsersEntity);
             return result;
         } catch (error) {
             console.log(
@@ -53,9 +49,9 @@ module.exports = class ConsultantUsersRepository {
             throw error;
         }
     }
-    async updateManager(managerEntity) {
+    async updateClientUser(clientUsersEntity) {
         try {
-            let result = await this.db.updateManager(managerEntity);
+            let result = await this.db.updateClientUser(clientUsersEntity);
             return result;
         } catch (error) {
             throw error;
@@ -74,10 +70,10 @@ module.exports = class ConsultantUsersRepository {
             // );
             return result;
         } catch (error) {
-            // console.log(
-            //     '에러 > Adapter > outBound > ManagersRepositoty > deleteManagerByAdmin > error : ',
-            //     error
-            // );
+            console.log(
+                '에러 > Adapter > outBound > ClientUsersRepository > getClientUsers > error : ',
+                error
+            );
             throw error;
         }
     }

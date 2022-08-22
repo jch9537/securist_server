@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { ServiceAuthenticationError } = require('../../../adapters/error');
 
 // 서비스 토큰 확인
 module.exports = async (req, res, next) => {
@@ -20,7 +21,7 @@ module.exports = async (req, res, next) => {
         req.verifyToken = result;
         next();
     } catch (error) {
-        console.error(error);
-        next(error);
+        console.error('토큰받은 에러 확인 ', error.message, error.data);
+        next(new ServiceAuthenticationError(error.message, error.data));
     }
 };

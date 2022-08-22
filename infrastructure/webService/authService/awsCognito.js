@@ -1,10 +1,10 @@
 //개별 클라우드 인증서비스의 실행클래스 - cognito
 const AWS = require('../awsConfig');
-const { processingToken, checkExpiredPassword } = require('./awsMiddleware');
+// const { processingToken, checkExpiredPassword } = require('./awsMiddleware');
 const { AuthServiceError, TokenError } = require('../../../adapters/error');
-const {
-    TRANSACTION_TRANSPORT_CATEGORY,
-} = require('@sentry/core/dist/transports/base');
+// const {
+//     TRANSACTION_TRANSPORT_CATEGORY,
+// } = require('@sentry/core/dist/transports/base');
 
 const userPoolId = process.env.AWS_COGNITO_USERPOOL_ID;
 const clientId = process.env.AWS_APP_CLIENT_ID;
@@ -23,7 +23,14 @@ module.exports = class {
             let userListResult = await this.cognitoidentityserviceprovider
                 .listUsers(params)
                 .promise();
-            return !!userListResult.Users.length;
+
+            if (!!userListResult.Users.length) {
+                // 이미 등록한 사용자가 있다면 에러 응답
+                throw Error('Already Exist');
+            } else {
+                // 없다면 회원가입 가능 : 응답값 없음
+                return;
+            }
         } catch (error) {
             // console.error(
             //     '에러 응답 > Infrastructure > webService > authService > Cognito.js > checkExistUser : ',
@@ -386,11 +393,11 @@ module.exports = class {
     //테스트 관리자코드------------------------------------------------------------
 
     // 관리자 회원 삭제
-    async deleteUserByAdmin(id) {
+    async deleteUserByAdmin({ email }) {
         try {
             const params = {
                 UserPoolId: userPoolId /* required */,
-                Username: id /* required */,
+                Username: email /* required */,
             };
 
             await this.cognitoidentityserviceprovider

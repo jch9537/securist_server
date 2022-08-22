@@ -12,7 +12,9 @@ const port = process.env.SERVER_PORT || 3000;
 const routes = require('./routes');
 const { Sentry, sentryInit } = require('../webService/monitorService/sentry');
 const { logger } = require('../../adapters/module');
-const { sanitizer } = require('../server/middlewares');
+const { sanitizer, swagger } = require('../server/middlewares');
+const { swaggerUi, specs } = swagger;
+const { projectService } = require('../services');
 const { ErrorResponse } = require('../../adapters/response');
 
 sentryInit(app);
@@ -53,8 +55,9 @@ app.get('/healthcheck', async (req, res, next) => {
 // };
 
 app.use(sanitizer); // 태그제거 : XSS 방어
-
+// projectService.getPublicKeys();
 app.use('/api/user', routes);
+// app.use('/api/user', swaggerUi.serve, swaggerUi.setup(specs));
 
 app.use((req, res, next) => {
     res.status(404).send(

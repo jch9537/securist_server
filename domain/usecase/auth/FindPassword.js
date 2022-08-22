@@ -6,12 +6,12 @@ module.exports = class FindPassword {
     async excute(findPasswordData) {
         try {
             let authEntity = new AuthEntity(findPasswordData);
-            // 가입 여부 확인
-            let isExistUser = await this.auth.checkExistUser(authEntity);
+            // // 가입 여부 확인
+            // let isExistUser = await this.auth.checkExistUser(authEntity);
 
-            if (!isExistUser) {
-                return { message: 'Unregistered users' }; // 가입되지 않은 사용자 응답
-            }
+            // if (!isExistUser) {
+            //     return { message: 'Unregistered users' }; // 가입되지 않은 사용자 응답
+            // }
 
             await this.auth.findPassword(authEntity);
             return;

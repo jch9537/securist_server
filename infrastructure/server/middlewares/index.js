@@ -5,4 +5,5 @@ module.exports = {
     verifyServiceToken: require('./verifyServiceToken'), // 타 서비스 요청 시 토큰 확인
     decryptAccessToken: require('./decryptAccessToken'),
     // getUserInfoByAccessToken: require('./getUserInfoByAccessToken'),
+    swagger: require('./swagger'),
 };
