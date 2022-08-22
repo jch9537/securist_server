@@ -3,15 +3,15 @@
 module.exports = class TempUploadFilesEntity {
     constructor({
         tempUploadFileId,
-        fileCategoryType,
+        fileType,
         fileName,
         filePath,
-        consultantProfileTempId,
+        tempProfileId,
     }) {
         this.tempUploadFileId = tempUploadFileId;
-        this.fileCategoryType = fileCategoryType;
+        this.fileType = fileType;
         this.fileName = fileName;
         this.filePath = filePath;
-        this.consultantProfileTempId = consultantProfileTempId;
+        this.tempProfileId = tempProfileId;
     }
 };

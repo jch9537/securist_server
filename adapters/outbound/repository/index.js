@@ -15,6 +15,8 @@ const ClientUserAndCompanyRepository = require('./relation/ClientUserAndCompanyR
 const ConsultantUsersRepository = require('./consultant/ConsultantUsersRepository');
 const ConsultingCompaniesRepository = require('./company/ConsultingCompaniesRepository');
 const ConsultantUserAndCompanyRepository = require('./relation/ConsultantUserAndCompanyRepository');
+// 임시저장 (프로필)
+const TempProfilesRepository = require('./temp/TempProfilesRepository');
 
 module.exports = {
     serviceRepository: new ServiceRepository(storage),
@@ -30,4 +32,5 @@ module.exports = {
     consultantUserAndCompanyRepository: new ConsultantUserAndCompanyRepository(
         db
     ),
+    tempProfilesRepository: new TempProfilesRepository(db),
 };

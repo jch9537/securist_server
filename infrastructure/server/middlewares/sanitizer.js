@@ -54,7 +54,7 @@ module.exports = (req, res, next) => {
             // else {
             //     req.filteredBody = sanitizeBody(req.body);
             // }
-            console.log('바디데이터 : ', req.filteredBody);
+            // console.log('바디데이터 : ', req.filteredBody);
         } else if (req.method === 'GET' || req.method === 'DELETE') {
             // route에서 :id를 받기 전 request를 받으므로 req.params는 없음
             if (req.query) {
@@ -64,16 +64,42 @@ module.exports = (req, res, next) => {
                 }
             }
         }
+        // 업로드 파일 여러개
         if (req.files) {
-            console.log('========== 소독전 파일들', req.files);
-            req.files = req.files.map((file) => {
-                let fileInfo = {};
-                fileInfo.fileType = file.fieldname;
-                fileInfo.fileName = file.originalname;
-                fileInfo.filePath = file.location;
-                return fileInfo;
-            });
-            console.log('========== 소독후 파일들', req.files);
+            // field가 하나인 경우
+            // console.log('========== 소독전 파일들', req.files);
+            if (Array.isArray(req.files)) {
+                req.arrangedFiles = req.files.map((file) => {
+                    let fileInfo = {};
+                    fileInfo.fileType = file.fieldname;
+                    fileInfo.fileName = file.originalname;
+                    fileInfo.filePath = file.location;
+                    return fileInfo;
+                });
+            } else {
+                // field가 여러개인 경우 : 필드에 상관없이 배열 하나로 합침
+                // typeof req.files === 'object'
+                req.arrangedFiles = [];
+                for (let key in req.files) {
+                    let eachFieldData = req.files[key].map((file) => {
+                        let fileInfo = {};
+                        fileInfo.fileType = file.fieldname;
+                        fileInfo.fileName = file.originalname;
+                        fileInfo.filePath = file.location;
+                        return fileInfo;
+                    });
+                    req.arrangedFiles = req.arrangedFiles.concat(eachFieldData);
+                }
+            }
+            // console.log('========== 소독후 파일들', req.arrangedFiles);
+        }
+        // 업로드 파일 하나
+        if (req.file) {
+            req.arrangedFile = {
+                fileType: req.file.fieldname,
+                fileName: req.file.originalname,
+                filePath: req.file.location,
+            };
         }
         if (req.headers.authorization) {
             let token = req.headers.authorization;

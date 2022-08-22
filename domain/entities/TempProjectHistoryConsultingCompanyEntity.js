@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = class ProfileProjectHistoryEntity {
+module.exports = class TempProjectHistoryConsultingCompanyEntity {
     constructor({
         tempProjectHistoryId,
         projectName,
@@ -9,7 +9,7 @@ module.exports = class ProfileProjectHistoryEntity {
         industryCategoryName,
         projectStartDate,
         projectEndDate,
-        consultantProfileTempId,
+        consultingCompanyProfileTempId,
     }) {
         this.tempProjectHistoryId = tempProjectHistoryId;
         this.projectName = projectName;
@@ -18,6 +18,6 @@ module.exports = class ProfileProjectHistoryEntity {
         this.industryCategoryName = industryCategoryName;
         this.projectStartDate = projectStartDate;
         this.projectEndDate = projectEndDate;
-        this.consultantProfileTempId = consultantProfileTempId;
+        this.consultingCompanyProfileTempId = consultingCompanyProfileTempId;
     }
 };

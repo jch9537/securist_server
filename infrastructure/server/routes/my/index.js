@@ -2,16 +2,19 @@
 const express = require('express');
 const router = express.Router();
 
-const { myAdapter } = require('../../../adapters/inbound');
-const { extractToken, decryptIdToken } = require('../middlewares');
+const profileRouter = require('./profile');
+const { myAdapter } = require('../../../../adapters/inbound');
+const { extractToken, decryptIdToken } = require('../../middlewares');
 const {
     UpdateMyInfoRequestDto,
-} = require('../../../adapters/dtos/requestDto/myInfoDto');
-const { logger } = require('../../../adapters/module/logger');
-const { SuccessResponse } = require('../../../adapters/response');
+} = require('../../../../adapters/dtos/requestDto/myInfoDto');
+const { logger } = require('../../../../adapters/module/logger');
+const { SuccessResponse } = require('../../../../adapters/response');
 
 router.use(extractToken);
 router.use(decryptIdToken);
+
+router.use('/profile', profileRouter);
 
 // 내 사용자 정보 가져오기 : 클라이언트 컨설턴트 공통
 router.get('/', async (req, res, next) => {

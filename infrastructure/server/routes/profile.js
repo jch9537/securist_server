@@ -7,13 +7,13 @@ const { profileAdapter } = require('../../../adapters/inbound');
 const { SuccessResponse, ErrorResponse } = require('../../response');
 
 const { sanitizer, extractToken, decryptIdToken } = require('../middlewares');
-const {
-    uploadClientProfile,
-    uploadConsultantProfile,
-    uploadConsultingCompanyBusinessLicense,
-    uploadConsultantProfileTemp,
-    uploadConsultingCompanyBusinessLicenseTemp,
-} = require('../../webService/storageService');
+// const {
+//     uploadClientProfile,
+//     uploadConsultantProfile,
+//     uploadConsultingCompanyBusinessLicense,
+//     uploadConsultantProfileTemp,
+//     uploadConsultingCompanyBusinessLicenseTemp,
+// } = require('../../webService/storageService');
 
 router.use(extractToken);
 router.use(decryptIdToken);
@@ -21,7 +21,7 @@ router.use(decryptIdToken);
 // 개인 컨설턴트 프로필 인증 요청 : 프로필 정보 생성
 router.post(
     '/user',
-    uploadConsultantProfile.any(),
+    // uploadConsultantProfile.any(),
     sanitizer,
     async (req, res, next) => {
         let result, response, errResponse;
@@ -54,7 +54,7 @@ router.post(
 // 컨설팅 업체 프로필 인증 요청 : 프로필 정보 생성
 router.post(
     '/company',
-    uploadConsultingCompanyBusinessLicense.any(),
+    // uploadConsultingCompanyBusinessLicense.any(),
     sanitizer,
     async (req, res, next) => {
         let result, response, errResponse;
@@ -80,7 +80,7 @@ router.post(
 // 개인 컨설턴트 프로필 임시저장 : 프로필 임시정보 생성
 router.post(
     '/temp/user',
-    uploadConsultantProfileTemp.any(),
+    // uploadConsultantProfileTemp.any(),
     sanitizer,
     async (req, res, next) => {
         let result, response, errResponse;
@@ -106,7 +106,7 @@ router.post(
 // 기업 프로필 임시저장 : 프로필 임시정보 생성
 router.post(
     '/temp/company',
-    uploadConsultingCompanyBusinessLicenseTemp.any(),
+    // uploadConsultingCompanyBusinessLicenseTemp.any(),
     sanitizer,
     async (req, res, next) => {
         let result, response, errResponse;
@@ -215,7 +215,7 @@ router.get('/temp/company', async (req, res, next) => {
 // 클라이언트 프로필 인증 요청 : 사용자/기업 정보 수정
 router.put(
     '/auth/info',
-    uploadClientProfile.any(),
+    // uploadClientProfile.any(),
     sanitizer,
     async (req, res, next) => {
         let result, response, errResponse;
