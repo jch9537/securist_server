@@ -2,6 +2,7 @@ const mysql = require('mysql2/promise');
 const dbConfig = require('./dbConfig');
 
 const { authService } = require('../../../adapters/outbound/auth'); // 같은 layer - 의존성에 문제 없는지 확인
+const storageService = require('../../webService/storageService');
 const { DatabaseError } = require('../../../adapters/error');
 
 module.exports = class Mysql {
@@ -1493,7 +1494,7 @@ module.exports = class Mysql {
     // 프로필 -------------------------------------------------------------------------------------
     // CREATE
     async createTempProfile(
-        { introduce, phoneNum, consultantUserId },
+        tempProfilesEntity,
         tempProfileAbilityCertificationIds,
         tempAbilityIndustryIds,
         tempAbilityTaskIds,
@@ -1508,7 +1509,18 @@ module.exports = class Mysql {
         let sql, arg;
         const conn = await this.pool.getConnection();
         try {
+            let { introduce, phoneNum, consultantUserId } = tempProfilesEntity;
             await conn.beginTransaction();
+
+            // 이전 임시저장 id가 있다면 기존 임시저장 데이터 삭제
+            if (!!tempProfilesEntity.tempProfileId) {
+                let preTempProfileId = tempProfilesEntity.tempProfileId;
+                // 기존 프로필 정보 삭제
+                sql = `DELETE FROM temp_profiles WHERE tempProfileId = ?`;
+                arg = [preTempProfileId];
+                await conn.query(sql, arg);
+            }
+
             // 임시저장 데이터 생성
             sql =
                 'INSERT INTO temp_profiles (introduce, phoneNum, consultantUserId) VALUES (?, ?, ?)';
@@ -1737,8 +1749,8 @@ module.exports = class Mysql {
                 });
 
                 sql = `INSERT INTO temp_upload_files 
-                 (fileType, fileName, filePath, tempProfileId)
-                 VALUES ${insertValuesSting}`;
+                (fileType, fileName, filePath, tempProfileId)
+                VALUES ${insertValuesSting}`;
                 await conn.query(sql, arg);
             }
 
@@ -1752,20 +1764,318 @@ module.exports = class Mysql {
             conn.release();
         }
     }
-    // 프로필 임시저장 정보 삭제
-    async deleteTempProfile({ consultantUserId }) {
-        console.log('도착  ', consultantUserId);
+
+    /**
+     * @description 프로필 임시저장 정보 삭제
+     * @param {number} tempProfileId - 임시저장 프로필 id
+     */
+    async deleteTempProfile({ tempProfileId }) {
         let sql, arg;
         const conn = await this.pool.getConnection();
         try {
             await conn.beginTransaction();
 
-            sql = `DELETE FROM temp_profiles WHERE consultantUserId = ?`;
-            arg = [consultantUserId];
+            // 업로드 파일 가져오기
+            sql = `SELECT * FROM temp_upload_files WHERE tempProfileId = ?`;
+            arg = [tempProfileId];
+            const tempUploadFilesResult = await conn.query(sql, arg);
+            const tempUploadFilesInfo = tempUploadFilesResult[0];
+            console.log('업로드 파일 정보 ', tempUploadFilesInfo);
+
+            // 임시저장 정보들 모두 삭제
+            sql = `DELETE FROM temp_profiles WHERE tempProfileId = ?`;
+            arg = [tempProfileId];
             await conn.query(sql, arg);
 
+            // S3 파일 삭제
+            // 이미 업로드한 파일이 있다면 파일 경로들이 있는 배열로 가공
+            let tempUploadFilesPath;
+            if (tempUploadFilesInfo && !!tempUploadFilesInfo.length) {
+                tempUploadFilesPath = tempUploadFilesInfo.map(
+                    (fileInfo) => fileInfo.filePath
+                );
+            }
+            if (!!tempUploadFilesPath) {
+                await storageService.deleteUploadFilesInStorage(
+                    tempUploadFilesPath
+                );
+            }
             await conn.commit();
             return;
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            await conn.release();
+        }
+    }
+
+    /**
+     * @description 임시저장 프로필 정보 가져오기
+     * @param {string} consultantUserId - 사용자(컨설턴트) id
+     * @returns {Promise} tempProfileResult[0][0] - 임시저장 프로필 정보 객체
+     */
+    async getTempProfile({ consultantUserId }) {
+        let sql, arg;
+        const conn = await this.pool.getConnection();
+        try {
+            sql = `SELECT * FROM temp_profiles WHERE consultantUserId = ?`;
+            // 크기 : 1.68kb, 속도 : 306 > 77 > 64 > 120 ms (가공한 크기, 속도)
+
+            // sql = `SELECT A.*, B.*, C.*, D.*, E.*, F.*, G.*, H.*, I.*, J.*
+            // FROM temp_profiles AS A
+            // LEFT JOIN temp_ability_certifications AS B ON A.tempProfileId = B.tempProfileId
+            // LEFT JOIN temp_ability_tasks AS C ON A.tempProfileId = C.tempProfileId
+            // LEFT JOIN temp_ability_industries AS D ON A.tempProfileId = D.tempProfileId
+            // LEFT JOIN temp_ability_etc AS E ON A.tempProfileId = E.tempProfileId
+            // LEFT JOIN temp_academic_background AS F ON A.tempProfileId = F.tempProfileId
+            // LEFT JOIN temp_career AS G ON A.tempProfileId = G.tempProfileId
+            // LEFT JOIN temp_license AS H ON A.tempProfileId = H.tempProfileId
+            // LEFT JOIN temp_project_history AS I ON A.tempProfileId = I.tempProfileId
+            // LEFT JOIN temp_upload_files AS J ON A.tempProfileId = J.tempProfileId
+            // WHERE consultantUserId = ?`;
+            // 크기 : 1.6kb, 속도 : 342 >  240 > 73 > 64 ms (데이터 가공 전 크기, 속도)
+            arg = [consultantUserId];
+            const tempProfileResult = await conn.query(sql, arg);
+
+            return tempProfileResult[0][0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            await conn.release();
+        }
+    }
+
+    /**
+     * @description 임시저장 인증 리스트 가져오기
+     * @param {number} tempProfileId - 임시저장 프로필 id
+     * @returns {Promise} tempAbilityCertificationsResult[0] 임시저장 인증 정보 배열
+     */
+    async getTempAbilityCertifications({ tempProfileId }) {
+        let sql, arg;
+        const conn = await this.pool.getConnection();
+        try {
+            sql = `SELECT * FROM temp_ability_certifications WHERE tempProfileId = ?`;
+            arg = [tempProfileId];
+            const tempAbilityCertificationsResult = await conn.query(sql, arg);
+
+            return tempAbilityCertificationsResult[0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+
+    /**
+     * @description 임시저장 과제 리스트 가져오기
+     * @param {number} tempProfileId - 임시저장 프로필 id
+     * @returns {Promise} tempAbilityTasksResult[0] 임시저장 과제 정보 배열
+     */
+    async getTempAbilityTasks({ tempProfileId }) {
+        let sql, arg;
+        const conn = await this.pool.getConnection();
+        try {
+            sql = `SELECT * FROM temp_ability_tasks WHERE tempProfileId = ?`;
+            arg = [tempProfileId];
+            const tempAbilityTasksResult = await conn.query(sql, arg);
+
+            return tempAbilityTasksResult[0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+
+    /**
+     * @description 임시저장 업종 리스트 가져오기
+     * @param {number} tempProfileId - 임시저장 프로필 id
+     * @returns {Promise} tempAbilityIndustriesResult[0] 임시저장 업종 정보 배열
+     */
+    async getTempAbilityIndustries({ tempProfileId }) {
+        let sql, arg;
+        const conn = await this.pool.getConnection();
+        try {
+            sql = `SELECT * FROM temp_ability_industries WHERE tempProfileId = ?`;
+            arg = [tempProfileId];
+            const tempAbilityIndustriesResult = await conn.query(sql, arg);
+
+            return tempAbilityIndustriesResult[0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+
+    /**
+     * @description 임시저장 기타 정보 가져오기
+     * @param {number} tempProfileId - 임시저장 프로필 id
+     * @returns {Promise} tempAbilityEtcResult[0][0] 임시저장 기타 정보 객체
+     */
+    async getTempAbilityEtc({ tempProfileId }) {
+        let sql, arg;
+        const conn = await this.pool.getConnection();
+        try {
+            sql = `SELECT etcCertification, etcIndustry FROM temp_ability_etc WHERE tempProfileId = ?`;
+            arg = [tempProfileId];
+            const tempAbilityEtcResult = await conn.query(sql, arg);
+
+            return tempAbilityEtcResult[0][0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+
+    /**
+     * @description 임시저장 최종 학력 정보 가져오기
+     * @param {number} tempProfileId - 임시저장 프로필 id
+     * @returns {Promise} tempAcademicBackgroundResult[0][0] 임시저장 최종 학력 정보 객체
+     */
+    async getTempAcademicBackground({ tempProfileId }) {
+        let sql, arg;
+        const conn = await this.pool.getConnection();
+        try {
+            sql = `SELECT finalAcademicType, schoolName, majorName, graduationClassificationType, admissionDate, graduateDate 
+            FROM temp_academic_background
+            WHERE tempProfileId = ?`;
+            arg = [tempProfileId];
+            const tempAcademicBackgroundResult = await conn.query(sql, arg);
+
+            return tempAcademicBackgroundResult[0][0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+
+    /**
+     * @description 임시저장 경력 정보 리스트 가져오기
+     * @param {number} tempProfileId - 임시저장 프로필 id
+     * @returns {Promise} tempCareerResult[0] 임시저장 경력 정보 배열
+     */
+    async getTempCareer({ tempProfileId }) {
+        let sql, arg;
+        const conn = await this.pool.getConnection();
+        try {
+            sql = `SELECT companyName, position, assignedWork, joiningDate, resignationDate
+            FROM temp_career
+            WHERE tempProfileId = ?`;
+            arg = [tempProfileId];
+            const tempCareerResult = await conn.query(sql, arg);
+
+            return tempCareerResult[0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+
+    /**
+     * @description 임시저장 자격증 정보 리스트 가져오기
+     * @param {number} tempProfileId - 임시저장 프로필 id
+     * @returns {Promise} tempLicenseResult[0] 임시저장 자격증 정보 리스트 배열
+     */
+    async getTempLicense({ tempProfileId }) {
+        let sql, arg;
+        const conn = await this.pool.getConnection();
+        try {
+            sql = `SELECT licenseName, licenseNum, issueInstitution, issuedDate
+            FROM temp_license
+            WHERE tempProfileId = ?`;
+            arg = [tempProfileId];
+            const tempLicenseResult = await conn.query(sql, arg);
+
+            return tempLicenseResult[0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+
+    /**
+     * @description 임시저장 수행이력 정보 리스트 가져오기
+     * @param {number} tempProfileId - 임시저장 프로필 id
+     * @returns {Promise} tempProjectHistoryResult[0] 임시저장 수행이력 정보 리스트 배열
+     */
+    async getTempProjectHistory({ tempProfileId }) {
+        let sql, arg;
+        const conn = await this.pool.getConnection();
+        try {
+            sql = `SELECT projectName, assignedTask, industryCategoryId, industryCategoryName, projectStartDate, projectEndDate
+            FROM temp_project_history
+            WHERE tempProfileId = ?`;
+            arg = [tempProfileId];
+            const tempProjectHistoryResult = await conn.query(sql, arg);
+
+            return tempProjectHistoryResult[0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+
+    /**
+     * @description 임시저장 업로드 파일 리스트 가져오기
+     * @param {number} tempProfileId - 임시저장 프로필 id
+     * @returns {Promise} tempUploadFilesResults[0] 업로드 파일 정보 배열
+     */
+    async getTempUploadFiles({ tempProfileId }) {
+        let sql, arg;
+        const conn = await this.pool.getConnection();
+        try {
+            sql = `SELECT tempUploadFileId, fileType, fileName, filePath FROM temp_upload_files WHERE tempProfileId = ?`;
+            arg = [tempProfileId];
+            const tempUploadFilesResults = await conn.query(sql, arg);
+
+            return tempUploadFilesResults[0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+    /**
+     * @description 임시저장 업로드 파일 리스트 삭제하기
+     * @param {number} tempUploadFileId - 임시저장 업로드 파일 id
+     */
+    async deleteTempUploadFiles({ tempUploadFileId }) {
+        let sql, arg;
+        const conn = await this.pool.getConnection();
+        try {
+            sql = `DELETE FROM temp_upload_files WHERE tempUploadFileId = ?`;
+            arg = [tempUploadFileId];
+            const tempUploadFilesResults = await conn.query(sql, arg);
+
+            return tempUploadFilesResults[0];
         } catch (error) {
             console.error('DB에러 : ', error);
             await conn.rollback();

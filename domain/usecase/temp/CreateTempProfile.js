@@ -19,49 +19,58 @@ module.exports = class CreateTempProfile {
     async excute(userData, tempData, uploadData) {
         let result;
         try {
-            let { tempProfilesRepository } = this.repository;
+            const {
+                tempProfilesRepository,
+                tempUploadFilesRepository,
+            } = this.repository;
+            let tempProfilesEntity, preUploadFilesInfo;
             // // userData.userType = 1; // 테스트용
             // if (userData.userType !== 1) {
             //     throw new UserTypeException('사용자 타입');
             // }
 
-            // 이전에 저장한 임시저장 프로필이 있다면 삭제 처리
-            if (!!tempData.tempProfileId) {
-                console.log('삭제!=================================');
-                // let deleteTempData = {
-                //     tempProfileId: tempData.tempProfileId,
-                // };
-                // let deleteTempProfile = new DelteTempProfile(this.repository);
-                // await deleteTempProfile.excute(deleteTempData);
-                return { message: '임시저장 정보 삭제 처리할꺼임' };
+            // 이전에 저장한 임시저장 프로필이 있다면 가져오기
+            tempProfilesEntity = new TempProfilesEntity(userData);
+            const preTempProfileInfo = await tempProfilesRepository.getTempProfile(
+                tempProfilesEntity
+            );
+
+            if (!!preTempProfileInfo) {
+                tempData.tempProfileId = preTempProfileInfo.tempProfileId;
+                // 기존 업로드 파일 정보리스트  가져오기
+                let tempUploadFilesEntity = new TempUploadFilesEntity(tempData);
+                preUploadFilesInfo = await tempUploadFilesRepository.getTempUploadFiles(
+                    tempUploadFilesEntity
+                );
+                // 새로운 업로드 파일과 병합
+                uploadData = uploadData.concat(preUploadFilesInfo);
+                console.log('병합된 업로드 데이터 ', uploadData);
             }
 
-            // 사용자 id
-            tempData.consultantUserId = userData.consultantUserId;
-
             // 각 entity 생성
-            let tempProfilesEntity = new TempProfilesEntity(tempData);
-            let tempProfileAbilityCertificationIds =
+            tempData.consultantUserId = userData.consultantUserId; // 사용자 id
+            tempProfilesEntity = new TempProfilesEntity(tempData);
+            const tempProfileAbilityCertificationIds =
                 tempData.abilityCertificationIds;
-            let tempAbilityIndustryIds = tempData.abilityIndustryIds;
-            let tempAbilityTaskIds = tempData.abilityTaskIds;
-            let tempAbilityEtcEntity = new TempAbilityEtcEntity(
+            const tempAbilityIndustryIds = tempData.abilityIndustryIds;
+            const tempAbilityTaskIds = tempData.abilityTaskIds;
+            const tempAbilityEtcEntity = new TempAbilityEtcEntity(
                 tempData.abilityEtc
             );
-            let tempAcademicBackgroundEntity = new TempAcademicBackgroundEntity(
+            const tempAcademicBackgroundEntity = new TempAcademicBackgroundEntity(
                 tempData.academicBackground
             );
-            let tempCareerEntities = tempData.career.map(
+            const tempCareerEntities = tempData.career.map(
                 (careerData) => new TempCareerEntity(careerData)
             );
-            let tempLicenseEntities = tempData.license.map(
+            const tempLicenseEntities = tempData.license.map(
                 (licenseData) => new TempLicenseEntity(licenseData)
             );
-            let tempProjectHistoryEntities = tempData.projectHistory.map(
+            const tempProjectHistoryEntities = tempData.projectHistory.map(
                 (projectHistoryData) =>
                     new TempProjectHistoryEntity(projectHistoryData)
             );
-            let tempUploadFilesEntities = uploadData.map(
+            const tempUploadFilesEntities = uploadData.map(
                 (eachData) => new TempUploadFilesEntity(eachData)
             );
 

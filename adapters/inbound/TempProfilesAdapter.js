@@ -1,6 +1,7 @@
 const { repository } = require('../outbound');
 const {
     CreateTempProfile,
+    GetTempProfile,
     DeleteTempProfile,
 } = require('../../domain/usecase/temp');
 

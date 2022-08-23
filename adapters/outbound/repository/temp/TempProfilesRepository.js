@@ -41,10 +41,10 @@ module.exports = class TempProfilesRepository {
     // async getTempProfiles(userData) { }
 
     // 프로필 임시저장 정보 가져오기
-    async getTempProfile(userData) {
+    async getTempProfile(tempProfilesEntity) {
         let result;
         try {
-            result = await this.db.getTempProfile(userData);
+            result = await this.db.getTempProfile(tempProfilesEntity);
 
             return result;
         } catch (error) {
