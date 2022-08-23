@@ -17,6 +17,15 @@ const ConsultingCompaniesRepository = require('./company/ConsultingCompaniesRepo
 const ConsultantUserAndCompanyRepository = require('./relation/ConsultantUserAndCompanyRepository');
 // 임시저장 (프로필)
 const TempProfilesRepository = require('./temp/TempProfilesRepository');
+const TempAbilityCertificationsRepository = require('./temp/TempAbilityCertificationsRepository');
+const TempAbilityTasksRepository = require('./temp/TempAbilityTasksRepository');
+const TempAbilityIndustriesRepository = require('./temp/TempAbilityIndustriesRepository');
+const TempAbilityEtcRepository = require('./temp/TempAbilityEtcRepository');
+const TempAcademicBackgroundRepository = require('./temp/TempAcademicBackgroundRepository');
+const TempCareerRepository = require('./temp/TempCareerRepository');
+const TempLicenseRepository = require('./temp/TempLicenseRepository');
+const TempProjectHistoryRepository = require('./temp/TempProjectHistoryRepository');
+const TempUploadFilesRepository = require('./temp/TempUploadFilesRepository');
 
 module.exports = {
     serviceRepository: new ServiceRepository(storage),
@@ -33,4 +42,15 @@ module.exports = {
         db
     ),
     tempProfilesRepository: new TempProfilesRepository(db),
+    tempAbilityCertificationsRepository: new TempAbilityCertificationsRepository(
+        db
+    ),
+    tempAbilityTasksRepository: new TempAbilityTasksRepository(db),
+    tempAbilityIndustriesRepository: new TempAbilityIndustriesRepository(db),
+    tempAbilityEtcRepository: new TempAbilityEtcRepository(db),
+    tempAcademicBackgroundRepository: new TempAcademicBackgroundRepository(db),
+    tempCareerRepository: new TempCareerRepository(db),
+    tempLicenseRepository: new TempLicenseRepository(db),
+    tempProjectHistoryRepository: new TempProjectHistoryRepository(db),
+    tempUploadFilesRepository: new TempUploadFilesRepository(db),
 };

@@ -16,7 +16,7 @@ const classifyStoragePath = function (requestUrl, fieldName) {
     return storagePath;
 };
 
-module.exports = class {
+module.exports = class AwsS3 {
     constructor() {
         this.s3 = new AWS.S3();
 
