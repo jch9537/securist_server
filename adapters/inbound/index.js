@@ -6,6 +6,7 @@ const ClientCompaniesAdapter = require('./client/ClientCompaniesAdapter');
 const ConsultantUsersAdapter = require('./consultant/ConsultantUsersAdapter');
 const ProfilesAdapter = require('./ProfilesAdapter');
 const TempProfilesAdapter = require('./TempProfilesAdapter');
+const TempUploadFilesAdapter = require('./TempUploadFilesAdapter');
 // const ConsultantCompaniesAdapter = require('./consultant/ConsultantCompaniesAdapter');
 // const UserAdapter = require('./UserAdapter');
 // const CompanyAdapter = require('./CompanyAdapter');
@@ -35,6 +36,7 @@ module.exports = {
     // 프로필
     profilesAdapter: new ProfilesAdapter(projectService, adminService),
     tempProfilesAdapter: new TempProfilesAdapter(projectService, adminService), // 프로필 임시저장
+    tempUploadFilesAdapter: new TempUploadFilesAdapter(),
 
     // consultantCompaniesAdapter: new ConsultantCompaniesAdapter(
     //     projectService,

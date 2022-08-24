@@ -1,4 +1,3 @@
-// TODO : 2, 4번 처리해야함!!
 const { TempProfilesEntity, TempUploadFilesEntity } = require('../../entities');
 const { UserTypeException } = require('../../exceptions');
 module.exports = class DeleteTempProfile {
