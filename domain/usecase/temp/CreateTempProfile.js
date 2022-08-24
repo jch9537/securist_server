@@ -10,7 +10,6 @@ const {
     TempProjectHistoryEntity,
     TempUploadFilesEntity,
 } = require('../../entities');
-const DelteTempProfile = require('./DeleteTempProfile');
 const { UserTypeException } = require('../../exceptions');
 module.exports = class CreateTempProfile {
     constructor(repository) {

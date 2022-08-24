@@ -40,7 +40,7 @@ module.exports = class MyAdapter {
         }
     }
 
-    // 클라이언트 정보 가져오기
+    // 내 정보 수정하기
     async updateMyInfo(userData, myData) {
         console.log(
             '요청 > adapters > inbound > userAdaptor.js > getUserInfo - userId : ',

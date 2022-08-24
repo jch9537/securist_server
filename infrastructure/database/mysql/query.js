@@ -1800,6 +1800,7 @@ module.exports = class Mysql {
                     tempUploadFilesPath
                 );
             }
+
             await conn.commit();
             return;
         } catch (error) {
@@ -2067,15 +2068,52 @@ module.exports = class Mysql {
      * @description 임시저장 업로드 파일 리스트 삭제하기
      * @param {number} tempUploadFileId - 임시저장 업로드 파일 id
      */
-    async deleteTempUploadFiles({ tempUploadFileId }) {
+    async deleteTempUploadFiles(tempUploadFilesEntities) {
         let sql, arg;
         const conn = await this.pool.getConnection();
         try {
-            sql = `DELETE FROM temp_upload_files WHERE tempUploadFileId = ?`;
-            arg = [tempUploadFileId];
-            const tempUploadFilesResults = await conn.query(sql, arg);
+            await conn.beginTransaction();
 
-            return tempUploadFilesResults[0];
+            let conditionString = '';
+            arg = [];
+            if (tempUploadFilesEntities.length === 1) {
+                conditionString += 'tempUploadFileId = ?';
+                arg.push(tempUploadFilesEntities[0]);
+            } else {
+                for (let i = 0; i < tempUploadFilesEntities.length; i++) {
+                    if (i === 0) {
+                        conditionString += 'tempUploadFileId IN (?';
+                    } else if (i === tempUploadFilesEntities.length - 1) {
+                        conditionString += ', ?)';
+                    } else {
+                        conditionString += ', ?';
+                    }
+                    arg.push(tempUploadFilesEntities[i]);
+                }
+            }
+            sql = `SELECT * FROM temp_upload_files WHERE ${conditionString}`;
+            const tempUploadFilesResult = await conn.query(sql, arg);
+            const tempUploadFilesInfo = tempUploadFilesResult[0];
+
+            sql = `DELETE FROM temp_upload_files WHERE ${conditionString}`;
+            await conn.query(sql, arg);
+
+            // S3 파일 삭제
+            // 이미 업로드한 파일이 있다면 파일 경로들이 있는 배열로 가공
+            let tempUploadFilesPath;
+            if (tempUploadFilesInfo && !!tempUploadFilesInfo.length) {
+                tempUploadFilesPath = tempUploadFilesInfo.map(
+                    (fileInfo) => fileInfo.filePath
+                );
+            }
+            if (!!tempUploadFilesPath) {
+                await storageService.deleteUploadFilesInStorage(
+                    tempUploadFilesPath
+                );
+            }
+
+            await conn.commit();
+            return;
         } catch (error) {
             console.error('DB에러 : ', error);
             await conn.rollback();

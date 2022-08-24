@@ -1,6 +1,7 @@
 // 프로필 임시 저장 API
 const express = require('express');
 const router = express.Router();
+const filesRouter = require('./files');
 
 const { uploadFilesInStorage } = require('../../../webService/storageService');
 const { sanitizer } = require('../../middlewares');
@@ -11,6 +12,8 @@ const {
 } = require('../../../../adapters/dtos/requestDto/myInfoDto');
 const { logger } = require('../../../../adapters/module/logger');
 const { SuccessResponse } = require('../../../../adapters/response');
+
+router.use('/files', filesRouter);
 
 // 프로필 임시 저장정보 생성하기
 router.post(

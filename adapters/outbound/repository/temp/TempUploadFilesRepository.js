@@ -19,10 +19,10 @@ module.exports = class TempUploadFilesRepository {
     // async updateProfileTemp(deleteData) {}
 
     // 프로필 임시저장 업로드 파일들 정보 삭제
-    async deleteTempUploadFiles(tempUploadFilesEntity) {
+    async deleteTempUploadFiles(tempUploadFilesEntities) {
         let result;
         try {
-            result = await this.db.deleteTempUploadFiles(tempUploadFilesEntity);
+            result = await this.db.deleteTempUploadFiles(tempUploadFilesEntities);
 
             return result;
         } catch (error) {
