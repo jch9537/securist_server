@@ -1,123 +1,111 @@
-// 내 프로필 임시저장 정보 API
+// 프로필 API
 const express = require('express');
 const router = express.Router();
 
-const tempRouter = require('./temp');
-const { myAdapter } = require('../../../../adapters/inbound');
-
+const { profilesAdapter } = require('../../../../adapters/inbound');
 const {
     UpdateMyInfoRequestDto,
 } = require('../../../../adapters/dtos/requestDto/myInfoDto');
 const { logger } = require('../../../../adapters/module/logger');
 const { SuccessResponse } = require('../../../../adapters/response');
 
-router.use('temp', tempRouter);
-
-// 내 프로필 임시저장 정보 가져오기
+// 사용자 프로필 리스트 가져오기
 router.get('/', async (req, res, next) => {
     let result, response;
     try {
         let userData = req.userDataByIdToken;
-        console.log('GET - /api/user/my/profile/temp 요청 : ', userData);
-
-        result = await myAdapter.getMyProfiles(userData);
-        console.log('GET - /api/user/my/profile/temp 응답 : ', result);
-
-        response = new SuccessResponse(200, result);
-        logger.log('info', 'GET - /api/user/my/profile/temp', response.message);
-
-        res.send(response);
-    } catch (error) {
-        console.error('/api/user/my/profile/temp 에러 응답 : ', error);
-        next(error);
-    }
-});
-// 내 프로필 임시저장 정보 가져오기
-router.get('/', async (req, res, next) => {
-    let result, response;
-    try {
-        let userData = req.userDataByIdToken;
-        console.log('GET - /api/user/my/profile/temp 요청 : ', userData);
-
-        result = await myAdapter.getMyInfo(userData);
-        console.log('GET - /api/user/my/profile/temp 응답 : ', result);
-
-        response = new SuccessResponse(200, result);
-        logger.log(
-            'info',
-            'GET - /api/user/my/profile/temp/:profileId',
-            response.message
-        );
-
-        res.send(response);
-    } catch (error) {
-        console.error('/api/user/my/profile/temp 에러 응답 : ', error);
-        next(error);
-    }
-});
-
-// 내 프로필 임시저장 정보 변경
-router.put('/', async (req, res, next) => {
-    let result, response;
-    result;
-    try {
-        let userData = req.userDataByIdToken;
-        let { myData } = new UpdateMyInfoRequestDto(req.filteredBody);
-        console.log(
-            'PUT - /api/user/my/profile/temp 요청 : ',
-            userData,
-            myData
-        );
-
-        result = await myAdapter.updateMyInfo(userData, myData);
-        console.log('PUT - /api/user/my/profile/temp 응답 : ', result);
-
-        response = new SuccessResponse(204, result);
-        logger.log(
-            'info',
-            'PUT - /api/user/my/profile/temp/:profileId',
-            response.message
-        );
-
-        res.send(response);
-    } catch (error) {
-        console.error('PUT - /api/user/my/profile/temp 에러 응답 : ', error);
-        next(error);
-    }
-});
-// // 사용자 정보 변경 - 컨설턴트 공통 : 입금정보
-// router.put('/info/bankinfo', async (req, res, next) => {
-//     let result, response;
-//     try {
-//         let userData = req.userDataByIdToken;
-//         let reqBodyData = req.filteredBody;
-//         console.log('PUT - /info/bankinfo 요청 : ', userData, reqBodyData);
-
-//         result = await myAdapter.updateBankInfo(userData, reqBodyData);
-//         console.log('PUT - /info/bankinfo 응답 : ', result);
-
-//         response = new SuccessResponse(result.message, result.data);
-//         res.status(200).send(response);
-//     } catch (error) {
-//         console.error('PUT - /info/bankinfo 에러 응답 : ', error);
-//         next(error);
-//     }
-// });
-// 회원 탈퇴 : 윤이사님 확인 후 처리 : 정책논의와 다른 기능완성 후 작업진행!!
-router.delete('/', async (req, res, next) => {
-    let result, response;
-    try {
-        let accessToken = req.token;
         let reqBodyData = req.filteredBody;
-        console.log('DELETE - /api/user 요청 : ', accessToken, reqBodyData);
+        console.log(
+            'GET - /api/user/consultant/users/:consultantUserId/profiles 요청 : ',
+            userData,
+            reqBodyData
+        );
 
-        result = await myAdapter.deleteUser(accessToken, reqBodyData);
-        console.log('DELETE - /api/user 응답 : ', result);
+        result = await profilesAdapter.getProfiles(userData, reqBodyData);
+        console.log(
+            'GET - /api/user/consultant/users/:consultantUserId/profiles  응답 : ',
+            result
+        );
 
         response = new SuccessResponse(result.message, result.data);
-        res.status(200).send(response);
+        logger.log(
+            'info',
+            'GET - /api/user/consultant/users/:consultantUserId/profiles ',
+            response.message
+        );
+
+        res.send(response);
     } catch (error) {
-        console.error('DELETE - /api/user 에러 응답 : ', error);
+        console.error(
+            'GET - /api/user/consultant/users/:consultantUserId/profiles  에러 응답 : ',
+            error
+        );
+        next(error);
+    }
+});
+
+// 프로필 정보 가져오기
+router.get('/:profileId', async (req, res, next) => {
+    let result, response;
+    try {
+        let userData = req.userDataByIdToken;
+        console.log(
+            'GET - /api/user/consultant/users/:consultantUserId/profiles/:profileId 요청 : ',
+            userData
+        );
+
+        result = await profilesAdapter.getProfile(userData);
+        console.log(
+            'GET - /api/user/consultant/users/:consultantUserId/profiles/:profileId 응답 : ',
+            result
+        );
+
+        response = new SuccessResponse(200, result);
+        logger.log(
+            'info',
+            'GET - /api/user/consultant/users/:consultantUserId/profiles/:profileId',
+            response.message
+        );
+
+        res.send(response);
+    } catch (error) {
+        console.error(
+            'GET - /api/user/consultant/users/:consultantUserId/profiles/:profileId 에러 응답 : ',
+            error
+        );
+        next(error);
+    }
+});
+
+// 프로필 정보 수정하기
+router.put('/:profileId', async (req, res, next) => {
+    let result, response;
+    try {
+        let userData = req.userDataByIdToken;
+        console.log(
+            'PUT - /api/user/consultant/users/:consultantUserId/profiles/:profileId 요청 : ',
+            userData
+        );
+
+        result = await profilesAdapter.updateProfile(userData);
+        console.log(
+            'PUT - /api/user/consultant/users/:consultantUserId/profiles/:profileId 응답 : ',
+            result
+        );
+
+        response = new SuccessResponse(200, result);
+        logger.log(
+            'info',
+            'PUT - /api/user/consultant/users/:consultantUserId/profiles/:profileId',
+            response.message
+        );
+
+        res.send(response);
+    } catch (error) {
+        console.error(
+            'PUT - /api/user/consultant/users/:consultantUserId/profiles/:profileId 에러 응답 : ',
+            error
+        );
         next(error);
     }
 });

@@ -26,6 +26,7 @@ module.exports = {
     TempUploadFilesEntity: require('./TempUploadFilesEntity'),
 
     // 프로필
+    ProfilesEntity: require('./ProfilesEntity'),
     ProfileAbilityCertificationsEntity: require('./ProfileAbilityCertificationsEntity'),
     ProfileAbilityEtcEntity: require('./ProfileAbilityEtcEntity'),
     ProfileAbilityIndustriesEntity: require('./ProfileAbilityIndustriesEntity'),
@@ -35,5 +36,5 @@ module.exports = {
     ProfileLicenseEntity: require('./ProfileLicenseEntity'),
     // ProfileProjectHistoryConsultingCompanyEntity: require('./ProfileProjectHistoryConsultingCompanyEntity'),
     ProfileProjectHistoryEntity: require('./ProfileProjectHistoryEntity'),
-    // profileUploadFilesEntity: require('./')
+    ProfileUploadFilesEntity: require('./profileUploadFilesEntity'),
 };

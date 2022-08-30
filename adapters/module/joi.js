@@ -62,7 +62,6 @@ module.exports = {
         bankAccountOwner: Joi.string().max(20),
         profileStatus: Joi.number().min(1).max(4),
         profileGrade: Joi.number().min(1).max(5),
-        userIntroduce: Joi.any(), // 자기소개 - 확인할 것
         applicationState: Joi.number().min(0).max(1),
     }),
     // ============================== 사용자 정보 유효성 확인 ===================================

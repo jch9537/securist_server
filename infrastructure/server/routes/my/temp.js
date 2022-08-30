@@ -5,8 +5,8 @@ const filesRouter = require('./files');
 
 const { uploadFilesInStorage } = require('../../../webService/storageService');
 const { sanitizer } = require('../../middlewares');
-const { tempProfilesAdapter } = require('../../../../adapters/inbound');
 
+const { tempProfilesAdapter } = require('../../../../adapters/inbound');
 const {
     UpdateMyInfoRequestDto,
 } = require('../../../../adapters/dtos/requestDto/myInfoDto');

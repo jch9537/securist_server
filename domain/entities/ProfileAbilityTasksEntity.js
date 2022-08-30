@@ -1,17 +1,11 @@
 'use strict';
 
 module.exports = class ProfileAbilityTasksEntity {
-    constructor({
-        abilityTaskId,
-        taskId,
-        taskName,
-        taskGroupType,
-        consultantUserId,
-    }) {
+    constructor({ abilityTaskId, taskId, profileId }) {
         this.abilityTaskId = abilityTaskId;
         this.taskId = taskId;
-        this.taskName = taskName;
-        this.taskGroupType = taskGroupType;
-        this.consultantUserId = consultantUserId;
+        // this.taskName = taskName;
+        // this.taskGroupType = taskGroupType;
+        this.profileId = profileId;
     }
 };

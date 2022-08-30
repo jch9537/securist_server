@@ -1,9 +1,9 @@
 const {
     TempProfilesEntity,
     // TempAbilityCertificationsEntity,
-    TempAbilityEtcEntity,
-    // TempAbilityIndustriesEntity,
     // TempAbilityTasksEntity,
+    // TempAbilityIndustriesEntity,
+    TempAbilityEtcEntity,
     TempAcademicBackgroundEntity,
     TempCareerEntity,
     TempLicenseEntity,
@@ -47,8 +47,10 @@ module.exports = class CreateTempProfile {
             }
 
             // 각 entity 생성
-            tempData.consultantUserId = userData.consultantUserId; // 사용자 id
             tempProfilesEntity = new TempProfilesEntity(tempData);
+            console.log('유스케이스 : ', tempProfilesEntity, tempData);
+            tempProfilesEntity.consultantUserId = userData.consultantUserId; // 사용자 id
+
             const tempProfileAbilityCertificationIds =
                 tempData.abilityCertificationIds;
             const tempAbilityIndustryIds = tempData.abilityIndustryIds;

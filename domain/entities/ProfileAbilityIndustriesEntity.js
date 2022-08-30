@@ -4,12 +4,12 @@ module.exports = class ProfileAbilityIndustriesEntity {
     constructor({
         abilityIndustryId,
         industryId,
-        industryName,
-        consultantUserId,
+        // industryName,
+        profileId,
     }) {
         this.abilityIndustryId = abilityIndustryId;
         this.industryId = industryId;
-        this.industryName = industryName;
-        this.consultantUserId = consultantUserId;
+        // this.industryName = industryName;
+        this.profileId = profileId;
     }
 };

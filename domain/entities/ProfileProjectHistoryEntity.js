@@ -9,7 +9,7 @@ module.exports = class ProfileProjectHistoryEntity {
         industryCategoryName,
         projectStartDate,
         projectEndDate,
-        consultantUserId,
+        profileId,
     }) {
         this.projectHistoryId = projectHistoryId;
         this.projectName = projectName;
@@ -18,6 +18,6 @@ module.exports = class ProfileProjectHistoryEntity {
         this.industryCategoryName = industryCategoryName;
         this.projectStartDate = projectStartDate;
         this.projectEndDate = projectEndDate;
-        this.consultantUserId = consultantUserId;
+        this.profileId = profileId;
     }
 };

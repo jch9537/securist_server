@@ -9,7 +9,8 @@ module.exports = class ProfileAcademicBackgroundEntity {
         graduationClassificationType,
         admissionDate,
         graduateDate,
-        consultantUserId,
+        academicScore,
+        profileId,
     }) {
         this.academicBackgroundId = academicBackgroundId;
         this.finalAcademicType = finalAcademicType;
@@ -18,6 +19,7 @@ module.exports = class ProfileAcademicBackgroundEntity {
         this.graduationClassificationType = graduationClassificationType;
         this.admissionDate = admissionDate;
         this.graduateDate = graduateDate;
-        this.consultantUserId = consultantUserId;
+        this.academicScore = academicScore;
+        this.profileId = profileId;
     }
 };

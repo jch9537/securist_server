@@ -8,7 +8,8 @@ module.exports = class ProfileCareerEntity {
         assignedWork,
         joiningDate,
         resignationDate,
-        consultantUserId,
+        careerScore,
+        profileId,
     }) {
         this.careerId = careerId;
         this.companyName = companyName;
@@ -16,6 +17,7 @@ module.exports = class ProfileCareerEntity {
         this.assignedWork = assignedWork;
         this.joiningDate = joiningDate;
         this.resignationDate = resignationDate;
-        this.consultantUserId = consultantUserId;
+        this.careerScore = careerScore;
+        this.profileId = profileId;
     }
 };

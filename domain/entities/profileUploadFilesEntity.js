@@ -3,15 +3,15 @@
 module.exports = class profileUploadFilesEntity {
     constructor({
         profileUploadFileId,
-        fileCategoryType,
+        fileType,
         fileName,
         filePath,
-        consultantUserId,
+        profileId,
     }) {
         this.profileUploadFileId = profileUploadFileId;
-        this.fileCategoryType = fileCategoryType;
+        this.fileType = fileType;
         this.fileName = fileName;
         this.filePath = filePath;
-        this.consultantUserId = consultantUserId;
+        this.profileId = profileId;
     }
 };

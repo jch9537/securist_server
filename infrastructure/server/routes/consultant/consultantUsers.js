@@ -1,6 +1,7 @@
 // 컨설턴트 사용자 API
 const express = require('express');
 const router = express.Router();
+const profilesRouter = require('./profiles');
 
 const { consultantUsersAdapter } = require('../../../../adapters/inbound');
 const { extractToken, decryptIdToken } = require('../../middlewares');
@@ -96,7 +97,6 @@ router.put('/:consultantUserId', async (req, res, next) => {
     }
 });
 
-// 사용자 페이지 ---------------------------------------------------
-router.use(extractToken);
+router.use('/:consultantUserId/profiles', profilesRouter);
 
 module.exports = router;

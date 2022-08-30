@@ -1,0 +1,81 @@
+module.exports = class ProfilesRepository {
+    constructor(db) {
+        this.db = db;
+    }
+
+    // 프로필 생성
+    async createProfile(
+        consultantUsersEntity,
+        profilesEntity,
+        profileAbilityCertificationIds,
+        profileAbilityIndustryIds,
+        profileAbilityTaskIds,
+        profileAbilityEtcEntity,
+        profileAcademicBackgroundEntity,
+        profileCareerEntities,
+        profileLicenseEntities,
+        profileProjectHistoryEntities,
+        profileUploadFilesEntities
+    ) {
+        try {
+            await this.db.createProfile(
+                consultantUsersEntity,
+                profilesEntity,
+                profileAbilityCertificationIds,
+                profileAbilityIndustryIds,
+                profileAbilityTaskIds,
+                profileAbilityEtcEntity,
+                profileAcademicBackgroundEntity,
+                profileCareerEntities,
+                profileLicenseEntities,
+                profileProjectHistoryEntities,
+                profileUploadFilesEntities
+            );
+
+            return;
+        } catch (error) {
+            throw error;
+        }
+    }
+    // 내 최신 프로필 정보 가져오기
+    async getMyProfile(profilesEntity) {
+        let result;
+        try {
+            result = await this.db.getMyProfile(profilesEntity);
+
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // 프로필 정보 리스트 가져오기
+    async getprofiles(userData) {
+        let result;
+        try {
+            result = await this.db.getprofile(profilesEntity);
+
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // 프로필 정보 가져오기
+    async getprofile(profilesEntity) {
+        let result;
+        try {
+            result = await this.db.getprofile(profilesEntity);
+
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // 프로필 임시저장 정보 수정 : 수정 없음
+    // async updateProfile(profilesEntity) {}
+
+    // 프로필 임시저장 정보 삭제 : 삭제 없음
+    // async deleteprofile(profilesEntity) {}
+};
