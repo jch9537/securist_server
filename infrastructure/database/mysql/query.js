@@ -1491,7 +1491,21 @@ module.exports = class Mysql {
     }
     // DELETE
 
-    // ---------------------------------- 프로필 임시저장 --------------------------------------//
+    // ---------------------------------- 프로필 임시저장 -------------------------------//
+    /**
+     * @description 임시저장 정보 생성 : 기존 임시저장 정보 삭제 후 생성
+     * @param {Object} consultantUsersEntity - 사용자(컨설턴트) 정보 객체
+     * @param {Object} tempProfilesEntity - 임시저장 정보 객체
+     * @param {number[]} [tempProfileAbilityCertificationIds] - 임시저장 선택 인증 id 배열
+     * @param {number[]} [tempAbilityIndustryIds] - 임시저장 선택 업종 id 배열
+     * @param {number[]} [tempAbilityTaskIds] - 임시저장 선택 과제 id 배열
+     * @param {Object} [tempAbilityEtcEntity] - 임시저장 기타 수행 인증/업종 객체
+     * @param {Object} [tempAcademicBackgroundEntity] - 임시저장 최종 학력 정보 객체
+     * @param {Object[]} [tempCareerEntities] - 임시저장 경력 정보 객체들의 배열
+     * @param {Object[]} [tempLicenseEntities] - 임시저장 자격증 정보 객체들의 배열
+     * @param {Object[]} [tempProjectHistoryEntities] - 경력 정보 객체들의 배열
+     * @param {Object[]} tempUploadFilesEntities - 업로드 파일 정보 객체들의 배열
+     */
     async createTempProfile(
         tempProfilesEntity,
         tempProfileAbilityCertificationIds,
@@ -1842,7 +1856,6 @@ module.exports = class Mysql {
             return tempProfileResult[0][0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             await conn.release();
@@ -1865,7 +1878,6 @@ module.exports = class Mysql {
             return tempAbilityCertificationsResult[0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -1888,7 +1900,6 @@ module.exports = class Mysql {
             return tempAbilityTasksResult[0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -1911,7 +1922,6 @@ module.exports = class Mysql {
             return tempAbilityIndustriesResult[0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -1934,7 +1944,6 @@ module.exports = class Mysql {
             return tempAbilityEtcResult[0][0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -1959,7 +1968,6 @@ module.exports = class Mysql {
             return tempAcademicBackgroundResult[0][0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -1984,7 +1992,6 @@ module.exports = class Mysql {
             return tempCareerResult[0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -2009,7 +2016,6 @@ module.exports = class Mysql {
             return tempLicenseResult[0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -2034,7 +2040,6 @@ module.exports = class Mysql {
             return tempProjectHistoryResult[0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -2057,7 +2062,6 @@ module.exports = class Mysql {
             return tempUploadFilesResults[0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -2122,6 +2126,20 @@ module.exports = class Mysql {
         }
     }
     // ------------------------------ 프로필 -----------------------------------
+    /**
+     * @description 프로필 생성 : 임시저장 정보 삭제 후 생성
+     * @param {Object} consultantUsersEntity - 사용자(컨설턴트) 정보 객체
+     * @param {Object} profilesEntity - 프로필 정보 객체
+     * @param {number[]} profileAbilityCertificationIds - 선택 인증 id 배열
+     * @param {number[]} profileAbilityIndustryIds - 선택 업종 id 배열
+     * @param {number[]} profileAbilityTaskIds - 선택 과제 id 배열
+     * @param {Object} profileAbilityEtcEntity - 기타 수행 인증/업종 객체
+     * @param {Object} profileAcademicBackgroundEntity - 최종 학력 정보 객체
+     * @param {Object[]} profileCareerEntities - 경력 정보 객체들의 배열
+     * @param {Object[]} profileLicenseEntities - 자격증 정보 객체들의 배열
+     * @param {Object[]} profileProjectHistoryEntities - 경력 정보 객체들의 배열
+     * @param {Object[]} profileUploadFilesEntities - 업로드 파일 정보 객체들의 배열
+     */
     async createProfile(
         consultantUsersEntity,
         profilesEntity,
@@ -2390,22 +2408,344 @@ module.exports = class Mysql {
         }
     }
     /**
+     * @description 프로필 업데이트 : 프로필 삭제 후 수정
+     * @param {Object} consultantUsersEntity - 사용자(컨설턴트) 정보 객체
+     * @param {Object} profilesEntity - 프로필 정보 객체
+     * @param {number[]} profileAbilityCertificationIds - 선택 인증 id 배열
+     * @param {number[]} profileAbilityIndustryIds - 선택 업종 id 배열
+     * @param {number[]} profileAbilityTaskIds - 선택 과제 id 배열
+     * @param {Object} profileAbilityEtcEntity - 기타 수행 인증/업종 객체
+     * @param {Object} profileAcademicBackgroundEntity - 최종 학력 정보 객체
+     * @param {Object[]} profileCareerEntities - 경력 정보 객체들의 배열
+     * @param {Object[]} profileLicenseEntities - 자격증 정보 객체들의 배열
+     * @param {Object[]} profileProjectHistoryEntities - 경력 정보 객체들의 배열
+     * @param {Object[]} profileUploadFilesEntities - 업로드 파일 정보 객체들의 배열
+     */
+    async updateProfile(
+        consultantUsersEntity,
+        profilesEntity,
+        profileAbilityCertificationIds,
+        profileAbilityIndustryIds,
+        profileAbilityTaskIds,
+        profileAbilityEtcEntity,
+        profileAcademicBackgroundEntity,
+        profileCareerEntities,
+        profileLicenseEntities,
+        profileProjectHistoryEntities,
+        profileUploadFilesEntities
+    ) {
+        console.log('도착 : ');
+        let sql, arg, insertValuesSting;
+        const conn = await this.pool.getConnection();
+        try {
+            await conn.beginTransaction();
+            console.log('ㅏ이러니ㅏㅇ러', profilesEntity);
+
+            // 사용자 정보 업데이트
+            const { profileStatus, consultantUserId } = consultantUsersEntity;
+            sql = `UPDATE consultant_users SET profileStatus = ? WHERE consultantUserId = ?`;
+            arg = [profileStatus, consultantUserId];
+
+            let {
+                profileId,
+                introduce,
+                academicScore,
+                careerScore,
+                licenseScore,
+                profileGrade,
+                confirmRequestDate,
+                confirmCompleteDate,
+                confirmComment,
+                confirmManagerName,
+            } = profilesEntity;
+
+            // 기존 프로필 정보 삭제
+            sql = `DELETE FROM profiles WHERE profileId = ?`;
+            arg = [profileId];
+            await conn.query(sql, arg);
+
+            // 프로필 생성
+            sql =
+                'INSERT INTO profiles (introduce, academicScore, careerScore, licenseScore, profileGrade, confirmRequestDate, confirmCompleteDate, confirmComment, confirmManagerName, consultantUserId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+            arg = [
+                introduce,
+                academicScore,
+                careerScore,
+                licenseScore,
+                profileGrade,
+                confirmRequestDate,
+                confirmCompleteDate,
+                confirmComment,
+                confirmManagerName,
+                consultantUserId,
+            ];
+            const profileResults = await conn.query(sql, arg);
+            profileId = profileResults[0].insertId; // 임시저장 id
+
+            // 인증 생성
+            insertValuesSting = '';
+            arg = []; // 배열 초기화
+            // query 가공
+            profileAbilityCertificationIds.forEach((certificationId) => {
+                if (!arg.length) {
+                    // 배열이 빈 경우 > 처음인 경우
+                    insertValuesSting += '(?, ?)';
+                } else {
+                    insertValuesSting += ', (?, ?)';
+                }
+                arg.push(certificationId, profileId);
+            });
+            sql = `INSERT INTO profile_ability_certifications (certificationId, profileId) VALUES ${insertValuesSting}`;
+            await conn.query(sql, arg);
+
+            // 업종 생성
+            insertValuesSting = '';
+            arg = []; // 배열 초기화
+            // query 가공
+            profileAbilityIndustryIds.forEach((industryId) => {
+                if (!arg.length) {
+                    insertValuesSting += '(?, ?)';
+                } else {
+                    insertValuesSting += ', (?, ?)';
+                }
+                arg.push(industryId, profileId);
+            });
+            sql = `INSERT INTO profile_ability_industries (industryId, profileId) VALUES ${insertValuesSting}`;
+            await conn.query(sql, arg);
+
+            // 과제 생성
+            insertValuesSting = '';
+            arg = []; // 배열 초기화
+            // query 가공
+            profileAbilityTaskIds.forEach((taskId) => {
+                if (!arg.length) {
+                    insertValuesSting += '(?, ?)';
+                } else {
+                    insertValuesSting += ', (?, ?)';
+                }
+                arg.push(taskId, profileId);
+            });
+            sql = `INSERT INTO profile_ability_tasks (taskId, profileId) VALUES ${insertValuesSting}`;
+            await conn.query(sql, arg);
+
+            // 기타(인증, 업종) 생성
+            if (
+                profileAbilityEtcEntity &&
+                Object.keys(profileAbilityEtcEntity).length
+            ) {
+                let { etcCertification, etcIndustry } = profileAbilityEtcEntity;
+                sql = `INSERT INTO profile_ability_etc 
+                (etcCertification, etcIndustry, profileId) 
+                VALUES (?, ?, ?)`;
+                arg = [etcCertification, etcIndustry, profileId];
+                await conn.query(sql, arg);
+            }
+
+            // 최종 학력 생성
+            if (
+                profileAcademicBackgroundEntity &&
+                Object.keys(profileAcademicBackgroundEntity).length
+            ) {
+                let {
+                    finalAcademicType,
+                    schoolName,
+                    majorName,
+                    graduationClassificationType,
+                    admissionDate,
+                    graduateDate,
+                } = profileAcademicBackgroundEntity;
+                sql = `INSERT INTO profile_academic_background 
+                (finalAcademicType, schoolName, majorName, graduationClassificationType, admissionDate, graduateDate, profileId)
+                VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                arg = [
+                    finalAcademicType,
+                    schoolName,
+                    majorName,
+                    graduationClassificationType,
+                    admissionDate,
+                    graduateDate,
+                    profileId,
+                ];
+                await conn.query(sql, arg);
+            }
+
+            // 경력 정보 생성
+            if (profileCareerEntities && profileCareerEntities.length) {
+                insertValuesSting = '';
+                arg = []; // 배열 초기화
+                // query 가공
+                profileCareerEntities.forEach((careerData) => {
+                    let {
+                        companyName,
+                        position,
+                        assignedWork,
+                        joiningDate,
+                        resignationDate,
+                    } = careerData;
+                    if (!arg.length) {
+                        insertValuesSting += '(?, ?, ?, ?, ?, ?)';
+                    } else {
+                        insertValuesSting += ', (?, ?, ?, ?, ?, ?)';
+                    }
+                    arg.push(
+                        companyName,
+                        position,
+                        assignedWork,
+                        joiningDate,
+                        resignationDate,
+                        profileId
+                    );
+                });
+
+                sql = `INSERT INTO profile_career 
+                 (companyName, position, assignedWork, joiningDate, resignationDate, profileId)
+                 VALUES ${insertValuesSting}`;
+                await conn.query(sql, arg);
+            }
+
+            // 자격증 정보 생성
+            if (profileLicenseEntities && profileLicenseEntities.length) {
+                insertValuesSting = '';
+                arg = []; // 배열 초기화
+                // query 가공
+                profileLicenseEntities.forEach((licenseData) => {
+                    let {
+                        licenseName,
+                        licenseNum,
+                        issueInstitution,
+                        issuedDate,
+                    } = licenseData;
+                    if (!arg.length) {
+                        insertValuesSting += '(?, ?, ?, ?, ?)';
+                    } else {
+                        insertValuesSting += ', (?, ?, ?, ?, ?)';
+                    }
+                    arg.push(
+                        licenseName,
+                        licenseNum,
+                        issueInstitution,
+                        issuedDate,
+                        profileId
+                    );
+                });
+
+                sql = `INSERT INTO profile_license 
+                 (licenseName, licenseNum, issueInstitution, issuedDate, profileId)
+                 VALUES ${insertValuesSting}`;
+                await conn.query(sql, arg);
+            }
+
+            // 수행 정보 생성
+            if (
+                profileProjectHistoryEntities &&
+                profileProjectHistoryEntities.length
+            ) {
+                insertValuesSting = '';
+                arg = []; // 배열 초기화
+                // query 가공
+                profileProjectHistoryEntities.forEach((projectHistoryData) => {
+                    let {
+                        projectName,
+                        assignedTask,
+                        industryCategoryId,
+                        industryCategoryName,
+                        projectStartDate,
+                        projectEndDate,
+                    } = projectHistoryData;
+                    if (!arg.length) {
+                        insertValuesSting += '(?, ?, ?, ?, ?, ?, ?)';
+                    } else {
+                        insertValuesSting += ', (?, ?, ?, ?, ?, ?, ?)';
+                    }
+                    arg.push(
+                        projectName,
+                        assignedTask,
+                        industryCategoryId,
+                        industryCategoryName,
+                        projectStartDate,
+                        projectEndDate,
+                        profileId
+                    );
+                });
+
+                sql = `INSERT INTO profile_project_history 
+                 (projectName, assignedTask, industryCategoryId, industryCategoryName,projectStartDate, projectEndDate, profileId)
+                 VALUES ${insertValuesSting}`;
+                await conn.query(sql, arg);
+            }
+
+            // 업로드 파일 정보 생성
+            if (
+                profileUploadFilesEntities &&
+                profileUploadFilesEntities.length
+            ) {
+                let insertValuesSting = '';
+                arg = []; // 배열 초기화
+                // query 가공
+                profileUploadFilesEntities.forEach((uploadFileData) => {
+                    let { fileType, fileName, filePath } = uploadFileData;
+                    if (!arg.length) {
+                        insertValuesSting += '(?, ?, ?, ?)';
+                    } else {
+                        insertValuesSting += ', (?, ?, ?, ?)';
+                    }
+                    arg.push(fileType, fileName, filePath, profileId);
+                });
+
+                sql = `INSERT INTO profile_upload_files 
+                (fileType, fileName, filePath, profileId)
+                VALUES ${insertValuesSting}`;
+                await conn.query(sql, arg);
+            }
+
+            await conn.commit();
+            return;
+        } catch (error) {
+            console.error('오류 ;', error);
+            await conn.rollback();
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+
+    /**
+     * @description 사용자 프로필 리스트 가져오기 : 인증 요청일 기준 최신
+     * @param {string} consultantUserId - 사용자(컨설턴트) id
+     * @returns {Promise} consultantProfilesResult[0] - 프로필 정보 배열
+     */
+    async getProfiles({ consultantUserId }) {
+        let sql, arg;
+        const conn = await this.pool.getConnection();
+        try {
+            sql = `SELECT * FROM profiles WHERE consultantUserId = ? AND confirmCompleteDate IS NOT NULL`;
+            arg = [consultantUserId];
+
+            const consultantProfilesResult = await conn.query(sql, arg);
+            return consultantProfilesResult[0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            await conn.release();
+        }
+    }
+    /**
      * @description 내 최신 프로필 정보 가져오기 : 인증 요청일 기준 최신
      * @param {string} consultantUserId - 사용자(컨설턴트) id
-     * @returns {Promise} tempProfileResult[0][0] - 프로필 정보 객체
+     * @returns {Promise} myProfileResult[0][0] - 프로필 정보 객체
      */
     async getMyProfile({ consultantUserId }) {
         let sql, arg;
         const conn = await this.pool.getConnection();
         try {
-            sql = `SELECT *, CONVERT_TZ(comfirmRequestDate,'UTC','Asia/Seoul') AS comfirmRequestDate FROM profiles WHERE consultantUserId = ? ORDER BY comfirmRequestDate DESC`;
+            sql = `SELECT *, CONVERT_TZ(confirmRequestDate,'UTC','Asia/Seoul') AS confirmRequestDate FROM profiles WHERE consultantUserId = ? ORDER BY confirmRequestDate DESC`;
             arg = [consultantUserId];
 
-            const profileResult = await conn.query(sql, arg);
-            return profileResult[0][0];
+            const myProfileResult = await conn.query(sql, arg);
+            return myProfileResult[0][0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             await conn.release();
@@ -2413,21 +2753,20 @@ module.exports = class Mysql {
     }
     /**
      * @description 프로필 정보 가져오기
-     * @param {string} consultantUserId - 사용자(컨설턴트) id
-     * @returns {Promise} tempProfileResult[0][0] - 프로필 정보 객체
+     * @param {string} profileId - 프로필 id
+     * @returns {Promise} profileResult[0][0] - 프로필 정보 객체
      */
-    async getTempProfile({ consultantUserId }) {
+    async getProfile({ profileId }) {
         let sql, arg;
         const conn = await this.pool.getConnection();
         try {
-            sql = `SELECT * FROM profiles WHERE consultantUserId = ?`;
-            arg = [consultantUserId];
+            sql = `SELECT * FROM profiles WHERE profileId = ?`;
+            arg = [profileId];
 
-            const tempProfileResult = await conn.query(sql, arg);
-            return tempProfileResult[0][0];
+            const profileResult = await conn.query(sql, arg);
+            return profileResult[0][0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             await conn.release();
@@ -2453,7 +2792,6 @@ module.exports = class Mysql {
             return profileAbilityCertificationsResult[0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -2461,7 +2799,7 @@ module.exports = class Mysql {
     }
 
     /**
-     * @description 과제 리스트 가져오기
+     * @description 프로필 과제 리스트 가져오기
      * @param {number} profileId - 프로필 id
      * @returns {Promise} ProfileAbilityTasksResult[0] 과제 정보 배열
      */
@@ -2476,7 +2814,6 @@ module.exports = class Mysql {
             return profileAbilityTasksResult[0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -2484,7 +2821,7 @@ module.exports = class Mysql {
     }
 
     /**
-     * @description 업종 리스트 가져오기
+     * @description 프로필 업종 리스트 가져오기
      * @param {number} profileId - 프로필 id
      * @returns {Promise} ProfileAbilityIndustriesResult[0] 업종 정보 배열
      */
@@ -2499,7 +2836,6 @@ module.exports = class Mysql {
             return profileAbilityIndustriesResult[0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -2507,7 +2843,7 @@ module.exports = class Mysql {
     }
 
     /**
-     * @description 기타 정보 가져오기
+     * @description 프로필 기타 정보 가져오기
      * @param {number} profileId - 프로필 id
      * @returns {Promise} profileAbilityEtcResult[0][0] 기타 정보 객체
      */
@@ -2522,7 +2858,6 @@ module.exports = class Mysql {
             return profileAbilityEtcResult[0][0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -2530,7 +2865,7 @@ module.exports = class Mysql {
     }
 
     /**
-     * @description 최종 학력 정보 가져오기
+     * @description 프로필 최종 학력 정보 가져오기
      * @param {number} profileId - 프로필 id
      * @returns {Promise} profileAcademicBackgroundResult[0][0] 최종 학력 정보 객체
      */
@@ -2547,7 +2882,6 @@ module.exports = class Mysql {
             return profileAcademicBackgroundResult[0][0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -2555,7 +2889,7 @@ module.exports = class Mysql {
     }
 
     /**
-     * @description 경력 정보 리스트 가져오기
+     * @description 프로필 경력 정보 리스트 가져오기
      * @param {number} profileId - 프로필 id
      * @returns {Promise} profileCareerResult[0] 경력 정보 배열
      */
@@ -2572,7 +2906,6 @@ module.exports = class Mysql {
             return profileCareerResult[0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -2580,7 +2913,7 @@ module.exports = class Mysql {
     }
 
     /**
-     * @description 자격증 정보 리스트 가져오기
+     * @description 프로필 자격증 정보 리스트 가져오기
      * @param {number} profileId - 프로필 id
      * @returns {Promise} profileLicenseResult[0] 자격증 정보 리스트 배열
      */
@@ -2597,7 +2930,6 @@ module.exports = class Mysql {
             return profileLicenseResult[0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -2605,7 +2937,7 @@ module.exports = class Mysql {
     }
 
     /**
-     * @description 수행이력 정보 리스트 가져오기
+     * @description 프로필 수행이력 정보 리스트 가져오기
      * @param {number} profileId - 프로필 id
      * @returns {Promise} profileProjectHistoryResult[0] 수행이력 정보 리스트 배열
      */
@@ -2622,7 +2954,6 @@ module.exports = class Mysql {
             return profileProjectHistoryResult[0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -2630,7 +2961,7 @@ module.exports = class Mysql {
     }
 
     /**
-     * @description 업로드 파일 리스트 가져오기
+     * @description 프로필 업로드 파일 리스트 가져오기
      * @param {number} profileId - 프로필 id
      * @returns {Promise} profileUploadFilesResults[0] 업로드 파일 정보 배열
      */
@@ -2645,277 +2976,11 @@ module.exports = class Mysql {
             return profileUploadFilesResults[0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
         }
     }
-
-    // // 개인 컨설턴트 프로필 인증 요청 : 프로필 정보 생성
-    // async createConsultantProfile(
-    //     {
-    //         email,
-    //         userType,
-    //         phoneNum,
-    //         introduce,
-    //         abilityCertifications, // 수행가능 인증들 데이터 - 여러개이므로 배열형태로 받기
-    //         // certificationId,
-    //         // certificationName,
-    //         abilityTasks, // 수행가능 세부과제들 데이터 - 여러개이므로 배열형태로 받기
-    //         // taskId,
-    //         // taskName,
-    //         // taskGroupType
-    //         abilityIndustries, // 수행가능 업종들 데이터 - 여러개이므로 배열형태로 받기
-    //         // industryId,
-    //         // industryName,
-    //         academicBackground, // 학력정보들 - 여러개이므로 배열형태로 받기 // 파일 업로드 처리
-    //         // finalAcademicType,
-    //         // schoolName,
-    //         // majorName,
-    //         // graduationClassificationType,
-    //         // admissionDate,
-    //         // graduateDate,
-    //         career, // 경력 정보들 - 여러개이므로 배열형태로 받기  // 파일 업로드 처리
-    //         // companyName,
-    //         // position,
-    //         // assignedWork,
-    //         // joiningDate,
-    //         // resignationDate = null,
-    //         license, // 자격증 정보들 - 여러개이므로 배열형태로 받기 // 파일 업로드 처리
-    //         // licenseName,
-    //         // license_num,
-    //         // issueInstitution,
-    //         // issuedDate,
-    //         projectHistory,
-    //         // projectName,
-    //         // assignedTask,
-    //         // projectIndustryName,
-    //         // projectStartDate,
-    //         // projectEndDate,
-    //         etc,
-    //         // etcCertifications = null,
-    //         // etcIndustries = null,
-    //     },
-    //     uploadData
-    // ) {
-    //     // email = 'mg.sun@aegisecu.com'; // 테스트용
-    //     let result, sql, arg;
-    //     let self = this;
-    //     const conn = await pool.getConnection();
-    //     try {
-    //         await conn.beginTransaction();
-    //         // 인증된 휴대폰 번호 사용자 정보 업데이트
-    //         sql = `UPDATE consultant_users SET phone_num=? WHERE consultant_user_id = ?`;
-    //         arg = [phoneNum, email];
-    //         await conn.query(sql, arg);
-    //         // 프로필 정보 생성 (자기소개)
-    //         sql = `UPDATE consultant_users SET profileStatus = ?, user_introduce=? WHERE consultant_user_id = ?`;
-    //         arg = [1, introduce, email];
-    //         await conn.query(sql, arg);
-
-    //         // 수행가능인증 - 여러개 : 아이디/인증명 가져오기
-    //         sql = `INSERT INTO profile_ability_certifications (consultant_user_id, certification_id, certification_name) VALUES (?, ?, ?)`;
-
-    //         for (let i = 0; i < abilityCertifications.length; i++) {
-    //             arg = [
-    //                 email,
-    //                 abilityCertifications[i].certificationId,
-    //                 abilityCertifications[i].certificationName,
-    //             ];
-    //             await conn.query(sql, arg);
-    //         }
-    //         // 수행가능업종 - 여러개 : 추후 정책 확인 후 완료
-    //         sql = `INSERT INTO profile_ability_industries (consultant_user_id, industry_id, industry_name) VALUES (?, ?, ?)`;
-    //         for (let i = 0; i < abilityIndustries.length; i++) {
-    //             arg = [
-    //                 email,
-    //                 abilityIndustries[i].industryId,
-    //                 abilityIndustries[i].industryName,
-    //             ];
-    //             await conn.query(sql, arg);
-    //         }
-    //         // 수행가능 세부과제 - 여러개 : 세부과제 id/과제명/분류id/분류명
-    //         sql = `INSERT INTO profile_ability_tasks (consultant_user_id, task_id, task_name, task_group_type) VALUES (?, ?, ?, ?)`;
-    //         for (let i = 0; i < abilityTasks.length; i++) {
-    //             arg = [
-    //                 email,
-    //                 abilityTasks[i].taskId,
-    //                 abilityTasks[i].taskName,
-    //                 abilityTasks[i].taskGroupType,
-    //             ];
-    //             await conn.query(sql, arg);
-    //         }
-    //         // 학력 - 최종학력 1개 academicCertificationFilePath - 지정
-    //         sql = `INSERT INTO profile_academic_background (consultant_user_id, final_academic_type, school_name, major_name, graduation_classification_type, admission_date, graduate_date) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    //         arg = [
-    //             email,
-    //             academicBackground.finalAcademicType,
-    //             academicBackground.schoolName,
-    //             academicBackground.majorName,
-    //             academicBackground.graduationClassificationType,
-    //             academicBackground.admissionDate,
-    //             academicBackground.graduateDate,
-    //         ];
-    //         await conn.query(sql, arg);
-    //         //경력 : 여러개 careerCertificationFilePath - 지정!!
-    //         sql = `INSERT INTO profile_career (consultant_user_id, company_name, position, assigned_work, joining_date, resignation_date) VALUES (?, ?, ?, ?, ?, ?)`;
-    //         for (let i = 0; i < career.length; i++) {
-    //             arg = [
-    //                 email,
-    //                 career[i].companyName,
-    //                 career[i].position,
-    //                 career[i].assignedWork,
-    //                 career[i].joiningDate,
-    //                 career[i].resignationDate,
-    //             ];
-    //             await conn.query(sql, arg);
-    //         }
-    //         //자격증 : 여러개 licenseFilePath- 지정!!
-    //         sql = `INSERT INTO profile_license (consultant_user_id, license_name, license_num, issue_institution, issued_date) VALUES (?, ?, ?, ?, ?)`;
-    //         for (let i = 0; i < license.length; i++) {
-    //             arg = [
-    //                 email,
-    //                 license[i].licenseName,
-    //                 license[i].licenseNum,
-    //                 license[i].issueInstitution,
-    //                 license[i].issuedDate,
-    //             ];
-    //             await conn.query(sql, arg);
-    //         }
-    //         // 수행이력 : 여러개
-    //         sql = `INSERT INTO profile_project_history (consultant_user_id, project_name, assigned_task, industry_category_id, industry_category_name, project_start_date, project_end_date) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    //         for (let i = 0; i < projectHistory.length; i++) {
-    //             arg = [
-    //                 email,
-    //                 projectHistory[i].projectName,
-    //                 projectHistory[i].assignedTask,
-    //                 projectHistory[i].industryCategoryId,
-    //                 projectHistory[i].industryCategoryName,
-    //                 projectHistory[i].projectStartDate,
-    //                 projectHistory[i].projectEndDate,
-    //             ];
-    //             await conn.query(sql, arg);
-    //         }
-    //         // 기타 : 기타 수행가능 업종/인증 (input 작성) - 추후 정책 처리 된 후 수정
-    //         sql = `INSERT INTO profile_ability_etc (consultant_user_id, etc_certifications, etc_industries) VALUES (?, ?, ?)`;
-    //         arg = [email, etc.etcCertifications, etc.etcIndustries];
-    //         await conn.query(sql, arg);
-    //         // 업로드 파일들 처리
-    //         sql = `INSERT INTO profile_upload_files (consultant_user_id, file_category_type, file_name, file_path) VALUES (?, ?, ?, ?)`;
-    //         let fileCategoryType;
-
-    //         for (let i = 0; i < uploadData.length; i++) {
-    //             if (uploadData[i]['fieldname'] === 'academic') {
-    //                 fileCategoryType = 0;
-    //             } else if (uploadData[i]['fieldname'] === 'career') {
-    //                 fileCategoryType = 1;
-    //             } else if (uploadData[i]['fieldname'] === 'license') {
-    //                 fileCategoryType = 2;
-    //             } else {
-    //                 // 타입 에러 예외처리
-    //             }
-    //             arg = [
-    //                 email,
-    //                 fileCategoryType,
-    //                 uploadData[i].originalname,
-    //                 uploadData[i].location,
-    //             ];
-    //             await conn.query(sql, arg);
-    //         }
-
-    //         // 기존 프로필 임시데이터 삭제
-    //         await self.deleteProfileTemp({ email, userType });
-
-    //         await conn.commit();
-    //         console.log('개인 컨설턴트 프로필 등록 성공!!');
-    //         return;
-    //     } catch (error) {
-    //         console.log('fail!', error);
-    //         await conn.rollback();
-    //         console.error('DB에러 : ', error);
-    //         throw new DatabaseError(
-    //             error.message,
-    //             error.errno,
-    //             error.sqlMessage
-    //         );
-    //     } finally {
-    //         conn.release();
-    //     }
-    // }
-    // // 컨설팅 업체 프로필 인증 요청 : 프로필 정보 생성
-    // async createConsultingCompanyProfile(
-    //     { email, userType, phoneNum, introduce, projectHistory },
-    //     uploadData
-    // ) {
-    //     let result, sql, arg;
-    //     let self = this;
-    //     console.log(
-    //         '요청 > DB > Query >  createConsultingCompanyProfile  : parameter',
-    //         { email, userType, introduce, projectHistory },
-    //         uploadData
-    //     );
-    //     const conn = await pool.getConnection();
-    //     try {
-    //         await conn.beginTransaction();
-
-    //         // 인증된 휴대폰 번호 & 승인요청상태 사용자 정보 업데이트
-    //         sql = `UPDATE consultant_users SET phone_num=?, profileStatus = ? WHERE consultant_user_id = ?`;
-    //         arg = [phoneNum, 0, email];
-    //         await conn.query(sql, arg);
-
-    //         // 소속 기업 정보(id) 가져오기
-    //         let companyInfoResults = await self.getUserBelongingCompanyInfo({
-    //             email,
-    //             userType,
-    //         });
-    //         let companyId = companyInfoResults['consulting_company_id'];
-    //         // 기업 데이터 저장
-    //         sql = `UPDATE consulting_companies SET company_introduce = ?, business_license_file = ?, business_license_file_path = ? WHERE consulting_company_id = ?`;
-    //         arg = [
-    //             introduce,
-    //             uploadData[0]['originalname'],
-    //             uploadData[0]['location'],
-    //             companyId,
-    //         ];
-    //         await conn.query(sql, arg);
-
-    //         // 기업 프로필 수행이력 정보 저장
-    //         sql = `INSERT INTO profile_consulting_company_project_history (consulting_company_id, project_name, assigned_task, industry_category_id, industry_category_name, project_start_date, project_end_date) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-
-    //         for (let i = 0; i < projectHistory.length; i++) {
-    //             console.log('-------------------------', projectHistory[i]);
-    //             arg = [
-    //                 companyId,
-    //                 projectHistory[i].projectName,
-    //                 projectHistory[i].assignedTask,
-    //                 projectHistory[i].industryCategoryId,
-    //                 projectHistory[i].industryCategoryName,
-    //                 projectHistory[i].projectStartDate,
-    //                 projectHistory[i].projectEndDate,
-    //             ];
-    //             await conn.query(sql, arg);
-    //         }
-
-    //         // 기존 프로필 임시데이터 삭제
-    //         await self.deleteProfileTemp({ email, userType });
-
-    //         console.log('기업 프로필 저장 성공!!');
-    //         await conn.commit();
-    //         return;
-    //     } catch (error) {
-    //         console.log('fail!!');
-    //         await conn.rollback();
-    //         console.error('DB에러 : ', error);
-    //         throw new DatabaseError(
-    //             error.message,
-    //             error.errno,
-    //             error.sqlMessage
-    //         );
-    //     } finally {
-    //         conn.release();
-    //     }
-    // }
     // // 클라이언트 인증 요청 : 인증 휴대폰 & 사업자 등록증 정보 수정
     // async requestClientAuth({ email, userType, phoneNum }, uploadData) {
     //     let result, sql, arg;
@@ -2948,995 +3013,4 @@ module.exports = class Mysql {
     //             companyId,
     //         ];
     //         await conn.query(sql, arg);
-
-    //         // 기존 프로필 임시데이터 삭제
-    //         await self.deleteProfileTemp({ email, userType });
-
-    //         console.log('클라이언트 인증요청 성공!!');
-    //         await conn.commit();
-    //         return;
-    //     } catch (error) {
-    //         console.log('fail!!');
-    //         await conn.rollback();
-    //         console.error('DB에러 : ', error);
-    //         throw new DatabaseError(
-    //             error.message,
-    //             error.errno,
-    //             error.sqlMessage
-    //         );
-    //     } finally {
-    //         conn.release();
-    //     }
-    // }
-    // // 개인 컨설턴트 프로필 : 프로필 임시정보 생성
-    // async createConsultantProfileTemp(
-    //     {
-    //         email,
-    //         userType,
-    //         phoneNum,
-    //         introduce,
-    //         abilityCertifications,
-    //         abilityTasks,
-    //         abilityIndustries,
-    //         academicBackground,
-    //         career,
-    //         license,
-    //         projectHistory,
-    //         etc,
-    //     },
-    //     uploadData
-    // ) {
-    //     // email = 'mg.sun@aegisecu.com'; // 테스트용
-    //     let result, sql, arg;
-    //     let self = this;
-    //     const conn = await pool.getConnection();
-    //     try {
-    //         await conn.beginTransaction();
-
-    //         // 기존 프로필 임시데이터 삭제
-    //         await self.deleteProfileTemp({ email, userType });
-
-    //         // 임시저장 정보 생성 (자기소개)
-    //         sql = `INSERT INTO consultant_profile_temp (consultant_user_id, phone_num, consultant_introduce) VALUES (?, ?, ?)`;
-    //         arg = [email, phoneNum, introduce];
-    //         await conn.query(sql, arg);
-    //         // 임시저장 id 정보 가져오기
-    //         sql = `SELECT * FROM consultant_profile_temp WHERE consultant_user_id=?`;
-    //         arg = [email];
-    //         let profileTempInfo = await conn.query(sql, arg);
-    //         let consultantProfileTempId =
-    //             profileTempInfo[0][0]['consultant_profile_temp_id'];
-    //         console.log('~~~~~~~~~~', consultantProfileTempId);
-    //         // 수행가능인증 - 여러개 : 아이디/인증명 가져오기
-    //         sql = `INSERT INTO temp_profile_ability_certifications (consultant_profile_temp_id, certification_id, certification_name) VALUES (?, ?, ?)`;
-
-    //         for (let i = 0; i < abilityCertifications.length; i++) {
-    //             arg = [
-    //                 consultantProfileTempId,
-    //                 abilityCertifications[i].certificationId,
-    //                 abilityCertifications[i].certificationName,
-    //             ];
-    //             await conn.query(sql, arg);
-    //         }
-    //         // 수행가능업종 - 여러개 : 추후 정책 확인 후 완료
-    //         sql = `INSERT INTO temp_profile_ability_industries (consultant_profile_temp_id, industry_id, industry_name) VALUES (?, ?, ?)`;
-    //         for (let i = 0; i < abilityIndustries.length; i++) {
-    //             arg = [
-    //                 consultantProfileTempId,
-    //                 abilityIndustries[i].industryId,
-    //                 abilityIndustries[i].industryName,
-    //             ];
-    //             await conn.query(sql, arg);
-    //         }
-    //         // 수행가능 세부과제 - 여러개 : 세부과제 id/과제명/분류id/분류명
-    //         sql = `INSERT INTO temp_profile_ability_tasks (consultant_profile_temp_id, task_id, task_name, task_group_type) VALUES (?, ?, ?, ?)`;
-    //         for (let i = 0; i < abilityTasks.length; i++) {
-    //             arg = [
-    //                 consultantProfileTempId,
-    //                 abilityTasks[i].taskId,
-    //                 abilityTasks[i].taskName,
-    //                 abilityTasks[i].taskGroupType,
-    //             ];
-    //             await conn.query(sql, arg);
-    //         }
-    //         // 학력 - 최종학력 1개 academicCertificationFilePath - 지정
-    //         sql = `INSERT INTO temp_profile_academic_background (consultant_profile_temp_id, final_academic_type, school_name, major_name, graduation_classification_type, admission_date, graduate_date) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    //         arg = [
-    //             consultantProfileTempId,
-    //             academicBackground.finalAcademicType,
-    //             academicBackground.schoolName,
-    //             academicBackground.majorName,
-    //             academicBackground.graduationClassificationType,
-    //             academicBackground.admissionDate,
-    //             academicBackground.graduateDate,
-    //         ];
-    //         await conn.query(sql, arg);
-    //         //경력 : 여러개 careerCertificationFilePath - 지정!!
-    //         sql = `INSERT INTO temp_profile_career (consultant_profile_temp_id, company_name, position, assigned_work, joining_date, resignation_date) VALUES (?, ?, ?, ?, ?, ?)`;
-    //         for (let i = 0; i < career.length; i++) {
-    //             arg = [
-    //                 consultantProfileTempId,
-    //                 career[i].companyName,
-    //                 career[i].position,
-    //                 career[i].assignedWork,
-    //                 career[i].joiningDate,
-    //                 career[i].resignationDate,
-    //             ];
-    //             await conn.query(sql, arg);
-    //         }
-    //         //자격증 : 여러개 licenseFilePath- 지정!!
-    //         sql = `INSERT INTO temp_profile_license (consultant_profile_temp_id, license_name, license_num, issue_institution, issued_date) VALUES (?, ?, ?, ?, ?)`;
-    //         for (let i = 0; i < license.length; i++) {
-    //             arg = [
-    //                 consultantProfileTempId,
-    //                 license[i].licenseName,
-    //                 license[i].licenseNum,
-    //                 license[i].issueInstitution,
-    //                 // license[i].licenseFile,
-    //                 // license[i].licenseFilePath,
-    //                 license[i].issuedDate,
-    //             ];
-    //             await conn.query(sql, arg);
-    //         }
-    //         // 수행이력 : 여러개
-    //         sql = `INSERT INTO temp_profile_project_history (consultant_profile_temp_id, project_name, assigned_task, industry_category_id, industry_category_name, project_start_date, project_end_date) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    //         for (let i = 0; i < projectHistory.length; i++) {
-    //             arg = [
-    //                 consultantProfileTempId,
-    //                 projectHistory[i].projectName,
-    //                 projectHistory[i].assignedTask,
-    //                 projectHistory[i].industryCategoryId,
-    //                 projectHistory[i].industryCategoryName,
-    //                 projectHistory[i].projectStartDate,
-    //                 projectHistory[i].projectEndDate,
-    //             ];
-    //             await conn.query(sql, arg);
-    //         }
-    //         // 기타 : 기타 수행가능 업종/인증 (input 작성) - 추후 정책 처리 된 후 수정
-    //         sql = `INSERT INTO temp_profile_ability_etc (consultant_profile_temp_id, etc_certifications, etc_industries) VALUES (?, ?, ?)`;
-    //         arg = [
-    //             consultantProfileTempId,
-    //             etc.etcCertifications,
-    //             etc.etcIndustries,
-    //         ];
-    //         await conn.query(sql, arg);
-    //         // 업로드 파일들 처리
-    //         sql = `INSERT INTO temp_upload_files (consultant_profile_temp_id, file_category_type, file_name, file_path) VALUES (?, ?, ?, ?)`;
-    //         let fileCategoryType;
-
-    //         for (let i = 0; i < uploadData.length; i++) {
-    //             if (uploadData[i]['fieldname'] === 'academic') {
-    //                 fileCategoryType = 0;
-    //             } else if (uploadData[i]['fieldname'] === 'career') {
-    //                 fileCategoryType = 1;
-    //             } else if (uploadData[i]['fieldname'] === 'license') {
-    //                 fileCategoryType = 2;
-    //             } else {
-    //                 // 타입 에러 예외처리
-    //             }
-    //             arg = [
-    //                 consultantProfileTempId,
-    //                 fileCategoryType,
-    //                 uploadData[i].originalname,
-    //                 uploadData[i].location,
-    //             ];
-    //             await conn.query(sql, arg);
-    //         }
-    //         await conn.commit();
-    //         console.log('임시저장 데이터 생성 성공!!');
-    //         return;
-    //     } catch (error) {
-    //         console.log('fail!', error);
-    //         await conn.rollback();
-    //         console.error('DB에러 : ', error);
-    //         throw new DatabaseError(
-    //             error.message,
-    //             error.errno,
-    //             error.sqlMessage
-    //         );
-    //     } finally {
-    //         conn.release();
-    //     }
-    // }
-
-    // // 기업 프로필 임시저장 : 프로필 임시정보 생성
-    // async createConsultingCompanyProfileTemp(
-    //     { email, userType, introduce, projectHistory },
-    //     uploadData
-    // ) {
-    //     let result, sql, arg;
-    //     let self = this;
-    //     console.log(
-    //         '요청 > DB > Query >  createConsultingCompanyProfileTemp  : parameter',
-    //         { email, userType, introduce, projectHistory },
-    //         uploadData
-    //     );
-    //     const conn = await pool.getConnection();
-    //     try {
-    //         await conn.beginTransaction();
-    //         // 소속 기업 정보(id) 가져오기
-    //         let companyInfoResults = await self.getUserBelongingCompanyInfo({
-    //             email,
-    //             userType,
-    //         });
-    //         let companyId = companyInfoResults['consulting_company_id'];
-    //         // 기존 프로필 임시데이터 삭제
-    //         await self.deleteProfileTemp({ email, userType });
-
-    //         // 기업 프로필 임시저장 데이터 저장
-    //         sql = `INSERT INTO consulting_company_profile_temp (consulting_company_id, company_introduce, business_license_file, business_license_file_path) VALUES (?, ?, ?, ?)`;
-    //         arg = [
-    //             companyId,
-    //             introduce,
-    //             uploadData[0]['originalname'],
-    //             uploadData[0]['location'],
-    //         ];
-    //         await conn.query(sql, arg);
-    //         // 기업 프로필 임시저장 아이디 가져오기
-    //         sql = `SELECT consulting_company_profile_temp_id FROM consulting_company_profile_temp WHERE consulting_company_id=?`;
-    //         arg = companyId;
-    //         let profileTempInfo = await conn.query(sql, arg);
-    //         let profileTempId =
-    //             profileTempInfo[0][0]['consulting_company_profile_temp_id'];
-    //         console.log('프로필 임시 아이디', profileTempId);
-    //         // 기업 수행이력 임시저장 데이터 저장
-    //         sql = `INSERT INTO temp_consulting_company_profile_project_history (consulting_company_profile_temp_id, project_name, assigned_task, industry_category_id, industry_category_name, project_start_date, project_end_date) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-
-    //         for (let i = 0; i < projectHistory.length; i++) {
-    //             console.log('-------------------------', projectHistory[i]);
-    //             arg = [
-    //                 // companyId,
-    //                 profileTempId,
-    //                 projectHistory[i].projectName,
-    //                 projectHistory[i].assignedTask,
-    //                 projectHistory[i].industryCategoryId,
-    //                 projectHistory[i].industryCategoryName,
-    //                 projectHistory[i].projectStartDate,
-    //                 projectHistory[i].projectEndDate,
-    //             ];
-    //             await conn.query(sql, arg);
-    //         }
-    //         console.log('기업 임시저장 성공!!');
-    //         await conn.commit();
-    //     } catch (error) {
-    //         console.log('fail!!');
-    //         await conn.rollback();
-    //         console.log('DB에러 : ', error);
-    //         throw new DatabaseError('시험 정보 생성 실패');
-    //     } finally {
-    //         conn.release();
-    //     }
-    // }
-
-    // // 프로필 임시저장 데이터 유뮤 확인
-    // async checkProfileTempExist({ email, userType }) {
-    //     let result, sql, arg, companyId;
-    //     let tableName, idColumn;
-    //     let self = this;
-
-    //     let conn = await pool.getConnection();
-    //     try {
-    //         if (userType === 2) {
-    //             let companyInfoResults = await self.getUserBelongingCompanyInfo(
-    //                 { email, userType }
-    //             );
-    //             companyId = companyInfoResults['consulting_company_id'];
-    //         }
-    //         if (userType === 1) {
-    //             tableName = 'consultant_profile_temp';
-    //             idColumn = 'consultant_user_id';
-    //             arg = [email];
-    //         } else {
-    //             // userType === 1
-    //             tableName = 'consulting_company_profile_temp';
-    //             idColumn = 'consulting_company_id';
-    //             arg = [companyId];
-    //         }
-    //         sql = `SELECT EXISTS (SELECT * FROM ${tableName} WHERE ${idColumn} = ?) AS isExist`;
-    //         let profileTempExist = await conn.query(sql, arg);
-
-    //         result = profileTempExist[0][0].isExist;
-    //         return result;
-    //     } catch (error) {
-    //         console.error('DB에러 : ', error);
-    //         throw new DatabaseError(
-    //             error.message,
-    //             error.errno,
-    //             error.sqlMessage
-    //         );
-    //     } finally {
-    //         conn.release();
-    //     }
-    // }
-    // // 개인 컨설턴트 프로필 정보 가져오기
-    // async getConsultantProfile({ email }) {
-    //     let result, sql, arg;
-    //     console.log(
-    //         '요청 > DB > Query >  createConsultantProfileTemp  : parameter',
-    //         email
-    //     );
-    //     const conn = await pool.getConnection();
-    //     try {
-    //         // 사용자 기본 정보
-    //         sql = `SELECT consultant_user_id, name, phone_num, user_introduce FROM consultant_users WHERE consultant_user_id=?`;
-    //         arg = [email];
-    //         let userInfoResults = await conn.query(sql, arg);
-
-    //         let consultantProfileInfo = {
-    //             consultantId: email,
-    //             consultantName: userInfoResults[0][0]['name'],
-    //             phoneNum: userInfoResults[0][0]['phone_num'],
-    //             // userIntroduce: userInfoResults[0][0]['user_introduce'],
-    //         };
-    //         // let consultantProfileTempId =
-    //         //     tempResults[0][0]['consultant_profile_temp_id'];
-    //         // console.log(
-    //         //     'DB > Query > getConsultantProfile > result1 : consultantProfileTempInfo 1',
-    //         //     consultantProfileTempInfo,
-    //         //     consultantProfileTempId
-    //         // );
-
-    //         // 인증;
-    //         sql = `SELECT * FROM profile_ability_certifications WHERE consultant_user_id = ?`;
-    //         arg = [email];
-    //         let certificationResults = await conn.query(sql, arg);
-
-    //         let abilityCertifications = [];
-    //         for (let i = 0; i < certificationResults[0].length; i++) {
-    //             let abilityCertificationItems = {
-    //                 certificationId:
-    //                     certificationResults[0][i]['certification_id'],
-    //                 certificationName:
-    //                     certificationResults[0][i]['certification_name'],
-    //             };
-    //             abilityCertifications.push(abilityCertificationItems);
-    //         }
-    //         consultantProfileInfo.abilityCertifications = abilityCertifications;
-    //         console.log(
-    //             'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 2',
-    //             consultantProfileInfo
-    //             // results
-    //         );
-
-    //         // 세부과제
-    //         sql = `SELECT * FROM profile_ability_tasks WHERE consultant_user_id = ?`;
-    //         arg = [email];
-    //         let taskResults = await conn.query(sql, arg);
-
-    //         let abilityTasks = [];
-    //         for (let i = 0; i < taskResults[0].length; i++) {
-    //             let abilityTaskItems = {
-    //                 taskId: taskResults[0][i]['task_id'],
-    //                 taskName: taskResults[0][i]['task_name'],
-    //                 taskGroupType: taskResults[0][i]['task_group_type'],
-    //             };
-    //             abilityTasks.push(abilityTaskItems);
-    //         }
-    //         consultantProfileInfo.abilityTasks = abilityTasks;
-    //         console.log(
-    //             'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 3',
-    //             consultantProfileInfo
-    //             // results
-    //         );
-
-    //         // 업종
-    //         sql = `SELECT * FROM profile_ability_industries WHERE consultant_user_id = ?`;
-    //         arg = [email];
-    //         let industryResults = await conn.query(sql, arg);
-
-    //         let abilityIndustries = [];
-    //         for (let i = 0; i < industryResults[0].length; i++) {
-    //             let abilityIndustryItems = {
-    //                 industryId: industryResults[0][i]['industry_id'],
-    //                 industryName: industryResults[0][i]['industry_name'],
-    //             };
-    //             abilityIndustries.push(abilityIndustryItems);
-    //         }
-    //         consultantProfileInfo.abilityIndustries = abilityIndustries;
-    //         console.log(
-    //             'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 4',
-    //             consultantProfileInfo
-    //         );
-
-    //         // 학력
-    //         sql = `SELECT * FROM profile_academic_background WHERE consultant_user_id = ?`;
-    //         arg = [email];
-    //         let academicResults = await conn.query(sql, arg);
-
-    //         consultantProfileInfo.academicBackground = {
-    //             finalAcademicType: academicResults[0][0]['final_academic_type'],
-    //             schoolName: academicResults[0][0]['school_name'],
-    //             majorName: academicResults[0][0]['major_name'],
-    //             graduationClassificationType:
-    //                 academicResults[0][0]['graduation_classification_type'],
-    //             admissionDate: academicResults[0][0]['admission_date'],
-    //             graduateDate: academicResults[0][0]['graduate_date'],
-    //         };
-    //         console.log(
-    //             'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 5',
-    //             consultantProfileInfo
-    //         );
-
-    //         // 경력
-    //         sql = `SELECT * FROM profile_career WHERE consultant_user_id = ?`;
-    //         arg = [email];
-    //         let careerResults = await conn.query(sql, arg);
-
-    //         let career = [];
-    //         for (let i = 0; i < careerResults[0].length; i++) {
-    //             let careerItem = {
-    //                 companyName: careerResults[0][i]['company_name'],
-    //                 position: careerResults[0][i]['position'],
-    //                 assignedWork: careerResults[0][i]['assigned_work'],
-    //                 joiningDate: careerResults[0][i]['joining_date'],
-    //                 resignationDate: careerResults[0][i]['resignation_date'],
-    //             };
-    //             career.push(careerItem);
-    //         }
-    //         consultantProfileInfo.career = career;
-    //         console.log(
-    //             'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 6',
-    //             consultantProfileInfo
-    //         );
-
-    //         // 자격증
-    //         sql = `SELECT * FROM profile_license WHERE consultant_user_id = ?`;
-    //         arg = [email];
-    //         let licenseResults = await conn.query(sql, arg);
-
-    //         let licenses = [];
-    //         for (let i = 0; i < licenseResults[0].length; i++) {
-    //             let licenseItems = {
-    //                 licenseName: licenseResults[0][i]['license_name'],
-    //                 licenseNum: licenseResults[0][i]['license_num'],
-    //                 issueInstitution: licenseResults[0][i]['issue_institution'],
-    //                 issuedDate: licenseResults[0][i]['issued_date'],
-    //             };
-    //             licenses.push(licenseItems);
-    //         }
-    //         consultantProfileInfo.license = licenses;
-    //         console.log(
-    //             'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 7',
-    //             consultantProfileInfo
-    //         );
-
-    //         // 수행이력
-    //         sql = `SELECT * FROM profile_project_history WHERE consultant_user_id = ?`;
-    //         arg = [email];
-    //         let historyResults = await conn.query(sql, arg);
-
-    //         let projectHistories = [];
-    //         for (let i = 0; i < historyResults[0].length; i++) {
-    //             let projectHistoryItems = {
-    //                 projectName: historyResults[0][i]['project_name'],
-    //                 assignedTask: historyResults[0][i]['assigned_task'],
-    //                 industryCategoryId:
-    //                     historyResults[0][i]['industry_category_id'],
-    //                 industryCategoryName:
-    //                     historyResults[0][i]['industry_category_name'],
-    //                 projectStartDate:
-    //                     historyResults[0][i]['project_start_date'],
-    //                 projectEndDate: historyResults[0][i]['project_end_date'],
-    //             };
-    //             projectHistories.push(projectHistoryItems);
-    //         }
-    //         consultantProfileInfo.projectHistory = projectHistories;
-    //         console.log(
-    //             'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 8',
-    //             consultantProfileInfo
-    //         );
-
-    //         // 기타
-    //         sql = `SELECT * FROM profile_ability_etc WHERE consultant_user_id = ?`;
-    //         arg = [email];
-    //         let etcResults = await conn.query(sql, arg);
-
-    //         let etc = {
-    //             etcCertifications: etcResults[0][0]['etc_certifications'],
-    //             etcIndustries: etcResults[0][0]['etc_industries'],
-    //         };
-    //         consultantProfileInfo.etc = etc;
-    //         console.log(
-    //             'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 9',
-    //             consultantProfileInfo
-    //         );
-
-    //         // 업로드 파일
-    //         sql = `SELECT * FROM profile_upload_files WHERE consultant_user_id = ?`;
-    //         arg = [email];
-    //         let uploadFilesResults = await conn.query(sql, arg);
-
-    //         let uploadFiles = {
-    //             academic: [],
-    //             career: [],
-    //             license: [],
-    //         };
-    //         for (let i = 0; i < uploadFilesResults[0].length; i++) {
-    //             let uploadFileItems = {
-    //                 fileCategoryType:
-    //                     uploadFilesResults[0][i]['file_category_type'],
-    //                 fileName: uploadFilesResults[0][i]['file_name'],
-    //                 filePath: uploadFilesResults[0][i]['file_path'],
-    //             };
-
-    //             if (uploadFileItems.fileCategoryType === 0) {
-    //                 uploadFiles.academic.push(uploadFileItems);
-    //             } else if (uploadFileItems.fileCategoryType === 1) {
-    //                 uploadFiles.career.push(uploadFileItems);
-    //             } else if (uploadFileItems.fileCategoryType === 2) {
-    //                 uploadFiles.license.push(uploadFileItems);
-    //             }
-    //         }
-    //         consultantProfileInfo.uploadFiles = uploadFiles;
-    //         console.log(
-    //             'DB > Query > getConsultantProfile > result1 : consultantProfileInfo 10',
-    //             consultantProfileInfo
-    //         );
-    //         result = consultantProfileInfo;
-    //         return result;
-    //     } catch (error) {
-    //         console.error('DB에러 : ', error);
-    //         throw new DatabaseError(
-    //             error.message,
-    //             error.errno,
-    //             error.sqlMessage
-    //         );
-    //     } finally {
-    //         conn.release();
-    //     }
-    // }
-
-    // // 컨설팅 기업 프로필 정보 가져오기
-    // async getConsultingCompanyProfile({ email, userType }) {
-    //     let result, sql, arg;
-    //     let self = this;
-    //     let conn = await pool.getConnection();
-    //     try {
-    //         // 기업 정보 가져오기
-    //         let consultingCompanyInfo = await self.getUserBelongingCompanyInfo({
-    //             email,
-    //             userType,
-    //         });
-    //         let consultingCompanyId =
-    //             consultingCompanyInfo['consulting_company_id'];
-    //         let consultingCompanyProfileInfo = {
-    //             consultingCompanyId: consultingCompanyId,
-    //         };
-    //         // 컨설팅 기업 사용자 정보 가져오기 : 담당자명/연락처
-    //         sql = `SELECT name, phone_num FROM consultant_users WHERE consultant_user_id = ?`;
-    //         arg = [email];
-    //         let userInfoResults = await conn.query(sql, arg);
-    //         consultingCompanyProfileInfo.name = userInfoResults[0][0]['name'];
-    //         consultingCompanyProfileInfo.phoneNum =
-    //             userInfoResults[0][0]['phone_num'];
-
-    //         // 기업 기본 정보 가져오기 : 회사소개
-    //         sql = `SELECT company_introduce, business_license_file, business_license_file_path FROM consulting_companies WHERE consulting_company_id = ?`;
-    //         arg = [consultingCompanyId];
-    //         let companyResults = await conn.query(sql, arg);
-    //         consultingCompanyProfileInfo.companyIntroduce =
-    //             companyResults[0][0]['company_introduce'];
-    //         consultingCompanyProfileInfo.businessLicenseFile =
-    //             companyResults[0][0]['business_license_file'];
-    //         consultingCompanyProfileInfo.businessLicenseFilePath =
-    //             companyResults[0][0]['business_license_file_path'];
-
-    //         // 회사 수행이력 정보 가져오기
-    //         sql = `SELECT * FROM profile_consulting_company_project_history WHERE consulting_company_id = ?`;
-    //         arg = [consultingCompanyId];
-    //         let companyHistoryResults = await conn.query(sql, arg);
-    //         let consultingCompanyProjectHistories = [];
-    //         for (let i = 0; i < companyHistoryResults[0].length; i++) {
-    //             let consultingCompanyProjectHistoryItems = {
-    //                 projectName: companyHistoryResults[0][i]['project_name'],
-    //                 assignedTask: companyHistoryResults[0][i]['assigned_task'],
-    //                 industryCategoryId:
-    //                     companyHistoryResults[0][i]['industry_category_id'],
-    //                 industryCategoryName:
-    //                     companyHistoryResults[0][i]['industry_category_name'],
-    //                 projectStartDate:
-    //                     companyHistoryResults[0][i]['project_start_date'],
-    //                 projectEndDate:
-    //                     companyHistoryResults[0][i]['project_end_date'],
-    //             };
-    //             consultingCompanyProjectHistories.push(
-    //                 consultingCompanyProjectHistoryItems
-    //             );
-    //         }
-    //         consultingCompanyProfileInfo.projectHistoty = consultingCompanyProjectHistories;
-
-    //         result = consultingCompanyProfileInfo;
-
-    //         return result;
-    //     } catch (error) {
-    //         console.error('DB에러 : ', error);
-    //         throw new DatabaseError(
-    //             error.message,
-    //             error.errno,
-    //             error.sqlMessage
-    //         );
-    //     } finally {
-    //         conn.release();
-    //     }
-    // }
-
-    // // 개인 컨설턴트 프로필 임시저장 정보 가져오기
-    // async getConsultantProfileTemp({ email }) {
-    //     let result, sql, arg;
-    //     console.log(
-    //         '요청 > DB > Query >  createConsultantProfileTemp  : parameter',
-    //         email
-    //     );
-    //     const conn = await pool.getConnection();
-    //     try {
-    //         // 프로필 임시저장 기본 정보
-    //         sql = `SELECT * FROM consultant_profile_temp WHERE consultant_user_id=?`;
-    //         arg = [email];
-    //         let tempResults = await conn.query(sql, arg);
-
-    //         let consultantProfileTempInfo = {
-    //             consultantProfileTempId:
-    //                 tempResults[0][0]['consultant_profile_temp_id'],
-    //             consultantIntroduce: tempResults[0][0]['consultant_introduce'],
-    //         };
-    //         let consultantProfileTempId =
-    //             tempResults[0][0]['consultant_profile_temp_id'];
-    //         console.log(
-    //             'DB > Query > getConsultantProfileTemp > result1 : consultantProfileTempInfo 1',
-    //             consultantProfileTempInfo,
-    //             consultantProfileTempId
-    //         );
-
-    //         // 인증;
-    //         sql = `SELECT * FROM temp_profile_ability_certifications WHERE consultant_profile_temp_id = ?`;
-    //         arg = [consultantProfileTempId];
-    //         let certificationTempResults = await conn.query(sql, arg);
-
-    //         let abilityCertificationTemp = [];
-    //         for (let i = 0; i < certificationTempResults[0].length; i++) {
-    //             let abilityCertificationTempItems = {
-    //                 certificationId:
-    //                     certificationTempResults[0][i]['certification_id'],
-    //                 certificationName:
-    //                     certificationTempResults[0][i]['certification_name'],
-    //             };
-    //             abilityCertificationTemp.push(abilityCertificationTempItems);
-    //         }
-    //         consultantProfileTempInfo.abilityCertifications = abilityCertificationTemp;
-    //         console.log(
-    //             'DB > Query > getConsultantProfileTemp > result1 : consultantProfileTempInfo 2',
-    //             consultantProfileTempInfo
-    //             // results
-    //         );
-
-    //         // 세부과제
-    //         sql = `SELECT * FROM temp_profile_ability_tasks WHERE consultant_profile_temp_id = ?`;
-    //         arg = [consultantProfileTempId];
-    //         let taskTempResults = await conn.query(sql, arg);
-
-    //         let abilityTasksTemp = [];
-    //         for (let i = 0; i < taskTempResults[0].length; i++) {
-    //             let abilityTasksTempItems = {
-    //                 taskId: taskTempResults[0][i]['task_id'],
-    //                 taskName: taskTempResults[0][i]['task_name'],
-    //                 taskGroupType: taskTempResults[0][i]['task_group_type'],
-    //             };
-    //             abilityTasksTemp.push(abilityTasksTempItems);
-    //         }
-    //         consultantProfileTempInfo.abilityTasks = abilityTasksTemp;
-    //         console.log(
-    //             'DB > Query > getConsultantProfileTemp > result1 : consultantProfileTempInfo 3',
-    //             consultantProfileTempInfo
-    //             // results
-    //         );
-
-    //         // 업종
-    //         sql = `SELECT * FROM temp_profile_ability_industries WHERE consultant_profile_temp_id = ?`;
-    //         arg = [consultantProfileTempId];
-    //         let industryTempResults = await conn.query(sql, arg);
-
-    //         let abilityIndustriesTemp = [];
-    //         for (let i = 0; i < industryTempResults[0].length; i++) {
-    //             let abilityIndustriesTempItems = {
-    //                 industryId: industryTempResults[0][i]['industry_id'],
-    //                 industryName: industryTempResults[0][i]['industry_name'],
-    //             };
-    //             abilityIndustriesTemp.push(abilityIndustriesTempItems);
-    //         }
-    //         consultantProfileTempInfo.abilityIndustriesTemp = abilityIndustriesTemp;
-    //         console.log(
-    //             'DB > Query > getConsultantProfileTemp > result1 : consultantProfileTempInfo 4',
-    //             consultantProfileTempInfo
-    //         );
-
-    //         // 학력
-    //         sql = `SELECT * FROM temp_profile_academic_background WHERE consultant_profile_temp_id = ?`;
-    //         arg = [consultantProfileTempId];
-    //         let academicTempResults = await conn.query(sql, arg);
-
-    //         consultantProfileTempInfo.academicBackground = {
-    //             finalAcademicType:
-    //                 academicTempResults[0][0]['final_academic_type'],
-    //             schoolName: academicTempResults[0][0]['school_name'],
-    //             majorName: academicTempResults[0][0]['major_name'],
-    //             graduationClassificationType:
-    //                 academicTempResults[0][0]['graduation_classification_type'],
-    //             admissionDate: academicTempResults[0][0]['admission_date'],
-    //             graduateDate: academicTempResults[0][0]['graduate_date'],
-    //         };
-    //         console.log(
-    //             'DB > Query > getConsultantProfileTemp > result1 : consultantProfileTempInfo 5',
-    //             consultantProfileTempInfo
-    //         );
-
-    //         // 경력
-    //         sql = `SELECT * FROM temp_profile_career WHERE consultant_profile_temp_id = ?`;
-    //         arg = [consultantProfileTempId];
-    //         let careerTempResults = await conn.query(sql, arg);
-
-    //         let careerTemp = [];
-    //         for (let i = 0; i < careerTempResults[0].length; i++) {
-    //             let careerTempItem = {
-    //                 companyName: careerTempResults[0][i]['company_name'],
-    //                 position: careerTempResults[0][i]['position'],
-    //                 assignedWork: careerTempResults[0][i]['assigned_work'],
-    //                 joiningDate: careerTempResults[0][i]['joining_date'],
-    //                 resignationDate:
-    //                     careerTempResults[0][i]['resignation_date'],
-    //             };
-    //             careerTemp.push(careerTempItem);
-    //         }
-    //         consultantProfileTempInfo.career = careerTemp;
-    //         console.log(
-    //             'DB > Query > getConsultantProfileTemp > result1 : consultantProfileTempInfo 6',
-    //             consultantProfileTempInfo
-    //         );
-
-    //         // 자격증
-    //         sql = `SELECT * FROM temp_profile_license WHERE consultant_profile_temp_id = ?`;
-    //         arg = [consultantProfileTempId];
-    //         let licenseTempResults = await conn.query(sql, arg);
-
-    //         let licenseTemp = [];
-    //         for (let i = 0; i < licenseTempResults[0].length; i++) {
-    //             let licenseTempItem = {
-    //                 licenseName: licenseTempResults[0][i]['license_name'],
-    //                 licenseNum: licenseTempResults[0][i]['license_num'],
-    //                 issueInstitution:
-    //                     licenseTempResults[0][i]['issue_institution'],
-    //                 issuedDate: licenseTempResults[0][i]['issued_date'],
-    //             };
-    //             licenseTemp.push(licenseTempItem);
-    //         }
-    //         consultantProfileTempInfo.license = licenseTemp;
-    //         console.log(
-    //             'DB > Query > getConsultantProfileTemp > result1 : consultantProfileTempInfo 7',
-    //             consultantProfileTempInfo
-    //         );
-
-    //         // 수행이력
-    //         sql = `SELECT * FROM temp_profile_project_history WHERE consultant_profile_temp_id = ?`;
-    //         arg = [consultantProfileTempId];
-    //         let historyTempResults = await conn.query(sql, arg);
-
-    //         let projectHistoryTemp = [];
-    //         for (let i = 0; i < historyTempResults[0].length; i++) {
-    //             let projectHistoryTempItem = {
-    //                 projectName: historyTempResults[0][i]['project_name'],
-    //                 assignedTask: historyTempResults[0][i]['assigned_task'],
-    //                 industryCategoryId:
-    //                     historyTempResults[0][i]['industry_category_id'],
-    //                 industryCategoryName:
-    //                     historyTempResults[0][i]['industry_category_name'],
-    //                 projectStartDate:
-    //                     historyTempResults[0][i]['project_start_date'],
-    //                 projectEndDate:
-    //                     historyTempResults[0][i]['project_end_date'],
-    //             };
-    //             projectHistoryTemp.push(projectHistoryTempItem);
-    //         }
-    //         consultantProfileTempInfo.projectHistory = projectHistoryTemp;
-    //         console.log(
-    //             'DB > Query > getConsultantProfileTemp > result1 : consultantProfileTempInfo 8',
-    //             consultantProfileTempInfo
-    //         );
-
-    //         // 기타
-    //         sql = `SELECT * FROM temp_profile_ability_etc WHERE consultant_profile_temp_id = ?`;
-    //         arg = [consultantProfileTempId];
-    //         let etcTempResults = await conn.query(sql, arg);
-
-    //         let etcTemp = {
-    //             etcCertifications: etcTempResults[0][0]['etc_certifications'],
-    //             etcIndustries: etcTempResults[0][0]['etc_industries'],
-    //         };
-    //         consultantProfileTempInfo.etc = etcTemp;
-    //         console.log(
-    //             'DB > Query > getConsultantProfileTemp > result1 : consultantProfileTempInfo 9',
-    //             consultantProfileTempInfo
-    //         );
-
-    //         // 업로드 파일
-    //         sql = `SELECT * FROM temp_upload_files WHERE consultant_profile_temp_id = ?`;
-    //         arg = [consultantProfileTempId];
-    //         let uploadFilesTempResults = await conn.query(sql, arg);
-
-    //         let uploadFilesTemp = {
-    //             academic: [],
-    //             career: [],
-    //             license: [],
-    //         };
-    //         for (let i = 0; i < uploadFilesTempResults[0].length; i++) {
-    //             let uploadFilesTempItem = {
-    //                 fileCategoryType:
-    //                     uploadFilesTempResults[0][i]['file_category_type'],
-    //                 fileName: uploadFilesTempResults[0][i]['file_name'],
-    //                 filePath: uploadFilesTempResults[0][i]['file_path'],
-    //             };
-
-    //             if (uploadFilesTempItem.fileCategoryType === 0) {
-    //                 uploadFilesTemp.academic.push(uploadFilesTempItem);
-    //             } else if (uploadFilesTempItem.fileCategoryType === 1) {
-    //                 uploadFilesTemp.career.push(uploadFilesTempItem);
-    //             } else if (uploadFilesTempItem.fileCategoryType === 2) {
-    //                 uploadFilesTemp.license.push(uploadFilesTempItem);
-    //             }
-    //         }
-    //         consultantProfileTempInfo.uploadFiles = uploadFilesTemp;
-    //         console.log(
-    //             'DB > Query > getConsultantProfileTemp > result1 : consultantProfileTempInfo 10',
-    //             consultantProfileTempInfo
-    //         );
-    //         result = consultantProfileTempInfo;
-
-    //         return result;
-    //     } catch (error) {
-    //         console.error('DB에러 : ', error);
-    //         throw new DatabaseError(
-    //             error.message,
-    //             error.errno,
-    //             error.sqlMessage
-    //         );
-    //     } finally {
-    //         conn.release();
-    //     }
-    // }
-
-    // // 컨설팅 기업 프로필 임시저장 정보 가져오기
-    // async getConsultingCompanyProfileTemp({ email, userType }) {
-    //     let result, sql, arg;
-    //     let self = this;
-    //     let conn = await pool.getConnection();
-    //     try {
-    //         // 기업 정보 가져오기
-    //         let consultingCompanyInfo = await self.getUserBelongingCompanyInfo({
-    //             email,
-    //             userType,
-    //         });
-    //         let consultingCompanyId =
-    //             consultingCompanyInfo['consulting_company_id'];
-    //         let consultingCompanyProfileTempInfo = {
-    //             consultingCompanyId: consultingCompanyId,
-    //         };
-    //         // 기업 임시저장 정보 가져오기
-    //         sql = `SELECT * FROM consulting_company_profile_temp WHERE consulting_company_id = ?`;
-    //         arg = [consultingCompanyId];
-    //         let companyTempResults = await conn.query(sql, arg);
-    //         consultingCompanyProfileTempInfo.companyIntroduce =
-    //             companyTempResults[0][0]['company_introduce'];
-    //         consultingCompanyProfileTempInfo.businessLicenseFile =
-    //             companyTempResults[0][0]['business_license_file'];
-    //         consultingCompanyProfileTempInfo.businessLicenseFilePath =
-    //             companyTempResults[0][0]['business_license_file_path'];
-
-    //         let consultingCompanyProfileTempId =
-    //             companyTempResults[0][0]['consulting_company_profile_temp_id'];
-
-    //         sql = `SELECT * FROM temp_consulting_company_profile_project_history WHERE consulting_company_profile_temp_id = ?`;
-    //         arg = [consultingCompanyProfileTempId];
-    //         let companyHistoryTempResults = await conn.query(sql, arg);
-    //         let consultingCompanyProjectHistoryTemp = [];
-    //         for (let i = 0; i < companyHistoryTempResults[0].length; i++) {
-    //             let consultingCompanyProjectHistoryTempItem = {
-    //                 projectName:
-    //                     companyHistoryTempResults[0][i]['project_name'],
-    //                 assignedTask:
-    //                     companyHistoryTempResults[0][i]['assigned_task'],
-    //                 industryCategoryId:
-    //                     companyHistoryTempResults[0][i]['industry_category_id'],
-    //                 industryCategoryName:
-    //                     companyHistoryTempResults[0][i][
-    //                         'industry_category_name'
-    //                     ],
-    //                 projectStartDate:
-    //                     companyHistoryTempResults[0][i]['project_start_date'],
-    //                 projectEndDate:
-    //                     companyHistoryTempResults[0][i]['project_end_date'],
-    //             };
-    //             consultingCompanyProjectHistoryTemp.push(
-    //                 consultingCompanyProjectHistoryTempItem
-    //             );
-    //         }
-    //         consultingCompanyProfileTempInfo.projectHistoty = consultingCompanyProjectHistoryTemp;
-
-    //         result = consultingCompanyProfileTempInfo;
-
-    //         return result;
-    //     } catch (error) {
-    //         console.error('DB에러 : ', error);
-    //         throw new DatabaseError(
-    //             error.message,
-    //             error.errno,
-    //             error.sqlMessage
-    //         );
-    //     } finally {
-    //         conn.release();
-    //     }
-    // }
-
-    // // 프로필 임시저장 정보 삭제 : 다른 함수에 참조될 때는 트랜잭션이 걸리지 않음!!
-    // async deleteProfileTemp({ email, userType }) {
-    //     let result;
-    //     let sql, arg;
-    //     console.log('--------------', userType);
-    //     const conn = await pool.getConnection();
-    //     try {
-    //         await conn.beginTransaction();
-    //         if (userType === 1) {
-    //             sql = `SELECT EXISTS (SELECT * FROM consultant_profile_temp WHERE consultant_user_id = ?) AS isExist`;
-    //         } else {
-    //             sql = `SELECT EXISTS (SELECT * FROM consulting_company_profile_temp WHERE consulting_company_id = (SELECT consulting_company_id FROM consultant_user_and_company WHERE consultant_user_id = ?)) AS isExist`;
-    //         }
-    //         arg = [email];
-    //         let profileTempResults = await conn.query(sql, arg);
-    //         let profileTempExist = profileTempResults[0][0].isExist;
-    //         console.log('-------------존재여부 결과 확인', profileTempExist);
-    //         if (profileTempExist === 0) {
-    //             result = profileTempExist;
-    //             return result;
-    //         }
-    //         // profileTempExist === 1
-    //         if (userType === 1) {
-    //             sql = `DELETE FROM a, b, c, d, e, f, g, h, i, j
-    //                     USING consultant_profile_temp AS a
-    //                     LEFT JOIN temp_profile_ability_certifications AS b
-    //                     ON a.consultant_profile_temp_id = b.consultant_profile_temp_id
-    //                     LEFT JOIN temp_profile_ability_tasks AS c
-    //                     ON a.consultant_profile_temp_id = c.consultant_profile_temp_id
-    //                     LEFT JOIN temp_profile_ability_industries AS d
-    //                     ON a.consultant_profile_temp_id = d.consultant_profile_temp_id
-    //                     LEFT JOIN temp_profile_academic_background AS e
-    //                     ON a.consultant_profile_temp_id = e.consultant_profile_temp_id
-    //                     LEFT JOIN temp_profile_career AS f
-    //                     ON a.consultant_profile_temp_id = f.consultant_profile_temp_id
-    //                     LEFT JOIN temp_profile_license AS g
-    //                     ON a.consultant_profile_temp_id = g.consultant_profile_temp_id
-    //                     LEFT JOIN temp_profile_project_history AS h
-    //                     ON a.consultant_profile_temp_id = h.consultant_profile_temp_id
-    //                     LEFT JOIN temp_profile_ability_etc AS i
-    //                     ON a.consultant_profile_temp_id = i.consultant_profile_temp_id
-    //                     LEFT JOIN temp_upload_files AS j
-    //                     ON a.consultant_profile_temp_id = j.consultant_profile_temp_id
-    //                     WHERE a.consultant_user_id = ?`;
-    //         } else {
-    //             // userType === 2
-    //             sql = `DELETE FROM a, b
-    //                     USING consulting_company_profile_temp AS a LEFT JOIN temp_consulting_company_profile_project_history AS b
-    //                     ON a.consulting_company_profile_temp_id = b.consulting_company_profile_temp_id
-    //                     WHERE a.consulting_company_id = (SELECT consulting_company_id FROM consultant_user_and_company WHERE consultant_user_id = ?)`;
-    //         }
-    //         arg = [email];
-    //         await conn.query(sql, arg);
-    //         console.log('success!!');
-    //         await conn.commit();
-    //         return;
-    //     } catch (error) {
-    //         console.log('fail!!');
-    //         await conn.rollback();
-    //         console.log('DB에러 : ', error);
-    //         throw new DatabaseError('시험 정보 생성 실패');
-    //     } finally {
-    //         conn.release();
-    //     }
-    // }
 };

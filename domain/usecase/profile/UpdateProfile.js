@@ -1,7 +1,5 @@
 const {
     ConsultantUsersEntity,
-    TempProfilesEntity,
-    TempUploadFilesEntity,
     ProfilesEntity,
     // ProfileAbilityCertificationsEntity,
     // ProfileAbilityTasksEntity,
@@ -14,49 +12,46 @@ const {
     ProfileUploadFilesEntity,
 } = require('../../entities');
 const { UserTypeException } = require('../../exceptions');
-module.exports = class CreateProfile {
+module.exports = class UpdateProfile {
     constructor(repository) {
         this.repository = repository;
     }
-    async excute(userData, profileData, uploadData) {
+    async excute(profileData, uploadData) {
         try {
             let {
-                tempProfilesRepository,
-                tempUploadFilesRepository,
+                profileUploadFilesRepository,
                 profilesRepository,
             } = this.repository;
-            // userData.userType = 1; // 테스트용
-            // if (userData.userType !== 1) {
-            //     throw new UserTypeException('사용자 타입');
-            // }
 
-            // 이전에 저장한 임시저장 프로필이 있다면 가져오기
-            const tempProfilesEntity = new TempProfilesEntity(userData);
-            const preTempProfileInfo = await tempProfilesRepository.getTempProfile(
-                tempProfilesEntity
+            // console.log('프로필 데이터 ', profileData);
+            // 기존 프로필 정보 가져오기
+            let profilesEntity = new ProfilesEntity(profileData);
+            let preProfileInfo = await profilesRepository.getProfile(
+                profilesEntity
             );
-
-            if (!!preTempProfileInfo) {
-                // 기존 업로드 파일 정보리스트  가져오기
-                let tempUploadFilesEntity = new TempUploadFilesEntity(
-                    preTempProfileInfo
-                );
-                const tempUploadFilesInfo = await tempUploadFilesRepository.getTempUploadFiles(
-                    tempUploadFilesEntity
-                );
-                console.log('임시저장한 파일들 정보 ', tempUploadFilesInfo);
-                // 새로운 업로드 파일과 병합
-                uploadData = uploadData.concat(tempUploadFilesInfo);
-                console.log('병합된 업로드 데이터 ', uploadData);
-            }
+            // console.log('이전 프로필 정보', preProfileInfo);
+            // 기존 업로드 파일 정보리스트  가져오기
+            const profileUploadFilesEntity = new ProfileUploadFilesEntity(
+                profileData
+            );
+            const profileUploadFilesInfo = await profileUploadFilesRepository.getProfileUploadFiles(
+                profileUploadFilesEntity
+            );
+            // console.log('임시저장한 파일들 정보 ', profileUploadFilesInfo);
+            // 새로운 업로드 파일과 병합
+            uploadData = uploadData.concat(profileUploadFilesInfo);
+            // console.log('병합된 업로드 데이터 ', uploadData);
 
             // 각 Entity 생성
-            const consultantUsersEntity = new ConsultantUsersEntity(userData);
-            consultantUsersEntity.phoneNum = profileData.phoneNum;
-            consultantUsersEntity.profileStatus = 2; // 인증요청 상태로 변경
-
-            const profilesEntity = new ProfilesEntity(profileData);
-            profilesEntity.consultantUserId = userData.consultantUserId; // 사용자 id
+            const consultantUsersEntity = new ConsultantUsersEntity(
+                profileData
+            );
+            consultantUsersEntity.profileStatus = 3; // 인증 완료 상태로 변경
+            profilesEntity = new ProfilesEntity(profileData);
+            profilesEntity.confirmRequestDate =
+                preProfileInfo.confirmRequestDate; // 이전 요청 시간
+            profilesEntity.confirmCompleteDate = new Date();
+            // console.log('엔터티 확인 : ', profilesEntity);
             const profileAbilityCertificationIds =
                 profileData.abilityCertificationIds;
             const profileAbilityIndustryIds = profileData.abilityIndustryIds;
@@ -82,7 +77,7 @@ module.exports = class CreateProfile {
             );
 
             // 프로필 정보 생성
-            await profilesRepository.createProfile(
+            await profilesRepository.updateProfile(
                 consultantUsersEntity,
                 profilesEntity,
                 profileAbilityCertificationIds,

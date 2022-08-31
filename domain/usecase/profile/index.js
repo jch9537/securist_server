@@ -9,5 +9,8 @@ module.exports = {
     // GetProfileTemp: require('./GetProfileTemp'),
     // DeleteProfileTemp: require('./DeleteProfileTemp'),
     CreateProfile: require('./CreateProfile'),
+    GetProfiles: require('./GetProfiles'),
     GetMyProfile: require('./GetMyProfile'),
+    GetProfile: require('./GetProfile'),
+    UpdateProfile: require('./UpdateProfile'),
 };

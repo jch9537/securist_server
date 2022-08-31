@@ -31,7 +31,6 @@ module.exports = class ProfilesRepository {
                 profileProjectHistoryEntities,
                 profileUploadFilesEntities
             );
-
             return;
         } catch (error) {
             throw error;
@@ -50,10 +49,10 @@ module.exports = class ProfilesRepository {
     }
 
     // 프로필 정보 리스트 가져오기
-    async getprofiles(userData) {
+    async getProfiles(profilesEntity) {
         let result;
         try {
-            result = await this.db.getprofile(profilesEntity);
+            result = await this.db.getProfiles(profilesEntity);
 
             return result;
         } catch (error) {
@@ -62,10 +61,10 @@ module.exports = class ProfilesRepository {
     }
 
     // 프로필 정보 가져오기
-    async getprofile(profilesEntity) {
+    async getProfile(profilesEntity) {
         let result;
         try {
-            result = await this.db.getprofile(profilesEntity);
+            result = await this.db.getProfile(profilesEntity);
 
             return result;
         } catch (error) {
@@ -73,9 +72,40 @@ module.exports = class ProfilesRepository {
         }
     }
 
-    // 프로필 임시저장 정보 수정 : 수정 없음
-    // async updateProfile(profilesEntity) {}
+    // 프로필 정보 수정
+    async updateProfile(
+        consultantUsersEntity,
+        profilesEntity,
+        profileAbilityCertificationIds,
+        profileAbilityIndustryIds,
+        profileAbilityTaskIds,
+        profileAbilityEtcEntity,
+        profileAcademicBackgroundEntity,
+        profileCareerEntities,
+        profileLicenseEntities,
+        profileProjectHistoryEntities,
+        profileUploadFilesEntities
+    ) {
+        try {
+            await this.db.updateProfile(
+                consultantUsersEntity,
+                profilesEntity,
+                profileAbilityCertificationIds,
+                profileAbilityIndustryIds,
+                profileAbilityTaskIds,
+                profileAbilityEtcEntity,
+                profileAcademicBackgroundEntity,
+                profileCareerEntities,
+                profileLicenseEntities,
+                profileProjectHistoryEntities,
+                profileUploadFilesEntities
+            );
+            return;
+        } catch (error) {
+            throw error;
+        }
+    }
 
-    // 프로필 임시저장 정보 삭제 : 삭제 없음
-    // async deleteprofile(profilesEntity) {}
+    // 프로필 삭제 : 삭제 없음
+    // async deleteProfile(profilesEntity) {}
 };

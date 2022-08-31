@@ -4,35 +4,57 @@ module.exports = class ProfilesEntity {
     constructor({
         profileId,
         introduce,
-        profileGrade,
-        comfirmComment,
+        academicScore,
+        careerScore,
+        licenseScore,
+        // profileGrade,
+        confirmComment,
         confirmRequestDate,
         confirmCompleteDate,
         consultantUserId,
     }) {
         this.profileId = profileId;
         this.introduce = introduce;
-        this.profileGrade = profileGrade;
-        this.comfirmComment = comfirmComment;
+        this.academicScore = academicScore;
+        this.careerScore = careerScore;
+        this.licenseScore = licenseScore;
+        this.profileGrade = this.calculateProfileGrade();
+        this.confirmComment = confirmComment;
         this.confirmRequestDate = confirmRequestDate;
         this.confirmCompleteDate = confirmCompleteDate;
         this.consultantUserId = consultantUserId;
     }
-    calculateProfileGrade = (academicScore, careerScore, licenseScore) => {
-        const profileScore =
-            academicScore * 0.2 + careerScore * 0.5 + licenseScore * 0.3;
-        if (profileScore > 100 || profileScore < 0) {
-            // 오류
-        } else if (profileScore < 20) {
-            this._profileGrade = 5;
-        } else if (profileScore < 40) {
-            this._profileGrade = 4;
-        } else if (profileScore < 60) {
-            this._profileGrade = 3;
-        } else if (profileScore < 80) {
-            this._profileGrade = 2;
-        } else {
-            this._profileGrade = 1;
+    calculateProfileGrade = () => {
+        console.log(
+            'this값',
+            this.academicScore,
+            this.careerScore,
+            this.licenseScore
+        );
+        if (
+            this.academicScore !== undefined &&
+            this.careerScore !== undefined &&
+            this.licenseScore !== undefined
+        ) {
+            const profileScore =
+                this.academicScore * 0.2 +
+                this.careerScore * 0.5 +
+                this.licenseScore * 0.3;
+            console.log('프로필 점수 : ', profileScore);
+            if (profileScore > 100 || profileScore < 0) {
+                // 오류 처리
+            } else if (profileScore < 20) {
+                return 5;
+            } else if (profileScore < 40) {
+                return 4;
+            } else if (profileScore < 60) {
+                return 3;
+            } else if (profileScore < 80) {
+                return 2;
+            } else {
+                return 1;
+            }
         }
+        return undefined;
     };
 };

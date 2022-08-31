@@ -13,21 +13,19 @@ const { SuccessResponse } = require('../../../../adapters/response');
 router.get('/', async (req, res, next) => {
     let result, response;
     try {
-        let userData = req.userDataByIdToken;
-        let reqBodyData = req.filteredBody;
+        let reqParamsData = req.params;
         console.log(
             'GET - /api/user/consultant/users/:consultantUserId/profiles 요청 : ',
-            userData,
-            reqBodyData
+            req
         );
 
-        result = await profilesAdapter.getProfiles(userData, reqBodyData);
+        result = await profilesAdapter.getProfiles(reqParamsData);
         console.log(
             'GET - /api/user/consultant/users/:consultantUserId/profiles  응답 : ',
             result
         );
 
-        response = new SuccessResponse(result.message, result.data);
+        response = new SuccessResponse(200, result);
         logger.log(
             'info',
             'GET - /api/user/consultant/users/:consultantUserId/profiles ',

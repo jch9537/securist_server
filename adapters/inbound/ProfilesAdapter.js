@@ -5,12 +5,14 @@ const {
     CreateConsultingCompanyProfile,
     CreateConsultingCompanyProfileTemp,
     CheckProfileTempExist,
-    GetProfile,
     GetProfileTemp,
     RequestClientAuth,
     DeleteProfileTemp,
     CreateProfile,
+    GetProfiles,
     GetMyProfile,
+    GetProfile,
+    UpdateProfile,
 } = require('../../domain/usecase/profile');
 
 module.exports = class ProfileAdapter {
@@ -52,14 +54,10 @@ module.exports = class ProfileAdapter {
     }
 
     // 프로필 정보 가져오기 : 관리자
-    async getProfile(userData, profileData, uploadData) {
+    async getProfile(profileData) {
         try {
             const getProfile = new GetProfile(repository);
-            const result = await getProfile.excute(
-                userData,
-                profileData,
-                uploadData
-            );
+            const result = await getProfile.excute(profileData);
             return result;
         } catch (error) {
             throw error;
@@ -67,10 +65,10 @@ module.exports = class ProfileAdapter {
     }
 
     // 프로필 정보 수정하기 : 관리자
-    async updateProfile(userData) {
+    async updateProfile(profileData, uploadData) {
         try {
             const updateProfile = new UpdateProfile(repository);
-            await updateProfile.excute(userData);
+            await updateProfile.excute(profileData, uploadData);
             return;
         } catch (error) {
             throw error;
