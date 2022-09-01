@@ -8,8 +8,8 @@ const { sanitizer } = require('../../middlewares');
 
 const { profilesAdapter } = require('../../../../adapters/inbound');
 const {
-    UpdateMyInfoRequestDto,
-} = require('../../../../adapters/dtos/requestDto/myInfoDto');
+    CreateProfileDto,
+} = require('../../../../adapters/dtos/requestDto/profileDto');
 const { logger } = require('../../../../adapters/module/logger');
 const { SuccessResponse } = require('../../../../adapters/response');
 
@@ -28,19 +28,19 @@ router.post(
         let result, response;
         try {
             let userData = req.userDataByIdToken;
-            let reqBodyData = req.filteredBody;
+            const { profileData } = new CreateProfileDto(req.filteredBody);
             let uploadFiles = req.arrangedFiles;
 
             console.log(
                 'POST - /api/user/profile 요청 : ',
                 userData,
-                reqBodyData,
+                profileData,
                 uploadFiles
             );
 
             result = await profilesAdapter.createProfile(
                 userData,
-                reqBodyData,
+                profileData,
                 uploadFiles
             );
             console.log('POST - /api/user/profile 응답 : ', result);

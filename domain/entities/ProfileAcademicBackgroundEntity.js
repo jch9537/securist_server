@@ -6,7 +6,6 @@ module.exports = class ProfileAcademicBackgroundEntity {
         finalAcademicType,
         schoolName,
         majorName,
-        graduationClassificationType,
         admissionDate,
         graduateDate,
         academicScore,
@@ -16,7 +15,6 @@ module.exports = class ProfileAcademicBackgroundEntity {
         this.finalAcademicType = finalAcademicType;
         this.schoolName = schoolName;
         this.majorName = majorName;
-        this.graduationClassificationType = graduationClassificationType;
         this.admissionDate = admissionDate;
         this.graduateDate = graduateDate;
         this.academicScore = academicScore;

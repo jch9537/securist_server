@@ -59,7 +59,7 @@ module.exports = class CreateProfile {
             profilesEntity.consultantUserId = userData.consultantUserId; // 사용자 id
             const profileAbilityCertificationIds =
                 profileData.abilityCertificationIds;
-            const profileAbilityIndustryIds = profileData.abilityIndustryIds;
+            // const profileAbilityIndustryIds = profileData.abilityIndustryIds;
             const profileAbilityTaskIds = profileData.abilityTaskIds;
             const profileAbilityEtcEntity = new ProfileAbilityEtcEntity(
                 profileData.abilityEtc

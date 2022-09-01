@@ -1622,18 +1622,16 @@ module.exports = class Mysql {
                     finalAcademicType,
                     schoolName,
                     majorName,
-                    graduationClassificationType,
                     admissionDate,
                     graduateDate,
                 } = tempAcademicBackgroundEntity;
                 sql = `INSERT INTO temp_academic_background 
-                (finalAcademicType, schoolName, majorName, graduationClassificationType, admissionDate, graduateDate, tempProfileId)
-                VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                (finalAcademicType, schoolName, majorName, admissionDate, graduateDate, tempProfileId)
+                VALUES (?, ?, ?, ?, ?, ?)`;
                 arg = [
                     finalAcademicType,
                     schoolName,
                     majorName,
-                    graduationClassificationType,
                     admissionDate,
                     graduateDate,
                     tempProfileId,
@@ -1959,7 +1957,7 @@ module.exports = class Mysql {
         let sql, arg;
         const conn = await this.pool.getConnection();
         try {
-            sql = `SELECT finalAcademicType, schoolName, majorName, graduationClassificationType, admissionDate, graduateDate 
+            sql = `SELECT finalAcademicType, schoolName, majorName,  admissionDate, graduateDate 
             FROM temp_academic_background
             WHERE tempProfileId = ?`;
             arg = [tempProfileId];
@@ -2244,18 +2242,16 @@ module.exports = class Mysql {
                     finalAcademicType,
                     schoolName,
                     majorName,
-                    graduationClassificationType,
                     admissionDate,
                     graduateDate,
                 } = profileAcademicBackgroundEntity;
                 sql = `INSERT INTO profile_academic_background 
-                (finalAcademicType, schoolName, majorName, graduationClassificationType, admissionDate, graduateDate, profileId)
-                VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                (finalAcademicType, schoolName, majorName, admissionDate, graduateDate, profileId)
+                VALUES (?, ?, ?, ?, ?, ?)`;
                 arg = [
                     finalAcademicType,
                     schoolName,
                     majorName,
-                    graduationClassificationType,
                     admissionDate,
                     graduateDate,
                     profileId,
@@ -2550,18 +2546,16 @@ module.exports = class Mysql {
                     finalAcademicType,
                     schoolName,
                     majorName,
-                    graduationClassificationType,
                     admissionDate,
                     graduateDate,
                 } = profileAcademicBackgroundEntity;
                 sql = `INSERT INTO profile_academic_background 
-                (finalAcademicType, schoolName, majorName, graduationClassificationType, admissionDate, graduateDate, profileId)
-                VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                (finalAcademicType, schoolName, majorName, admissionDate, graduateDate, profileId)
+                VALUES (?, ?, ?, ?, ?, ?)`;
                 arg = [
                     finalAcademicType,
                     schoolName,
                     majorName,
-                    graduationClassificationType,
                     admissionDate,
                     graduateDate,
                     profileId,
@@ -2873,7 +2867,7 @@ module.exports = class Mysql {
         let sql, arg;
         const conn = await this.pool.getConnection();
         try {
-            sql = `SELECT finalAcademicType, schoolName, majorName, graduationClassificationType, admissionDate, graduateDate 
+            sql = `SELECT finalAcademicType, schoolName, majorName, admissionDate, graduateDate 
             FROM profile_academic_background
             WHERE profileId = ?`;
             arg = [profileId];

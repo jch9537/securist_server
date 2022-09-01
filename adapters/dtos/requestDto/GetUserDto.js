@@ -31,7 +31,7 @@ module.exports = class GetUserDto {
     }
     set clientCompanyId(client_company_id) {
         console.log('아이디', client_company_id);
-        let { error, value } = idSchema.validate(client_company_id);
+        const { error, value } = idSchema.validate(client_company_id);
         if (error) {
             throw new TypeException('사용자 서비스 응답 : 기업 아이디');
         } else {

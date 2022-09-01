@@ -9,7 +9,7 @@ module.exports = class UserReAuthRequestDto {
         return this._authData;
     }
     set authData(authData) {
-        let { error, value } = userReAuthSchema.validate(authData);
+        const { error, value } = userReAuthSchema.validate(authData);
         // console.log('필터 조건2 ', value);
         if (error) {
             let errorProperty = error.details[0].context.key;

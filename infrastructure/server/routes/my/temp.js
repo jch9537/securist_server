@@ -8,8 +8,10 @@ const { sanitizer } = require('../../middlewares');
 
 const { tempProfilesAdapter } = require('../../../../adapters/inbound');
 const {
-    UpdateMyInfoRequestDto,
-} = require('../../../../adapters/dtos/requestDto/myInfoDto');
+    CreateTempProfileDto,
+    GetTempProfileDto,
+    DeleteTempProfileDto,
+} = require('../../../../adapters/dtos/requestDto/tempProfileDto');
 const { logger } = require('../../../../adapters/module/logger');
 const { SuccessResponse } = require('../../../../adapters/response');
 
@@ -25,27 +27,25 @@ router.post(
     ]),
     sanitizer,
     async (req, res, next) => {
-        let result, response;
         try {
-            let userData = req.userDataByIdToken;
-            let reqBodyData = req.filteredBody;
-            let uploadFiles = req.arrangedFiles;
-
             // console.log(
             //     'GET - /api/user/my/profile/temp 요청 : ',
-            //     userData,
-            //     reqBodyData,
-            //     uploadFiles
+            //     req.userDataByIdToken,
+            //     req.filteredBody,
+            //     req.arrangedFiles
             // );
+            const userData = req.userDataByIdToken;
+            const { tempData } = new CreateTempProfileDto(req.filteredBody);
+            let uploadFiles = req.arrangedFiles;
 
-            result = await tempProfilesAdapter.createTempProfile(
+            const result = await tempProfilesAdapter.createTempProfile(
                 userData,
-                reqBodyData,
+                tempData,
                 uploadFiles
             );
             console.log('GET - /api/user/my/profile/temp 응답 : ', result);
 
-            response = new SuccessResponse(201, result);
+            const response = new SuccessResponse(201, result);
             logger.log(
                 'info',
                 'GET - /api/user/my/profile/temp',
@@ -61,15 +61,17 @@ router.post(
 );
 // 프로필 임시저장 정보 가져오기
 router.get('/', async (req, res, next) => {
-    let result, response;
     try {
-        let userData = req.userDataByIdToken;
-        console.log('GET - /api/user/my/profile/temp 요청 : ', userData);
+        console.log(
+            'GET - /api/user/my/profile/temp 요청 : ',
+            req.userDataByIdToken
+        );
+        const userData = req.userDataByIdToken;
 
-        result = await tempProfilesAdapter.getTempProfile(userData);
+        const result = await tempProfilesAdapter.getTempProfile(userData);
         console.log('GET - /api/user/my/profile/temp 응답 : ', result);
 
-        response = new SuccessResponse(200, result);
+        const response = new SuccessResponse(200, result);
         logger.log('info', 'GET - /api/user/my/profile/temp', response.message);
 
         res.send(response);
@@ -83,16 +85,17 @@ router.get('/', async (req, res, next) => {
 
 // 프로필 임시저장 정보 삭제
 router.delete('/', async (req, res, next) => {
-    let result, response;
     try {
-        let userData = req.userDataByIdToken;
+        console.log(
+            'DELETE - /api/user/my/profile/temp 요청 : ',
+            req.userDataByIdToken
+        );
+        const userData = req.userDataByIdToken;
 
-        console.log('DELETE - /api/user/my/profile/temp 요청 : ', userData);
-
-        result = await tempProfilesAdapter.deleteTempProfile(userData);
+        const result = await tempProfilesAdapter.deleteTempProfile(userData);
         console.log('DELETE - /api/user/my/profile/temp 응답 : ', result);
 
-        response = new SuccessResponse(204, result);
+        const response = new SuccessResponse(204, result);
         logger.log(
             'info',
             'DELETE - /api/user/my/profile/temp',
