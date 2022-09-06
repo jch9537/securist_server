@@ -1,9 +1,9 @@
 const {
     TempProfilesEntity,
     // TempAbilityCertificationsEntity,
-    TempAbilityEtcEntity,
-    // TempAbilityIndustriesEntity,
     // TempAbilityTasksEntity,
+    // TempAbilityIndustriesEntity,
+    TempEtcCertificationsEntity,
     TempAcademicBackgroundEntity,
     TempCareerEntity,
     TempLicenseEntity,
@@ -47,14 +47,15 @@ module.exports = class CreateTempProfile {
             }
 
             // 각 entity 생성
-            tempData.consultantUserId = userData.consultantUserId; // 사용자 id
             tempProfilesEntity = new TempProfilesEntity(tempData);
+            console.log('유스케이스 : ', tempProfilesEntity, tempData);
+            tempProfilesEntity.consultantUserId = userData.consultantUserId; // 사용자 id
+
             const tempProfileAbilityCertificationIds =
                 tempData.abilityCertificationIds;
-            const tempAbilityIndustryIds = tempData.abilityIndustryIds;
             const tempAbilityTaskIds = tempData.abilityTaskIds;
-            const tempAbilityEtcEntity = new TempAbilityEtcEntity(
-                tempData.abilityEtc
+            const tempEtcCertificationsEntity = new TempEtcCertificationsEntity(
+                tempData.etcCertifications
             );
             const tempAcademicBackgroundEntity = new TempAcademicBackgroundEntity(
                 tempData.academicBackground
@@ -77,9 +78,8 @@ module.exports = class CreateTempProfile {
             await tempProfilesRepository.createTempProfile(
                 tempProfilesEntity,
                 tempProfileAbilityCertificationIds,
-                tempAbilityIndustryIds,
                 tempAbilityTaskIds,
-                tempAbilityEtcEntity,
+                tempEtcCertificationsEntity,
                 tempAcademicBackgroundEntity,
                 tempCareerEntities,
                 tempLicenseEntities,

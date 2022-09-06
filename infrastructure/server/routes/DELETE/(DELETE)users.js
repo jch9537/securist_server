@@ -2,10 +2,10 @@
 const express = require('express');
 const router = express.Router();
 
-const { userAdapter } = require('../../../adapters/inbound');
-const { SuccessResponse, ErrorResponse } = require('../../response');
+const { userAdapter } = require('../../../../adapters/inbound');
+const { SuccessResponse, ErrorResponse } = require('../../../response');
 
-const { extractToken, decryptIdToken } = require('../middlewares');
+const { extractToken, decryptIdToken } = require('../../middlewares');
 
 
 // 관리자 페이지 -------------------------------------------

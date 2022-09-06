@@ -1,12 +1,12 @@
-module.exports = class TempAbilityEtcRepository {
+module.exports = class ProfileCareerRepository {
     constructor(db) {
         this.db = db;
     }
 
-    async getTempAbilityEtc(tempAbilityEtcEntity) {
+    async getProfileCareer(profileCareerEntity) {
         let result;
         try {
-            result = await this.db.getTempAbilityEtc(tempAbilityEtcEntity);
+            result = await this.db.getProfileCareer(profileCareerEntity);
 
             return result;
         } catch (error) {

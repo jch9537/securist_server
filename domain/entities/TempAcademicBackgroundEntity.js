@@ -6,7 +6,6 @@ module.exports = class TempAcademicBackgroundEntity {
         finalAcademicType,
         schoolName,
         majorName,
-        graduationClassificationType,
         admissionDate,
         graduateDate,
         tempProfileId,
@@ -15,7 +14,6 @@ module.exports = class TempAcademicBackgroundEntity {
         this.finalAcademicType = finalAcademicType;
         this.schoolName = schoolName;
         this.majorName = majorName;
-        this.graduationClassificationType = graduationClassificationType;
         this.admissionDate = admissionDate;
         this.graduateDate = graduateDate;
         this.tempProfileId = tempProfileId;

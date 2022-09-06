@@ -7,13 +7,15 @@ module.exports = class ProfileLicenseEntity {
         licenseNum,
         issueInstitution,
         issuedDate,
-        consultantUserId,
+        licenseScore,
+        profileId,
     }) {
         this.licenseId = licenseId;
         this.licenseName = licenseName;
         this.licenseNum = licenseNum;
         this.issueInstitution = issueInstitution;
         this.issuedDate = issuedDate;
-        this.consultantUserId = consultantUserId;
+        this.licenseScore = licenseScore;
+        this.profileId = profileId;
     }
 };

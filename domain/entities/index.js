@@ -15,8 +15,7 @@ module.exports = {
     // 프로필 임시저장
     TempProfilesEntity: require('./TempProfilesEntity'),
     TempAbilityCertificationsEntity: require('./TempAbilityCertificationsEntity'),
-    TempAbilityEtcEntity: require('./TempAbilityEtcEntity'),
-    TempAbilityIndustriesEntity: require('./TempAbilityIndustriesEntity'),
+    TempEtcCertificationsEntity: require('./TempEtcCertificationsEntity'),
     TempAbilityTasksEntity: require('./TempAbilityTasksEntity'),
     TempAcademicBackgroundEntity: require('./TempAcademicBackgroundEntity'),
     TempCareerEntity: require('./TempCareerEntity'),
@@ -26,14 +25,14 @@ module.exports = {
     TempUploadFilesEntity: require('./TempUploadFilesEntity'),
 
     // 프로필
+    ProfilesEntity: require('./ProfilesEntity'),
     ProfileAbilityCertificationsEntity: require('./ProfileAbilityCertificationsEntity'),
-    ProfileAbilityEtcEntity: require('./ProfileAbilityEtcEntity'),
-    ProfileAbilityIndustriesEntity: require('./ProfileAbilityIndustriesEntity'),
+    ProfileEtcCertificationsEntity: require('./ProfileEtcCertificationsEntity'),
     ProfileAbilityTasksEntity: require('./ProfileAbilityTasksEntity'),
     ProfileAcademicBackgroundEntity: require('./ProfileAcademicBackgroundEntity'),
     ProfileCareerEntity: require('./ProfileCareerEntity'),
     ProfileLicenseEntity: require('./ProfileLicenseEntity'),
     // ProfileProjectHistoryConsultingCompanyEntity: require('./ProfileProjectHistoryConsultingCompanyEntity'),
     ProfileProjectHistoryEntity: require('./ProfileProjectHistoryEntity'),
-    // profileUploadFilesEntity: require('./')
+    ProfileUploadFilesEntity: require('./profileUploadFilesEntity'),
 };

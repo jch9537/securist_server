@@ -10,8 +10,11 @@ const { DataBrew } = require('aws-sdk');
 //S3 업로드 경로 지정
 const classifyStoragePath = function (requestUrl, fieldName) {
     let storagePath;
-    if (requestUrl === '/api/user/my/profile/temp') {
-        storagePath = `profile/temp/${fieldName}`;
+    if (
+        requestUrl === '/api/user/my/profile' ||
+        requestUrl === '/api/user/my/profile/temp'
+    ) {
+        storagePath = `profile/${fieldName}`;
     }
     return storagePath;
 };

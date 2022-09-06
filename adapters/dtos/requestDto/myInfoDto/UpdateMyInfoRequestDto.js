@@ -9,7 +9,7 @@ module.exports = class UpdateMyInfoRequestDto {
         return this._myData;
     }
     set myData(myData) {
-        let { error, value } = updateMyInfoSchema.validate(myData);
+        const { error, value } = updateMyInfoSchema.validate(myData);
         // console.log('필터 조건2 ', value);
         if (error) {
             let errorProperty = error.details[0].context.key;

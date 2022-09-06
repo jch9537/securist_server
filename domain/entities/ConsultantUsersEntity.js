@@ -11,7 +11,7 @@ module.exports = class ConsultantUsersEntity {
         bankName,
         bankAccountNum,
         bankAccountOwner,
-        userIntroduce,
+        // userIntroduce,
         applicationState,
     }) {
         this.consultantUserId = consultantUserId;
@@ -23,7 +23,7 @@ module.exports = class ConsultantUsersEntity {
         this.bankName = bankName;
         this.bankAccountNum = bankAccountNum;
         this.bankAccountOwner = bankAccountOwner;
-        this.userIntroduce = userIntroduce;
+        // this.userIntroduce = userIntroduce;
         this.applicationState = applicationState;
     }
 };

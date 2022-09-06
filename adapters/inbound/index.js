@@ -7,6 +7,7 @@ const ConsultantUsersAdapter = require('./consultant/ConsultantUsersAdapter');
 const ProfilesAdapter = require('./ProfilesAdapter');
 const TempProfilesAdapter = require('./TempProfilesAdapter');
 const TempUploadFilesAdapter = require('./TempUploadFilesAdapter');
+const StorageAdapter = require('./StorageAdapter');
 // const ConsultantCompaniesAdapter = require('./consultant/ConsultantCompaniesAdapter');
 // const UserAdapter = require('./UserAdapter');
 // const CompanyAdapter = require('./CompanyAdapter');
@@ -20,6 +21,7 @@ const {
 module.exports = {
     // 인증
     authAdapter: new AuthAdapter(projectService, adminService),
+    storageAdapter: new StorageAdapter(projectService, adminService),
     // 내 정보
     myAdapter: new MyAdapter(projectService, adminService),
     // 클라이언트
