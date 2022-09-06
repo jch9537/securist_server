@@ -1,7 +1,6 @@
 // 프로필 임시 저장 API
 const express = require('express');
 const router = express.Router();
-const filesRouter = require('./files');
 
 const { uploadFilesInStorage } = require('../../../webService/storageService');
 const { sanitizer } = require('../../middlewares');
@@ -9,13 +8,14 @@ const { sanitizer } = require('../../middlewares');
 const { tempProfilesAdapter } = require('../../../../adapters/inbound');
 const {
     CreateTempProfileDto,
-    GetTempProfileDto,
-    DeleteTempProfileDto,
+    // GetTempProfileDto,
+    // DeleteTempProfileDto,
 } = require('../../../../adapters/dtos/requestDto/tempProfileDto');
+const {
+    CreateUploadFilesDto,
+} = require('../../../../adapters/dtos/requestDto/uploadFilesDto');
 const { logger } = require('../../../../adapters/module/logger');
 const { SuccessResponse } = require('../../../../adapters/response');
-
-router.use('/files', filesRouter);
 
 // 프로필 임시 저장정보 생성하기
 router.post(
@@ -36,12 +36,14 @@ router.post(
             // );
             const userData = req.userDataByIdToken;
             const { tempData } = new CreateTempProfileDto(req.filteredBody);
-            let uploadFiles = req.arrangedFiles;
+            const { uploadFilesData } = new CreateUploadFilesDto(
+                req.arrangedFiles
+            );
 
             const result = await tempProfilesAdapter.createTempProfile(
                 userData,
                 tempData,
-                uploadFiles
+                uploadFilesData
             );
             console.log('GET - /api/user/my/profile/temp 응답 : ', result);
 
@@ -83,7 +85,7 @@ router.get('/', async (req, res, next) => {
 
 // 프로필 임시저장 정보 수정 : 삭제 후 생성하므로 필요없음
 
-// 프로필 임시저장 정보 삭제
+// 프로필 임시저장 정보 삭제 :  API는 있지만 사용은 안함
 router.delete('/', async (req, res, next) => {
     try {
         console.log(

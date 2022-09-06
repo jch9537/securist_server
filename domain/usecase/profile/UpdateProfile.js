@@ -4,7 +4,7 @@ const {
     // ProfileAbilityCertificationsEntity,
     // ProfileAbilityTasksEntity,
     // ProfileAbilityIndustriesEntity,
-    ProfileAbilityEtcEntity,
+    ProfileEtcCertificationsEntity,
     ProfileAcademicBackgroundEntity,
     ProfileCareerEntity,
     ProfileLicenseEntity,
@@ -54,10 +54,9 @@ module.exports = class UpdateProfile {
             // console.log('엔터티 확인 : ', profilesEntity);
             const profileAbilityCertificationIds =
                 profileData.abilityCertificationIds;
-            const profileAbilityIndustryIds = profileData.abilityIndustryIds;
             const profileAbilityTaskIds = profileData.abilityTaskIds;
-            const profileAbilityEtcEntity = new ProfileAbilityEtcEntity(
-                profileData.abilityEtc
+            const profileEtcCertificationsEntity = new ProfileEtcCertificationsEntity(
+                profileData.etcCertifications
             );
             const profileAcademicBackgroundEntity = new ProfileAcademicBackgroundEntity(
                 profileData.academicBackground
@@ -81,9 +80,8 @@ module.exports = class UpdateProfile {
                 consultantUsersEntity,
                 profilesEntity,
                 profileAbilityCertificationIds,
-                profileAbilityIndustryIds,
                 profileAbilityTaskIds,
-                profileAbilityEtcEntity,
+                profileEtcCertificationsEntity,
                 profileAcademicBackgroundEntity,
                 profileCareerEntities,
                 profileLicenseEntities,

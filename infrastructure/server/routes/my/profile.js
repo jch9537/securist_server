@@ -10,6 +10,9 @@ const { profilesAdapter } = require('../../../../adapters/inbound');
 const {
     CreateProfileDto,
 } = require('../../../../adapters/dtos/requestDto/profileDto');
+const {
+    CreateUploadFilesDto,
+} = require('../../../../adapters/dtos/requestDto/uploadFilesDto');
 const { logger } = require('../../../../adapters/module/logger');
 const { SuccessResponse } = require('../../../../adapters/response');
 
@@ -25,27 +28,28 @@ router.post(
     ]),
     sanitizer,
     async (req, res, next) => {
-        let result, response;
         try {
-            let userData = req.userDataByIdToken;
+            const userData = req.userDataByIdToken;
             const { profileData } = new CreateProfileDto(req.filteredBody);
-            let uploadFiles = req.arrangedFiles;
+            const { uploadFilesData } = new CreateUploadFilesDto(
+                req.arrangedFiles
+            );
 
             console.log(
                 'POST - /api/user/profile 요청 : ',
                 userData,
                 profileData,
-                uploadFiles
+                uploadFilesData
             );
 
-            result = await profilesAdapter.createProfile(
+            const result = await profilesAdapter.createProfile(
                 userData,
                 profileData,
-                uploadFiles
+                uploadFilesData
             );
             console.log('POST - /api/user/profile 응답 : ', result);
 
-            response = new SuccessResponse(result);
+            const response = new SuccessResponse(201, result);
             logger.log('info', 'POST - /api/user/my/profile', response.message);
 
             res.send(response);

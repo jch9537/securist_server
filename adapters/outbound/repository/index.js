@@ -19,8 +19,8 @@ const ConsultantUsersRepository = require('./consultant/ConsultantUsersRepositor
 const TempProfilesRepository = require('./temp/TempProfilesRepository');
 const TempAbilityCertificationsRepository = require('./temp/TempAbilityCertificationsRepository');
 const TempAbilityTasksRepository = require('./temp/TempAbilityTasksRepository');
-const TempAbilityIndustriesRepository = require('./temp/TempAbilityIndustriesRepository');
-const TempAbilityEtcRepository = require('./temp/TempAbilityEtcRepository');
+// const TempAbilityIndustriesRepository = require('./temp/TempAbilityIndustriesRepository');
+const TempEtcCertificationsRepository = require('./temp/TempEtcCertificationsRepository');
 const TempAcademicBackgroundRepository = require('./temp/TempAcademicBackgroundRepository');
 const TempCareerRepository = require('./temp/TempCareerRepository');
 const TempLicenseRepository = require('./temp/TempLicenseRepository');
@@ -30,8 +30,8 @@ const TempUploadFilesRepository = require('./temp/TempUploadFilesRepository');
 const ProfilesRepository = require('./profile/ProfilesRepository');
 const ProfileAbilityCertificationsRepository = require('./profile/ProfileAbilityCertificationsRepository');
 const ProfileAbilityTasksRepository = require('./profile/ProfileAbilityTasksRepository');
-const ProfileAbilityIndustriesRepository = require('./profile/ProfileAbilityIndustriesRepository');
-const ProfileAbilityEtcRepository = require('./profile/ProfileAbilityEtcRepository');
+// const ProfileAbilityIndustriesRepository = require('./profile/ProfileAbilityIndustriesRepository');
+const ProfileEtcCertificationsRepository = require('./profile/ProfileEtcCertificationsRepository');
 const ProfileAcademicBackgroundRepository = require('./profile/ProfileAcademicBackgroundRepository');
 const ProfileCareerRepository = require('./profile/ProfileCareerRepository');
 const ProfileLicenseRepository = require('./profile/ProfileLicenseRepository');
@@ -58,8 +58,8 @@ module.exports = {
         db
     ),
     tempAbilityTasksRepository: new TempAbilityTasksRepository(db),
-    tempAbilityIndustriesRepository: new TempAbilityIndustriesRepository(db),
-    tempAbilityEtcRepository: new TempAbilityEtcRepository(db),
+    // tempAbilityIndustriesRepository: new TempAbilityIndustriesRepository(db),
+    tempEtcCertificationsRepository: new TempEtcCertificationsRepository(db),
     tempAcademicBackgroundRepository: new TempAcademicBackgroundRepository(db),
     tempCareerRepository: new TempCareerRepository(db),
     tempLicenseRepository: new TempLicenseRepository(db),
@@ -71,10 +71,12 @@ module.exports = {
         db
     ),
     profileAbilityTasksRepository: new ProfileAbilityTasksRepository(db),
-    profileAbilityIndustriesRepository: new ProfileAbilityIndustriesRepository(
+    // profileAbilityIndustriesRepository: new ProfileAbilityIndustriesRepository(
+    //     db
+    // ),
+    profileEtcCertificationsRepository: new ProfileEtcCertificationsRepository(
         db
     ),
-    profileAbilityEtcRepository: new ProfileAbilityEtcRepository(db),
     profileAcademicBackgroundRepository: new ProfileAcademicBackgroundRepository(
         db
     ),

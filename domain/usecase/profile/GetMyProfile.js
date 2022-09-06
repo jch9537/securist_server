@@ -10,8 +10,7 @@ module.exports = class GetMyProfile {
                 profilesRepository,
                 profileAbilityCertificationsRepository,
                 profileAbilityTasksRepository,
-                profileAbilityIndustriesRepository,
-                profileAbilityEtcRepository,
+                profileEtcCertificationsRepository,
                 profileAcademicBackgroundRepository,
                 profileCareerRepository,
                 profileLicenseRepository,
@@ -45,12 +44,8 @@ module.exports = class GetMyProfile {
             myLatestProfileInfo.abilityTaskIds = await profileAbilityTasksRepository.getProfileAbilityTasks(
                 { profileId }
             );
-            // 업종 정보 id 리스트 가져오기
-            myLatestProfileInfo.abilityIndustryIds = await profileAbilityIndustriesRepository.getProfileAbilityIndustries(
-                { profileId }
-            );
             // 기타 정보 가져오기
-            myLatestProfileInfo.abilityEtc = await profileAbilityEtcRepository.getProfileAbilityEtc(
+            myLatestProfileInfo.abilityEtc = await profileEtcCertificationsRepository.getProfileEtcCertifications(
                 { profileId }
             );
             // 최종 학력 정보 가져오기

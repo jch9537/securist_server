@@ -1,7 +1,7 @@
 const { repository } = require('../outbound');
 const {
     DeleteTempUploadFiles,
-} = require('../../domain/usecase/temp/uploadFiles');
+} = require('../../domain/usecase/uploadFiles');
 
 module.exports = class TempUploadFilesAdapter {
     constructor() {}

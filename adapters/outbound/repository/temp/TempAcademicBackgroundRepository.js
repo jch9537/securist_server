@@ -1,4 +1,4 @@
-module.exports = class TempAbilityEtcRepository {
+module.exports = class TempAcademicBackgroundRepository {
     constructor(db) {
         this.db = db;
     }

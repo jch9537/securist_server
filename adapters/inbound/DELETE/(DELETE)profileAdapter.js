@@ -1,4 +1,4 @@
-const { repository } = require('../outbound');
+const { repository } = require('../../outbound');
 const {
     CreateConsultantProfile,
     CreateConsultantProfileTemp,
@@ -9,7 +9,7 @@ const {
     GetProfileTemp,
     RequestClientAuth,
     DeleteProfileTemp,
-} = require('../../domain/usecase/profile');
+} = require('../../../domain/usecase/profile');
 
 module.exports = class ProfileAdapter {
     constructor(projectService, adminService) {

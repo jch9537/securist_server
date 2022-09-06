@@ -11,7 +11,7 @@ module.exports = class GetTempProfile {
                 tempAbilityCertificationsRepository,
                 tempAbilityTasksRepository,
                 tempAbilityIndustriesRepository,
-                tempAbilityEtcRepository,
+                tempEtcCertificationsRepository,
                 tempAcademicBackgroundRepository,
                 tempCareerRepository,
                 tempLicenseRepository,
@@ -49,7 +49,7 @@ module.exports = class GetTempProfile {
                 { tempProfileId }
             );
             // 기타 정보 가져오기
-            tempProfileInfo.abilityEtc = await tempAbilityEtcRepository.getTempAbilityEtc(
+            tempProfileInfo.abilityEtc = await tempEtcCertificationsRepository.getTempEtcCertifications(
                 { tempProfileId }
             );
             // 최종 학력 정보 가져오기

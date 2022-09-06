@@ -7,9 +7,8 @@ module.exports = class TempProfilesRepository {
     async createTempProfile(
         tempProfilesEntity,
         tempProfileAbilityCertificationIds,
-        tempAbilityIndustryIds,
         tempAbilityTaskIds,
-        tempAbilityEtcEntity,
+        tempEtcCertificationsEntity,
         tempAcademicBackgroundEntity,
         tempCareerEntities,
         tempLicenseEntities,
@@ -21,9 +20,8 @@ module.exports = class TempProfilesRepository {
             result = await this.db.createTempProfile(
                 tempProfilesEntity,
                 tempProfileAbilityCertificationIds,
-                tempAbilityIndustryIds,
                 tempAbilityTaskIds,
-                tempAbilityEtcEntity,
+                tempEtcCertificationsEntity,
                 tempAcademicBackgroundEntity,
                 tempCareerEntities,
                 tempLicenseEntities,

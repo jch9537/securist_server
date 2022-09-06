@@ -3,7 +3,7 @@ const {
     // TempAbilityCertificationsEntity,
     // TempAbilityTasksEntity,
     // TempAbilityIndustriesEntity,
-    TempAbilityEtcEntity,
+    TempEtcCertificationsEntity,
     TempAcademicBackgroundEntity,
     TempCareerEntity,
     TempLicenseEntity,
@@ -53,10 +53,9 @@ module.exports = class CreateTempProfile {
 
             const tempProfileAbilityCertificationIds =
                 tempData.abilityCertificationIds;
-            const tempAbilityIndustryIds = tempData.abilityIndustryIds;
             const tempAbilityTaskIds = tempData.abilityTaskIds;
-            const tempAbilityEtcEntity = new TempAbilityEtcEntity(
-                tempData.abilityEtc
+            const tempEtcCertificationsEntity = new TempEtcCertificationsEntity(
+                tempData.etcCertifications
             );
             const tempAcademicBackgroundEntity = new TempAcademicBackgroundEntity(
                 tempData.academicBackground
@@ -79,9 +78,8 @@ module.exports = class CreateTempProfile {
             await tempProfilesRepository.createTempProfile(
                 tempProfilesEntity,
                 tempProfileAbilityCertificationIds,
-                tempAbilityIndustryIds,
                 tempAbilityTaskIds,
-                tempAbilityEtcEntity,
+                tempEtcCertificationsEntity,
                 tempAcademicBackgroundEntity,
                 tempCareerEntities,
                 tempLicenseEntities,

@@ -1,4 +1,4 @@
-module.exports = class ProfileAbilityEtcRepository {
+module.exports = class ProfileAcademicBackgroundRepository {
     constructor(db) {
         this.db = db;
     }

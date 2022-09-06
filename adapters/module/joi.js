@@ -134,7 +134,7 @@ module.exports = {
         abilityCertificationIds: Joi.array()
             .items(Joi.number().positive().required())
             .min(1),
-        etcCertification: Joi.string().max(10),
+        etcCertifications: Joi.string().max(10),
         abilityTaskIds: Joi.array()
             .items(Joi.number().positive().required())
             .min(1),
@@ -184,7 +184,7 @@ module.exports = {
             )
             .min(1),
         // abilityEtc: Joi.object({
-        //     etcCertification: Joi.string().max(10),
+        //     etcCertifications: Joi.string().max(10),
         //     etcIndustry: Joi.string().max(10), // 기타업종은 없는지 확인!!(이전에는 있었음), 수행이력의 업종과 중복여부 확인!!
         // }),
         //
@@ -208,7 +208,7 @@ module.exports = {
             .items(Joi.number().positive().required())
             .min(1)
             .required(), // 필수
-        etcCertification: Joi.string().max(10),
+        etcCertifications: Joi.string().max(10),
         abilityTaskIds: Joi.array()
             .items(Joi.number().positive().required())
             .min(1)
@@ -246,7 +246,6 @@ module.exports = {
                 Joi.object({
                     certificationId: Joi.number().positive().required(),
                     certificationName: Joi.string().max(20).required(),
-                    // projectName: Joi.string().max(20).required(),
                     industryId: Joi.number().positive().required(),
                     industryName: Joi.string().max(20).required(),
                     companyName: Joi.string().max(20).required(),
@@ -254,7 +253,6 @@ module.exports = {
                     projectEndDate: Joi.string().pattern(dateReg).required(),
                     taskType: Joi.number().min(0).max(6).required(),
                     taskTypeName: Joi.string().max(20).required(),
-                    // assignedTask: Joi.string().max(20).required(),
                 })
             )
             .min(1),
@@ -267,7 +265,7 @@ module.exports = {
         academicScore: Joi.number().min(0).max(100).required(),
         careerScore: Joi.number().min(0).max(100).required(),
         licenseScore: Joi.number().min(0).max(100).required(),
-        confirmComment: Joi.string(), // 필수 확인
+        confirmComment: Joi.string().required(), // 필수 확인
         confirmManagerName: Joi.string().max(10).required(),
         // abilityIndustryIds: Joi.array()
         //     .items(Joi.number().positive().required())
@@ -276,7 +274,7 @@ module.exports = {
             .items(Joi.number().positive().required())
             .min(1)
             .required(), // 필수
-        etcCertification: Joi.string().max(10),
+        etcCertifications: Joi.string().max(10),
         abilityTaskIds: Joi.array()
             .items(Joi.number().positive().required())
             .min(1)
@@ -329,6 +327,31 @@ module.exports = {
         // abilityEtc: Joi.object({}), - 삭제
     }),
 
+    // 첨부 파일  ====================
+    // 첨부파일 생성
+    createUploadFilesSchema: Joi.array().items(
+        Joi.object({
+            fileType: Joi.string(),
+            fileName: Joi.string().required(),
+            filePath: Joi.string().uri().required(),
+        })
+    ),
+    // 첨부파일 삭제 유효성 확인
+    deleteUploadFilesSchema: Joi.object({
+        location: Joi.string().max(10).required(),
+        deleteUploadFiles: Joi.array()
+            .items(Joi.number().positive().required())
+            .min(1)
+            .required(),
+    }),
+    // // 첨부파일 업데이트 유효성 확인
+    // updateUploadFilesRequestSchema: Joi.array().items(
+    //     Joi.object({
+    //         fileType: Joi.string(),
+    //         fileName: Joi.string().required(),
+    //         filePath: Joi.string().uri().required(),
+    //     })
+    // ),
     // // 관리자 APIs-------------------------------------------------
     // // 관리자 생성 유효성 확인
     // createManagerSchema: Joi.object({

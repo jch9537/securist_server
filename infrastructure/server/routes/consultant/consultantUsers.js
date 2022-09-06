@@ -16,6 +16,9 @@ const {
     UpdateProfileDto,
 } = require('../../../../adapters/dtos/requestDto/profileDto');
 const {
+    CreateUploadFilesDto,
+} = require('../../../../adapters/dtos/requestDto/uploadFilesDto');
+const {
     consultantUsersAdapter,
     profilesAdapter,
 } = require('../../../../adapters/inbound');
@@ -230,11 +233,13 @@ router.put(
             //     req.arrangedFiles
             // );
             const { profileData } = new UpdateProfileDto(req.filteredBody);
-            const uploadFiles = req.arrangedFiles;
+            const { uploadFilesData } = new CreateUploadFilesDto(
+                req.arrangedFiles
+            );
 
             result = await profilesAdapter.updateProfile(
                 profileData,
-                uploadFiles
+                uploadFilesData
             );
             console.log(
                 'PUT - /api/user/consultant/users/:consultantUserId/profiles/:profileId 응답 : ',

@@ -1,4 +1,4 @@
-const { TempUploadFilesEntity } = require('../../../entities');
+const { TempUploadFilesEntity } = require('../../entities');
 // const { UserTypeException } = require('../../exceptions');
 module.exports = class DeleteTempUploadFiles {
     constructor(repository) {

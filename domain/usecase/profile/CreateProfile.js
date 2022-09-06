@@ -6,7 +6,7 @@ const {
     // ProfileAbilityCertificationsEntity,
     // ProfileAbilityTasksEntity,
     // ProfileAbilityIndustriesEntity,
-    ProfileAbilityEtcEntity,
+    ProfileEtcCertificationsEntity,
     ProfileAcademicBackgroundEntity,
     ProfileCareerEntity,
     ProfileLicenseEntity,
@@ -59,10 +59,9 @@ module.exports = class CreateProfile {
             profilesEntity.consultantUserId = userData.consultantUserId; // 사용자 id
             const profileAbilityCertificationIds =
                 profileData.abilityCertificationIds;
-            // const profileAbilityIndustryIds = profileData.abilityIndustryIds;
             const profileAbilityTaskIds = profileData.abilityTaskIds;
-            const profileAbilityEtcEntity = new ProfileAbilityEtcEntity(
-                profileData.abilityEtc
+            const profileEtcCertificationsEntity = new ProfileEtcCertificationsEntity(
+                profileData
             );
             const profileAcademicBackgroundEntity = new ProfileAcademicBackgroundEntity(
                 profileData.academicBackground
@@ -86,9 +85,8 @@ module.exports = class CreateProfile {
                 consultantUsersEntity,
                 profilesEntity,
                 profileAbilityCertificationIds,
-                profileAbilityIndustryIds,
                 profileAbilityTaskIds,
-                profileAbilityEtcEntity,
+                profileEtcCertificationsEntity,
                 profileAcademicBackgroundEntity,
                 profileCareerEntities,
                 profileLicenseEntities,

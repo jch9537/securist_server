@@ -6,9 +6,10 @@ const authRouter = require('./auth');
 const clientRouter = require('./client');
 const consultantRouter = require('./consultant');
 const myRouter = require('./my');
-const usersRouter = require('./users');
 const companyRouter = require('./company');
-const profileRouter = require('./profile');
+const filesRouter = require('./files');
+// const usersRouter = require('./users');
+// const profileRouter = require('./profile');
 
 //리소스 라우터
 router.use('/service', serviceAuthRouter);
@@ -16,9 +17,10 @@ router.use('/auth', authRouter);
 router.use('/my', myRouter);
 router.use('/client', clientRouter);
 router.use('/consultant', consultantRouter);
-router.use('/users', usersRouter);
 router.use('/company', companyRouter);
-router.use('/profile', profileRouter);
+router.use('/files', filesRouter);
+// router.use('/users', usersRouter);
+// router.use('/profile', profileRouter);
 
 module.exports = router;
 

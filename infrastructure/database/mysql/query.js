@@ -1497,9 +1497,8 @@ module.exports = class Mysql {
      * @param {Object} consultantUsersEntity - 사용자(컨설턴트) 정보 객체
      * @param {Object} tempProfilesEntity - 임시저장 정보 객체
      * @param {number[]} [tempProfileAbilityCertificationIds] - 임시저장 선택 인증 id 배열
-     * @param {number[]} [tempAbilityIndustryIds] - 임시저장 선택 업종 id 배열
      * @param {number[]} [tempAbilityTaskIds] - 임시저장 선택 과제 id 배열
-     * @param {Object} [tempAbilityEtcEntity] - 임시저장 기타 수행 인증/업종 객체
+     * @param {Object} [tempEtcCertificationsEntity] - 임시저장 기타 수행 인증/업종 객체
      * @param {Object} [tempAcademicBackgroundEntity] - 임시저장 최종 학력 정보 객체
      * @param {Object[]} [tempCareerEntities] - 임시저장 경력 정보 객체들의 배열
      * @param {Object[]} [tempLicenseEntities] - 임시저장 자격증 정보 객체들의 배열
@@ -1509,16 +1508,15 @@ module.exports = class Mysql {
     async createTempProfile(
         tempProfilesEntity,
         tempProfileAbilityCertificationIds,
-        tempAbilityIndustryIds,
         tempAbilityTaskIds,
-        tempAbilityEtcEntity,
+        tempEtcCertificationsEntity,
         tempAcademicBackgroundEntity,
         tempCareerEntities,
         tempLicenseEntities,
         tempProjectHistoryEntities,
         tempUploadFilesEntities
     ) {
-        console.log('도착 : ', tempProfilesEntity);
+        console.log('도착 : ', tempEtcCertificationsEntity);
         let sql, arg;
         const conn = await this.pool.getConnection();
         try {
@@ -1564,24 +1562,6 @@ module.exports = class Mysql {
                 await conn.query(sql, arg);
             }
 
-            // 선택한 업종이 있다면 - 업종 임시저장 데이터 생성
-            if (tempAbilityIndustryIds && tempAbilityIndustryIds.length) {
-                let insertValuesSting = '';
-                arg = []; // 배열 초기화
-                // query 가공
-                tempAbilityIndustryIds.forEach((industryId) => {
-                    if (!arg.length) {
-                        insertValuesSting += '(?, ?)';
-                    } else {
-                        insertValuesSting += ', (?, ?)';
-                    }
-                    arg.push(industryId, tempProfileId);
-                });
-
-                sql = `INSERT INTO temp_ability_industries (industryId, tempProfileId) VALUES ${insertValuesSting}`;
-                await conn.query(sql, arg);
-            }
-
             // 선택한 과제가 있다면 - 과제 임시저장 데이터 생성
             if (tempAbilityTaskIds && tempAbilityTaskIds.length) {
                 let insertValuesSting = '';
@@ -1602,14 +1582,14 @@ module.exports = class Mysql {
 
             // 작성한 기타 정보(인증/업종)가 있다면 - 기타 임시저장 데이터 생성
             if (
-                tempAbilityEtcEntity &&
-                Object.keys(tempAbilityEtcEntity).length
+                tempEtcCertificationsEntity &&
+                tempEtcCertificationsEntity.etcCertifications
             ) {
-                let { etcCertification, etcIndustry } = tempAbilityEtcEntity;
-                sql = `INSERT INTO temp_ability_etc 
-                (etcCertification, etcIndustry, tempProfileId) 
-                VALUES (?, ?, ?)`;
-                arg = [etcCertification, etcIndustry, tempProfileId];
+                let { etcCertifications } = tempEtcCertificationsEntity;
+                sql = `INSERT INTO temp_etc_certifications 
+                (etcCertifications, tempProfileId) 
+                VALUES (?, ?)`;
+                arg = [etcCertifications, etcIndustry, tempProfileId];
                 await conn.query(sql, arg);
             }
 
@@ -1715,23 +1695,29 @@ module.exports = class Mysql {
                 // query 가공
                 tempProjectHistoryEntities.forEach((projectHistoryData) => {
                     let {
-                        projectName,
-                        assignedTask,
-                        industryCategoryId,
-                        industryCategoryName,
+                        certificationId,
+                        certificationName,
+                        industryId,
+                        industryName,
+                        companyName,
+                        taskType,
+                        taskTypeName,
                         projectStartDate,
                         projectEndDate,
                     } = projectHistoryData;
                     if (!arg.length) {
-                        insertValuesSting += '(?, ?, ?, ?, ?, ?, ?)';
+                        insertValuesSting += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
                     } else {
-                        insertValuesSting += ', (?, ?, ?, ?, ?, ?, ?)';
+                        insertValuesSting += ', (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
                     }
                     arg.push(
-                        projectName,
-                        assignedTask,
-                        industryCategoryId,
-                        industryCategoryName,
+                        certificationId,
+                        certificationName,
+                        industryId,
+                        industryName,
+                        companyName,
+                        taskType,
+                        taskTypeName,
                         projectStartDate,
                         projectEndDate,
                         tempProfileId
@@ -1739,7 +1725,7 @@ module.exports = class Mysql {
                 });
 
                 sql = `INSERT INTO temp_project_history 
-                 (projectName, assignedTask, industryCategoryId, industryCategoryName,projectStartDate, projectEndDate, tempProfileId)
+                 (certificationId, certificationName, industryId, industryName, companyName, taskType, taskTypeName, projectStartDate, projectEndDate, tempProfileId)
                  VALUES ${insertValuesSting}`;
                 await conn.query(sql, arg);
             }
@@ -1840,7 +1826,7 @@ module.exports = class Mysql {
             // LEFT JOIN temp_ability_certifications AS B ON A.tempProfileId = B.tempProfileId
             // LEFT JOIN temp_ability_tasks AS C ON A.tempProfileId = C.tempProfileId
             // LEFT JOIN temp_ability_industries AS D ON A.tempProfileId = D.tempProfileId
-            // LEFT JOIN temp_ability_etc AS E ON A.tempProfileId = E.tempProfileId
+            // LEFT JOIN temp_etc_certifications AS E ON A.tempProfileId = E.tempProfileId
             // LEFT JOIN temp_academic_background AS F ON A.tempProfileId = F.tempProfileId
             // LEFT JOIN temp_career AS G ON A.tempProfileId = G.tempProfileId
             // LEFT JOIN temp_license AS H ON A.tempProfileId = H.tempProfileId
@@ -1904,42 +1890,42 @@ module.exports = class Mysql {
         }
     }
 
-    /**
-     * @description 임시저장 업종 리스트 가져오기
-     * @param {number} tempProfileId - 임시저장 프로필 id
-     * @returns {Promise} tempAbilityIndustriesResult[0] 임시저장 업종 정보 배열
-     */
-    async getTempAbilityIndustries({ tempProfileId }) {
-        let sql, arg;
-        const conn = await this.pool.getConnection();
-        try {
-            sql = `SELECT * FROM temp_ability_industries WHERE tempProfileId = ?`;
-            arg = [tempProfileId];
-            const tempAbilityIndustriesResult = await conn.query(sql, arg);
+    // /**
+    //  * @description 임시저장 업종 리스트 가져오기
+    //  * @param {number} tempProfileId - 임시저장 프로필 id
+    //  * @returns {Promise} tempAbilityIndustriesResult[0] 임시저장 업종 정보 배열
+    //  */
+    // async getTempAbilityIndustries({ tempProfileId }) {
+    //     let sql, arg;
+    //     const conn = await this.pool.getConnection();
+    //     try {
+    //         sql = `SELECT * FROM temp_ability_industries WHERE tempProfileId = ?`;
+    //         arg = [tempProfileId];
+    //         const tempAbilityIndustriesResult = await conn.query(sql, arg);
 
-            return tempAbilityIndustriesResult[0];
-        } catch (error) {
-            console.error('DB에러 : ', error);
-            throw new DatabaseError(error.message, error.errno);
-        } finally {
-            conn.release();
-        }
-    }
+    //         return tempAbilityIndustriesResult[0];
+    //     } catch (error) {
+    //         console.error('DB에러 : ', error);
+    //         throw new DatabaseError(error.message, error.errno);
+    //     } finally {
+    //         conn.release();
+    //     }
+    // }
 
     /**
      * @description 임시저장 기타 정보 가져오기
      * @param {number} tempProfileId - 임시저장 프로필 id
-     * @returns {Promise} tempAbilityEtcResult[0][0] 임시저장 기타 정보 객체
+     * @returns {Promise} tempEtcCertificationsResult[0][0] 임시저장 기타 정보 객체
      */
-    async getTempAbilityEtc({ tempProfileId }) {
+    async gettempEtcCertifications({ tempProfileId }) {
         let sql, arg;
         const conn = await this.pool.getConnection();
         try {
-            sql = `SELECT etcCertification, etcIndustry FROM temp_ability_etc WHERE tempProfileId = ?`;
+            sql = `SELECT etcCertification FROM temp_etc_certifications WHERE tempProfileId = ?`;
             arg = [tempProfileId];
-            const tempAbilityEtcResult = await conn.query(sql, arg);
+            const tempEtcCertificationsResult = await conn.query(sql, arg);
 
-            return tempAbilityEtcResult[0][0];
+            return tempEtcCertificationsResult[0][0];
         } catch (error) {
             console.error('DB에러 : ', error);
             throw new DatabaseError(error.message, error.errno);
@@ -2029,7 +2015,7 @@ module.exports = class Mysql {
         let sql, arg;
         const conn = await this.pool.getConnection();
         try {
-            sql = `SELECT projectName, assignedTask, industryCategoryId, industryCategoryName, projectStartDate, projectEndDate
+            sql = `SELECT certificationId, certificationName, industryId, industryName, companyName, taskType, taskTypeName, projectStartDate, projectEndDate
             FROM temp_project_history
             WHERE tempProfileId = ?`;
             arg = [tempProfileId];
@@ -2129,9 +2115,8 @@ module.exports = class Mysql {
      * @param {Object} consultantUsersEntity - 사용자(컨설턴트) 정보 객체
      * @param {Object} profilesEntity - 프로필 정보 객체
      * @param {number[]} profileAbilityCertificationIds - 선택 인증 id 배열
-     * @param {number[]} profileAbilityIndustryIds - 선택 업종 id 배열
      * @param {number[]} profileAbilityTaskIds - 선택 과제 id 배열
-     * @param {Object} profileAbilityEtcEntity - 기타 수행 인증/업종 객체
+     * @param {Object} profileEtcCertificationsEntity - 기타 수행 인증/업종 객체
      * @param {Object} profileAcademicBackgroundEntity - 최종 학력 정보 객체
      * @param {Object[]} profileCareerEntities - 경력 정보 객체들의 배열
      * @param {Object[]} profileLicenseEntities - 자격증 정보 객체들의 배열
@@ -2142,16 +2127,15 @@ module.exports = class Mysql {
         consultantUsersEntity,
         profilesEntity,
         profileAbilityCertificationIds,
-        profileAbilityIndustryIds,
         profileAbilityTaskIds,
-        profileAbilityEtcEntity,
+        profileEtcCertificationsEntity,
         profileAcademicBackgroundEntity,
         profileCareerEntities,
         profileLicenseEntities,
         profileProjectHistoryEntities,
         profileUploadFilesEntities
     ) {
-        console.log('도착 : ');
+        console.log('도착 : ', profileEtcCertificationsEntity);
         let sql, arg, insertValuesSting;
         const conn = await this.pool.getConnection();
         try {
@@ -2190,21 +2174,6 @@ module.exports = class Mysql {
             sql = `INSERT INTO profile_ability_certifications (certificationId, profileId) VALUES ${insertValuesSting}`;
             await conn.query(sql, arg);
 
-            // 업종 생성
-            insertValuesSting = '';
-            arg = []; // 배열 초기화
-            // query 가공
-            profileAbilityIndustryIds.forEach((industryId) => {
-                if (!arg.length) {
-                    insertValuesSting += '(?, ?)';
-                } else {
-                    insertValuesSting += ', (?, ?)';
-                }
-                arg.push(industryId, profileId);
-            });
-            sql = `INSERT INTO profile_ability_industries (industryId, profileId) VALUES ${insertValuesSting}`;
-            await conn.query(sql, arg);
-
             // 과제 생성
             insertValuesSting = '';
             arg = []; // 배열 초기화
@@ -2222,14 +2191,14 @@ module.exports = class Mysql {
 
             // 기타(인증, 업종) 생성
             if (
-                profileAbilityEtcEntity &&
-                Object.keys(profileAbilityEtcEntity).length
+                profileEtcCertificationsEntity &&
+                Object.keys(profileEtcCertificationsEntity).length
             ) {
-                let { etcCertification, etcIndustry } = profileAbilityEtcEntity;
-                sql = `INSERT INTO profile_ability_etc 
-                (etcCertification, etcIndustry, profileId) 
-                VALUES (?, ?, ?)`;
-                arg = [etcCertification, etcIndustry, profileId];
+                let { etcCertifications } = profileEtcCertificationsEntity;
+                sql = `INSERT INTO profile_etc_certifications 
+                (etcCertifications, profileId) 
+                VALUES (?, ?)`;
+                arg = [etcCertifications, profileId];
                 await conn.query(sql, arg);
             }
 
@@ -2335,23 +2304,29 @@ module.exports = class Mysql {
                 // query 가공
                 profileProjectHistoryEntities.forEach((projectHistoryData) => {
                     let {
-                        projectName,
-                        assignedTask,
-                        industryCategoryId,
-                        industryCategoryName,
+                        certificationId,
+                        certificationName,
+                        industryId,
+                        industryName,
+                        companyName,
+                        taskType,
+                        taskTypeName,
                         projectStartDate,
                         projectEndDate,
                     } = projectHistoryData;
                     if (!arg.length) {
-                        insertValuesSting += '(?, ?, ?, ?, ?, ?, ?)';
+                        insertValuesSting += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
                     } else {
-                        insertValuesSting += ', (?, ?, ?, ?, ?, ?, ?)';
+                        insertValuesSting += ', (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
                     }
                     arg.push(
-                        projectName,
-                        assignedTask,
-                        industryCategoryId,
-                        industryCategoryName,
+                        certificationId,
+                        certificationName,
+                        industryId,
+                        industryName,
+                        companyName,
+                        taskType,
+                        taskTypeName,
                         projectStartDate,
                         projectEndDate,
                         profileId
@@ -2359,7 +2334,7 @@ module.exports = class Mysql {
                 });
 
                 sql = `INSERT INTO profile_project_history 
-                 (projectName, assignedTask, industryCategoryId, industryCategoryName,projectStartDate, projectEndDate, profileId)
+                 (certificationId, certificationName, industryId, industryName, companyName, taskType,taskTypeName, projectStartDate, projectEndDate, profileId)
                  VALUES ${insertValuesSting}`;
                 await conn.query(sql, arg);
             }
@@ -2408,9 +2383,8 @@ module.exports = class Mysql {
      * @param {Object} consultantUsersEntity - 사용자(컨설턴트) 정보 객체
      * @param {Object} profilesEntity - 프로필 정보 객체
      * @param {number[]} profileAbilityCertificationIds - 선택 인증 id 배열
-     * @param {number[]} profileAbilityIndustryIds - 선택 업종 id 배열
      * @param {number[]} profileAbilityTaskIds - 선택 과제 id 배열
-     * @param {Object} profileAbilityEtcEntity - 기타 수행 인증/업종 객체
+     * @param {Object} profileEtcCertificationsEntity - 기타 수행 인증/업종 객체
      * @param {Object} profileAcademicBackgroundEntity - 최종 학력 정보 객체
      * @param {Object[]} profileCareerEntities - 경력 정보 객체들의 배열
      * @param {Object[]} profileLicenseEntities - 자격증 정보 객체들의 배열
@@ -2421,9 +2395,8 @@ module.exports = class Mysql {
         consultantUsersEntity,
         profilesEntity,
         profileAbilityCertificationIds,
-        profileAbilityIndustryIds,
         profileAbilityTaskIds,
-        profileAbilityEtcEntity,
+        profileEtcCertificationsEntity,
         profileAcademicBackgroundEntity,
         profileCareerEntities,
         profileLicenseEntities,
@@ -2435,7 +2408,7 @@ module.exports = class Mysql {
         const conn = await this.pool.getConnection();
         try {
             await conn.beginTransaction();
-            console.log('ㅏ이러니ㅏㅇ러', profilesEntity);
+            console.log('ㅏ이러니ㅏㅇ러', profileAbilityCertificationIds);
 
             // 사용자 정보 업데이트
             const { profileStatus, consultantUserId } = consultantUsersEntity;
@@ -2494,21 +2467,6 @@ module.exports = class Mysql {
             sql = `INSERT INTO profile_ability_certifications (certificationId, profileId) VALUES ${insertValuesSting}`;
             await conn.query(sql, arg);
 
-            // 업종 생성
-            insertValuesSting = '';
-            arg = []; // 배열 초기화
-            // query 가공
-            profileAbilityIndustryIds.forEach((industryId) => {
-                if (!arg.length) {
-                    insertValuesSting += '(?, ?)';
-                } else {
-                    insertValuesSting += ', (?, ?)';
-                }
-                arg.push(industryId, profileId);
-            });
-            sql = `INSERT INTO profile_ability_industries (industryId, profileId) VALUES ${insertValuesSting}`;
-            await conn.query(sql, arg);
-
             // 과제 생성
             insertValuesSting = '';
             arg = []; // 배열 초기화
@@ -2526,14 +2484,14 @@ module.exports = class Mysql {
 
             // 기타(인증, 업종) 생성
             if (
-                profileAbilityEtcEntity &&
-                Object.keys(profileAbilityEtcEntity).length
+                profileEtcCertificationsEntity &&
+                Object.keys(profileEtcCertificationsEntity).length
             ) {
-                let { etcCertification, etcIndustry } = profileAbilityEtcEntity;
-                sql = `INSERT INTO profile_ability_etc 
-                (etcCertification, etcIndustry, profileId) 
-                VALUES (?, ?, ?)`;
-                arg = [etcCertification, etcIndustry, profileId];
+                let { etcCertifications } = profileEtcCertificationsEntity;
+                sql = `INSERT INTO profile_etc_certifications 
+                (etcCertifications, profileId) 
+                VALUES (?, ?)`;
+                arg = [etcCertifications, profileId];
                 await conn.query(sql, arg);
             }
 
@@ -2639,23 +2597,29 @@ module.exports = class Mysql {
                 // query 가공
                 profileProjectHistoryEntities.forEach((projectHistoryData) => {
                     let {
-                        projectName,
-                        assignedTask,
-                        industryCategoryId,
-                        industryCategoryName,
+                        certificationId,
+                        certificationName,
+                        industryId,
+                        industryName,
+                        companyName,
+                        taskType,
+                        taskTypeName,
                         projectStartDate,
                         projectEndDate,
                     } = projectHistoryData;
                     if (!arg.length) {
-                        insertValuesSting += '(?, ?, ?, ?, ?, ?, ?)';
+                        insertValuesSting += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
                     } else {
-                        insertValuesSting += ', (?, ?, ?, ?, ?, ?, ?)';
+                        insertValuesSting += ', (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
                     }
                     arg.push(
-                        projectName,
-                        assignedTask,
-                        industryCategoryId,
-                        industryCategoryName,
+                        certificationId,
+                        certificationName,
+                        industryId,
+                        industryName,
+                        companyName,
+                        taskType,
+                        taskTypeName,
                         projectStartDate,
                         projectEndDate,
                         profileId
@@ -2663,7 +2627,7 @@ module.exports = class Mysql {
                 });
 
                 sql = `INSERT INTO profile_project_history 
-                 (projectName, assignedTask, industryCategoryId, industryCategoryName,projectStartDate, projectEndDate, profileId)
+                 (certificationId, certificationName, industryId, industryName, companyName, taskType, taskTypeName, projectStartDate, projectEndDate, profileId)
                  VALUES ${insertValuesSting}`;
                 await conn.query(sql, arg);
             }
@@ -2709,11 +2673,11 @@ module.exports = class Mysql {
      * @returns {Promise} consultantProfilesResult[0] - 프로필 정보 배열
      */
     async getProfiles({ consultantUserId }) {
-        let sql, arg;
+        console.log('도착 ========', consultantUserId);
         const conn = await this.pool.getConnection();
         try {
-            sql = `SELECT * FROM profiles WHERE consultantUserId = ? AND confirmCompleteDate IS NOT NULL`;
-            arg = [consultantUserId];
+            const sql = `SELECT * FROM profiles WHERE consultantUserId = ? AND confirmCompleteDate IS NOT NULL`;
+            const arg = [consultantUserId];
 
             const consultantProfilesResult = await conn.query(sql, arg);
             return consultantProfilesResult[0];
@@ -2814,42 +2778,42 @@ module.exports = class Mysql {
         }
     }
 
-    /**
-     * @description 프로필 업종 리스트 가져오기
-     * @param {number} profileId - 프로필 id
-     * @returns {Promise} ProfileAbilityIndustriesResult[0] 업종 정보 배열
-     */
-    async getProfileAbilityIndustries({ profileId }) {
-        let sql, arg;
-        const conn = await this.pool.getConnection();
-        try {
-            sql = `SELECT * FROM profile_ability_industries WHERE profileId = ?`;
-            arg = [profileId];
-            const profileAbilityIndustriesResult = await conn.query(sql, arg);
+    // /**
+    //  * @description 프로필 업종 리스트 가져오기
+    //  * @param {number} profileId - 프로필 id
+    //  * @returns {Promise} ProfileAbilityIndustriesResult[0] 업종 정보 배열
+    //  */
+    // async getProfileAbilityIndustries({ profileId }) {
+    //     let sql, arg;
+    //     const conn = await this.pool.getConnection();
+    //     try {
+    //         sql = `SELECT * FROM profile_ability_industries WHERE profileId = ?`;
+    //         arg = [profileId];
+    //         const profileAbilityIndustriesResult = await conn.query(sql, arg);
 
-            return profileAbilityIndustriesResult[0];
-        } catch (error) {
-            console.error('DB에러 : ', error);
-            throw new DatabaseError(error.message, error.errno);
-        } finally {
-            conn.release();
-        }
-    }
+    //         return profileAbilityIndustriesResult[0];
+    //     } catch (error) {
+    //         console.error('DB에러 : ', error);
+    //         throw new DatabaseError(error.message, error.errno);
+    //     } finally {
+    //         conn.release();
+    //     }
+    // }
 
     /**
      * @description 프로필 기타 정보 가져오기
      * @param {number} profileId - 프로필 id
-     * @returns {Promise} profileAbilityEtcResult[0][0] 기타 정보 객체
+     * @returns {Promise} profileEtcCertificationsResult[0][0] 기타 정보 객체
      */
-    async getProfileAbilityEtc({ profileId }) {
+    async getProfileEtcCertifications({ profileId }) {
         let sql, arg;
         const conn = await this.pool.getConnection();
         try {
-            sql = `SELECT etcCertification, etcIndustry FROM profile_ability_etc WHERE profileId = ?`;
+            sql = `SELECT etcCertifications FROM profile_etc_certifications WHERE profileId = ?`;
             arg = [profileId];
-            const profileAbilityEtcResult = await conn.query(sql, arg);
+            const profileEtcCertificationsResult = await conn.query(sql, arg);
 
-            return profileAbilityEtcResult[0][0];
+            return profileEtcCertificationsResult[0][0];
         } catch (error) {
             console.error('DB에러 : ', error);
             throw new DatabaseError(error.message, error.errno);
@@ -2939,7 +2903,7 @@ module.exports = class Mysql {
         let sql, arg;
         const conn = await this.pool.getConnection();
         try {
-            sql = `SELECT projectName, assignedTask, industryCategoryId, industryCategoryName, projectStartDate, projectEndDate
+            sql = `SELECT certificationId, certificationName, industryId, industryName, companyName, taskType, taskTypeName, projectStartDate, projectEndDate
             FROM profile_project_history
             WHERE profileId = ?`;
             arg = [profileId];
@@ -2970,6 +2934,64 @@ module.exports = class Mysql {
             return profileUploadFilesResults[0];
         } catch (error) {
             console.error('DB에러 : ', error);
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+    /**
+     * @description 프로필 업로드 파일 리스트 삭제하기
+     * @param {number} profileUploadFileId - 프로필 업로드 파일 id
+     */
+    async deleteProfileUploadFiles(profileUploadFilesEntities) {
+        let sql, arg;
+        const conn = await this.pool.getConnection();
+        try {
+            await conn.beginTransaction();
+
+            let conditionString = '';
+            arg = [];
+            if (profileUploadFilesEntities.length === 1) {
+                conditionString += 'profileUploadFileId = ?';
+                arg.push(profileUploadFilesEntities[0]);
+            } else {
+                for (let i = 0; i < profileUploadFilesEntities.length; i++) {
+                    if (i === 0) {
+                        conditionString += 'profileUploadFileId IN (?';
+                    } else if (i === profileUploadFilesEntities.length - 1) {
+                        conditionString += ', ?)';
+                    } else {
+                        conditionString += ', ?';
+                    }
+                    arg.push(profileUploadFilesEntities[i]);
+                }
+            }
+            sql = `SELECT * FROM profile_upload_files WHERE ${conditionString}`;
+            const profileUploadFilesResult = await conn.query(sql, arg);
+            const profileUploadFilesInfo = profileUploadFilesResult[0];
+
+            sql = `DELETE FROM profile_upload_files WHERE ${conditionString}`;
+            await conn.query(sql, arg);
+
+            // S3 파일 삭제
+            // 이미 업로드한 파일이 있다면 파일 경로들이 있는 배열로 가공
+            let profileUploadFilesPath;
+            if (profileUploadFilesInfo && !!profileUploadFilesInfo.length) {
+                profileUploadFilesPath = profileUploadFilesInfo.map(
+                    (fileInfo) => fileInfo.filePath
+                );
+            }
+            if (!!profileUploadFilesPath) {
+                await storageService.deleteUploadFilesInStorage(
+                    profileUploadFilesPath
+                );
+            }
+
+            await conn.commit();
+            return;
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
