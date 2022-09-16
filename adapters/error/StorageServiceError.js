@@ -1,4 +1,4 @@
-// Cogntio 에러
+// 저장서비스(S3) 오류
 module.exports = class StorageServiceError extends Error {
     constructor(message, data) {
         super();
@@ -18,36 +18,6 @@ module.exports = class StorageServiceError extends Error {
             // case 'Incorrect username or password.':
             //     statusCode = 401;
             //     break;
-            // case 'Password attempts exceeded':
-            //     statusCode = 401;
-            //     break;
-            // case 'User does not exist.':
-            //     statusCode = 404;
-            //     break;
-            // case 'Access Token has expired':
-            //     statusCode = 401;
-            //     break;
-            // case 'Invalid Access Token':
-            //     statusCode = 401;
-            //     break;
-            // case 'Could not verify signature for Access Token':
-            //     statusCode = 401;
-            //     break;
-            // case 'Invalid Refresh Token':
-            //     statusCode = 401;
-            //     break;
-            // case 'requested token is invalid':
-            //     statusCode = 401;
-            //     break;
-            // case 'claim made for unknown kid':
-            //     statusCode = 401;
-            //     break;
-            // case 'claim issuer is invalid':
-            //     statusCode = 401;
-            //     break;
-            // case 'claim use is not access':
-            //     statusCode = 401;
-            //     break;
             default:
                 statusCode = 500;
         }
@@ -59,36 +29,6 @@ module.exports = class StorageServiceError extends Error {
         switch (message) {
             // case 'Incorrect username or password.':
             //     errMessage = 'Incorrect username or password.';
-            //     break;
-            // case 'Password attempts exceeded':
-            //     errMessage = 'Password attempts exceeded';
-            //     break;
-            // case 'User does not exist.':
-            //     errMessage = 'User does not exist.';
-            //     break;
-            // case 'Access Token has expired':
-            //     errMessage = 'Token expired';
-            //     break;
-            // case 'Invalid Access Token':
-            //     errMessage = 'Not authentication';
-            //     break;
-            // case 'Could not verify signature for Access Token':
-            //     errMessage = 'Not authentication';
-            //     break;
-            // case 'Invalid Refresh Token':
-            //     errMessage = 'Not authentication';
-            //     break;
-            // case 'requested token is invalid':
-            //     errMessage = 'Not authentication';
-            //     break;
-            // case 'claim made for unknown kid':
-            //     errMessage = 'Not authentication';
-            //     break;
-            // case 'claim issuer is invalid':
-            //     errMessage = 'Not authentication';
-            //     break;
-            // case 'claim use is not access':
-            //     errMessage = 'Not authentication';
             //     break;
             default:
                 errMessage = 'Storage service error';

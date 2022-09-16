@@ -1,3 +1,5 @@
+// TODO : 레디스 오류들 확인 후 Error class 처리 - 현재 토큰만 사용해서 토큰오류로 처리
+// redis
 const redis = require('redis');
 const redisClient = redis.createClient({
     host: '127.0.0.1',
@@ -18,7 +20,6 @@ module.exports = {
             return token;
         } catch (error) {
             throw error;
-            // throw new ServiceAuthenticationError(error.message, error.name);
         }
     },
     async setToken({ key, value }) {
@@ -28,7 +29,6 @@ module.exports = {
             return;
         } catch (error) {
             throw error;
-            // throw new ServiceAuthenticationError(error.message, error.name);
         }
     },
 };

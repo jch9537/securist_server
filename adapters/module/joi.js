@@ -25,6 +25,14 @@ const academicTypeReg = /^[0-1]$/;
 const graduationTypeReg = /^[0-7]$/;
 
 module.exports = {
+    // 타 서버 인증 데이터 유효성 확인 ===================================
+    // 인증요청
+    createServiceTokenSchema: Joi.object({
+        serviceType: Joi.string().required(),
+        serviceName: Joi.string().required(),
+        servicePassword: Joi.string().required(),
+    }),
+
     // ============================== 인증 처리 유효성 확인 ===================================
 
     // 사용자 토큰 APIs-------------------------------------------------
@@ -78,7 +86,8 @@ module.exports = {
     // id token 으로 가져온 사용자 정보 유효성 확인 : 유효성 보완하기!!
     getUserDataByIdTokenSchema: Joi.object({
         email: Joi.string().email().required(),
-        name: Joi.string().max(20),
+        name: Joi.string().max(20).required(),
+        userType: Joi.number().min(0).max(2).required(),
         passwordUpdateDate: Joi.string(),
         id: Joi.string(),
         authTime: Joi.number(),

@@ -6,6 +6,9 @@ module.exports = {
     ClientUsersEntity: require('./ClientUsersEntity'),
     ClientCompaniesEntity: require('./ClientCompaniesEntity'),
     ClientUserAndCompanyEntity: require('./ClientUserAndCompanyEntity'),
+    LinkedClientUsersCompaniesEntity: require('./LinkedClientUsersCompaniesEntity'),
+    ClientGradeInfoEntity: require('./ClientGradeInfoEntity'),
+    VouchersEntity: require('./VouchersEntity'),
 
     // 컨설턴트
     ConsultantUsersEntity: require('./ConsultantUsersEntity'),

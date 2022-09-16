@@ -1,4 +1,4 @@
-const awsCognito = require('../../infrastructure/webService/authService/awsCognito'); // 테스트용 모듈 import
+// const awsCognito = require('../../infrastructure/webService/authService/awsCognito'); // 테스트용 모듈 import
 
 // 사용자 처리 어댑터
 const { auth, repository } = require('../outbound');
@@ -144,35 +144,35 @@ module.exports = class AuthAdapter {
             throw error;
         }
     }
-    // 테스트용 함수(cognito 바로 연결 : 관리자 권한 처리) -------------------------------------------------------------
+    // // 테스트용 함수(cognito 바로 연결 : 관리자 권한 처리) -------------------------------------------------------------
 
-    // 회원삭제
-    async deleteUserByAdmin(authData) {
-        try {
-            var test = new awsCognito();
-            let result = await test.deleteUserByAdmin(authData);
+    // // 회원삭제
+    // async deleteUserByAdmin(authData) {
+    //     try {
+    //         var test = new awsCognito();
+    //         let result = await test.deleteUserByAdmin(authData);
 
-            return result;
-        } catch (error) {
-            return error;
-        }
-    }
-    async disableUserByAdmin(userParam) {
-        try {
-            var test = new awsCognito();
-            let result = await test.disableUserByAdmin(userParam.id);
-            return result;
-        } catch (error) {
-            return error;
-        }
-    }
-    async enableUserByAdmin(userParam) {
-        try {
-            var test = new awsCognito();
-            let result = await test.enableUserByAdmin(userParam.id);
-            return result;
-        } catch (error) {
-            return error;
-        }
-    }
+    //         return result;
+    //     } catch (error) {
+    //         return error;
+    //     }
+    // }
+    // async disableUserByAdmin(userParam) {
+    //     try {
+    //         var test = new awsCognito();
+    //         let result = await test.disableUserByAdmin(userParam.id);
+    //         return result;
+    //     } catch (error) {
+    //         return error;
+    //     }
+    // }
+    // async enableUserByAdmin(userParam) {
+    //     try {
+    //         var test = new awsCognito();
+    //         let result = await test.enableUserByAdmin(userParam.id);
+    //         return result;
+    //     } catch (error) {
+    //         return error;
+    //     }
+    // }
 };
