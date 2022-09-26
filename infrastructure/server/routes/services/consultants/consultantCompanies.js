@@ -2,10 +2,9 @@
 const express = require('express');
 const router = express.Router();
 
-const { clientUsersAdapter } = require('../../../../adapters/inbound');
-const { extractToken, decryptIdToken } = require('../../middlewares');
-const { logger } = require('../../../../adapters/module/logger');
-const { SuccessResponse } = require('../../../../adapters/response');
+const { clientUsersAdapter } = require('../../../../../adapters/inbound');
+const { logger } = require('../../../../../adapters/module/logger');
+const { SuccessResponse } = require('../../../../../adapters/response');
 
 // // 클라이언트 리스트 가져오기 : 클라이언트 컨설턴트 공통
 // router.get('/', async (req, res, next) => {

@@ -11,8 +11,7 @@ const {
 const { logger } = require('../../../../adapters/module/logger');
 const { SuccessResponse } = require('../../../../adapters/response');
 
-router.use(extractToken);
-router.use(decryptIdToken);
+router.use(extractToken, decryptIdToken);
 
 router.use('/profile', profileRouter);
 
@@ -57,24 +56,7 @@ router.put('/', async (req, res, next) => {
         next(error);
     }
 });
-// // 사용자 정보 변경 - 컨설턴트 공통 : 입금정보
-// router.put('/info/bankinfo', async (req, res, next) => {
-//     let result, response;
-//     try {
-//         let userData = req.userDataByIdToken;
-//         let reqBodyData = req.filteredBody;
-//         console.log('PUT - /info/bankinfo 요청 : ', userData, reqBodyData);
 
-//         result = await myAdapter.updateBankInfo(userData, reqBodyData);
-//         console.log('PUT - /info/bankinfo 응답 : ', result);
-
-//         response = new SuccessResponse(result.message, result.data);
-//         res.status(200).send(response);
-//     } catch (error) {
-//         console.error('PUT - /info/bankinfo 에러 응답 : ', error);
-//         next(error);
-//     }
-// });
 // 회원 탈퇴 : 윤이사님 확인 후 처리 : 정책논의와 다른 기능완성 후 작업진행!!
 router.delete('/', async (req, res, next) => {
     let result, response;
@@ -95,3 +77,22 @@ router.delete('/', async (req, res, next) => {
 });
 
 module.exports = router;
+
+// // 사용자 정보 변경 - 컨설턴트 공통 : 입금정보
+// router.put('/info/bankinfo', async (req, res, next) => {
+//     let result, response;
+//     try {
+//         let userData = req.userDataByIdToken;
+//         let reqBodyData = req.filteredBody;
+//         console.log('PUT - /info/bankinfo 요청 : ', userData, reqBodyData);
+
+//         result = await myAdapter.updateBankInfo(userData, reqBodyData);
+//         console.log('PUT - /info/bankinfo 응답 : ', result);
+
+//         response = new SuccessResponse(result.message, result.data);
+//         res.status(200).send(response);
+//     } catch (error) {
+//         console.error('PUT - /info/bankinfo 에러 응답 : ', error);
+//         next(error);
+//     }
+// });

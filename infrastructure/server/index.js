@@ -10,7 +10,7 @@ const ip = process.env.SERVER_IP || 'localhost';
 const port = process.env.SERVER_PORT || 3000;
 
 const routes = require('./routes');
-const { Sentry, sentryInit } = require('../webService/monitorService/sentry');
+const { Sentry, sentryInit } = require('../webService/monitorService');
 const { logger } = require('../../adapters/module');
 const { sanitizer, swagger } = require('../server/middlewares');
 const { swaggerUi, specs } = swagger;

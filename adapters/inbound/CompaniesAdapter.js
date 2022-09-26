@@ -1,5 +1,5 @@
 const { repository } = require('../outbound');
-const userAdapter = require('./UserAdapter');
+const userAdapter = require('./UserAdapters');
 const {
     GetCompanyInfo,
     GetCompanyList,
@@ -7,7 +7,7 @@ const {
     UpdateRegistrationStatus,
 } = require('../../domain/usecase/company');
 
-module.exports = class CompanyAdapter {
+module.exports = class CompaniesAdapter {
     constructor(projectService, adminService) {
         this.projectService = projectService;
         this.adminService = adminService;

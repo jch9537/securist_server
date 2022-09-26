@@ -1,5 +1,5 @@
 const ServicesAdapter = require('./ServicesAdapter');
-const AuthAdapter = require('./AuthAdapter');
+const AuthAdapter = require('./AuthAdapters');
 const MyAdapter = require('./MyAdapter');
 const ClientsAdapter = require('./clients/ClientsAdapter');
 const VouchersAdapter = require('./clients/VouchersAdapter');

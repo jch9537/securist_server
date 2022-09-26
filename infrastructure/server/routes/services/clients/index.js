@@ -8,19 +8,16 @@ const clientCompaniesRouter = require('./clientCompanies');
 const {
     clientsAdapter,
     vouchersAdapter,
-} = require('../../../../adapters/inbound');
-const { extractToken, verifyOtherServerToken } = require('../../middlewares');
-const { logger } = require('../../../../adapters/module/logger');
-const { SuccessResponse } = require('../../../../adapters/response');
-
-router.use(extractToken, verifyOtherServerToken);
+} = require('../../../../../adapters/inbound');
+const { logger } = require('../../../../../adapters/module/logger');
+const { SuccessResponse } = require('../../../../../adapters/response');
 
 router.use('/users', clientUsersRouter);
 router.use('/companies', clientCompaniesRouter);
 
 // 클라이언트 리스트 가져오기 : 관리자에서 요청
 router.get('/', async (req, res, next) => {
-    console.log('gdklsfjsdlkfjslkdjf============', req.hostname, req.headers);
+    // console.log('gdklsfjsdlkfjslkdjf============', req.hostname, req.headers); // 요청 경로 확인
     try {
         console.log('GET - /api/user/clients 요청 : ');
 
@@ -39,7 +36,6 @@ router.get('/', async (req, res, next) => {
 
 // 클라이언트 정보 가져오기 : 관리자에서 요청
 router.get('/:clientUserId', async (req, res, next) => {
-    console.log('gdklsfjsdlkfjslkdjf============', req.host, req.headers);
     try {
         let reqParamsData = req.params;
         console.log(

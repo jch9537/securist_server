@@ -2,28 +2,29 @@
 const express = require('express');
 const router = express.Router();
 // 미들웨어
-const { uploadFilesInStorage } = require('../../../webService/storageService');
-const { sanitizer } = require('../../middlewares');
-const { extractToken, decryptIdToken } = require('../../middlewares');
+const {
+    uploadFilesInStorage,
+} = require('../../../../webService/storageService');
+const { sanitizer } = require('../../../middlewares');
 // 모듈
 const {
     GetConsultantUserDto,
     UpdateConsultantUserDto,
-} = require('../../../../adapters/dtos/requestDto/consultantsDto/consultantUsersDto');
+} = require('../../../../../adapters/dtos/requestDto/consultantsDto/consultantUsersDto');
 const {
     GetProfilesDto,
     GetProfileDto,
     UpdateProfileDto,
-} = require('../../../../adapters/dtos/requestDto/profileDto');
+} = require('../../../../../adapters/dtos/requestDto/profileDto');
 const {
     CreateUploadFilesDto,
-} = require('../../../../adapters/dtos/requestDto/uploadFilesDto');
+} = require('../../../../../adapters/dtos/requestDto/uploadFilesDto');
 const {
     consultantUsersAdapter,
     profilesAdapter,
-} = require('../../../../adapters/inbound');
-const { logger } = require('../../../../adapters/module/logger');
-const { SuccessResponse } = require('../../../../adapters/response');
+} = require('../../../../../adapters/inbound');
+const { logger } = require('../../../../../adapters/module/logger');
+const { SuccessResponse } = require('../../../../../adapters/response');
 
 // 컨설턴트 리스트 가져오기
 router.get('/', async (req, res, next) => {

@@ -2,10 +2,9 @@
 const express = require('express');
 const router = express.Router();
 
-const { clientUsersAdapter } = require('../../../../adapters/inbound');
-const { extractToken, decryptIdToken } = require('../../middlewares');
-const { logger } = require('../../../../adapters/module/logger');
-const { SuccessResponse } = require('../../../../adapters/response');
+const { clientUsersAdapter } = require('../../../../../adapters/inbound');
+const { logger } = require('../../../../../adapters/module/logger');
+const { SuccessResponse } = require('../../../../../adapters/response');
 
 // 클라이언트 리스트 가져오기 : 관리자에서 요청
 router.get('/', async (req, res, next) => {
@@ -57,8 +56,5 @@ router.get('/:clientUserId', async (req, res, next) => {
     }
 });
 // 삭제는 없음, 관리자 페이지에서 클라이언트 사용자 수정 부분과 기업 수정부분 확인 후 API 생성
-
-// 사용자 페이지 ---------------------------------------------------
-router.use(extractToken);
 
 module.exports = router;

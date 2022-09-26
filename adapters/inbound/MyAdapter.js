@@ -9,10 +9,7 @@ const {
 const { repository } = require('../outbound');
 
 module.exports = class MyAdapter {
-    constructor(projectService, adminService) {
-        this.projectService = projectService;
-        this.adminService = adminService;
-    }
+    constructor() {}
     // 내 정보 가져오기
     async getMyInfo(myData) {
         console.log(
