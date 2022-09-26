@@ -4,4 +4,5 @@ module.exports = {
     repository: require('./repository'),
     // sender: require('./sender'),
     storage: require('./storage'),
+    service: require('./service'),
 };

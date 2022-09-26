@@ -1,2 +1,2 @@
-const awsS3 = require('./awsS3');
+const awsS3 = require('./S3');
 module.exports = new awsS3();

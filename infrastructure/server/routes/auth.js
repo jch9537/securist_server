@@ -176,8 +176,7 @@ router.delete('/:email', async (req, res, next) => {
     }
 });
 
-// access Token or refresh token 사용 api =======================================================
-router.use(extractToken);
+router.use(extractToken); // // access Token or refresh token 사용 api =====
 
 // 로그아웃
 router.get('/logout', async (req, res, next) => {
@@ -252,10 +251,10 @@ router.get('/token/reissuance', async (req, res, next) => {
     }
 });
 
-// =============id token 사용
+router.use(decryptIdToken); // ============= id token 사용
 
 // 사용자 확인 : 로그인 흐름과 같음
-router.post('/verification', decryptIdToken, async (req, res, next) => {
+router.post('/verification', async (req, res, next) => {
     let result, response;
     try {
         let userData = req.userDataByIdToken;

@@ -1,12 +1,10 @@
 module.exports = {
-    DatabaseError: require('./DatabaseError'),
-    // UpdatedDatabaseError: require('./UpdatedDatabaseError'),// 추후 Database에러를 UpdatedDatabaseError로 교체
-    ServiceAuthenticationError: require('./ServiceAuthenticationError'),
-    AuthServiceError: require('./AuthServiceError'),
-    EmailServiceError: require('./EmailServiceError'),
-    MessageServiceError: require('./MessageServiceError'),
-    StorageServiceError: require('./StorageServiceError'),
-    TokenError: require('./TokenError'),
-    // MiddlewareError: require('./MiddelwareError'),
-    // CognitoError: require('./CognitoError'),
+    DatabaseError: require('./DatabaseError'), // mysql
+    ServicesError: require('./ServicesError'), // otherServer
+    StorageError: require('./StorageError'), // redis
+    AuthServiceError: require('./AuthServiceError'), // Cognito
+    EmailServiceError: require('./EmailServiceError'), // SES
+    MessageServiceError: require('./MessageServiceError'), // Solapi
+    StorageServiceError: require('./StorageServiceError'), // S3
+    TokenError: require('./TokenError'), // Token
 };

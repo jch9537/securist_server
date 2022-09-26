@@ -1,9 +1,11 @@
-// const ServiceAuthAdapter = require('./ServiceAuthAdapters');
-const AuthAdapter = require('./AuthAdapter');
+const ServicesAdapter = require('./ServicesAdapter');
+const AuthAdapter = require('./AuthAdapters');
 const MyAdapter = require('./MyAdapter');
-const ClientUsersAdapter = require('./client/ClientUsersAdapter');
-const ClientCompaniesAdapter = require('./client/ClientCompaniesAdapter');
-const ConsultantUsersAdapter = require('./consultant/ConsultantUsersAdapter');
+const ClientsAdapter = require('./clients/ClientsAdapter');
+const VouchersAdapter = require('./clients/VouchersAdapter');
+const ClientUsersAdapter = require('./clients/ClientUsersAdapter');
+const ClientCompaniesAdapter = require('./clients/ClientCompaniesAdapter');
+const ConsultantUsersAdapter = require('./consultants/ConsultantUsersAdapter');
 const ProfilesAdapter = require('./ProfilesAdapter');
 const TempProfilesAdapter = require('./TempProfilesAdapter');
 const TempUploadFilesAdapter = require('./TempUploadFilesAdapter');
@@ -16,28 +18,29 @@ const StorageAdapter = require('./StorageAdapter');
 const {
     projectService,
     adminService,
-} = require('../../infrastructure/services');
+} = require('../../infrastructure/otherServer');
 
 module.exports = {
+    // 타 서버
+    servicesAdapter: new ServicesAdapter(),
     // 인증
-    authAdapter: new AuthAdapter(projectService, adminService),
-    storageAdapter: new StorageAdapter(projectService, adminService),
+    authAdapter: new AuthAdapter(),
+    storageAdapter: new StorageAdapter(),
     // 내 정보
-    myAdapter: new MyAdapter(projectService, adminService),
+    myAdapter: new MyAdapter(),
     // 클라이언트
-    clientUsersAdapter: new ClientUsersAdapter(projectService, adminService),
+    clientsAdapter: new ClientsAdapter(),
+    vouchersAdapter: new VouchersAdapter(),
+    clientUsersAdapter: new ClientUsersAdapter(),
     clientCompaniesAdapter: new ClientCompaniesAdapter(
         projectService,
         adminService
     ),
     // 컨설턴트
-    consultantUsersAdapter: new ConsultantUsersAdapter(
-        projectService,
-        adminService
-    ),
+    consultantUsersAdapter: new ConsultantUsersAdapter(),
     // 프로필
-    profilesAdapter: new ProfilesAdapter(projectService, adminService),
-    tempProfilesAdapter: new TempProfilesAdapter(projectService, adminService), // 프로필 임시저장
+    profilesAdapter: new ProfilesAdapter(),
+    tempProfilesAdapter: new TempProfilesAdapter(), // 프로필 임시저장
     tempUploadFilesAdapter: new TempUploadFilesAdapter(),
 
     // consultantCompaniesAdapter: new ConsultantCompaniesAdapter(
@@ -47,5 +50,4 @@ module.exports = {
     // userAdapter: new UserAdapter(projectService, adminService),
     // companyAdapter: new CompanyAdapter(projectService, adminService),
     // profileAdapter: new ProfileAdapter(projectService, adminService),
-    // serviceAuthAdapter: new ServiceAuthAdapter(projectService, adminService),
 };

@@ -2,15 +2,18 @@ const Database = require('../../../infrastructure/database');
 const db = new Database();
 const storage = require('../../../infrastructure/database/redis');
 
-const ServiceRepository = require('./ServiceRepository');
+const TokenRepository = require('./token/TokenRepository');
 const UserRepository = require('./UserRepository');
 const CompanyRepository = require('./CompanyRepository');
 const ProfileRepository = require('./ProfileRepository');
 
 // 클라이언트
-const ClientUsersRepository = require('./client/ClientUsersRepository');
-const ClientCompaniesRepository = require('./client/ClientCompaniesRepository');
-const ClientUserAndCompanyRepository = require('./relation/ClientUserAndCompanyRepository');
+const ClientUsersRepository = require('./clients/ClientUsersRepository');
+const ClientCompaniesRepository = require('./clients/ClientCompaniesRepository');
+const LinkedClientUsersCompaniesRepository = require('./clients/LinkedClientUsersCompaniesRepository');
+const ClientGradeInfoRepository = require('./clients/ClientGradeInfoRepository');
+const VouchersRepository = require('./clients/VouchersRepository');
+// const ClientUserAndCompanyRepository = require('./relation/ClientUserAndCompanyRepository');
 // 컨설턴트
 const ConsultantUsersRepository = require('./consultant/ConsultantUsersRepository');
 // const ConsultingCompaniesRepository = require('./company/ConsultingCompaniesRepository');
@@ -39,14 +42,19 @@ const ProfileProjectHistoryRepository = require('./profile/ProfileProjectHistory
 const ProfileUploadFilesRepository = require('./profile/ProfileUploadFilesRepository');
 
 module.exports = {
-    serviceRepository: new ServiceRepository(storage),
+    tokenRepository: new TokenRepository(storage),
     userRepository: new UserRepository(db),
     companyRepository: new CompanyRepository(db),
     profileRepository: new ProfileRepository(db),
     //컨설턴트
     clientUsersRepository: new ClientUsersRepository(db),
+    linkedClientUsersCompaniesRepository: new LinkedClientUsersCompaniesRepository(
+        db
+    ),
     clientCompaniesRepository: new ClientCompaniesRepository(db),
-    clientUserAndCompanyRepository: new ClientUserAndCompanyRepository(db),
+    clientGradeInfoRepository: new ClientGradeInfoRepository(db),
+    vouchersRepository: new VouchersRepository(db),
+    // clientUserAndCompanyRepository: new ClientUserAndCompanyRepository(db),
     consultantUsersRepository: new ConsultantUsersRepository(db),
     // consultingCompaniesRepository: new ConsultingCompaniesRepository(db),
     // consultantUserAndCompanyRepository: new ConsultantUserAndCompanyRepository(

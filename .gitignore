@@ -6,8 +6,8 @@ node_modules/
 .vscode/
 
 # Eslint & Prettier 
-.eslintrc
-.prettierrc
+# .eslintrc
+# .prettierrc
 
 # dev files
 adapters/module/niceModule/CPClient.exe
