@@ -395,47 +395,23 @@ module.exports = {
     //     email: Joi.string().email().required(),
     // }),
 
-    // // ============================== 설정 관리 유효성 확인 ===================================
+    // 기본(원시) 정보 유효성 확인 ===================================
 
-    // // 권한 관리 APIs-------------------------------------------------
-    // // 권한 생성 유효성 확인
-    // createAdminAuthSchema: Joi.object({
-    //     adminAuthName: Joi.string().max(20).required(),
-    //     menuAuthorityList: Joi.array()
-    //         .items(
-    //             Joi.object({
-    //                 menuId: Joi.number().positive().required(),
-    //                 readState: Joi.number().min(0).max(1).required(),
-    //                 writeState: Joi.number().min(0).max(1).required(),
-    //                 downloadState: Joi.number().min(0).max(1).required(),
-    //             })
-    //         )
-    //         .length(28)
-    //         .required(),
-    // }),
-    // // 개별 권한 가져오기 유효성 확인
-    // getAdminAuthSchema: Joi.object({
-    //     adminAuthId: Joi.number().positive().required(),
-    // }),
-    // // 권한 수정 유효성 확인
-    // updateAdminAuthSchema: Joi.object({
-    //     adminAuthId: Joi.number().positive().required(),
-    //     adminAuthName: Joi.string().max(20),
-    //     menuAuthorityList: Joi.array()
-    //         .items(
-    //             Joi.object({
-    //                 menuId: Joi.number().positive().required(),
-    //                 readState: Joi.number().min(0).max(1),
-    //                 writeState: Joi.number().min(0).max(1),
-    //                 downloadState: Joi.number().min(0).max(1),
-    //             })
-    //         )
-    //         .min(1),
-    // }),
-    // // 권한 삭제 유효성 확인
-    // deleteAdminAuthSchema: Joi.object({
-    //     adminAuthId: Joi.number().positive().required(),
-    // }),
+    // 세부 지역 가져오기
+    getAreaSchema: Joi.object({
+        regionId: Joi.number().positive().required(),
+    }),
+
+    // ============================== 설정 관리 유효성 확인 ===================================
+
+    // 권한 관리 APIs-------------------------------------------------
+    // 선택 인증 별 과제 가져오기
+    getTaskByCertificationSchema: Joi.object({
+        certificationId: Joi.alternatives().try(
+            Joi.number().positive(),
+            Joi.array().items(Joi.number().positive()).min(2)
+        ),
+    }).required(),
 
     // // ============================== 게시판 유효성 확인 ===================================
 

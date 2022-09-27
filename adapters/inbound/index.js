@@ -1,5 +1,4 @@
-const ServicesAdapter = require('./ServicesAdapter');
-const AuthAdapter = require('./AuthAdapters');
+const AuthAdapter = require('./AuthAdapter');
 const MyAdapter = require('./MyAdapter');
 const ClientsAdapter = require('./clients/ClientsAdapter');
 const VouchersAdapter = require('./clients/VouchersAdapter');
@@ -10,6 +9,9 @@ const ProfilesAdapter = require('./ProfilesAdapter');
 const TempProfilesAdapter = require('./TempProfilesAdapter');
 const TempUploadFilesAdapter = require('./TempUploadFilesAdapter');
 const StorageAdapter = require('./StorageAdapter');
+const InfoAdapter = require('./InfoAdapter');
+const SettingsAdapter = require('./SettingsAdapter');
+const ServicesAdapter = require('./ServicesAdapter');
 // const ConsultantCompaniesAdapter = require('./consultant/ConsultantCompaniesAdapter');
 // const UserAdapter = require('./UserAdapter');
 // const CompanyAdapter = require('./CompanyAdapter');
@@ -43,6 +45,9 @@ module.exports = {
     tempProfilesAdapter: new TempProfilesAdapter(), // 프로필 임시저장
     tempUploadFilesAdapter: new TempUploadFilesAdapter(),
 
+    // user 서버요청 처리 --------------------
+    infoAdapter: new InfoAdapter(), // 기본(원시) 정보 : 지역/세부지역/업종 등
+    settingsAdapter: new SettingsAdapter(), // 설정 정보 : 인증/과제/산출물 등
     // consultantCompaniesAdapter: new ConsultantCompaniesAdapter(
     //     projectService,
     //     adminService

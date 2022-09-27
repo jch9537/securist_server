@@ -1,4 +1,4 @@
-module.exports = class Ses {
+module.exports = class AwsSes {
     constructor() {}
     sendCodeToEmail(email) {
         //코드 메일발송 ses 메서드 작성

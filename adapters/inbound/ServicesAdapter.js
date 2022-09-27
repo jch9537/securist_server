@@ -40,7 +40,7 @@ module.exports = class ServicesAdapter {
                 process.env.USER_SECRET_KEY,
                 {
                     subject: 'jwtUserToken',
-                    expiresIn: '5000ms',
+                    expiresIn: `${1000}ms`,
                     issuer: 'user_service',
                 }
             );
