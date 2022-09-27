@@ -189,7 +189,6 @@ module.exports = class AdminServer {
     // 선택 인증들의 과제 리스트 가져오기
     async getTasksByCertifications(certificationData) {
         try {
-            console.log('certificationDataaaaaaaaa', certificationData);
             let queryString = '';
             if (Array.isArray(certificationData.certificationId)) {
                 // 선택 인증이 여러개인 경우
@@ -214,6 +213,34 @@ module.exports = class AdminServer {
             //     //userType === 1 || userType === 2
             //     DTO 추가
             // }
+
+            return response.data;
+            // response.data = 응답.data : 데이터만 추출
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // 게시판 =============================================
+    // 공지사항 ------------------------
+    // 게시된 공지사항 리스트 가져오기
+    async getPostingAnnouncementBoards() {
+        try {
+            const url = `/boards/announcement/posting`;
+            const response = await this.getRequest(url);
+
+            return response.data;
+            // response.data = 응답.data : 데이터만 추출
+        } catch (error) {
+            throw error;
+        }
+    }
+    // 개별 공지사항 글 가져오기
+    async getAnnouncementBoard(announcementData) {
+        try {
+            const url = `/boards/announcement/${announcementData.announcementBoardId}`;
+            console.log('announcement   ========= ', url);
+            const response = await this.getRequest(url);
 
             return response.data;
             // response.data = 응답.data : 데이터만 추출
