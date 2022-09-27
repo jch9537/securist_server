@@ -19,15 +19,18 @@ module.exports = class AdminServer {
             const adminServiceToken = await getToken(adminServiceTokenKey);
             console.log('저장토큰 확인 ', adminServiceToken);
 
-            const response = await axios.get(`${adminServiceUrl}${url}`, {
-                headers: { Authorization: `Bearer ${adminServiceToken}` },
-            });
+            const response = await axios.get(
+                `${adminServiceUrl}/service${url}`,
+                {
+                    headers: { Authorization: `Bearer ${adminServiceToken}` },
+                }
+            );
             console.log('응답 > adminServer > getRequest ', response.data);
             return response.data;
         } catch (error) {
             console.error('서비스 에러 응답', error.response.data);
             const err = error.response.data.error;
-            if (err.message === 'jwt expired') {
+            if (err.message === 'Token expired' || err.message === 'No token') {
                 await this.requestIssueToken();
                 return await this.getRequest(url);
             } else {
@@ -41,7 +44,7 @@ module.exports = class AdminServer {
             const adminServiceToken = await getToken(adminServiceTokenKey);
 
             const response = await axios.post(
-                `${adminServiceUrl}${url}`,
+                `${adminServiceUrl}/service${url}`,
                 body,
                 {
                     headers: { Authorization: `Bearer ${adminServiceToken}` },
@@ -52,7 +55,7 @@ module.exports = class AdminServer {
         } catch (error) {
             console.error('서비스 에러 응답', error.response.data);
             const err = error.response.data.error;
-            if (err.message === 'jwt expired') {
+            if (err.message === 'Token expired' || err.message === 'No token') {
                 await this.requestIssueToken();
                 return await this.getRequest(url);
             } else {
@@ -67,7 +70,7 @@ module.exports = class AdminServer {
 
             // const response = await axios.put(`${adminServiceUrl}${url}`, body); // 테스트용 - token제외 처리
             const response = await axios.post(
-                `${adminServiceUrl}${url}`,
+                `${adminServiceUrl}/service${url}`,
                 body,
                 {
                     headers: { Authorization: `Bearer ${adminServiceToken}` },
@@ -78,7 +81,7 @@ module.exports = class AdminServer {
         } catch (error) {
             console.error('서비스 에러 응답', error.response.data);
             const err = error.response.data.error;
-            if (err.message === 'jwt expired') {
+            if (err.message === 'Token expired' || err.message === 'No token') {
                 await this.requestIssueToken();
                 return await this.getRequest(url);
             } else {
@@ -92,7 +95,7 @@ module.exports = class AdminServer {
     // 토큰 요청 --------------------------------------------------------
     // 어드민 서비스 토큰 발급 요청
     async requestIssueToken() {
-        let url = `/services/issuetoken`;
+        let url = `/issuetoken`;
         let userServiceData = {
             serviceType: userServiceType,
             serviceName: userServiceName,
@@ -117,11 +120,93 @@ module.exports = class AdminServer {
         }
     }
 
-    // 관리자 ----------------------------------------------------------
+    // 기본(원시) 정보 =================================
     // 지역 리스트 가져오기
     async getRegion() {
         try {
-            const url = `/raw/region`;
+            const url = `/info/region`;
+            const response = await this.getRequest(url);
+
+            return response.data;
+            // response.data = 응답.data : 데이터만 추출
+        } catch (error) {
+            throw error;
+        }
+    }
+    // 선택 지역의 세부 지역 리스트 가져오기
+    async getArea(regionData) {
+        try {
+            const regionId = regionData.regionId;
+            const queryString = `?regionId=${regionId}`;
+            const url = `/info/area${queryString}`;
+            const response = await this.getRequest(url);
+
+            return response.data;
+            // response.data = 응답.data : 데이터만 추출
+        } catch (error) {
+            throw error;
+        }
+    }
+    // 업종 리스트 가져오기
+    async getIndustries() {
+        try {
+            const url = `/info/industries`;
+            const response = await this.getRequest(url);
+
+            return response.data;
+            // response.data = 응답.data : 데이터만 추출
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // 인증 ===========================================
+    // 게시 완료된 인증 리스트 조회하기
+    async getCompleteCertifications() {
+        try {
+            const url = `/settings/certifications`;
+            const response = await this.getRequest(url);
+
+            return response.data;
+            // response.data = 응답.data : 데이터만 추출
+        } catch (error) {
+            throw error;
+        }
+    }
+    // 선택 인증의 모든 연결 정보 가져오기
+    async getCertificationConnectedInfo(certificationData) {
+        try {
+            const url = `/settings/certifications/${certificationData.certificationId}`;
+            const response = await this.getRequest(url);
+
+            return response.data;
+            // response.data = 응답.data : 데이터만 추출
+        } catch (error) {
+            throw error;
+        }
+    }
+    // 과제 ===========================================
+    // 선택 인증들의 과제 리스트 가져오기
+    async getTasksByCertifications(certificationData) {
+        try {
+            console.log('certificationDataaaaaaaaa', certificationData);
+            let queryString = '';
+            if (Array.isArray(certificationData.certificationId)) {
+                // 선택 인증이 여러개인 경우
+                const certificationIds = certificationData.certificationId;
+                certificationIds.forEach((certificationId, index) => {
+                    if (index === 0) {
+                        queryString += `?certificationId=${certificationId}`;
+                    } else {
+                        queryString += `&certificationId=${certificationId}`;
+                    }
+                });
+            } else {
+                // 선택인증이 하나인 경우
+                const certificationId = certificationData.certificationId;
+                queryString += `?certificationId=${certificationId}`;
+            }
+            let url = `/settings/tasks${queryString}`;
             const response = await this.getRequest(url);
             // if(userType === 3 ){
             //     DTO 추가

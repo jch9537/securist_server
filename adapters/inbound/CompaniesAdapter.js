@@ -1,5 +1,5 @@
 const { repository } = require('../outbound');
-const userAdapter = require('./UserAdapters');
+const userAdapter = require('./UserAdapter');
 const {
     GetCompanyInfo,
     GetCompanyList,

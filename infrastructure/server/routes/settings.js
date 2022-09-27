@@ -2,11 +2,10 @@
 const express = require('express');
 const router = express.Router();
 
-const { myAdapter } = require('../../../adapters/inbound');
-const { extractToken, decryptIdToken } = require('../middlewares');
+const { settingsAdapter } = require('../../../adapters/inbound');
 const {
-    UpdateMyInfoRequestDto,
-} = require('../../../adapters/dtos/requestDto/myInfoDto');
+    GetTasksByCertificationsDto,
+} = require('../../../adapters/dtos/requestDto/settingsDto');
 const { logger } = require('../../../adapters/module/logger');
 const { SuccessResponse } = require('../../../adapters/response');
 
@@ -15,7 +14,7 @@ router.get('/certifications', async (req, res, next) => {
     let result, response;
     try {
         console.log('요청 > GET > /api/admin/settings/certifications : ');
-        result = await certificationsAdapter.getCertifications();
+        result = await settingsAdapter.getCompleteCertifications();
         // console.log('응답 > GET > /api/admin/settings/certifications : ', result);
         response = new SuccessResponse(200, result);
         logger.log(
@@ -31,16 +30,16 @@ router.get('/certifications', async (req, res, next) => {
 });
 
 // 인증의 모든 연결 정보 가져오기
-router.get('/certifications/info', async (req, res, next) => {
+router.get('/certifications/:certificationId', async (req, res, next) => {
     let result, response;
     try {
-        let certificationIds = req.filteredQuery; // 이후 Dto 추가 예정
+        let certificationData = req.params; // 이후 Dto 추가 예정
         console.log(
             '요청 > GET > /api/admin/settings/certifications/info : ',
-            certificationIds
+            certificationData
         );
-        result = await certificationsAdapter.getCertificationsAllInfo(
-            certificationId
+        result = await settingsAdapter.getCertificationConnectedInfo(
+            certificationData
         );
         // console.log('응답 > GET > /api/admin/settings/certifications/:certificationId : ', result);
         response = new SuccessResponse(200, result);
@@ -60,9 +59,17 @@ router.get('/tasks', async (req, res, next) => {
     let result, response;
     try {
         // let certificationId = req.params; // 이후 Dto 추가 예정
-        let certificationId = req.filteredQuery;
-        // console.log("요청 > GET > /api/admin/settings/certifications/:certificationId : ");
-        result = await tasksAdapter.getTasksByCertifications(certificationId);
+        // let certificationId = req.filteredQuery;
+        const { certificationData } = new GetTasksByCertificationsDto(
+            req.filteredQuery
+        );
+        console.log(
+            '요청 > GET > /api/admin/settings/certifications/:certificationId : ',
+            certificationData
+        );
+        result = await settingsAdapter.getTasksByCertifications(
+            certificationData
+        );
         // console.log('응답 > GET > /api/admin/settings/certifications/:certificationId : ', result);
         response = new SuccessResponse(200, result);
         logger.log(

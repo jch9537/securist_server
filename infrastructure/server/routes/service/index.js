@@ -60,27 +60,6 @@ router.get('/request/issuetoken', async (req, res, next) => {
     }
 });
 
-// 지역가져오기 - 테스트용
-router.get('/region', async (req, res, next) => {
-    try {
-        // let reqBodyData = new IssueServiceTokenRequestDto(req.filteredBody);
-        // let { serviceData } = reqBodyData;
-
-        const result = await adminServer.getRegion();
-
-        const response = new SuccessResponse(200, result);
-        logger.log(
-            'info',
-            'POST /api/admin/services/issuetoken',
-            response.message
-        );
-        res.send(response);
-    } catch (error) {
-        console.log('라우터 에러 : ', error);
-        next(error);
-    }
-});
-
 // 타 서버 데이터 요청에 대해 처리/응답 API ===================================
 router.use(extractToken, verifyOtherServerToken);
 
