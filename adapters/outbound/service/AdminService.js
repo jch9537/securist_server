@@ -79,10 +79,31 @@ module.exports = class AdminService {
         }
     }
     // 개별 공지사항 글 가져오기
-    async getAnnouncementBoard(announcementData) {
+    async getAnnouncementBoard(announcementBoardData) {
         try {
             const result = await this.adminServer.getAnnouncementBoard(
-                announcementData
+                announcementBoardData
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    // 교육 게시판 ------------------------
+    // 게시된 교육 게시판 리스트 가져오기
+    async getPostingEducationBoards() {
+        try {
+            const result = await this.adminServer.getPostingEducationBoards();
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    // 개별 교육 게시판 글 가져오기
+    async getEducationBoard(educationBoardData) {
+        try {
+            const result = await this.adminServer.getEducationBoard(
+                educationBoardData
             );
             return result;
         } catch (error) {

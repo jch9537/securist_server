@@ -236,10 +236,36 @@ module.exports = class AdminServer {
         }
     }
     // 개별 공지사항 글 가져오기
-    async getAnnouncementBoard(announcementData) {
+    async getAnnouncementBoard(announcementBoardData) {
         try {
-            const url = `/boards/announcement/${announcementData.announcementBoardId}`;
+            const url = `/boards/announcement/${announcementBoardData.announcementBoardId}`;
             console.log('announcement   ========= ', url);
+            const response = await this.getRequest(url);
+
+            return response.data;
+            // response.data = 응답.data : 데이터만 추출
+        } catch (error) {
+            throw error;
+        }
+    }
+    // 교육 게시판 ------------------------
+    // 게시된 교육 게시판 리스트 가져오기
+    async getPostingEducationBoards() {
+        try {
+            const url = `/boards/education/posting`;
+            const response = await this.getRequest(url);
+
+            return response.data;
+            // response.data = 응답.data : 데이터만 추출
+        } catch (error) {
+            throw error;
+        }
+    }
+    // 개별 교육 게시판 글 가져오기
+    async getEducationBoard(educationBoardData) {
+        try {
+            const url = `/boards/education/${educationBoardData.educationBoardId}`;
+            console.log('education   ========= ', url);
             const response = await this.getRequest(url);
 
             return response.data;
