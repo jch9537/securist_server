@@ -11,6 +11,7 @@ const TempUploadFilesAdapter = require('./TempUploadFilesAdapter');
 const StorageAdapter = require('./StorageAdapter');
 const InfoAdapter = require('./InfoAdapter');
 const SettingsAdapter = require('./SettingsAdapter');
+const BoardsAdapter = require('./BoardsAdapter');
 const ServicesAdapter = require('./ServicesAdapter');
 // const ConsultantCompaniesAdapter = require('./consultant/ConsultantCompaniesAdapter');
 // const UserAdapter = require('./UserAdapter');
@@ -45,9 +46,10 @@ module.exports = {
     tempProfilesAdapter: new TempProfilesAdapter(), // 프로필 임시저장
     tempUploadFilesAdapter: new TempUploadFilesAdapter(),
 
-    // user 서버요청 처리 --------------------
+    // admin 서버요청 처리 --------------------
     infoAdapter: new InfoAdapter(), // 기본(원시) 정보 : 지역/세부지역/업종 등
     settingsAdapter: new SettingsAdapter(), // 설정 정보 : 인증/과제/산출물 등
+    boardsAdapter: new BoardsAdapter(), // 각 게시판 정보 : 공지사항/교육게시판/정보보안
     // consultantCompaniesAdapter: new ConsultantCompaniesAdapter(
     //     projectService,
     //     adminService

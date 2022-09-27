@@ -66,4 +66,27 @@ module.exports = class AdminService {
             throw error;
         }
     }
+
+    // 게시판 =============================================
+    // 공지사항 ------------------------
+    // 게시된 공지사항 리스트 가져오기
+    async getPostingAnnouncementBoards() {
+        try {
+            const result = await this.adminServer.getPostingAnnouncementBoards();
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    // 개별 공지사항 글 가져오기
+    async getAnnouncementBoard(announcementData) {
+        try {
+            const result = await this.adminServer.getAnnouncementBoard(
+                announcementData
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
 };
