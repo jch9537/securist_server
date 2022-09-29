@@ -1,8 +1,9 @@
 const {
     ClientUsersEntity,
+    ClientGradeInfoEntity,
+    VouchersEntity,
     ClientCompaniesEntity,
     LinkedClientUsersCompaniesEntity,
-    VouchersEntity,
 } = require('./../../entities');
 
 module.exports = class GetClient {
@@ -14,6 +15,7 @@ module.exports = class GetClient {
             clientUsersRepository,
             linkedClientUsersCompaniesRepository,
             clientCompaniesRepository,
+            clientGradeInfoRepository,
             vouchersRepository,
         } = this.repository;
         try {
@@ -22,6 +24,15 @@ module.exports = class GetClient {
             const clientUserInfo = await clientUsersRepository.getClientUser(
                 clientUsersEntity
             );
+
+            // 사용자 등급 정보 가져오기
+            const clientGradeInfo = await clientGradeInfoRepository.getClientGradeInfo(
+                clientUsersEntity
+            );
+            const clientGradeInfoEntity = new ClientGradeInfoEntity(
+                clientGradeInfo
+            );
+            clientGradeInfoEntity.clientUserGrade = clientGradeInfoEntity.calculateClientUserGrade();
 
             // 바우처 금액 가져오기
             const vouchersEntity = new VouchersEntity(clientData);
@@ -49,11 +60,12 @@ module.exports = class GetClient {
             );
 
             // 응답 데이터 정리
+            clientUserInfo.clientUserGradeInfo = clientGradeInfoEntity;
+            clientUserInfo.totalVoucherAmount = voucherInfo.totalVoucherAmount;
             clientUserInfo.clientCompanyId = clientCompanyInfo.clientCompanyId;
             clientUserInfo.companyName = clientCompanyInfo.companyName;
             clientUserInfo.businessLicenseNum =
                 clientCompanyInfo.businessLicenseNum;
-            clientUserInfo.totalVoucherAmount = voucherInfo.totalVoucherAmount;
 
             return clientUserInfo;
         } catch (error) {

@@ -3,7 +3,6 @@ const express = require('express');
 const router = express.Router();
 
 const { clientCompaniesAdapter } = require('../../../../../adapters/inbound');
-const { extractToken, decryptIdToken } = require('../../../middlewares');
 const { logger } = require('../../../../../adapters/module/logger');
 const { SuccessResponse } = require('../../../../../adapters/response');
 
@@ -11,21 +10,27 @@ const { SuccessResponse } = require('../../../../../adapters/response');
 router.get('/', async (req, res, next) => {
     let result, response;
     try {
-        console.log('GET - /api/user/client/companies 요청 : ');
+        console.log('GET - /api/user/service/clients/companies 요청 : ');
 
         result = await clientCompaniesAdapter.getClientCompanies();
-        console.log('GET - /api/user/client/companies 응답 : ', result);
+        console.log(
+            'GET - /api/user/service/clients/companies 응답 : ',
+            result
+        );
 
         response = new SuccessResponse(200, result);
         logger.log(
             'info',
-            'GET - /api/user/client/companies',
+            'GET - /api/user/service/clients/companies',
             response.message
         );
 
         res.send(response);
     } catch (error) {
-        console.error('GET - /api/user/client/companies 에러 응답 : ', error);
+        console.error(
+            'GET - /api/user/service/clients/companies 에러 응답 : ',
+            error
+        );
         next(error);
     }
 });
@@ -35,27 +40,27 @@ router.get('/:clientCompanyId', async (req, res, next) => {
     try {
         let reqParamsData = req.params;
         console.log(
-            'GET - /api/user/client/companies/:clientCompanyId 요청 : ',
+            'GET - /api/user/service/clients/companies/:clientCompanyId 요청 : ',
             reqParamsData
         );
 
         result = await clientCompaniesAdapter.getClientCompany(reqParamsData);
         console.log(
-            'GET - /api/user/client/companies/:clientCompanyId 응답 : ',
+            'GET - /api/user/service/clients/companies/:clientCompanyId 응답 : ',
             result
         );
 
         response = new SuccessResponse(200, result);
         logger.log(
             'info',
-            'GET - /api/user/client/companies',
+            'GET - /api/user/service/clients/companies',
             response.message
         );
 
         res.send(response);
     } catch (error) {
         console.error(
-            'GET - /api/user/client/companies/:clientCompanyId 에러 응답 : ',
+            'GET - /api/user/service/clients/companies/:clientCompanyId 에러 응답 : ',
             error
         );
         next(error);
@@ -66,7 +71,7 @@ router.put('/:clientCompanyId', async (req, res, next) => {
     try {
         const reqBodyData = req.filteredBody;
         console.log(
-            'GET - /api/user/client/companies/:clientCompanyId 요청 : ',
+            'GET - /api/user/service/clients/companies/:clientCompanyId 요청 : ',
             reqBodyData
         );
 
@@ -74,21 +79,21 @@ router.put('/:clientCompanyId', async (req, res, next) => {
             reqBodyData
         );
         console.log(
-            'GET - /api/user/client/companies/:clientCompanyId 응답 : ',
+            'GET - /api/user/service/clients/companies/:clientCompanyId 응답 : ',
             result
         );
 
         const response = new SuccessResponse(204, result);
         logger.log(
             'info',
-            'GET - /api/user/client/companies',
+            'GET - /api/user/service/clients/companies',
             response.message
         );
 
         res.send(response);
     } catch (error) {
         console.error(
-            'GET - /api/user/client/companies/:clientCompanyId 에러 응답 : ',
+            'GET - /api/user/service/clients/companies/:clientCompanyId 에러 응답 : ',
             error
         );
         next(error);
@@ -199,3 +204,75 @@ module.exports = router;
 //         next(error);
 //     }
 // });
+
+// async getCompanyInfo(companyEntity) {
+//     console.log(
+//         '요청 > Adapter > outBound > repository > getCompanyInfo > userData : ',
+//         companyEntity
+//     );
+//     let result;
+//     try {
+//         result = await this.db.getCompanyInfo(companyEntity);
+//         console.log(
+//             '응답 > Adapter > outBound > repository > getCompanyInfo > result : ',
+//             result
+//         );
+//     } catch (error) {
+//         throw error;
+//     }
+//     return result;
+// }
+// async getCompanyList(userData) {
+//     console.log(
+//         '요청 > Adapter > outBound > repository > getCompanyList > 요청없음 : '
+//     );
+//     let result;
+//     try {
+//         result = await this.db.getCompanyList(userData);
+//         console.log(
+//             '응답 > Adapter > outBound > repository > getCompanyList > result : ',
+//             result
+//         );
+//         return result;
+//     } catch (error) {
+//         throw error;
+//     }
+// }
+// async getCompanyBelongedUsersInfo(companyEntity) {
+//     console.log(
+//         '요청 > Adapter > outBound > repository > getCompanyBelongedUsersInfo > companyEntity : ',
+//         companyEntity
+//     );
+//     let result;
+//     try {
+//         result = await this.db.getCompanyBelongedUsersInfo(companyEntity);
+//         console.log(
+//             '응답 > Adapter > outBound > repository > getCompanyBelongedUsersInfo > result : ',
+//             result
+//         );
+//         return result;
+//     } catch (error) {
+//         throw error;
+//     }
+// }
+// // UPDATE
+// async updateRegistrationStatus(relationEntity) {
+//     console.log(
+//         '요청 > Adapter > outBound > repository > updateRegistrationStatus > relationEntity: ',
+//         relationEntity
+//     );
+//     try {
+//         let result = await this.db.updateRegistrationStatus(relationEntity);
+//         console.log(
+//             '응답 > Adapter > outBound > repository > updateRegistrationStatus > result : ',
+//             result
+//         );
+//         return result;
+//     } catch (error) {
+//         console.log(
+//             '에러 > Adapter > outBound > repository > updateRegistrationStatus > error : ',
+//             error
+//         );
+//         throw error;
+//     }
+// }

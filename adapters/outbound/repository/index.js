@@ -3,9 +3,9 @@ const db = new Database();
 const storage = require('../../../infrastructure/database/redis');
 
 const TokenRepository = require('./token/TokenRepository');
-const UserRepository = require('./UserRepository');
-const CompanyRepository = require('./CompanyRepository');
-const ProfileRepository = require('./ProfileRepository');
+// const UserRepository = require('./UserRepository');
+// const CompanyRepository = require('./CompanyRepository');
+// const ProfileRepository = require('./ProfileRepository');
 
 // 클라이언트
 const ClientUsersRepository = require('./clients/ClientUsersRepository');
@@ -15,9 +15,10 @@ const ClientGradeInfoRepository = require('./clients/ClientGradeInfoRepository')
 const VouchersRepository = require('./clients/VouchersRepository');
 // const ClientUserAndCompanyRepository = require('./relation/ClientUserAndCompanyRepository');
 // 컨설턴트
-const ConsultantUsersRepository = require('./consultant/ConsultantUsersRepository');
-// const ConsultingCompaniesRepository = require('./company/ConsultingCompaniesRepository');
+const ConsultantUsersRepository = require('./consultants/ConsultantUsersRepository');
+const ConsultingCompaniesRepository = require('./consultants/ConsultingCompaniesRepository');
 // const ConsultantUserAndCompanyRepository = require('./relation/ConsultantUserAndCompanyRepository');
+const ConsultantGradeInfoRepository = require('./consultants/ConsultantGradeInfoRepository');
 // 임시저장 (프로필)
 const TempProfilesRepository = require('./temp/TempProfilesRepository');
 const TempAbilityCertificationsRepository = require('./temp/TempAbilityCertificationsRepository');
@@ -43,9 +44,9 @@ const ProfileUploadFilesRepository = require('./profile/ProfileUploadFilesReposi
 
 module.exports = {
     tokenRepository: new TokenRepository(storage),
-    userRepository: new UserRepository(db),
-    companyRepository: new CompanyRepository(db),
-    profileRepository: new ProfileRepository(db),
+    // userRepository: new UserRepository(db),
+    // companyRepository: new CompanyRepository(db),
+    // profileRepository: new ProfileRepository(db),
     //컨설턴트
     clientUsersRepository: new ClientUsersRepository(db),
     linkedClientUsersCompaniesRepository: new LinkedClientUsersCompaniesRepository(
@@ -56,10 +57,11 @@ module.exports = {
     vouchersRepository: new VouchersRepository(db),
     // clientUserAndCompanyRepository: new ClientUserAndCompanyRepository(db),
     consultantUsersRepository: new ConsultantUsersRepository(db),
-    // consultingCompaniesRepository: new ConsultingCompaniesRepository(db),
+    consultingCompaniesRepository: new ConsultingCompaniesRepository(db),
     // consultantUserAndCompanyRepository: new ConsultantUserAndCompanyRepository(
     //     db
     // ),
+    consultantGradeInfoRepository: new ConsultantGradeInfoRepository(db),
     // 임시저장 (프로필)
     tempProfilesRepository: new TempProfilesRepository(db),
     tempAbilityCertificationsRepository: new TempAbilityCertificationsRepository(

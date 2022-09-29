@@ -70,9 +70,11 @@ module.exports = class AdminService {
     // 게시판 =============================================
     // 공지사항 ------------------------
     // 게시된 공지사항 리스트 가져오기
-    async getPostingAnnouncementBoards() {
+    async getPostingAnnouncementBoards(announcementBoardData) {
         try {
-            const result = await this.adminServer.getPostingAnnouncementBoards();
+            const result = await this.adminServer.getPostingAnnouncementBoards(
+                announcementBoardData
+            );
             return result;
         } catch (error) {
             throw error;
@@ -91,9 +93,11 @@ module.exports = class AdminService {
     }
     // 교육 게시판 ------------------------
     // 게시된 교육 게시판 리스트 가져오기
-    async getPostingEducationBoards() {
+    async getPostingEducationBoards(educationBoardData) {
         try {
-            const result = await this.adminServer.getPostingEducationBoards();
+            const result = await this.adminServer.getPostingEducationBoards(
+                educationBoardData
+            );
             return result;
         } catch (error) {
             throw error;

@@ -1,5 +1,5 @@
-const { ClientUsersEntity } = require('../../../entities');
-module.exports = class UpdateClientUser {
+const { ClientUsersEntity } = require('../../entities');
+module.exports = class UpdateClient {
     constructor(repository) {
         this.repository = repository;
     }

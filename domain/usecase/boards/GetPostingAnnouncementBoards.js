@@ -7,7 +7,12 @@ module.exports = class GetPostingAnnouncementBoards {
         try {
             const { adminService } = this.service;
 
-            const postingAnnounceBoardList = await adminService.getPostingAnnouncementBoards();
+            const announcementBoardData = {
+                postingState: 0, // 게시 상태만 가져오기
+            };
+            const postingAnnounceBoardList = await adminService.getPostingAnnouncementBoards(
+                announcementBoardData
+            );
             return postingAnnounceBoardList;
         } catch (error) {
             console.error(error);

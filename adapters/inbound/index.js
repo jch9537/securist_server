@@ -2,9 +2,8 @@ const AuthAdapter = require('./AuthAdapter');
 const MyAdapter = require('./MyAdapter');
 const ClientsAdapter = require('./clients/ClientsAdapter');
 const VouchersAdapter = require('./clients/VouchersAdapter');
-const ClientUsersAdapter = require('./clients/ClientUsersAdapter');
 const ClientCompaniesAdapter = require('./clients/ClientCompaniesAdapter');
-const ConsultantUsersAdapter = require('./consultants/ConsultantUsersAdapter');
+const ConsultantsAdapter = require('./consultants/ConsultantsAdapter');
 const ProfilesAdapter = require('./ProfilesAdapter');
 const TempProfilesAdapter = require('./TempProfilesAdapter');
 const TempUploadFilesAdapter = require('./TempUploadFilesAdapter');
@@ -34,13 +33,12 @@ module.exports = {
     // 클라이언트
     clientsAdapter: new ClientsAdapter(),
     vouchersAdapter: new VouchersAdapter(),
-    clientUsersAdapter: new ClientUsersAdapter(),
     clientCompaniesAdapter: new ClientCompaniesAdapter(
         projectService,
         adminService
     ),
     // 컨설턴트
-    consultantUsersAdapter: new ConsultantUsersAdapter(),
+    consultantsAdapter: new ConsultantsAdapter(),
     // 프로필
     profilesAdapter: new ProfilesAdapter(),
     tempProfilesAdapter: new TempProfilesAdapter(), // 프로필 임시저장

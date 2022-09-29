@@ -1,8 +1,8 @@
-const { RelationEntity } = require('../../entities');
+const { RelationEntity } = require('../../../entities');
 const {
     AuthorizationException,
     UserTypeException,
-} = require('../../exceptions');
+} = require('../../../exceptions');
 
 module.exports = class {
     constructor({ userRepository, companyRepository }) {
