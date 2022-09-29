@@ -15,14 +15,14 @@ module.exports = class ClientUsersRepository {
         authEntity,
         clientUserEntity,
         clientCompaniesEntity,
-        clientUserAndCompanyEntity
+        linkedClientUsersCompaniesEntity
     ) {
         try {
             let result = await this.db.createClientUser(
                 authEntity,
                 clientUserEntity,
                 clientCompaniesEntity,
-                clientUserAndCompanyEntity
+                linkedClientUsersCompaniesEntity
             );
             return result;
         } catch (error) {

@@ -1,5 +1,5 @@
 // 게시된 공지사항 리스트 가져오기 : admin 요청
-module.exports = class GetPostingAnnouncementBoards {
+module.exports = class GetPostingEducationBoards {
     constructor(service) {
         this.service = service;
     }
@@ -7,13 +7,14 @@ module.exports = class GetPostingAnnouncementBoards {
         try {
             const { adminService } = this.service;
 
-            const announcementBoardData = {
+            const educationBoardData = {
                 postingState: 0, // 게시 상태만 가져오기
             };
-            const postingAnnounceBoardList = await adminService.getPostingAnnouncementBoards(
-                announcementBoardData
+
+            const postingEducationBoardsInfo = await adminService.getPostingEducationBoards(
+                educationBoardData
             );
-            return postingAnnounceBoardList;
+            return postingEducationBoardsInfo;
         } catch (error) {
             console.error(error);
             throw error;

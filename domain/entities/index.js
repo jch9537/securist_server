@@ -4,16 +4,17 @@ module.exports = {
     WithdrawalInfoEntity: require('./WithdrawalInfoEntity'), // 탈퇴 정보
     // 클라이언트
     ClientUsersEntity: require('./ClientUsersEntity'),
-    ClientCompaniesEntity: require('./ClientCompaniesEntity'),
-    ClientUserAndCompanyEntity: require('./ClientUserAndCompanyEntity'),
-    LinkedClientUsersCompaniesEntity: require('./LinkedClientUsersCompaniesEntity'),
     ClientGradeInfoEntity: require('./ClientGradeInfoEntity'),
     VouchersEntity: require('./VouchersEntity'),
+    ClientCompaniesEntity: require('./ClientCompaniesEntity'),
+    LinkedClientUsersCompaniesEntity: require('./LinkedClientUsersCompaniesEntity'),
 
     // 컨설턴트
     ConsultantUsersEntity: require('./ConsultantUsersEntity'),
+    ConsultantGradeInfoEntity: require('./ConsultantGradeInfoEntity'),
+    ConsultantPenaltyEntity: require('./ConsultantPenaltyEntity'),
     ConsultingCompaniesEntity: require('./ConsultingCompaniesEntity'),
-    ConsultantUserAndCompanyEntity: require('./ConsultantUserAndCompanyEntity'),
+    LinkedConsultantUsersCompaniesEntity: require('./LinkedConsultantUsersCompaniesEntity'),
 
     // 프로필 임시저장
     TempProfilesEntity: require('./TempProfilesEntity'),

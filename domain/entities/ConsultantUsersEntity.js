@@ -13,7 +13,7 @@ module.exports = class ConsultantUsersEntity {
         bankAccountOwner,
         // userIntroduce,
         applicationState,
-    }) {
+    } = {}) {
         this.consultantUserId = consultantUserId;
         this.userType = userType;
         this.name = name;

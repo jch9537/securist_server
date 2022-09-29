@@ -9,13 +9,15 @@
 const {
     AuthEntity,
     ClientUsersEntity,
+    // ClientGradeInfoEntity,
     ClientCompaniesEntity,
-    ClientUserAndCompanyEntity,
+    LinkedClientUsersCompaniesEntity,
     ConsultantUsersEntity,
+    // ConsultantGradeInfoEntity,
+    // ConsultantPenaltyEntity,
+    // LinkedConsultantUsersCompaniesEntity,
     // ConsultingCompaniesEntity,
-    // ConsultantUserAndCompanyEntity,
 } = require('../../entities');
-const { CompanyEntity } = require('../../entities');
 module.exports = class SignUp {
     constructor(repository) {
         this.repository = repository;
@@ -56,15 +58,13 @@ module.exports = class SignUp {
                     clientUserId: email,
                     name: name,
                     userType: userType,
-                    profileStatus: userType === 2 ? 1 : 0,
+                    profileStatus: 0,
                     // 기본 프로필 인증 상태 0(인증불필요 : 클라이언트/컨설팅 기업), 개인 컨설턴트 - 미인증 처리
                 };
                 let clientUserEntity = new ClientUsersEntity(userData);
 
                 let clientCompanyData = {
                     businessLicenseNum: signUpData.businessLicenseNum,
-                    companyName: signUpData.companyName,
-                    presidentName: signUpData.presidentName,
                 };
                 let clientCompaniesEntity = new ClientCompaniesEntity(
                     clientCompanyData
@@ -92,7 +92,7 @@ module.exports = class SignUp {
                 };
 
                 // 기업-사용자 연결 엔터티 생성
-                let clientUserAndCompanyEntity = new ClientUserAndCompanyEntity(
+                let linkedClientUsersCompaniesEntity = new LinkedClientUsersCompaniesEntity(
                     clientUserAndCompanyData
                 );
 
@@ -100,11 +100,11 @@ module.exports = class SignUp {
                 if (clientCompanyInfo !== undefined) {
                     // 등록된 사업자 & 관리자인 사용자 유무 확인
                     let isExistManager = await linkedClientUsersCompaniesRepository.checkExistClientCompanyManager(
-                        clientUserAndCompanyEntity
+                        linkedClientUsersCompaniesEntity
                     );
                     if (!!isExistManager) {
-                        clientUserAndCompanyEntity.belongingStatus = 0; // 관리자가 있으므로 소속 요청 중으로 처리  : 정책 확인 !!!
-                        clientUserAndCompanyEntity.managerType = null; // 관리자가 있으므로 관리자 아님 : 정책 확인 !!!
+                        linkedClientUsersCompaniesEntity.belongingStatus = 0; // 관리자가 있으므로 소속 요청 중으로 처리  : 정책 확인 !!!
+                        linkedClientUsersCompaniesEntity.managerType = null; // 관리자가 있으므로 관리자 아님 : 정책 확인 !!!
                     }
                 }
 
@@ -113,7 +113,7 @@ module.exports = class SignUp {
                     authEntity,
                     clientUserEntity,
                     clientCompaniesEntity,
-                    clientUserAndCompanyEntity
+                    linkedClientUsersCompaniesEntity
                 );
             } else {
                 // 컨설턴트 =================================================================

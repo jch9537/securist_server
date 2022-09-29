@@ -1,4 +1,4 @@
-// 어드민 서비스 요청
+// 어드민 서버 요청
 const adminServiceUrl = process.env.ADMIN_SERVICE_URL;
 const adminServiceTokenKey = process.env.ADMIN_TOKEN_KEY_USER;
 const userServiceType = process.env.USER_SERVICE_TYPE;
@@ -95,8 +95,8 @@ module.exports = class AdminServer {
     // 토큰 요청 --------------------------------------------------------
     // 어드민 서비스 토큰 발급 요청
     async requestIssueToken() {
-        let url = `/issuetoken`;
-        let userServiceData = {
+        const url = `/issuetoken`;
+        const userServiceData = {
             serviceType: userServiceType,
             serviceName: userServiceName,
             servicePassword: userServicePassword,
@@ -106,7 +106,7 @@ module.exports = class AdminServer {
             console.log('토큰 데이터 확인 ', response);
 
             // redis 토큰 저장
-            let storeTokenData = {
+            const storeTokenData = {
                 key: adminServiceTokenKey,
                 value: response.data.token,
             };
@@ -224,9 +224,10 @@ module.exports = class AdminServer {
     // 게시판 =============================================
     // 공지사항 ------------------------
     // 게시된 공지사항 리스트 가져오기
-    async getPostingAnnouncementBoards() {
+    async getPostingAnnouncementBoards(announcementBoardData) {
         try {
-            const url = `/boards/announcement/posting`;
+            const { postingState } = announcementBoardData;
+            const url = `/boards/announcement?postingState=${postingState}`;
             const response = await this.getRequest(url);
 
             return response.data;
@@ -236,10 +237,37 @@ module.exports = class AdminServer {
         }
     }
     // 개별 공지사항 글 가져오기
-    async getAnnouncementBoard(announcementData) {
+    async getAnnouncementBoard(announcementBoardData) {
         try {
-            const url = `/boards/announcement/${announcementData.announcementBoardId}`;
+            const url = `/boards/announcement/${announcementBoardData.announcementBoardId}`;
             console.log('announcement   ========= ', url);
+            const response = await this.getRequest(url);
+
+            return response.data;
+            // response.data = 응답.data : 데이터만 추출
+        } catch (error) {
+            throw error;
+        }
+    }
+    // 교육 게시판 ------------------------
+    // 게시된 교육 게시판 리스트 가져오기
+    async getPostingEducationBoards(educationBoardData) {
+        try {
+            const { postingState } = educationBoardData;
+            const url = `/boards/education?postingState=${postingState}`;
+            const response = await this.getRequest(url);
+
+            return response.data;
+            // response.data = 응답.data : 데이터만 추출
+        } catch (error) {
+            throw error;
+        }
+    }
+    // 개별 교육 게시판 글 가져오기
+    async getEducationBoard(educationBoardData) {
+        try {
+            const url = `/boards/education/${educationBoardData.educationBoardId}`;
+            console.log('education   ========= ', url);
             const response = await this.getRequest(url);
 
             return response.data;

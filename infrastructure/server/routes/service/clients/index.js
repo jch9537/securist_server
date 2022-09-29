@@ -2,7 +2,6 @@
 const express = require('express');
 const router = express.Router();
 
-const clientUsersRouter = require('./clientUsers');
 const clientCompaniesRouter = require('./clientCompanies');
 
 const {
@@ -12,7 +11,6 @@ const {
 const { logger } = require('../../../../../adapters/module/logger');
 const { SuccessResponse } = require('../../../../../adapters/response');
 
-router.use('/users', clientUsersRouter);
 router.use('/companies', clientCompaniesRouter);
 
 // 클라이언트 리스트 가져오기 : 관리자에서 요청

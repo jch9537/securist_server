@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { clientUsersAdapter } = require('../../../../../adapters/inbound');
+// const { clientUsersAdapter } = require('../../../../../adapters/inbound');
 const { logger } = require('../../../../../adapters/module/logger');
 const { SuccessResponse } = require('../../../../../adapters/response');
 

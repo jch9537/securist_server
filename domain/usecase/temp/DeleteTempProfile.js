@@ -1,5 +1,4 @@
-const { TempProfilesEntity, TempUploadFilesEntity } = require('../../entities');
-const { UserTypeException } = require('../../exceptions');
+const { TempProfilesEntity } = require('../../entities');
 module.exports = class DeleteTempProfile {
     constructor(repository) {
         this.repository = repository;

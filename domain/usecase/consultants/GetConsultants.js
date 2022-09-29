@@ -1,4 +1,4 @@
-module.exports = class GetConsultantUsers {
+module.exports = class GetConsultants {
     constructor(repository) {
         this.repository = repository;
     }

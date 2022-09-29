@@ -3,7 +3,7 @@ const {
     GetClientCompanies,
     GetClientCompany,
     UpdateClientCompany,
-} = require('../../../domain/usecase/client/clientCompanies');
+} = require('../../../domain/usecase/clients/clientCompanies');
 
 const { repository } = require('../../outbound');
 

@@ -1,29 +1,22 @@
-/* 
-TODO : 기존 코드에서 사용자와 기업의 처리(router에서 - infra까지)를 분기하기
-// 사용자와 기업은 다른 영역으로 보고 처리하기 : 코드가 복잡하고 꼬이게 됨
-*/
-// 메서드 정의 인터페이스 - 컨트롤러
 const {
-    GetClientUsers,
-    GetClientUser,
-} = require('../../../domain/usecase/client/clientUsers');
+    GetConsultants,
+    GetConsultant,
+    UpdateConsultant,
+} = require('../../../domain/usecase/consultants');
 
 const { repository } = require('../../outbound');
 
-module.exports = class ClientUsersAdapter {
-    constructor(projectService, adminService) {
-        this.projectService = projectService;
-        this.adminService = adminService;
-    }
-    // 클라이언트 리스트 가져오기
-    async getClientUsers() {
+module.exports = class ConsultantsAdapter {
+    constructor() {}
+    // 컨설턴트 리스트 가져오기
+    async getConsultants() {
         console.log(
             '요청 > adapters > inbound > userAdaptor.js > getUsers - userId : '
         );
         let result;
         try {
-            let getClientUsers = new GetClientUsers(repository);
-            result = await getClientUsers.excute();
+            let getConsultants = new GetConsultants(repository);
+            result = await getConsultants.excute();
 
             return result;
         } catch (error) {
@@ -35,16 +28,16 @@ module.exports = class ClientUsersAdapter {
         }
     }
 
-    // 클라이언트 정보 가져오기
-    async getClientUser(clientUserData) {
+    // 컨설턴트 정보 가져오기
+    async getConsultant(consultantData) {
         console.log(
             '요청 > adapters > inbound > userAdaptor.js > getUserInfo - userId : ',
-            clientUserData
+            consultantData
         );
         let result;
         try {
-            let getClientUser = new GetClientUser(repository);
-            result = await getClientUser.excute(clientUserData);
+            let getConsultant = new GetConsultant(repository);
+            result = await getConsultant.excute(consultantData);
             return result;
         } catch (error) {
             console.log(
@@ -55,16 +48,16 @@ module.exports = class ClientUsersAdapter {
         }
     }
 
-    // 클라이언트 정보 수정하기
-    async updateClientUser(clientUserData) {
+    // 컨설턴트 정보 수정하기
+    async updateConsultant(consultantData) {
         console.log(
             '요청 > adapters > inbound > userAdaptor.js > getUserInfo - userId : ',
-            clientUserData
+            consultantData
         );
         let result;
         try {
-            let getClientUser = new GetClientUser(repository);
-            result = await getClientUser.excute(clientUserData);
+            let updateConsultant = new UpdateConsultant(repository);
+            result = await updateConsultant.excute(consultantData);
             return result;
         } catch (error) {
             console.log(
