@@ -7,7 +7,7 @@ module.exports = class ConsultantGradeInfoEntity {
         totalProjectCount,
         totalBusinessAmount,
         consultantUserId,
-    }) {
+    } = {}) {
         this.consultantGradeInfoId = consultantGradeInfoId;
         this.clientAverageScore = clientAverageScore;
         this.totalProjectCount = totalProjectCount;

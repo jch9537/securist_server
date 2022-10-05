@@ -186,9 +186,14 @@ module.exports = {
                     companyName: Joi.string().max(20),
                     projectStartDate: Joi.string().pattern(dateReg),
                     projectEndDate: Joi.string().pattern(dateReg),
-                    taskType: Joi.number().min(0).max(6),
-                    taskTypeName: Joi.string().max(20),
-                    // assignedTask: Joi.string().max(20).required(),
+                    assignedTasks: Joi.array()
+                        .items(
+                            Joi.object({
+                                taskType: Joi.number().min(0).max(6),
+                                taskTypeName: Joi.string().max(20),
+                            })
+                        )
+                        .min(1),
                 })
             )
             .min(1),
@@ -212,11 +217,10 @@ module.exports = {
         introduce: Joi.string(), // 필수 X
         // abilityIndustryIds: Joi.array() - 삭제
         //     .items(Joi.number().positive().required())
-        //     .min(1), // 필수 여부 확인!!, 수행이력의 업종과 다름이 있는지 여부 확인!!
+        //     .min(1),
         abilityCertificationIds: Joi.array()
             .items(Joi.number().positive().required())
-            .min(1)
-            .required(), // 필수
+            .min(1),
         etcCertifications: Joi.string().max(10),
         abilityTaskIds: Joi.array()
             .items(Joi.number().positive().required())
@@ -253,15 +257,22 @@ module.exports = {
         projectHistory: Joi.array() // 필수 X, 값을 넣게 된다면 각 property의 value는 모두 필수 값
             .items(
                 Joi.object({
-                    certificationId: Joi.number().positive().required(),
+                    certificationId: Joi.number().positive(), // text 작성도 하므로 필수 X
                     certificationName: Joi.string().max(20).required(),
-                    industryId: Joi.number().positive().required(),
+                    industryId: Joi.number().positive(), // text 작성도 하므로 필수 X
                     industryName: Joi.string().max(20).required(),
                     companyName: Joi.string().max(20).required(),
                     projectStartDate: Joi.string().pattern(dateReg).required(),
                     projectEndDate: Joi.string().pattern(dateReg).required(),
-                    taskType: Joi.number().min(0).max(6).required(),
-                    taskTypeName: Joi.string().max(20).required(),
+                    assignedTasks: Joi.array()
+                        .items(
+                            Joi.object({
+                                taskType: Joi.number().min(0).max(6).required(),
+                                taskTypeName: Joi.string().max(20).required(),
+                            })
+                        )
+                        .min(1)
+                        .required(),
                 })
             )
             .min(1),
@@ -274,11 +285,11 @@ module.exports = {
         academicScore: Joi.number().min(0).max(100).required(),
         careerScore: Joi.number().min(0).max(100).required(),
         licenseScore: Joi.number().min(0).max(100).required(),
-        confirmComment: Joi.string().required(), // 필수 확인
+        confirmComment: Joi.string().required(), // 필수
         confirmManagerName: Joi.string().max(10).required(),
         // abilityIndustryIds: Joi.array()
         //     .items(Joi.number().positive().required())
-        //     .min(1), // 필수 여부 확인!!, 수행이력의 업종과 다름이 있는지 여부 확인!!
+        //     .min(1),
         abilityCertificationIds: Joi.array()
             .items(Joi.number().positive().required())
             .min(1)
@@ -319,17 +330,22 @@ module.exports = {
         projectHistory: Joi.array() // 필수 X, 값을 넣게 된다면 각 property의 value는 모두 필수 값
             .items(
                 Joi.object({
-                    certificationId: Joi.number().positive().required(),
+                    certificationId: Joi.number().positive(), // text 작성도 하므로 필수 X
                     certificationName: Joi.string().max(20).required(),
-                    // projectName: Joi.string().max(20).required(),
-                    industryId: Joi.number().positive().required(),
+                    industryId: Joi.number().positive(), // text 작성도 하므로 필수 X
                     industryName: Joi.string().max(20).required(),
                     companyName: Joi.string().max(20).required(),
                     projectStartDate: Joi.string().pattern(dateReg).required(),
                     projectEndDate: Joi.string().pattern(dateReg).required(),
-                    taskType: Joi.number().min(0).max(6).required(),
-                    taskTypeName: Joi.string().max(20).required(),
-                    // assignedTask: Joi.string().max(20).required(),
+                    assignedTasks: Joi.array()
+                        .items(
+                            Joi.object({
+                                taskType: Joi.number().min(0).max(6).required(),
+                                taskTypeName: Joi.string().max(20).required(),
+                            })
+                        )
+                        .min(1)
+                        .required(),
                 })
             )
             .min(1),

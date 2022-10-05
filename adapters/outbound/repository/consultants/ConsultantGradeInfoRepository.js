@@ -1,4 +1,4 @@
-// 클라이언트 기업
+// 컨설턴트 등급 정보
 module.exports = class ConsultantGradeInfoRepository {
     constructor(db) {
         this.db = db;

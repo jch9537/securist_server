@@ -44,10 +44,10 @@ module.exports = class GetTempProfile {
             tempProfileInfo.abilityTaskIds = await tempAbilityTasksRepository.getTempAbilityTasks(
                 { tempProfileId }
             );
-            // 업종 정보 id 리스트 가져오기
-            tempProfileInfo.abilityIndustryIds = await tempAbilityIndustriesRepository.getTempAbilityIndustries(
-                { tempProfileId }
-            );
+            // // 업종 정보 id 리스트 가져오기 - 삭제
+            // tempProfileInfo.abilityIndustryIds = await tempAbilityIndustriesRepository.getTempAbilityIndustries(
+            //     { tempProfileId }
+            // );
             // 기타 정보 가져오기
             tempProfileInfo.abilityEtc = await tempEtcCertificationsRepository.getTempEtcCertifications(
                 { tempProfileId }

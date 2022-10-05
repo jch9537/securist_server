@@ -26,6 +26,7 @@ module.exports = {
     TempLicenseEntity: require('./TempLicenseEntity'),
     // TempProfileProjectHistoryConsultingCompanyEntity: require('./ProfileProjectHistoryConsultingCompanyEntity'),
     TempProjectHistoryEntity: require('./TempProjectHistoryEntity'),
+    TempProjectHistoryTasksEntity: require('./TempProjectHistoryTasksEntity'),
     TempUploadFilesEntity: require('./TempUploadFilesEntity'),
 
     // 프로필
@@ -38,5 +39,6 @@ module.exports = {
     ProfileLicenseEntity: require('./ProfileLicenseEntity'),
     // ProfileProjectHistoryConsultingCompanyEntity: require('./ProfileProjectHistoryConsultingCompanyEntity'),
     ProfileProjectHistoryEntity: require('./ProfileProjectHistoryEntity'),
+    ProfileProjectHistoryTasksEntity: require('./ProfileProjectHistoryTasksEntity'),
     ProfileUploadFilesEntity: require('./profileUploadFilesEntity'),
 };

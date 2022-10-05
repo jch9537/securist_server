@@ -13,7 +13,7 @@ const {
     ClientCompaniesEntity,
     LinkedClientUsersCompaniesEntity,
     ConsultantUsersEntity,
-    // ConsultantGradeInfoEntity,
+    ConsultantGradeInfoEntity,
     // ConsultantPenaltyEntity,
     // LinkedConsultantUsersCompaniesEntity,
     // ConsultingCompaniesEntity,
@@ -127,7 +127,12 @@ module.exports = class SignUp {
                     profileStatus: userType === 2 ? 1 : 0,
                     // 기본 프로필 인증 상태 0(인증불필요 : 클라이언트/컨설팅 기업), 개인 컨설턴트 - 미인증 처리
                 };
-                let consultantUsersEntity = new ConsultantUsersEntity(userData);
+                const consultantUsersEntity = new ConsultantUsersEntity(
+                    userData
+                );
+                const consultantGradeInfoEntity = new ConsultantGradeInfoEntity(
+                    userData
+                );
 
                 // 컨설팅 업체 우선 배제
                 // if (userType === 3) {
@@ -189,6 +194,7 @@ module.exports = class SignUp {
                 await consultantUsersRepository.createConsultantUser(
                     authEntity,
                     consultantUsersEntity,
+                    consultantGradeInfoEntity,
                     consultingCompaniesEntity, // 개인인 경우 undefined
                     consultantUserAndCompanyEntity
                 );
