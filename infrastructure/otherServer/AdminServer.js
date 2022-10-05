@@ -57,7 +57,7 @@ module.exports = class AdminServer {
             const err = error.response.data.error;
             if (err.message === 'Token expired' || err.message === 'No token') {
                 await this.requestIssueToken();
-                return await this.getRequest(url);
+                return await this.posttRequest(url, body);
             } else {
                 throw new ServicesError('Admin', err.message, err.code);
             }
@@ -69,7 +69,7 @@ module.exports = class AdminServer {
             const adminServiceToken = await getToken(adminServiceTokenKey);
 
             // const response = await axios.put(`${adminServiceUrl}${url}`, body); // 테스트용 - token제외 처리
-            const response = await axios.post(
+            const response = await axios.put(
                 `${adminServiceUrl}/service${url}`,
                 body,
                 {
@@ -83,7 +83,7 @@ module.exports = class AdminServer {
             const err = error.response.data.error;
             if (err.message === 'Token expired' || err.message === 'No token') {
                 await this.requestIssueToken();
-                return await this.getRequest(url);
+                return await this.putRequest(url, body);
             } else {
                 throw new ServicesError('Admin', err.message, err.code);
             }
