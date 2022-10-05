@@ -10,7 +10,7 @@ module.exports = class ProfileProjectHistoryConsultingCompanyEntity {
         projectStartDate,
         projectEndDate,
         consultingCompanyId,
-    }) {
+    } = {}) {
         this.projectHistoryId = projectHistoryId;
         this.projectName = projectName;
         this.assignedTask = assignedTask;

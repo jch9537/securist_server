@@ -538,6 +538,7 @@ module.exports = class Mysql {
     async createConsultantUser(
         authEntity,
         consultantUsersEntity,
+        consultantGradeInfoEntity,
         consultingCompaniesEntity,
         consultantUserAndCompanyEntity
     ) {
@@ -776,23 +777,52 @@ module.exports = class Mysql {
             conn.release();
         }
     }
-    // 컨설턴트 기업 -----------------------------
-    async getConsultingCompany({ businessLicenseNum }) {
-        let sql, arg;
-
+    // 컨설턴트 추가 정보 : 등급 정보 ----------------------------------
+    // 컨설턴트 등급 정보 가져오기
+    async getConsultantGradeInfo({ consultantUserId }) {
         const conn = await this.pool.getConnection();
         try {
-            await conn.beginTransaction();
-            //기업 정보 생성
-            sql = `SELECT * from consulting_companies WHERE businessLicenseNum = ?`;
-            arg = [businessLicenseNum];
+            const sql = `SELECT * FROM consultant_grade_info WHERE consultantUserId = ?`;
+            const arg = [consultantUserId];
+            const consultantGradeInfoResult = await conn.query(sql, arg);
+
+            return consultantGradeInfoResult[0][0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+    // 컨설턴트 추가 정보 : 패널티 정보 -----------------------------
+    // 컨설턴트 사용자 패널티 횟수 가져오기
+    async getCountConsultantPenalty({ consultantUserId }) {
+        const conn = await this.pool.getConnection();
+        try {
+            const sql = `SELECT COUNT(*) AS penaltyCount FROM consultant_penalty WHERE consultantUserId = ?`;
+            const arg = [consultantUserId];
+            const penaltyCountResult = await conn.query(sql, arg);
+
+            return penaltyCountResult[0][0].penaltyCount;
+        } catch (error) {
+            console.error('DB에러 : ', error);
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
+    // 컨설턴트 기업 -----------------------------
+    async getConsultingCompany({ businessLicenseNum }) {
+        const conn = await this.pool.getConnection();
+        try {
+            //기업 정보 조회
+            const sql = `SELECT * FROM consulting_companies WHERE businessLicenseNum = ?`;
+            const arg = [businessLicenseNum];
             const companyInfoResult = await conn.query(sql, arg);
 
-            await conn.commit();
             return companyInfoResult[0][0];
         } catch (error) {
             console.error('DB에러 : ', error);
-            await conn.rollback();
             throw new DatabaseError(error.message, error.errno);
         } finally {
             conn.release();
@@ -1461,7 +1491,7 @@ module.exports = class Mysql {
         tempProjectHistoryEntities,
         tempUploadFilesEntities
     ) {
-        console.log('도착 : ', tempEtcCertificationsEntity);
+        console.log('도착 : ', tempProjectHistoryEntities);
         let sql, arg;
         const conn = await this.pool.getConnection();
         try {
@@ -1635,44 +1665,89 @@ module.exports = class Mysql {
                 tempProjectHistoryEntities &&
                 tempProjectHistoryEntities.length
             ) {
-                let insertValuesSting = '';
-                arg = []; // 배열 초기화
-                // query 가공
-                tempProjectHistoryEntities.forEach((projectHistoryData) => {
-                    let {
-                        certificationId,
-                        certificationName,
-                        industryId,
-                        industryName,
-                        companyName,
-                        taskType,
-                        taskTypeName,
-                        projectStartDate,
-                        projectEndDate,
-                    } = projectHistoryData;
-                    if (!arg.length) {
-                        insertValuesSting += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-                    } else {
-                        insertValuesSting += ', (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                for (let i = 0; i < tempProjectHistoryEntities.length; i++) {
+                    let insertPropertyString = '';
+                    let insertValuesString = '';
+                    arg = [];
+                    for (let key in tempProjectHistoryEntities[i]) {
+                        // assignedTasks || tempProfileId인 경우 제외
+                        if (
+                            key === 'assignedTasks' ||
+                            key === 'tempProfileId'
+                        ) {
+                            continue;
+                        } else if (!arg.length) {
+                            arg.push(tempProjectHistoryEntities[i][key]);
+                            insertPropertyString += `${key}`;
+                            insertValuesString += '?';
+                        } else {
+                            arg.push(tempProjectHistoryEntities[i][key]);
+                            insertPropertyString += `, ${key}`;
+                            insertValuesString += ', ?';
+                        }
                     }
-                    arg.push(
-                        certificationId,
-                        certificationName,
-                        industryId,
-                        industryName,
-                        companyName,
-                        taskType,
-                        taskTypeName,
-                        projectStartDate,
-                        projectEndDate,
-                        tempProfileId
-                    );
-                });
+                    arg.push(tempProfileId);
 
-                sql = `INSERT INTO temp_project_history 
-                 (certificationId, certificationName, industryId, industryName, companyName, taskType, taskTypeName, projectStartDate, projectEndDate, tempProfileId)
-                 VALUES ${insertValuesSting}`;
-                await conn.query(sql, arg);
+                    sql = `INSERT INTO temp_project_history
+                     (${insertPropertyString}, tempProfileId)
+                     VALUES (${insertValuesString}, ?)`;
+
+                    const tempProjectHistoryResult = await conn.query(sql, arg);
+                    const tempProjectHistoryId =
+                        tempProjectHistoryResult[0].insertId;
+
+                    if (
+                        tempProjectHistoryEntities[i].assignedTasks &&
+                        tempProjectHistoryEntities[i].assignedTasks.length
+                    ) {
+                        const assignedTasks =
+                            tempProjectHistoryEntities[i].assignedTasks;
+                        for (let j = 0; j < assignedTasks.length; j++) {
+                            let { taskType, taskTypeName } = assignedTasks[j];
+                            sql = `INSERT INTO temp_project_history_tasks (taskType, taskTypeName, tempProjectHistoryId) VALUES (?, ?, ?)`;
+                            arg = [
+                                taskType,
+                                taskTypeName,
+                                tempProjectHistoryId,
+                            ];
+                            await conn.query(sql, arg);
+                        }
+                    }
+                }
+                // let insertValuesSting = '';
+                // arg = []; // 배열 초기화
+                // // query 가공
+                // tempProjectHistoryEntities.forEach((projectHistoryData) => {
+                //     let {
+                //         certificationId,
+                //         certificationName,
+                //         industryId,
+                //         industryName,
+                //         companyName,
+                //         projectStartDate,
+                //         projectEndDate,
+                //     } = projectHistoryData;
+                //     if (!arg.length) {
+                //         insertValuesSting += '(?, ?, ?, ?, ?, ?, ?, ?)';
+                //     } else {
+                //         insertValuesSting += ', (?, ?, ?, ?, ?, ?, ?, ?)';
+                //     }
+                //     arg.push(
+                //         certificationId,
+                //         certificationName,
+                //         industryId,
+                //         industryName,
+                //         companyName,
+                //         projectStartDate,
+                //         projectEndDate,
+                //         tempProfileId
+                //     );
+                // });
+
+                // sql = `INSERT INTO temp_project_history
+                //  (certificationId, certificationName, industryId, industryName, companyName, projectStartDate, projectEndDate, tempProfileId)
+                //  VALUES ${insertValuesSting}`;
+                // await conn.query(sql, arg);
             }
 
             // 작성한 업로드 파일 정보가 있다면 - 업로드 파일 정보 임시저장 데이터 생성
@@ -1862,11 +1937,11 @@ module.exports = class Mysql {
      * @param {number} tempProfileId - 임시저장 프로필 id
      * @returns {Promise} tempEtcCertificationsResult[0][0] 임시저장 기타 정보 객체
      */
-    async gettempEtcCertifications({ tempProfileId }) {
+    async getTempEtcCertifications({ tempProfileId }) {
         let sql, arg;
         const conn = await this.pool.getConnection();
         try {
-            sql = `SELECT etcCertification FROM temp_etc_certifications WHERE tempProfileId = ?`;
+            sql = `SELECT etcCertifications FROM temp_etc_certifications WHERE tempProfileId = ?`;
             arg = [tempProfileId];
             const tempEtcCertificationsResult = await conn.query(sql, arg);
 
@@ -1960,13 +2035,22 @@ module.exports = class Mysql {
         let sql, arg;
         const conn = await this.pool.getConnection();
         try {
-            sql = `SELECT certificationId, certificationName, industryId, industryName, companyName, taskType, taskTypeName, projectStartDate, projectEndDate
+            sql = `SELECT tempProjectHistoryId, certificationId, certificationName, industryId, industryName, companyName, projectStartDate, projectEndDate
             FROM temp_project_history
             WHERE tempProfileId = ?`;
             arg = [tempProfileId];
             const tempProjectHistoryResult = await conn.query(sql, arg);
 
-            return tempProjectHistoryResult[0];
+            const tempProjectHistoryDatas = tempProjectHistoryResult[0];
+            for (let i = 0; i < tempProjectHistoryDatas.length; i++) {
+                sql = `SELECT taskType, taskTypeName 
+                FROM temp_project_history_tasks WHERE tempProjectHistoryId = ?`;
+                arg = [tempProjectHistoryDatas[i].tempProjectHistoryId];
+                const assignedTasksResult = await conn.query(sql, arg);
+                tempProjectHistoryDatas[i].assignedTasks =
+                    assignedTasksResult[0];
+            }
+            return tempProjectHistoryDatas;
         } catch (error) {
             console.error('DB에러 : ', error);
             throw new DatabaseError(error.message, error.errno);
@@ -2107,17 +2191,24 @@ module.exports = class Mysql {
             insertValuesSting = '';
             arg = []; // 배열 초기화
             // query 가공
-            profileAbilityCertificationIds.forEach((certificationId) => {
-                if (!arg.length) {
-                    // 배열이 빈 경우 > 처음인 경우
-                    insertValuesSting += '(?, ?)';
-                } else {
-                    insertValuesSting += ', (?, ?)';
-                }
-                arg.push(certificationId, profileId);
-            });
-            sql = `INSERT INTO profile_ability_certifications (certificationId, profileId) VALUES ${insertValuesSting}`;
-            await conn.query(sql, arg);
+
+            // 작성한 인증 정보가 있다면 - 인증 정보 생성
+            if (
+                profileAbilityCertificationIds &&
+                profileAbilityCertificationIds.length
+            ) {
+                profileAbilityCertificationIds.forEach((certificationId) => {
+                    if (!arg.length) {
+                        // 배열이 빈 경우 > 처음인 경우
+                        insertValuesSting += '(?, ?)';
+                    } else {
+                        insertValuesSting += ', (?, ?)';
+                    }
+                    arg.push(certificationId, profileId);
+                });
+                sql = `INSERT INTO profile_ability_certifications (certificationId, profileId) VALUES ${insertValuesSting}`;
+                await conn.query(sql, arg);
+            }
 
             // 과제 생성
             insertValuesSting = '';
@@ -2134,7 +2225,7 @@ module.exports = class Mysql {
             sql = `INSERT INTO profile_ability_tasks (taskId, profileId) VALUES ${insertValuesSting}`;
             await conn.query(sql, arg);
 
-            // 기타(인증, 업종) 생성
+            // 작성한 기타 인증 정보가 있다면 - 기타 인증 생성
             if (
                 profileEtcCertificationsEntity &&
                 Object.keys(profileEtcCertificationsEntity).length
@@ -2173,7 +2264,7 @@ module.exports = class Mysql {
                 await conn.query(sql, arg);
             }
 
-            // 경력 정보 생성
+            // 작성한 경력 정보가 있다면 - 경력 정보 생성
             if (profileCareerEntities && profileCareerEntities.length) {
                 insertValuesSting = '';
                 arg = []; // 배열 초기화
@@ -2207,7 +2298,7 @@ module.exports = class Mysql {
                 await conn.query(sql, arg);
             }
 
-            // 자격증 정보 생성
+            // 작성한 자격증 정보가 있다면 - 자격증 정보 생성
             if (profileLicenseEntities && profileLicenseEntities.length) {
                 insertValuesSting = '';
                 arg = []; // 배열 초기화
@@ -2239,49 +2330,93 @@ module.exports = class Mysql {
                 await conn.query(sql, arg);
             }
 
-            // 수행 정보 생성
+            // 작성한 수행 정보가 있다면 - 수행 정보 생성
             if (
                 profileProjectHistoryEntities &&
                 profileProjectHistoryEntities.length
             ) {
-                insertValuesSting = '';
-                arg = []; // 배열 초기화
-                // query 가공
-                profileProjectHistoryEntities.forEach((projectHistoryData) => {
-                    let {
-                        certificationId,
-                        certificationName,
-                        industryId,
-                        industryName,
-                        companyName,
-                        taskType,
-                        taskTypeName,
-                        projectStartDate,
-                        projectEndDate,
-                    } = projectHistoryData;
-                    if (!arg.length) {
-                        insertValuesSting += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-                    } else {
-                        insertValuesSting += ', (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                for (let i = 0; i < profileProjectHistoryEntities.length; i++) {
+                    let insertPropertyString = '';
+                    let insertValuesString = '';
+                    arg = [];
+                    for (let key in profileProjectHistoryEntities[i]) {
+                        // assignedTasks || tempProfileId인 경우 제외
+                        if (key === 'assignedTasks' || key === 'profileId') {
+                            continue;
+                        } else if (!arg.length) {
+                            arg.push(profileProjectHistoryEntities[i][key]);
+                            insertPropertyString += `${key}`;
+                            insertValuesString += '?';
+                        } else {
+                            arg.push(profileProjectHistoryEntities[i][key]);
+                            insertPropertyString += `, ${key}`;
+                            insertValuesString += ', ?';
+                        }
                     }
-                    arg.push(
-                        certificationId,
-                        certificationName,
-                        industryId,
-                        industryName,
-                        companyName,
-                        taskType,
-                        taskTypeName,
-                        projectStartDate,
-                        projectEndDate,
-                        profileId
-                    );
-                });
+                    arg.push(profileId);
 
-                sql = `INSERT INTO profile_project_history 
-                 (certificationId, certificationName, industryId, industryName, companyName, taskType,taskTypeName, projectStartDate, projectEndDate, profileId)
-                 VALUES ${insertValuesSting}`;
-                await conn.query(sql, arg);
+                    sql = `INSERT INTO profile_project_history
+                     (${insertPropertyString}, profileId)
+                     VALUES (${insertValuesString}, ?)`;
+
+                    const profileProjectHistoryResult = await conn.query(
+                        sql,
+                        arg
+                    );
+                    const projectHistoryId =
+                        profileProjectHistoryResult[0].insertId;
+
+                    if (
+                        profileProjectHistoryEntities[i].assignedTasks &&
+                        profileProjectHistoryEntities[i].assignedTasks.length
+                    ) {
+                        const assignedTasks =
+                            profileProjectHistoryEntities[i].assignedTasks;
+                        for (let j = 0; j < assignedTasks.length; j++) {
+                            let { taskType, taskTypeName } = assignedTasks[j];
+                            sql = `INSERT INTO profile_project_history_tasks (taskType, taskTypeName, projectHistoryId) VALUES (?, ?, ?)`;
+                            arg = [taskType, taskTypeName, projectHistoryId];
+                            await conn.query(sql, arg);
+                        }
+                    }
+                }
+                // insertValuesSting = '';
+                // arg = []; // 배열 초기화
+                // // query 가공
+                // profileProjectHistoryEntities.forEach((projectHistoryData) => {
+                //     let {
+                //         certificationId,
+                //         certificationName,
+                //         industryId,
+                //         industryName,
+                //         companyName,
+                //         taskType,
+                //         taskTypeName,
+                //         projectStartDate,
+                //         projectEndDate,
+                //     } = projectHistoryData;
+                //     if (!arg.length) {
+                //         insertValuesSting += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                //     } else {
+                //         insertValuesSting += ', (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                //     }
+                //     arg.push(
+                //         certificationId,
+                //         certificationName,
+                //         industryId,
+                //         industryName,
+                //         companyName,
+                //         taskType,
+                //         taskTypeName,
+                //         projectStartDate,
+                //         projectEndDate,
+                //         profileId
+                //     );
+                // });
+                // sql = `INSERT INTO profile_project_history
+                //  (certificationId, certificationName, industryId, industryName, companyName, projectStartDate, projectEndDate, profileId)
+                //  VALUES ${insertValuesSting}`;
+                // await conn.query(sql, arg);
             }
 
             // 업로드 파일 정보 생성
@@ -2537,44 +2672,89 @@ module.exports = class Mysql {
                 profileProjectHistoryEntities &&
                 profileProjectHistoryEntities.length
             ) {
-                insertValuesSting = '';
-                arg = []; // 배열 초기화
-                // query 가공
-                profileProjectHistoryEntities.forEach((projectHistoryData) => {
-                    let {
-                        certificationId,
-                        certificationName,
-                        industryId,
-                        industryName,
-                        companyName,
-                        taskType,
-                        taskTypeName,
-                        projectStartDate,
-                        projectEndDate,
-                    } = projectHistoryData;
-                    if (!arg.length) {
-                        insertValuesSting += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-                    } else {
-                        insertValuesSting += ', (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                for (let i = 0; i < profileProjectHistoryEntities.length; i++) {
+                    let insertPropertyString = '';
+                    let insertValuesString = '';
+                    arg = [];
+                    for (let key in profileProjectHistoryEntities[i]) {
+                        // assignedTasks || tempProfileId인 경우 제외
+                        if (key === 'assignedTasks' || key === 'profileId') {
+                            continue;
+                        } else if (!arg.length) {
+                            arg.push(profileProjectHistoryEntities[i][key]);
+                            insertPropertyString += `${key}`;
+                            insertValuesString += '?';
+                        } else {
+                            arg.push(profileProjectHistoryEntities[i][key]);
+                            insertPropertyString += `, ${key}`;
+                            insertValuesString += ', ?';
+                        }
                     }
-                    arg.push(
-                        certificationId,
-                        certificationName,
-                        industryId,
-                        industryName,
-                        companyName,
-                        taskType,
-                        taskTypeName,
-                        projectStartDate,
-                        projectEndDate,
-                        profileId
-                    );
-                });
+                    arg.push(profileId);
 
-                sql = `INSERT INTO profile_project_history 
-                 (certificationId, certificationName, industryId, industryName, companyName, taskType, taskTypeName, projectStartDate, projectEndDate, profileId)
-                 VALUES ${insertValuesSting}`;
-                await conn.query(sql, arg);
+                    sql = `INSERT INTO profile_project_history
+                     (${insertPropertyString}, profileId)
+                     VALUES (${insertValuesString}, ?)`;
+
+                    const profileProjectHistoryResult = await conn.query(
+                        sql,
+                        arg
+                    );
+                    const projectHistoryId =
+                        profileProjectHistoryResult[0].insertId;
+
+                    if (
+                        profileProjectHistoryEntities[i].assignedTasks &&
+                        profileProjectHistoryEntities[i].assignedTasks.length
+                    ) {
+                        const assignedTasks =
+                            profileProjectHistoryEntities[i].assignedTasks;
+                        for (let j = 0; j < assignedTasks.length; j++) {
+                            let { taskType, taskTypeName } = assignedTasks[j];
+                            sql = `INSERT INTO profile_project_history_tasks (taskType, taskTypeName, projectHistoryId) VALUES (?, ?, ?)`;
+                            arg = [taskType, taskTypeName, projectHistoryId];
+                            await conn.query(sql, arg);
+                        }
+                    }
+                }
+                // insertValuesSting = '';
+                // arg = []; // 배열 초기화
+                // // query 가공
+                // profileProjectHistoryEntities.forEach((projectHistoryData) => {
+                //     let {
+                //         certificationId,
+                //         certificationName,
+                //         industryId,
+                //         industryName,
+                //         companyName,
+                //         taskType,
+                //         taskTypeName,
+                //         projectStartDate,
+                //         projectEndDate,
+                //     } = projectHistoryData;
+                //     if (!arg.length) {
+                //         insertValuesSting += '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                //     } else {
+                //         insertValuesSting += ', (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                //     }
+                //     arg.push(
+                //         certificationId,
+                //         certificationName,
+                //         industryId,
+                //         industryName,
+                //         companyName,
+                //         taskType,
+                //         taskTypeName,
+                //         projectStartDate,
+                //         projectEndDate,
+                //         profileId
+                //     );
+                // });
+
+                // sql = `INSERT INTO profile_project_history
+                //  (certificationId, certificationName, industryId, industryName, companyName, taskType, taskTypeName, projectStartDate, projectEndDate, profileId)
+                //  VALUES ${insertValuesSting}`;
+                // await conn.query(sql, arg);
             }
 
             // 업로드 파일 정보 생성
@@ -2848,13 +3028,23 @@ module.exports = class Mysql {
         let sql, arg;
         const conn = await this.pool.getConnection();
         try {
-            sql = `SELECT certificationId, certificationName, industryId, industryName, companyName, taskType, taskTypeName, projectStartDate, projectEndDate
+            sql = `SELECT projectHistoryId, certificationId, certificationName, industryId, industryName, companyName, projectStartDate, projectEndDate
             FROM profile_project_history
             WHERE profileId = ?`;
             arg = [profileId];
             const profileProjectHistoryResult = await conn.query(sql, arg);
 
-            return profileProjectHistoryResult[0];
+            const profileProjectHistoryDatas = profileProjectHistoryResult[0];
+
+            for (let i = 0; i < profileProjectHistoryDatas.length; i++) {
+                sql = `SELECT taskType, taskTypeName 
+                FROM profile_project_history_tasks WHERE projectHistoryId = ?`;
+                arg = [profileProjectHistoryDatas[i].projectHistoryId];
+                const assignedTasksResult = await conn.query(sql, arg);
+                profileProjectHistoryDatas[i].assignedTasks =
+                    assignedTasksResult[0];
+            }
+            return profileProjectHistoryDatas;
         } catch (error) {
             console.error('DB에러 : ', error);
             throw new DatabaseError(error.message, error.errno);

@@ -19,6 +19,7 @@ const ConsultantUsersRepository = require('./consultants/ConsultantUsersReposito
 const ConsultingCompaniesRepository = require('./consultants/ConsultingCompaniesRepository');
 // const ConsultantUserAndCompanyRepository = require('./relation/ConsultantUserAndCompanyRepository');
 const ConsultantGradeInfoRepository = require('./consultants/ConsultantGradeInfoRepository');
+const ConsultantPenaltyRepository = require('./consultants/ConsultantPenaltyRepository');
 // 임시저장 (프로필)
 const TempProfilesRepository = require('./temp/TempProfilesRepository');
 const TempAbilityCertificationsRepository = require('./temp/TempAbilityCertificationsRepository');
@@ -62,6 +63,7 @@ module.exports = {
     //     db
     // ),
     consultantGradeInfoRepository: new ConsultantGradeInfoRepository(db),
+    consultantPenaltyRepository: new ConsultantPenaltyRepository(db),
     // 임시저장 (프로필)
     tempProfilesRepository: new TempProfilesRepository(db),
     tempAbilityCertificationsRepository: new TempAbilityCertificationsRepository(

@@ -8,6 +8,7 @@ const {
     TempCareerEntity,
     TempLicenseEntity,
     TempProjectHistoryEntity,
+    TempProjectHistoryTasksEntity,
     TempUploadFilesEntity,
 } = require('../../entities');
 const { UserTypeException } = require('../../exceptions');
@@ -36,7 +37,7 @@ module.exports = class CreateTempProfile {
 
             if (!!preTempProfileInfo) {
                 tempData.tempProfileId = preTempProfileInfo.tempProfileId;
-                // 기존 업로드 파일 정보리스트  가져오기
+                // 기존 업로드 파일 정보리스트 가져오기
                 let tempUploadFilesEntity = new TempUploadFilesEntity(tempData);
                 preUploadFilesInfo = await tempUploadFilesRepository.getTempUploadFiles(
                     tempUploadFilesEntity
@@ -51,25 +52,44 @@ module.exports = class CreateTempProfile {
             console.log('유스케이스 : ', tempProfilesEntity, tempData);
             tempProfilesEntity.consultantUserId = userData.consultantUserId; // 사용자 id
 
-            const tempProfileAbilityCertificationIds =
-                tempData.abilityCertificationIds;
-            const tempAbilityTaskIds = tempData.abilityTaskIds;
-            const tempEtcCertificationsEntity = new TempEtcCertificationsEntity(
-                tempData.etcCertifications
-            );
-            const tempAcademicBackgroundEntity = new TempAcademicBackgroundEntity(
-                tempData.academicBackground
-            );
-            const tempCareerEntities = tempData.career.map(
-                (careerData) => new TempCareerEntity(careerData)
-            );
-            const tempLicenseEntities = tempData.license.map(
-                (licenseData) => new TempLicenseEntity(licenseData)
-            );
-            const tempProjectHistoryEntities = tempData.projectHistory.map(
-                (projectHistoryData) =>
-                    new TempProjectHistoryEntity(projectHistoryData)
-            );
+            const tempProfileAbilityCertificationIds = !tempData.abilityCertificationIds
+                ? undefined
+                : tempData.abilityCertificationIds;
+            const tempAbilityTaskIds = !tempData.abilityTaskIds
+                ? undefined
+                : tempData.abilityTaskIds;
+            const tempEtcCertificationsEntity = !tempData.etcCertifications
+                ? undefined
+                : new TempEtcCertificationsEntity(tempData.etcCertifications);
+            const tempAcademicBackgroundEntity = !tempData.academicBackground
+                ? undefined
+                : new TempAcademicBackgroundEntity(tempData.academicBackground);
+            const tempCareerEntities = !tempData.career
+                ? undefined
+                : tempData.career.map(
+                      (careerData) => new TempCareerEntity(careerData)
+                  );
+            const tempLicenseEntities = !tempData.license
+                ? undefined
+                : tempData.license.map(
+                      (licenseData) => new TempLicenseEntity(licenseData)
+                  );
+            const tempProjectHistoryEntities = !tempData.projectHistory
+                ? undefined
+                : tempData.projectHistory.map((projectHistoryData) => {
+                      const tempProjectHistoryEntity = new TempProjectHistoryEntity(
+                          projectHistoryData
+                      );
+                      if (projectHistoryData.assignedTasks) {
+                          tempProjectHistoryEntity.assignedTasks = projectHistoryData.assignedTasks.map(
+                              (assignedTask) =>
+                                  new TempProjectHistoryTasksEntity(
+                                      assignedTask
+                                  )
+                          );
+                      }
+                      return tempProjectHistoryEntity;
+                  });
             const tempUploadFilesEntities = uploadData.map(
                 (eachData) => new TempUploadFilesEntity(eachData)
             );

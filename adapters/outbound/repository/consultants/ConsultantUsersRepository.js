@@ -14,6 +14,7 @@ module.exports = class ConsultantUsersRepository {
     async createConsultantUser(
         authEntity,
         consultantUserEntity,
+        consultantGradeInfoEntity,
         consultingCompaniesEntity,
         consultantUserAndCompanyEntity
     ) {
@@ -21,6 +22,7 @@ module.exports = class ConsultantUsersRepository {
             let result = await this.db.createConsultantUser(
                 authEntity,
                 consultantUserEntity,
+                consultantGradeInfoEntity,
                 consultingCompaniesEntity,
                 consultantUserAndCompanyEntity
             );

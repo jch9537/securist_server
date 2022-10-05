@@ -11,6 +11,7 @@ const {
     ProfileCareerEntity,
     ProfileLicenseEntity,
     ProfileProjectHistoryEntity,
+    ProfileProjectHistoryTasksEntity,
     ProfileUploadFilesEntity,
 } = require('../../entities');
 const { UserTypeException } = require('../../exceptions');
@@ -54,28 +55,54 @@ module.exports = class CreateProfile {
             const consultantUsersEntity = new ConsultantUsersEntity(userData);
             consultantUsersEntity.phoneNum = profileData.phoneNum;
             consultantUsersEntity.profileStatus = 2; // 인증요청 상태로 변경
-
+            // 프로필
             const profilesEntity = new ProfilesEntity(profileData);
             profilesEntity.consultantUserId = userData.consultantUserId; // 사용자 id
-            const profileAbilityCertificationIds =
-                profileData.abilityCertificationIds;
+            // 수행 인증
+            const profileAbilityCertificationIds = !profileData.abilityCertificationIds
+                ? undefined
+                : profileData.abilityCertificationIds;
+
+            // 수행 과제 - 필수 항목
             const profileAbilityTaskIds = profileData.abilityTaskIds;
+            // 기타 인증
             const profileEtcCertificationsEntity = new ProfileEtcCertificationsEntity(
                 profileData
             );
+            // 최종 학력 - 필수 항목
             const profileAcademicBackgroundEntity = new ProfileAcademicBackgroundEntity(
                 profileData.academicBackground
             );
-            const profileCareerEntities = profileData.career.map(
-                (careerData) => new ProfileCareerEntity(careerData)
-            );
-            const profileLicenseEntities = profileData.license.map(
-                (licenseData) => new ProfileLicenseEntity(licenseData)
-            );
-            const profileProjectHistoryEntities = profileData.projectHistory.map(
-                (projectHistoryData) =>
-                    new ProfileProjectHistoryEntity(projectHistoryData)
-            );
+            // 경력
+            const profileCareerEntities = !profileData.career
+                ? undefined
+                : profileData.career.map(
+                      (careerData) => new ProfileCareerEntity(careerData)
+                  );
+            // 자격증
+            const profileLicenseEntities = !profileData.license
+                ? undefined
+                : profileData.license.map(
+                      (licenseData) => new ProfileLicenseEntity(licenseData)
+                  );
+            // 수행 이력
+            const profileProjectHistoryEntities = !profileData.projectHistory
+                ? undefined
+                : profileData.projectHistory.map((projectHistoryData) => {
+                      const profileProjectHistoryEntity = new ProfileProjectHistoryEntity(
+                          projectHistoryData
+                    );
+                    // 수행 이력 내 담당 업무
+                      if (projectHistoryData.assignedTasks) {
+                          profileProjectHistoryEntity.assignedTasks = projectHistoryData.assignedTasks.map(
+                              (assignedTask) =>
+                                  new ProfileProjectHistoryTasksEntity(
+                                      assignedTask
+                                  )
+                          );
+                      }
+                      return profileProjectHistoryEntity;
+                  });
             const profileUploadFilesEntities = uploadData.map(
                 (uploadData) => new ProfileUploadFilesEntity(uploadData)
             );
