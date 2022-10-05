@@ -7,7 +7,7 @@ const cors = require('cors');
 
 const app = express();
 const ip = process.env.SERVER_IP || 'localhost';
-const port = process.env.SERVER_PORT || 3000;
+const port = process.env.SERVER_PORT || 8000;
 
 const routes = require('./routes');
 const { Sentry, sentryInit } = require('../webService/monitorService');
