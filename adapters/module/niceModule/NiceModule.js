@@ -24,8 +24,8 @@ module.exports = class NiceModule {
         this.sPopGubun = 'N';
         this.sCustomize = '';
         this.sGender = '';
-        this.sReturnUrl = `${process.env.NICE_RESPONSE_IP}/api/user/auth/nice/success`;
-        this.sErrorUrl = `${process.env.NICE_RESPONSE_IP}/api/user/auth/nice/fail`;
+        this.sReturnUrl = `${process.env.NICE_RESPONSE_IP}/api/user/exam/nice/success`;
+        this.sErrorUrl = `${process.env.NICE_RESPONSE_IP}/api/user/exam/nice/fail`;
     }
 
     async success(encodeData) {

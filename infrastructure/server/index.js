@@ -83,11 +83,10 @@ app.use((err, req, res, next) => {
         err.location || 'server',
         err.message || 'Internal Server Error'
     );
-    let errResponse = new ErrorResponse(
-        err.statusCode,
-        err.errMessage,
-        err.data
-    );
+    let errResponse =
+        err.message === 'Not exist'
+            ? new ErrorResponse(err.code, err.message)
+            : new ErrorResponse(err.statusCode, err.errMessage, err.data);
     console.log('에러처리 ', errResponse);
     res.status(err.statusCode || 500).send(errResponse);
 });

@@ -8,7 +8,7 @@ const niceRouter = require('./nice');
 const infoRouter = require('./info');
 const settingsRouter = require('./settings');
 const boardsRouter = require('./boards');
-// const examRouter = require('./exam')
+const examRouter = require('./exam');
 const serviceRouter = require('./service');
 
 // const companyRouter = require('./company');
@@ -23,7 +23,7 @@ router.use('/nice', niceRouter);
 router.use('/info', infoRouter); // 어드민 서버 - 기본(원시) 정보
 router.use('/settings', settingsRouter); // 어드민 서버 - 설정 정보
 router.use('/boards', boardsRouter); // 어드민 서버 - 게시판 정보
-// router.use('/exam', examRouter) // 어드민 서버 - 자격증 정보
+router.use('/exam', examRouter); // 어드민 서버 - 자격증 정보
 router.use('/service', serviceRouter); // 타 서버 요청 받는 경로
 
 // router.use('/company', companyRouter);
