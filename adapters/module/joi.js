@@ -418,16 +418,30 @@ module.exports = {
         regionId: Joi.number().positive().required(),
     }),
 
-    // ============================== 설정 관리 유효성 확인 ===================================
+    // 설정 관리 유효성 확인 : admin 서버 요청 =================
+    // settings : 인증/과제/산출물 등
 
-    // 권한 관리 APIs-------------------------------------------------
-    // 선택 인증 별 과제 가져오기
-    getTaskByCertificationSchema: Joi.object({
-        certificationId: Joi.alternatives().try(
-            Joi.number().positive(),
-            Joi.array().items(Joi.number().positive()).min(2)
-        ),
-    }).required(),
+    // 선택 인증 별 과제 가져오기 & 인증의 모든 연결정보 가져오기 유효성 확인
+    getLinkedInfoSchema:
+        // 유효성 처리 케이스 3개
+        // 1. 인증 id 만 쿼리 요청 받음
+        // 1-1. 하나의 인증 id만 받는 인 경우 - 인증 별 연결정보 처리
+        // 1-2. 하나 또는 여러개의 인증 id를 받을 경우 - 인증(들) 별 과제리스트 조회 처리
+        // 2. 인증 id와 과제 id 쿼리 요청 받는 경우 - 견적 계산 처리
+        // 2-1. 하나의 인증 id와 여러 과제 id의 배열을 받는 경우
+        // 2-2. 여러 인증의 id 배열과 여러 과제 id의 배열을 받는 경우
+        Joi.object({
+            certificationId: Joi.alternatives().try(
+                // 인증 id가 여러개인 경우
+                Joi.array()
+                    .items(Joi.number().positive().min(1))
+                    .min(1)
+                    .required(),
+                // 인증id가 하나인 경우
+                Joi.number().positive().min(1)
+            ),
+            taskId: Joi.array().items(Joi.number().positive().min(1)).min(1),
+        }).required(),
 
     // // ============================== 게시판 유효성 확인 ===================================
 
@@ -669,141 +683,70 @@ module.exports = {
     //         )
     //         .min(1),
     // }),
+
+    // 프로젝트  =================================
+    estimateProjectSchema: Joi.object({
+        stayingType: Joi.number().min(0).max(1).required(),
+        projectTargetServiceCount: Joi.number().min(0).required(),
+        projectCertifications: Joi.array()
+            .items(
+                Joi.object({
+                    certificationId: Joi.number().positive().required(),
+                    certificationType: Joi.number().min(0).max(2).required(),
+                })
+            )
+            .min(1)
+            .required(),
+        projectTasks: Joi.array()
+            .items(
+                Joi.object({
+                    taskId: Joi.number().positive().required(),
+                    assetType: Joi.number().min(0).max(17),
+                })
+            )
+            .min(1)
+            .required(),
+        projectSelectGrade: Joi.object({
+            pmTask: Joi.object({
+                academic: Joi.number().min(0).max(4).required(), // 학력 무관을 고졸로 간주한 경우
+                career: Joi.number().min(0).max(4).required(), // 경력 무관을 1년 미만으로 간주한 경우
+                license: Joi.array()
+                    .items(Joi.number().min(0).max(10))
+                    .max(11)
+                    .required(),
+            }),
+            management: Joi.object({
+                academic: Joi.number().min(0).max(4).required(), // 학력 무관을 고졸로 간주한 경우
+                career: Joi.number().min(0).max(4).required(), // 경력 무관을 1년 미만으로 간주한 경우
+                license: Joi.array()
+                    .items(Joi.number().min(0).max(10))
+                    .max(11)
+                    .required(),
+            }),
+            personalInfo: Joi.object({
+                academic: Joi.number().min(0).max(4).required(), // 학력 무관을 고졸로 간주한 경우
+                career: Joi.number().min(0).max(4).required(), // 경력 무관을 1년 미만으로 간주한 경우
+                license: Joi.array()
+                    .items(Joi.number().min(0).max(10))
+                    .max(11)
+                    .required(),
+            }),
+            infra: Joi.object({
+                academic: Joi.number().min(0).max(4).required(), // 학력 무관을 고졸로 간주한 경우
+                career: Joi.number().min(0).max(4).required(), // 경력 무관을 1년 미만으로 간주한 경우
+                license: Joi.array()
+                    .items(Joi.number().min(0).max(10))
+                    .max(11)
+                    .required(),
+            }),
+            mockHacking: Joi.object({
+                academic: Joi.number().min(0).max(4).required(), // 학력 무관을 고졸로 간주한 경우
+                career: Joi.number().min(0).max(4).required(), // 경력 무관을 1년 미만으로 간주한 경우
+                license: Joi.array()
+                    .items(Joi.number().min(0).max(10))
+                    .max(11)
+                    .required(),
+            }),
+        }),
+    }),
 };
-
-// // 접수
-// const cancelExamReceptionSchema = Joi.object({
-//     examReceptionId: Joi.number().positive().required(),
-//     refundBankName: Joi.string().pattern(/^[\w\W\s]{0,20}$/),
-//     refundAccountNum: Joi.string().alphanum(),
-// });
-// const createExamReceptionSchema = Joi.object({
-//     examType: Joi.number().min(1).max(2).required(),
-//     examDate: Joi.string()
-//         .pattern(/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/)
-//         .length(10)
-//         .required(),
-//     examTime: Joi.string()
-//         .pattern(
-//             /^([0-2]{1})([0-9]{1}):?([0-5]{1})([0-9]{1}):?([0-5]{1})([0-9]{1})$/
-//         )
-//         .length(8)
-//         .required(),
-//     examineeName: Joi.string().max(20).required(),
-//     birthDate: Joi.string()
-//         .pattern(/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/)
-//         .length(10)
-//         .required(),
-//     phoneNum: Joi.string()
-//         .pattern(/^[0-9]+$/)
-//         .min(10)
-//         .max(12)
-//         .required(),
-//     email: Joi.string().email().required(),
-// });
-// const phoneNumSchema = Joi.object({
-//     phoneNum: Joi.string()
-//         .pattern(/^[0-9]+$/)
-//         .min(10)
-//         .max(12)
-//         .required(),
-// });
-// const updateExamReceptionSchema = Joi.object({
-//     examReceptionId: Joi.number().positive().required(),
-//     examType: Joi.number().min(1).max(2).required(),
-//     examDate: Joi.string()
-//         .pattern(/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/)
-//         .length(10)
-//         .required(),
-//     examTime: Joi.string()
-//         .pattern(
-//             /^([0-2]{1})([0-9]{1}):?([0-5]{1})([0-9]{1}):?([0-5]{1})([0-9]{1})$/
-//         )
-//         .length(8)
-//         .required(),
-//     examineeName: Joi.string().max(20).required(),
-//     birthDate: Joi.string()
-//         .pattern(/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/)
-//         .length(10)
-//         .required(),
-//     phoneNum: Joi.string()
-//         .pattern(/^[0-9]+$/)
-//         .min(10)
-//         .max(12)
-//         .required(),
-//     email: Joi.string().email().required(),
-//     paymentStateType: Joi.number().min(0).max(3).required(),
-// });
-// const updateExamResultSchema = Joi.array().items(
-//     Joi.object({
-//         examReceptionId: Joi.number().positive().required(),
-//         examType: Joi.number().min(1).max(2).required(),
-//         score: Joi.number().min(0).max(100).required(),
-//     })
-// );
-// const updateExamRefundSchema = Joi.object({
-//     examReceptionId: Joi.number().positive().required(),
-// });
-// const updateDeliveryRequestSchema = Joi.object({
-//     examReceptionId: Joi.number().positive().required(),
-//     postalCode: Joi.string()
-//         .pattern(/^[0-9]+$/)
-//         .length(6)
-//         .required(),
-//     address: Joi.string().required(),
-//     receiverName: Joi.string().pattern(/^[\w\W\s]{0,20}$/),
-//     receiverPhoneNum: Joi.string()
-//         .pattern(/^[0-9]+$/)
-//         .min(10)
-//         .max(12)
-//         .required(),
-//     deliveryType: Joi.number().min(0).max(3).required(),
-// });
-
-// // 시험
-// const createExamSchema = Joi.array().items(
-//     Joi.object({
-//         examType: Joi.number().min(1).max(2).required(),
-//         examDate: Joi.string().length(10).required(),
-//         examTime: Joi.string().length(8).required(),
-//     })
-// );
-// const deleteExamSchema = Joi.object({
-//     examRegistrationId: Joi.number().positive().required(),
-// });
-
-// // 어드민
-// const selectedRegionSchema = Joi.object({
-//     regionId: Joi.number().positive().required(),
-// });
-// const getDateSchema = Joi.object({
-//     examType: Joi.number().min(1).max(2).required(),
-//     pageType: Joi.number().min(0).max(3).required(),
-// });
-// const getTimeSchema = Joi.object({
-//     examType: Joi.number().min(1).max(2).required(),
-//     pageType: Joi.number().min(0).max(3).required(),
-//     examDate: Joi.string().length(10).required(),
-// });
-
-// const certificationIdsAndClassificationsSchema = Joi.array().items(
-//     Joi.object({
-//         certificationId: Joi.number().positive(),
-//         examClassificationId: Joi.number().positive(),
-//     })
-// );
-// const certificationIdsSchema = Joi.object({
-//     certificationId: Joi.array().items(Joi.number().positive()),
-// });
-// const selectCertificationsAndClassificationsAndTasksSchema = Joi.array().items(
-//     Joi.object({
-//         certificationId: Joi.number().positive().required(),
-//         examClassificationId: Joi.number().positive().required(),
-//         tasks: Joi.array().items(
-//             Joi.object({
-//                 taskId: Joi.number().positive().required(),
-//                 assetType: Joi.number().min(0).max(17), // 자산 타입 조건 확인!!
-//             })
-//         ),
-//     })
-// );

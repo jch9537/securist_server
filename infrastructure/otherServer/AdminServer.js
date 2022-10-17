@@ -173,10 +173,13 @@ module.exports = class AdminServer {
             throw error;
         }
     }
-    // 선택 인증의 모든 연결 정보 가져오기
-    async getCertificationConnectedInfo(certificationData) {
+
+    // 인증-과제 연결 정보 ===========================================
+
+    // 선택 인증 별 모든 연결 정보 가져오기
+    async getLinkedAllInfoByCertification(certificationData) {
         try {
-            const url = `/settings/certifications/${certificationData.certificationId}`;
+            const url = `/settings/link/all?certificationId=${certificationData.certificationId}`;
             const response = await this.getRequest(url);
 
             return response.data;
@@ -185,15 +188,14 @@ module.exports = class AdminServer {
             throw error;
         }
     }
-    // 과제 ===========================================
     // 선택 인증들의 과제 리스트 가져오기
-    async getTasksByCertifications(certificationData) {
+    async getLinkedTasksInfo(certificationData) {
         try {
             let queryString = '';
             if (Array.isArray(certificationData.certificationId)) {
                 // 선택 인증이 여러개인 경우
-                const certificationIds = certificationData.certificationId;
-                certificationIds.forEach((certificationId, index) => {
+                const certificationId = certificationData.certificationId;
+                certificationId.forEach((certificationId, index) => {
                     if (index === 0) {
                         queryString += `?certificationId=${certificationId}`;
                     } else {
@@ -205,7 +207,7 @@ module.exports = class AdminServer {
                 const certificationId = certificationData.certificationId;
                 queryString += `?certificationId=${certificationId}`;
             }
-            let url = `/settings/tasks${queryString}`;
+            let url = `/settings/link/tasks${queryString}`;
             const response = await this.getRequest(url);
             // if(userType === 3 ){
             //     DTO 추가
