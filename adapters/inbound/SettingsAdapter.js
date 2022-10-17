@@ -1,8 +1,8 @@
 const { service } = require('../outbound');
 const {
     GetCompleteCertifications,
-    GetCertificationConnectedInfo,
-    GetTasksByCertifications,
+    GetLinkedAllInfoByCertification,
+    GetLinkedTasksInfo,
 } = require('../../domain/usecase/settings');
 
 module.exports = class SettingsAdapter {
@@ -20,12 +20,12 @@ module.exports = class SettingsAdapter {
     }
 
     // 선택 인증의 모든 연결 정보 가져오기
-    async getCertificationConnectedInfo(certificationData) {
+    async getLinkedAllInfoByCertification(certificationData) {
         try {
-            let getCertificationConnectedInfo = new GetCertificationConnectedInfo(
+            let getLinkedAllInfoByCertification = new GetLinkedAllInfoByCertification(
                 service
             );
-            let result = await getCertificationConnectedInfo.excute(
+            let result = await getLinkedAllInfoByCertification.excute(
                 certificationData
             );
             return result;
@@ -35,11 +35,9 @@ module.exports = class SettingsAdapter {
     }
 
     // 선택 인증들의 과제 리스트 가져오기
-    async getTasksByCertifications(certificationData) {
+    async getLinkedTasksInfo(certificationData) {
         try {
-            let getTasksByCertifications = new GetTasksByCertifications(
-                service
-            );
+            let getTasksByCertifications = new GetLinkedTasksInfo(service);
             let result = await getTasksByCertifications.excute(
                 certificationData
             );

@@ -1,12 +1,12 @@
 // 프로젝트 서버
 module.exports = class ProjectService {
-    constructor(userServer) {
-        this.userServer = userServer;
+    constructor(projectServer) {
+        this.projectServer = projectServer;
     }
 
-    async getProjects() {
+    async estimateProject(projectData) {
         try {
-            let result = await this.userServer.getProjects();
+            let result = await this.projectServer.estimateProject(projectData);
             return result;
         } catch (error) {
             throw error;

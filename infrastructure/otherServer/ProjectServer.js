@@ -55,7 +55,7 @@ module.exports = class ProjectServer {
             const err = error.response.data.error;
             if (err.message === 'Token expired' || err.message === 'No token') {
                 await this.requestIssueToken();
-                return await this.getRequest(url);
+                return await this.postRequest(url, body);
             } else {
                 throw new ServicesError('Project', err.message, err.code);
             }
@@ -68,7 +68,7 @@ module.exports = class ProjectServer {
             console.log('저장토큰 확인 ', projectServiceToken);
 
             // const response = await axios.put(`${ProjectServiceUrl}${url}`, body); // 테스트용 - token제외 처리
-            const response = await axios.post(
+            const response = await axios.put(
                 `${projectServiceUrl}/service${url}`,
                 body,
                 {
@@ -82,7 +82,7 @@ module.exports = class ProjectServer {
             const err = error.response.data.error;
             if (err.message === 'Token expired' || err.message === 'No token') {
                 await this.requestIssueToken();
-                return await this.getRequest(url);
+                return await this.putRequest(url, body);
             } else {
                 throw new ServicesError('Project', err.message, err.code);
             }
@@ -119,7 +119,18 @@ module.exports = class ProjectServer {
             throw error;
         }
     }
+    // 프로젝트 ----------------------------------------------------------
+    // 프로젝트 견적 계산 요청
+    async estimateProject(projectData) {
+        try {
+            const url = `/projects/estimate`;
+            const response = await this.postRequest(url, projectData);
 
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
     // // 프로젝트 서비스에 프로젝트 정보 요청하기
     // async getProjectInfo({ email, userType }) {
     //     let response;

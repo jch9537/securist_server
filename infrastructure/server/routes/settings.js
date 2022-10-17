@@ -4,7 +4,7 @@ const router = express.Router();
 
 const { settingsAdapter } = require('../../../adapters/inbound');
 const {
-    GetTasksByCertificationsDto,
+    GetLinkedInfoDto,
 } = require('../../../adapters/dtos/requestDto/settingsDto');
 const { logger } = require('../../../adapters/module/logger');
 const { SuccessResponse } = require('../../../adapters/response');
@@ -29,47 +29,64 @@ router.get('/certifications', async (req, res, next) => {
     }
 });
 
+// // 인증의 모든 연결 정보 가져오기
+// router.get('/certifications/:certificationId', async (req, res, next) => {
+//     let result, response;
+//     try {
+//         let certificationData = req.params; // 이후 Dto 추가 예정
+//         console.log(
+//             '요청 > GET > /api/admin/settings/certifications/info : ',
+//             certificationData
+//         );
+//         result = await settingsAdapter.getLinkedAllInfoByCertification(
+//             certificationData
+//         );
+//         // console.log('응답 > GET > /api/admin/settings/certifications/:certificationId : ', result);
+//         response = new SuccessResponse(200, result);
+//         logger.log(
+//             'info',
+//             'GET /api/admin/settings/certifications/:certificationId',
+//             response.message
+//         );
+//         res.send(response);
+//     } catch (error) {
+//         // console.log('에러 > GET > /api/admin/settings/certifications/:certificationId : ', error);
+//         next(error);
+//     }
+// });
 // 인증의 모든 연결 정보 가져오기
-router.get('/certifications/:certificationId', async (req, res, next) => {
+router.get('/link/all', async (req, res, next) => {
     let result, response;
     try {
-        let certificationData = req.params; // 이후 Dto 추가 예정
-        console.log(
-            '요청 > GET > /api/admin/settings/certifications/info : ',
-            certificationData
+        const { linkData } = new GetLinkedInfoDto(req.filteredQuery);
+
+        console.log('요청 > GET > /api/admin/settings/link/all : ', linkData);
+        result = await settingsAdapter.getLinkedAllInfoByCertification(
+            linkData
         );
-        result = await settingsAdapter.getCertificationConnectedInfo(
-            certificationData
-        );
-        // console.log('응답 > GET > /api/admin/settings/certifications/:certificationId : ', result);
+        // console.log('응답 > GET > /api/admin/settings/link/all : ', result);
         response = new SuccessResponse(200, result);
         logger.log(
             'info',
-            'GET /api/admin/settings/certifications/:certificationId',
+            'GET /api/admin/settings/link/all',
             response.message
         );
         res.send(response);
     } catch (error) {
-        // console.log('에러 > GET > /api/admin/settings/certifications/:certificationId : ', error);
+        // console.log('에러 > GET > /api/admin/settings/link/all : ', error);
         next(error);
     }
 });
 // 인증 별 과제 가져오기
-router.get('/tasks', async (req, res, next) => {
+router.get('/link/tasks', async (req, res, next) => {
     let result, response;
     try {
-        // let certificationId = req.params; // 이후 Dto 추가 예정
-        // let certificationId = req.filteredQuery;
-        const { certificationData } = new GetTasksByCertificationsDto(
-            req.filteredQuery
-        );
+        const { linkData } = new GetLinkedInfoDto(req.filteredQuery);
         console.log(
             '요청 > GET > /api/admin/settings/certifications/:certificationId : ',
-            certificationData
+            linkData
         );
-        result = await settingsAdapter.getTasksByCertifications(
-            certificationData
-        );
+        result = await settingsAdapter.getLinkedTasksInfo(linkData);
         // console.log('응답 > GET > /api/admin/settings/certifications/:certificationId : ', result);
         response = new SuccessResponse(200, result);
         logger.log(

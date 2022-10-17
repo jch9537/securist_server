@@ -1,5 +1,5 @@
 // 선택 인증의 모든 연결 정보 가져오기 : 관리자 서버 요청
-module.exports = class GetCertificationConnectedInfo {
+module.exports = class GetLinkedAllInfoByCertification {
     constructor(service) {
         this.service = service;
     }
@@ -7,7 +7,7 @@ module.exports = class GetCertificationConnectedInfo {
         try {
             const { adminService } = this.service;
             // 클라이언트 리스트 가져오기
-            const certificationConnetedInfo = await adminService.getCertificationConnectedInfo(
+            const certificationConnetedInfo = await adminService.getLinkedAllInfoByCertification(
                 certificationData
             );
 
