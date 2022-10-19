@@ -12,7 +12,7 @@ router.get('/main', async (req, res, next) => {
 
         result = await niceModule.main();
         // console.log('모듈시작 결과 : ', result);
-        response = new SuccessResponse('본인 인증 모듈 시작 완료', result);
+        response = new SuccessResponse(200, result);
         res.status(200).send(response);
     } catch (error) {
         console.log('/main 에러 응답 : ', error);
