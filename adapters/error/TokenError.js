@@ -18,6 +18,9 @@ module.exports = class TokenError extends Error {
             case 'jwt must be provided':
                 errMessage = 'No token';
                 break;
+            case 'jwt malformed':
+                errMessage = 'No token';
+                break;
             case 'jwt expired': // 토큰 만료 : 서버 간 토큰
                 errMessage = 'Token expired';
                 break;
