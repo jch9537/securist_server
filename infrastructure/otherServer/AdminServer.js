@@ -18,7 +18,7 @@ module.exports = class AdminServer {
         try {
             const adminServiceToken = await getToken(adminServiceTokenKey);
             console.log('저장토큰 확인 ', adminServiceToken);
-
+            console.log('요청보낸 url', `${adminServiceUrl}/service${url}`);
             const response = await axios.get(
                 `${adminServiceUrl}/service${url}`,
                 {
@@ -42,7 +42,7 @@ module.exports = class AdminServer {
     async postRequest(url, body) {
         try {
             const adminServiceToken = await getToken(adminServiceTokenKey);
-
+            console.log(adminServiceToken);
             const response = await axios.post(
                 `${adminServiceUrl}/service${url}`,
                 body,
@@ -57,7 +57,7 @@ module.exports = class AdminServer {
             const err = error.response.data.error;
             if (err.message === 'Token expired' || err.message === 'No token') {
                 await this.requestIssueToken();
-                return await this.posttRequest(url, body);
+                return await this.postRequest(url, body);
             } else {
                 throw new ServicesError('Admin', err.message, err.code);
             }
@@ -275,6 +275,151 @@ module.exports = class AdminServer {
             return response.data;
             // response.data = 응답.data : 데이터만 추출
         } catch (error) {
+            throw error;
+        }
+    }
+    // 시험 -----------------------
+    // 시험 종류 리스트 가져오기
+    async getExamTimeList(examData, userData) {
+        try {
+            const { examType, examDate } = examData;
+            const url = `/exam/times?examType=${examType}&examDate=${examDate}`;
+            console.log('exam ==========', url);
+            const response = await this.getRequest(url);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getExamDateList(examData, userData) {
+        try {
+            const url = `/exam/dates?examType=${examData.examType}`;
+            console.log('exam ==========', url);
+            const response = await this.getRequest(url);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+    //issuance ------------------
+    async createLicenseIssuance(issuanceData) {
+        try {
+            const url = `/exam/issuance`;
+            console.log('exam/issuance ==========', url);
+            const response = await this.postRequest(url, issuanceData);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getLicenseIssuanceByUser(issuanceData) {
+        try {
+            const url = `/exam/issuance?examReceptionId=${issuanceData.examReceptionId}`;
+            console.log(
+                `exam/issuance?examReceptionId=${issuanceData.examReceptionId} ==========`,
+                url
+            );
+            const response = await this.getRequest(url);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getLicenseIssuanceListByReceptionId(issuanceData) {
+        try {
+            const url = `/exam/issuance/${issuanceData.licenseIssuanceId}`;
+            console.log(
+                `exam/issuance/${issuanceData.licenseIssuanceId} ==========`,
+                url
+            );
+            const response = await this.getRequest(url);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async cancelLicenseIssuanceByUser(issuanceData) {
+        try {
+            const url = `/exam/issuance/${issuanceData.licenseIssuanceId}/cancel`;
+            console.log(
+                `/exam/issuance/${issuanceData.licenseIssuanceId}/cancel`,
+                url
+            );
+            const response = await this.putRequest(url, issuanceData);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async updateLicenseIssuanceByUser(issuanceData) {
+        try {
+            const url = `/exam/issuance/${issuanceData.licenseIssuanceId}`;
+            console.log(
+                `/exam/issuance/${issuanceData.licenseIssuanceId}`,
+                url
+            );
+            const response = await this.putRequest(url, issuanceData);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+    //reception ------------------
+    async createExamReception(receptionData) {
+        try {
+            const url = `/exam/receptions`;
+            console.log(`/exam/receptions`, url);
+            const response = await this.postRequest(url, receptionData);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async updateMyEmail(receptionData) {
+        try {
+            const url = `/exam/receptions/my/email`;
+            console.log(`/exam/receptions/my/email`, url);
+            const response = await this.putRequest(url, receptionData);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getReceptionList(receptionData) {
+        try {
+            const url = `/exam/receptions/my?pageType=${receptionData.pageType}`;
+            console.log(
+                `/exam/receptions/my?pageType=${receptionData.pageType}`,
+                url
+            );
+            const response = await this.getRequest(url);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async cancelExamReception(receptionData) {
+        try {
+            const url = `/exam/receptions/cancel`;
+            console.log(`/exam/receptions/cancel`, url);
+            const response = await this.putRequest(url, receptionData);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getExamReception(receptionData) {
+        try {
+            const url = `/exam/receptions/my/${receptionData.examReceptionId}`;
+            console.log(
+                `/exam/receptions/my/${receptionData.examReceptionId}`,
+                url
+            );
+            const response = await this.getRequest(url);
+            return response;
+        } catch (error) {
+            console.log('adminserver', error);
             throw error;
         }
     }

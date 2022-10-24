@@ -12,7 +12,14 @@ const InfoAdapter = require('./InfoAdapter');
 const SettingsAdapter = require('./SettingsAdapter');
 const BoardsAdapter = require('./BoardsAdapter');
 const ServicesAdapter = require('./ServicesAdapter');
+
+//exam
+const ExamInfoAdapter = require('./exam/ExamInfoAdapter');
+const ExamLicenseIssuanceAdapter = require('./exam/ExamLicenseIssuanceAdapter');
+const ExamReceptionsAdapter = require('./exam/ExamReceptionsAdapter');
+// project
 const ProjectsAdapter= require('./ProjectsAdapter')
+
 // const ConsultantCompaniesAdapter = require('./consultant/ConsultantCompaniesAdapter');
 // const UserAdapter = require('./UserAdapter');
 // const CompanyAdapter = require('./CompanyAdapter');
@@ -49,6 +56,10 @@ module.exports = {
     infoAdapter: new InfoAdapter(), // 기본(원시) 정보 : 지역/세부지역/업종 등
     settingsAdapter: new SettingsAdapter(), // 설정 정보 : 인증/과제/산출물 등
     boardsAdapter: new BoardsAdapter(), // 각 게시판 정보 : 공지사항/교육게시판/정보보안
+    // 시험
+    examInfoAdapter: new ExamInfoAdapter(),
+    examLicenseIssuanceAdapter: new ExamLicenseIssuanceAdapter(),
+    examReceptionsAdapter: new ExamReceptionsAdapter(),
     // consultantCompaniesAdapter: new ConsultantCompaniesAdapter(
     //     projectService,
     //     adminService

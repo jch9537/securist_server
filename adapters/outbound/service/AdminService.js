@@ -114,4 +114,128 @@ module.exports = class AdminService {
             throw error;
         }
     }
+    // 시험 ---------------------------
+    // 시험 종류 리스트 가져오기
+    async getExamTimeList(examData, userData) {
+        try {
+            const result = await this.adminServer.getExamTimeList(
+                examData,
+                userData
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getExamDateList(examData, userData) {
+        try {
+            const result = await this.adminServer.getExamDateList(
+                examData,
+                userData
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    //issuance ------------------
+    async createLicenseIssuance(issuanceData) {
+        try {
+            const result = await this.adminServer.createLicenseIssuance(
+                issuanceData
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getLicenseIssuanceByUser(issuanceData) {
+        try {
+            const result = await this.adminServer.getLicenseIssuanceByUser(
+                issuanceData
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getLicenseIssuanceListByReceptionId(issuanceData) {
+        try {
+            const result = await this.adminServer.getLicenseIssuanceListByReceptionId(
+                issuanceData
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async cancelLicenseIssuanceByUser(issuanceData) {
+        try {
+            const result = await this.adminServer.cancelLicenseIssuanceByUser(
+                issuanceData
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async updateLicenseIssuanceByUser(issuanceData) {
+        try {
+            const result = await this.adminServer.updateLicenseIssuanceByUser(
+                issuanceData
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    //reception ------------------
+    async createExamReception(receptionData) {
+        try {
+            const result = await this.adminServer.createExamReception(
+                receptionData
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async updateMyEmail(receptionData) {
+        try {
+            const result = await this.adminServer.updateMyEmail(receptionData);
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async cancelExamReception(receptionData) {
+        try {
+            const result = await this.adminServer.cancelExamReception(
+                receptionData
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getReceptionList(receptionData) {
+        try {
+            const result = await this.adminServer.getReceptionList(
+                receptionData
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getExamReception(receptionData) {
+        try {
+            const result = await this.adminServer.getExamReception(
+                receptionData
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
 };
