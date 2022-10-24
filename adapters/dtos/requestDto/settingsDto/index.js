@@ -1,3 +1,3 @@
 module.exports = {
-    GetTasksByCertificationsDto: require('./GetTasksByCertificationsDto'),
+    GetLinkedInfoDto: require('./GetLinkedInfoDto'),
 };

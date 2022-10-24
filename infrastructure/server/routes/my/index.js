@@ -4,12 +4,13 @@ const router = express.Router();
 
 const profileRouter = require('./profile');
 const { myAdapter } = require('../../../../adapters/inbound');
-const { extractToken, decryptIdToken } = require('../../middlewares');
 const {
     UpdateMyInfoRequestDto,
 } = require('../../../../adapters/dtos/requestDto/myInfoDto');
 const { logger } = require('../../../../adapters/module/logger');
 const { SuccessResponse } = require('../../../../adapters/response');
+
+const { extractToken, decryptIdToken } = require('../../middlewares');
 
 router.use(extractToken, decryptIdToken);
 

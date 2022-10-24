@@ -2488,7 +2488,6 @@ module.exports = class Mysql {
         const conn = await this.pool.getConnection();
         try {
             await conn.beginTransaction();
-            console.log('ㅏ이러니ㅏㅇ러', profileAbilityCertificationIds);
 
             // 사용자 정보 업데이트
             const { profileStatus, consultantUserId } = consultantUsersEntity;

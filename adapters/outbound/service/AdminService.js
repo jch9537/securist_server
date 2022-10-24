@@ -44,9 +44,9 @@ module.exports = class AdminService {
         }
     }
     // 선택 인증의 모든 연결 정보 가져오기
-    async getCertificationConnectedInfo(certificationData) {
+    async getLinkedAllInfoByCertification(certificationData) {
         try {
-            const result = await this.adminServer.getCertificationConnectedInfo(
+            const result = await this.adminServer.getLinkedAllInfoByCertification(
                 certificationData
             );
             return result;
@@ -56,9 +56,9 @@ module.exports = class AdminService {
     }
     // 과제 ---------------------------
     // 선택 인증들의 과제 리스트 가져오기
-    async getTasksByCertifications(certificationData) {
+    async getLinkedTasksInfo(certificationData) {
         try {
-            const result = await this.adminServer.getTasksByCertifications(
+            const result = await this.adminServer.getLinkedTasksInfo(
                 certificationData
             );
             return result;
