@@ -6,7 +6,7 @@
         //   "eslint:recommended",
         "plugin:prettier/recommended"
     ],
-
+    "parser": "babel-parser",
     // 코드를 해석하는 parser에 대한 설정
     "parserOptions": {
         // 자바스크립트 버전, 7은 ECMA2016
