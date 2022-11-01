@@ -7,14 +7,13 @@ const cors = require('cors');
 
 const app = express();
 const ip = process.env.SERVER_IP || 'localhost';
-const port = process.env.SERVER_PORT || 3000;
+const port = process.env.SERVER_PORT || 8000;
 
 const routes = require('./routes');
-const { Sentry, sentryInit } = require('../webService/monitorService/sentry');
+const { Sentry, sentryInit } = require('../webService/monitorService');
 const { logger } = require('../../adapters/module');
 const { sanitizer, swagger } = require('../server/middlewares');
 const { swaggerUi, specs } = swagger;
-const { projectService } = require('../services');
 const { ErrorResponse } = require('../../adapters/response');
 
 sentryInit(app);
@@ -55,7 +54,6 @@ app.get('/healthcheck', async (req, res, next) => {
 // };
 
 app.use(sanitizer); // 태그제거 : XSS 방어
-// projectService.getPublicKeys();
 app.use('/api/user', routes);
 // app.use('/api/user', swaggerUi.serve, swaggerUi.setup(specs));
 
@@ -85,11 +83,10 @@ app.use((err, req, res, next) => {
         err.location || 'server',
         err.message || 'Internal Server Error'
     );
-    let errResponse = new ErrorResponse(
-        err.statusCode,
-        err.errMessage,
-        err.data
-    );
+    let errResponse =
+        err.message === 'Not exist'
+            ? new ErrorResponse(err.code, err.message)
+            : new ErrorResponse(err.statusCode, err.errMessage, err.data);
     console.log('에러처리 ', errResponse);
     res.status(err.statusCode || 500).send(errResponse);
 });

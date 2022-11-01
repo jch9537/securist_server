@@ -1,6 +1,3 @@
 module.exports = {
-    GetClientCompanyInfoResponseDto: require('./GetClientCompanyInfoResponseDto'),
-    GetConsultingCompanyInfoResponseDto: require('./GetConsultingCompanyInfoResponseDto'),
-    // GetCompanyDto: require('./'),
-    // GetUserDto: require('./GetUserDto'),
+    IdTokenResponseDto: require('./tokenDto/IdTokenResponseDto'),
 };

@@ -3,21 +3,23 @@
 module.exports = class ProfileProjectHistoryEntity {
     constructor({
         projectHistoryId,
-        projectName,
-        assignedTask,
-        industryCategoryId,
-        industryCategoryName,
+        certificationId,
+        certificationName,
+        industryId,
+        industryName,
+        companyName,
         projectStartDate,
         projectEndDate,
-        consultantUserId,
-    }) {
+        profileId,
+    } = {}) {
         this.projectHistoryId = projectHistoryId;
-        this.projectName = projectName;
-        this.assignedTask = assignedTask;
-        this.industryCategoryId = industryCategoryId;
-        this.industryCategoryName = industryCategoryName;
+        this.certificationId = certificationId;
+        this.certificationName = certificationName;
+        this.industryId = industryId;
+        this.industryName = industryName;
+        this.companyName = companyName;
         this.projectStartDate = projectStartDate;
         this.projectEndDate = projectEndDate;
-        this.consultantUserId = consultantUserId;
+        this.profileId = profileId;
     }
 };

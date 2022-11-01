@@ -9,13 +9,15 @@
 const {
     AuthEntity,
     ClientUsersEntity,
+    // ClientGradeInfoEntity,
     ClientCompaniesEntity,
-    ClientUserAndCompanyEntity,
+    LinkedClientUsersCompaniesEntity,
     ConsultantUsersEntity,
+    ConsultantGradeInfoEntity,
+    // ConsultantPenaltyEntity,
+    // LinkedConsultantUsersCompaniesEntity,
     // ConsultingCompaniesEntity,
-    // ConsultantUserAndCompanyEntity,
 } = require('../../entities');
-const { CompanyEntity } = require('../../entities');
 module.exports = class SignUp {
     constructor(repository) {
         this.repository = repository;
@@ -24,7 +26,7 @@ module.exports = class SignUp {
         let {
             clientUsersRepository,
             clientCompaniesRepository,
-            clientUserAndCompanyRepository,
+            linkedClientUsersCompaniesRepository,
             consultantUsersRepository,
             // consultingCompaniesRepository,
             // consultantUserAndCompanyRepository,
@@ -56,15 +58,13 @@ module.exports = class SignUp {
                     clientUserId: email,
                     name: name,
                     userType: userType,
-                    profileStatus: userType === 2 ? 1 : 0,
+                    profileStatus: 0,
                     // 기본 프로필 인증 상태 0(인증불필요 : 클라이언트/컨설팅 기업), 개인 컨설턴트 - 미인증 처리
                 };
                 let clientUserEntity = new ClientUsersEntity(userData);
 
                 let clientCompanyData = {
                     businessLicenseNum: signUpData.businessLicenseNum,
-                    companyName: signUpData.companyName,
-                    presidentName: signUpData.presidentName,
                 };
                 let clientCompaniesEntity = new ClientCompaniesEntity(
                     clientCompanyData
@@ -87,24 +87,24 @@ module.exports = class SignUp {
                     clientCompayId: !clientCompanyInfo
                         ? undefined
                         : clientCompanyInfo.clientCompanyId, // 처음 등록된 기업 여부에 따라 처리 변경
-                    belongingStatus: 2,
-                    managerType: 1,
+                    belongingStatus: 1, // 소속 처리
+                    managerType: 1, // 관리자 처리
                 };
 
                 // 기업-사용자 연결 엔터티 생성
-                let clientUserAndCompanyEntity = new ClientUserAndCompanyEntity(
+                let linkedClientUsersCompaniesEntity = new LinkedClientUsersCompaniesEntity(
                     clientUserAndCompanyData
                 );
 
                 // 이미 등록된 기업인 경우 - 정책 확인 후 유지 또는 제거
                 if (clientCompanyInfo !== undefined) {
                     // 등록된 사업자 & 관리자인 사용자 유무 확인
-                    let isExistManager = await clientUserAndCompanyRepository.checkExistClientCompanyManager(
-                        clientUserAndCompanyEntity
+                    let isExistManager = await linkedClientUsersCompaniesRepository.checkExistClientCompanyManager(
+                        linkedClientUsersCompaniesEntity
                     );
                     if (!!isExistManager) {
-                        clientUserAndCompanyEntity.belongingStatus = 1; // 관리자가 있으므로 소속 요청 중으로 처리  : 정책 확인 !!!
-                        clientUserAndCompanyEntity.managerType = null; // 관리자가 있으므로 관리자 아님 : 정책 확인 !!!
+                        linkedClientUsersCompaniesEntity.belongingStatus = 0; // 관리자가 있으므로 소속 요청 중으로 처리  : 정책 확인 !!!
+                        linkedClientUsersCompaniesEntity.managerType = null; // 관리자가 있으므로 관리자 아님 : 정책 확인 !!!
                     }
                 }
 
@@ -113,7 +113,7 @@ module.exports = class SignUp {
                     authEntity,
                     clientUserEntity,
                     clientCompaniesEntity,
-                    clientUserAndCompanyEntity
+                    linkedClientUsersCompaniesEntity
                 );
             } else {
                 // 컨설턴트 =================================================================
@@ -127,7 +127,12 @@ module.exports = class SignUp {
                     profileStatus: userType === 2 ? 1 : 0,
                     // 기본 프로필 인증 상태 0(인증불필요 : 클라이언트/컨설팅 기업), 개인 컨설턴트 - 미인증 처리
                 };
-                let consultantUsersEntity = new ConsultantUsersEntity(userData);
+                const consultantUsersEntity = new ConsultantUsersEntity(
+                    userData
+                );
+                const consultantGradeInfoEntity = new ConsultantGradeInfoEntity(
+                    userData
+                );
 
                 // 컨설팅 업체 우선 배제
                 // if (userType === 3) {
@@ -161,7 +166,7 @@ module.exports = class SignUp {
                 //         consultingCompanyId: !consultantCompanyInfo // 처음 등록된 기업 여부에 따라 처리 변경
                 //             ? undefined
                 //             : consultantCompanyInfo.consultingCompanyId,
-                //         belongingStatus: 2,
+                //         belongingStatus: 1,
                 //         managerType: 1,
                 //     };
 
@@ -180,7 +185,7 @@ module.exports = class SignUp {
                 //             consultantUsersEntity.userType = 1; // 관리자가 있으므로 개인 컨설턴트로 변경
                 //             consultantUsersEntity.profileStatus = 1; // 컨설팅 업체 소속이므로 프로필 인증 불필요
                 //             // 사용자-기업 엔터티 변경
-                //             consultantUserAndCompanyEntity.belongingStatus = 1; // 관리자가 있으므로 소속 요청 중으로 처리  : 정책 확인 !!!
+                //             consultantUserAndCompanyEntity.belongingStatus = 0; // 관리자가 있으므로 소속 요청 중으로 처리  : 정책 확인 !!!
                 //             consultantUserAndCompanyEntity.managerType = null; // 관리자가 있으므로 관리자 아님 : 정책 확인 !!!
                 //         }
                 //     }
@@ -189,6 +194,7 @@ module.exports = class SignUp {
                 await consultantUsersRepository.createConsultantUser(
                     authEntity,
                     consultantUsersEntity,
+                    consultantGradeInfoEntity,
                     consultingCompaniesEntity, // 개인인 경우 undefined
                     consultantUserAndCompanyEntity
                 );

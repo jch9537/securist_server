@@ -9,7 +9,7 @@ module.exports = class CheckEmailRequestDto {
         return this._authData;
     }
     set authData(authData) {
-        let { error, value } = checkEmailSchema.validate(authData);
+        const { error, value } = checkEmailSchema.validate(authData);
         // console.log('필터 조건2 ', value);
         if (error) {
             let errorProperty = error.details[0].context.key;

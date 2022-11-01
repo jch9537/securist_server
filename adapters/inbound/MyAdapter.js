@@ -1,18 +1,12 @@
+const { GetClient, UpdateClient } = require('../../domain/usecase/clients');
 const {
-    GetClientUser,
-    UpdateClientUser,
-} = require('../../domain/usecase/client/clientUsers');
-const {
-    GetConsultantUser,
-    UpdateConsultantUser,
-} = require('../../domain/usecase/consultant/consultantUsers');
+    GetConsultant,
+    UpdateConsultant,
+} = require('../../domain/usecase/consultants');
 const { repository } = require('../outbound');
 
 module.exports = class MyAdapter {
-    constructor(projectService, adminService) {
-        this.projectService = projectService;
-        this.adminService = adminService;
-    }
+    constructor() {}
     // 내 정보 가져오기
     async getMyInfo(myData) {
         console.log(
@@ -23,12 +17,12 @@ module.exports = class MyAdapter {
         try {
             if (userType === 1) {
                 // 클라이언트 사용자
-                let getClientUser = new GetClientUser(repository);
-                result = await getClientUser.excute(myData);
+                let getClient = new GetClient(repository);
+                result = await getClient.excute(myData);
             } else {
                 // 개인 컨설턴트 사용자 : userType === 2
-                let getConsultantUser = new GetConsultantUser(repository);
-                result = await getConsultantUser.excute(myData);
+                let getConsultant = new GetConsultant(repository);
+                result = await getConsultant.excute(myData);
             }
             return result;
         } catch (error) {
@@ -40,7 +34,7 @@ module.exports = class MyAdapter {
         }
     }
 
-    // 클라이언트 정보 가져오기
+    // 내 정보 수정하기
     async updateMyInfo(userData, myData) {
         console.log(
             '요청 > adapters > inbound > userAdaptor.js > getUserInfo - userId : ',
@@ -51,13 +45,13 @@ module.exports = class MyAdapter {
             if (userData.userType === 1) {
                 myData.clientUserId = userData.clientUserId;
 
-                let updateClientUser = new UpdateClientUser(repository);
-                result = await updateClientUser.excute(myData);
+                let updateClient = new UpdateClient(repository);
+                result = await updateClient.excute(myData);
             } else {
-                myData.consultantUserId = userData.consultantUserId;
+                myData.consultantId = userData.consultantId;
 
-                let updateConsultantUser = new UpdateConsultantUser(repository);
-                result = await updateConsultantUser.excute(myData);
+                let updateConsultant = new UpdateConsultant(repository);
+                result = await updateConsultant.excute(myData);
             }
 
             return result;
