@@ -25,7 +25,7 @@ module.exports = class ProjectServer {
             console.log('응답 > ProjectServer > getRequest ', response.data);
             return response.data;
         } catch (error) {
-            console.error('서비스 에러 응답', error.response.data);
+            console.error('서비스 에러 응답', error);
             const err = error.response.data.error;
             if (err.message === 'Token expired' || err.message === 'No token') {
                 await this.requestIssueToken();
@@ -51,7 +51,7 @@ module.exports = class ProjectServer {
 
             return response.data;
         } catch (error) {
-            console.error('서비스 에러 응답', error.response.data);
+            console.error('서비스 에러 응답', error);
             const err = error.response.data.error;
             if (err.message === 'Token expired' || err.message === 'No token') {
                 await this.requestIssueToken();
@@ -78,7 +78,7 @@ module.exports = class ProjectServer {
             console.log('응답 > ProjectServer > putRequest ', response.data);
             return response.data;
         } catch (error) {
-            console.error('서비스 에러 응답', error.response.data);
+            console.error('서비스 에러 응답', error);
             const err = error.response.data.error;
             if (err.message === 'Token expired' || err.message === 'No token') {
                 await this.requestIssueToken();
@@ -131,52 +131,25 @@ module.exports = class ProjectServer {
             throw error;
         }
     }
-    // // 프로젝트 서비스에 프로젝트 정보 요청하기
-    // async getProjectInfo({ email, userType }) {
-    //     let response;
-    //     //수정;
-    //     try {
-    //         // let url = `/service/user/belonging/company/info?email=${email}&userType=${userType}`;
-    //         // response = await this.getRequest(url);
-    //         // // let companyInfo = new companyDTO(response);
-    //         // // return companyInfo;
-    //         // return response.data;
-    //     } catch (error) {
-    //         // console.error(error);
-    //         if (error.errMessage === 'jwt expired') {
-    //             await this.issueTokenRequest();
-    //             response = await this.getUserInfo({ email, userType });
-    //             return response;
-    //         } else {
-    //             throw error;
-    //         }
-    //     }
-    // }
-    // // 프로젝트 서비스에 사용자 소속 기업정보 요청하기
-    // async getCompanyInfo({ email, userType }) {
-    //     console.log('도착-------------------');
-    //     let response, companyInfo;
-    //     // 수정
-    //     try {
-    //         let url = `/service/user/belonging/company/info?email=${email}&userType=${userType}`;
-    //         response = await this.getRequest(url);
-    //         console.log('응답데이터 1?', response);
-    //         companyInfo = new GetCompanyDto(response.data);
-    //         console.log('응답데이터 2?', companyInfo);
+    // 프로젝트 견적 계산 요청
+    async estimateProject(projectData) {
+        try {
+            const url = `/projects/estimate`;
+            const response = await this.postRequest(url, projectData);
 
-    //         return companyInfo;
-    //     } catch (error) {
-    //         console.error(error);
-    //         if (error.errMessage === 'jwt expired') {
-    //             await this.issueTokenRequest();
-    //             response = await this.getCompanyInfo({ email, userType });
-    //             // companyInfo = new CompanyResponseDTO(response)
-    //             console.log('응답데이터 3?', response);
-    //             return response;
-    //         } else {
-    //             console.log(error);
-    //             throw error;
-    //         }
-    //     }
-    // }
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async createProject(projectData) {
+        try {
+            const url = `/projects`;
+            const response = await this.postRequest(url, projectData);
+
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
 };

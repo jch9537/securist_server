@@ -75,6 +75,9 @@ module.exports = class AuthServiceError extends Error {
             case 'Unexpected token':
                 statusCode = 401;
                 break;
+            case 'User is not confirmed.':
+                statusCode = 401;
+                break;
             default:
                 statusCode = 500;
         }
@@ -143,6 +146,9 @@ module.exports = class AuthServiceError extends Error {
                 break;
             case 'Unexpected token':
                 errMessage = 'Not authentication';
+                break;
+            case 'User is not confirmed.': // 이메일 확인없이 로그인 한 경우
+                errMessage = 'User is not confirmed.';
                 break;
             default:
                 errMessage = undefined;

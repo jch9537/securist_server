@@ -17,7 +17,6 @@ module.exports = class ProjectsAdapter {
             console.log('프로젝트 데이터 ', projectData);
 
             if (userData.userType !== 1) {
-                
             }
 
             const estimateProject = new EstimateProject(service);
@@ -29,10 +28,10 @@ module.exports = class ProjectsAdapter {
         }
     }
     // 프로젝트 생성
-    async createProject(projectData) {
+    async createProject(userData, projectData) {
         try {
             const createProject = new CreateProject(repository, service);
-            const result = await createProject.excute(projectData);
+            const result = await createProject.excute(userData, projectData);
             return result;
         } catch (error) {
             throw error;

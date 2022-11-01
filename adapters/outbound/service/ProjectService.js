@@ -6,7 +6,17 @@ module.exports = class ProjectService {
 
     async estimateProject(projectData) {
         try {
-            let result = await this.projectServer.estimateProject(projectData);
+            const result = await this.projectServer.estimateProject(
+                projectData
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async createProject(projectData) {
+        try {
+            const result = await this.projectServer.createProject(projectData);
             return result;
         } catch (error) {
             throw error;

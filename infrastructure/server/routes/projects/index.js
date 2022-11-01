@@ -6,6 +6,7 @@ const { projectsAdapter } = require('../../../../adapters/inbound');
 const { logger } = require('../../../../adapters/module/logger');
 const {
     EstimateProjectDto,
+    CreateProjectDto,
 } = require('../../../../adapters/dtos/requestDto/projectDto');
 const { SuccessResponse } = require('../../../../adapters/response');
 
@@ -17,9 +18,13 @@ router.use(extractToken, decryptIdToken);
 router.post('/', async (req, res, next) => {
     console.log('요청 > POST > /api/project/projects/ : ');
     try {
-        const reqBodyData = req.filteredBody;
+        const userData = req.userDataByIdToken;
+        const { projectData } = new CreateProjectDto(req.filteredBody);
 
-        const result = await projectsAdapter.createProject(reqBodyData);
+        const result = await projectsAdapter.createProject(
+            userData,
+            projectData
+        );
         console.log('응답 > POST > /api/project/projects/ : ', result);
 
         const response = new SuccessResponse(201, result);

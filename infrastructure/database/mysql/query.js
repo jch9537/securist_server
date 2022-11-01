@@ -531,6 +531,31 @@ module.exports = class Mysql {
             conn.release();
         }
     }
+    /**
+     * @description 클라이언트 사용자 id로 연결 클라이언트 기업정보 가져오기
+     * @param {string} clientUserId - 클라이언트 사용자 id
+     * @returns {Promise} 클라이언트 기업 정보 객체
+     */
+    async getClientCompanyInfoByUser({ clientUserId }) {
+        const conn = await this.pool.getConnection();
+        try {
+            const sql = `SELECT B.* 
+            FROM
+            linked_client_users_companies AS A
+            LEFT JOIN client_companies AS B 
+            ON A.clientCompanyId = B.clientCompanyId
+            WHERE A.clientUserId = ?`;
+            const arg = [clientUserId];
+            const clinetCompanyInfoResult = await conn.query(sql, arg);
+            return clinetCompanyInfoResult[0][0];
+        } catch (error) {
+            console.error('DB에러 : ', error);
+
+            throw new DatabaseError(error.message, error.errno);
+        } finally {
+            conn.release();
+        }
+    }
 
     // 컨설턴트 =============================================================================
     // 개인 ---------------------------------------
